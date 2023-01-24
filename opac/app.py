@@ -168,8 +168,9 @@ def test(pattern=None, failfast=False):
 
     Utilize -p para rodar testes específicos'
 
-    ex.: export OPAC_CONFIG="config/templates/testing.template" && python opac/manager.py test -p "test_main_views"
-         export OPAC_CONFIG="config/templates/testing.template" && python opac/manager.py test -f
+    ex.: export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app 
+         export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -p "test_main_views"
+         export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -f
     """
     failfast = True if failfast else False
 
