@@ -6,8 +6,8 @@ from webapp import controllers
 
 
 class LoginForm(form.Form):
-    email = fields.TextField(_('Email'), validators=[validators.required(), validators.email()])
-    password = fields.PasswordField(_('Senha'), validators=[validators.required()])
+    email = fields.StringField(_('Email'), validators=[validators.InputRequired(), validators.email()])
+    password = fields.PasswordField(_('Senha'), validators=[validators.InputRequired()])
 
     def validate_password(self, field):
         user = controllers.get_user_by_email(self.email.data)
@@ -18,8 +18,8 @@ class LoginForm(form.Form):
 
 
 class EmailForm(form.Form):
-    email = fields.TextField(_('Email'), validators=[validators.required(), validators.email()])
+    email = fields.StringField(_('Email'), validators=[validators.InputRequired(), validators.email()])
 
 
 class PasswordForm(form.Form):
-    password = fields.PasswordField(_('Senha'), validators=[validators.required()])
+    password = fields.PasswordField(_('Senha'), validators=[validators.InputRequired()])
