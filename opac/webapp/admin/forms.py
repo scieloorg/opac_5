@@ -18,7 +18,7 @@ class LoginForm(form.Form):
 
 
 class EmailForm(form.Form):
-    email = fields.StringField(_('Email'), validators=[validators.InputRequired(), validators.email()])
+    email = fields.StringField(_('Email'), validators=[validators.email()])
 
 
 class PasswordForm(form.Form):
