@@ -29,6 +29,7 @@ from opac_schema.v1.models import (Article, AuditLogEntry, Collection,  # noqa
                                    Issue, Journal, Sponsor)
 from webapp import controllers  # noqa
 from webapp import cache, create_app, dbmongo, dbsql, mail  # noqa
+from webapp.admin.forms import EmailForm
 from webapp.tasks import clear_scheduler, setup_scheduler  # noqa
 from webapp.utils import (create_db_tables, create_new_journal_page,  # noqa
                           create_user, reset_db, send_audit_log_daily_report)
@@ -104,7 +105,7 @@ def reset_dbsql(force_delete=False):
 
 
 @app.cli.command("create_tables_dbsql")
-@click.option("-f", "--force_delete", default=False)
+@click.option("-f", "--force", "--force_delete", default=False)
 def create_tables_dbsql(force_delete=False):
     """Cria as tabelas necessárias no banco de dados SQL.
     """
@@ -136,6 +137,14 @@ def create_superuser():
         if user_email == '':
             user_email = None
             print('Email não pode ser vazio')
+        else:
+            form = EmailForm(data={'email': user_email})
+            if not form.validate():
+                user_email = None
+                print('Deve inserir um email válido!')
+            elif controllers.get_user_by_email(user_email):
+                user_email = None
+                print('Já existe outro usuário com esse email!')
 
     os.system("stty -echo")
     while user_password is None:
