@@ -3,7 +3,7 @@ import json
 import logging
 import socket
 from uuid import uuid4
-from jinja2 import Markup
+from markupsafe import Markup
 from flask_babelex import gettext as _
 from flask_babelex import lazy_gettext as __
 import flask_admin as admin
