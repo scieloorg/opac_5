@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.11.0-alpine
 ENV PYTHONUNBUFFERED 1
 
 # Build-time metadata as defined at http://label-schema.org
@@ -21,10 +21,13 @@ LABEL org.label-schema.build-date=$OPAC_BUILD_DATE \
       org.label-schema.schema-version="1.0"
 
 RUN apk --update add --no-cache \
-    git gcc build-base zlib-dev jpeg-dev curl libxml2-dev libxslt-dev py3-lxml
+    git gcc build-base zlib-dev jpeg-dev \
+    curl libxml2-dev libxslt-dev py3-lxml libffi-dev
 
 COPY . /app
 WORKDIR /app
+
+RUN pip install --upgrade pip
 
 RUN pip --no-cache-dir install -U pip && \
     pip --no-cache-dir install -r /app/requirements.txt && \
@@ -46,4 +49,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl -f http://localhost:8000/ || exit 1
 
-CMD gunicorn --worker-class=gevent --worker-connections=1000 --workers 3 --bind 0.0.0.0:8000 manager:app --chdir=/app/opac --timeout 150 --log-level INFO
+CMD gunicorn --worker-class=gevent --worker-connections=1000 --workers 3 --bind 0.0.0.0:8000 app:app --chdir=/app/opac --timeout 150 --log-level INFO
