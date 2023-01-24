@@ -201,16 +201,16 @@ def create_app():
     app.register_blueprint(main_bp)
 
     # Setup RQ Dashboard e Scheduler: - mover para um modulo proprio
+    @app.before_request 
     def check_user_logged_in_or_redirect():
-        if not current_user.is_authenticated:
+        if not current_user.is_authenticated and request.path in ['/admin/scheduler', '/admin/workers']: 
             flash(u'Please log in to access this page.')
             return redirect(url_for('admin.login_view', next=request.path or '/'))
 
-    rq_scheduler_dashboard.blueprint.before_request(check_user_logged_in_or_redirect)
-    rq_dashboard.blueprint.before_request(check_user_logged_in_or_redirect)
-    app.register_blueprint(rq_scheduler_dashboard.blueprint, url_prefix='/admin/scheduler')
-    app.register_blueprint(rq_dashboard.blueprint, url_prefix='/admin/workers')
-
+    #Use `with app.app_context()` within the `create_app` definition.
+    with app.app_context():
+        app.register_blueprint(rq_scheduler_dashboard.blueprint, url_prefix='/admin/scheduler')
+        app.register_blueprint(rq_dashboard.blueprint, url_prefix='/admin/workers')
     # FIM do setup RQ Dashboard e Scheduler: - mover para um modulo proprio
 
     app.wsgi_app = ProxyFix(app.wsgi_app)
