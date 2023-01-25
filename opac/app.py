@@ -177,7 +177,7 @@ def test(pattern=None, failfast=False):
 
     Utilize -p para rodar testes específicos'
 
-    ex.: export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app 
+    ex.: export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test
          export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -p "test_main_views"
          export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -f
     """
