@@ -1533,7 +1533,7 @@ class ArticleControllerTestCase(BaseTestCase):
             self):
         article = self._make_one()
         with self.assertRaises(controllers.ArticleJournalNotFoundError) as exc:
-            controllers.get_article_by_aid(article.id, None)
+            controllers.get_article_by_aid(article.id, "any_segment_url")
         self.assertIn("journal_acron", str(exc.exception))
 
     def test_get_article_by_aid_raises_not_found_article_journal_error(

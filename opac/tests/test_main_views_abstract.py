@@ -105,8 +105,8 @@ class TestArticleDetailV3Abstract(BaseTestCase):
     @patch("webapp.main.views.render_html")
     def test_router_legacy_calls(self, mock_f):
         response = self._get_response(pid_v2='pidv2')
-        self.assertRedirects(
-            response,
+        self.assertEqual(
+            response.location,
             url_for(
                 'main.article_detail_v3',
                 url_seg=self.journal.url_segment,

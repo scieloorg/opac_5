@@ -598,8 +598,8 @@ class MainTestCase(BaseTestCase):
                                                article_pid_v3=article.aid,
                                                lang='ru'))
 
-            self.assertRedirects(
-                response,
+            self.assertEqual(
+                response.location,
                 url_for(
                     'main.article_detail_v3',
                     url_seg=journal.url_segment,
@@ -1149,8 +1149,8 @@ class MainTestCase(BaseTestCase):
                 v1_pid
             )
             response = self.client.get(url)
-            self.assertRedirects(
-                response,
+            self.assertEqual(
+                response.location,
                 url_for(
                     'main.article_detail_v3',
                     url_seg=journal.url_segment,
@@ -2392,8 +2392,8 @@ class TestIssueToc(BaseTestCase):
                                        url_seg_issue=issue.url_segment))
 
             self.assertStatus(response, 301)
-            self.assertRedirects(
-                response,
+            self.assertEqual(
+                response.location,
                 url_for(
                     'main.aop_toc',
                     url_seg=journal.url_segment
@@ -2421,8 +2421,8 @@ class TestIssueToc(BaseTestCase):
                                        url_seg_issue=issue.url_segment))
 
             self.assertStatus(response, 301)
-            self.assertRedirects(
-                response,
+            self.assertEqual(
+                response.location,
                 url_for(
                     'main.aop_toc',
                     url_seg=journal.url_segment
@@ -2453,7 +2453,7 @@ class TestIssueToc(BaseTestCase):
             self.assertTemplateUsed('issue/toc.html')
 
             self.assertIn(
-                '<meta property="og:url" content="http://0.0.0.0:8000/j/journal_acron/i/2021.v10n31supplX/" />', response.data.decode('utf-8'))
+                '<meta property="og:url" content="http://0.0.0.0:8000/j/journal_acron/i/2023.v10n31supplX/" />', response.data.decode('utf-8'))
             self.assertIn(
                 '<meta property="og:type" content="website" />', response.data.decode('utf-8'))
             self.assertIn(

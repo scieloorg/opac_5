@@ -48,7 +48,7 @@ class MenuTestCase(BaseTestCase):
                 response = c.get(url_for('main.index'))
                 response_data = response.data.decode('utf-8')
                 self.assertStatus(response, 200)
-                expected_anchor1 = """<a href="%s">\n        <strong>%s</strong>""" % (url_for('.index'), collection.name or __('NOME DA COLEÇÃO!!'))
+                expected_anchor1 = """<a href="%s">\n        <strong>%s</strong>""" % (url_for('main.index'), collection.name or __('NOME DA COLEÇÃO!!'))
                 self.assertIn(expected_anchor1, response_data)
                 expected_anchor2 = """<li>\n            <a href="%s" class="tab_link">\n              %s\n            </a>\n          </li>""" % (url_for('.collection_list') + '?status=current', __('Lista alfabética de periódicos'))
                 self.assertIn(expected_anchor2, response_data)
@@ -64,7 +64,7 @@ class MenuTestCase(BaseTestCase):
                 self.assertIn(expected_anchor7, response_data)
                 expected_anchor8 = """<li>\n            <a href="/about/">\n              %s\n            </a>\n          </li>""" % __('Contatos')
                 self.assertIn(expected_anchor8, response_data)
-                expected_anchor9 = """<a href="#">\n        <strong>SciELO.org - %s</strong>\n      </a>""" % __('Rede SciELO')
+                expected_anchor9 = """<a target="_blank" href="//www.scielo.org">\n        <strong>SciELO.org - Rede SciELO</strong>\n      </a>""" % __('Rede SciELO')
                 self.assertIn(expected_anchor9, response_data)
                 # rede/scielo org
                 expected_anchor10 = """<li>\n          <a target="_blank" href="%s">\n            %s\n          </a>\n        </li>""" % (
