@@ -1,14 +1,59 @@
-{% if session.lang == 'pt_BR' %}
-  <a href="{{ url_for('main.set_locale', lang_code='es') }}" class="lang-es" lang="es">Español</a>
-  <a href="{{ url_for('main.set_locale', lang_code='en') }}" class="lang-en" lang="en">English</a>
-{% endif %}
 
-{% if session.lang == 'en' %}
-  <a href="{{ url_for('main.set_locale', lang_code='pt_BR') }}" class="lang-pt" lang="pt-BR">Português</a>
-  <a href="{{ url_for('main.set_locale', lang_code='es') }}" class="lang-es" lang="es">Español</a>
-{% endif %}
+<div class="scielo__language">
+  <!--
+  {% if session.lang == 'pt_BR' %}
+    <a href="{{ url_for('.set_locale', lang_code='es') }}" lang="es">Español</a>
+    <a href="{{ url_for('.set_locale', lang_code='en') }}" lang="en">English</a>
+  {% endif %}
 
-{% if session.lang == 'es' %}
-  <a href="{{ url_for('main.set_locale', lang_code='pt_BR') }}" class="lang-pt" lang="pt-BR">Português</a>
-  <a href="{{ url_for('main.set_locale', lang_code='en') }}" class="lang-en" lang="en">English</a>
-{% endif %}
+  {% if session.lang == 'en' %}
+    <a href="{{ url_for('.set_locale', lang_code='pt_BR') }}" lang="pt-BR">Português</a>
+    <a href="{{ url_for('.set_locale', lang_code='es') }}" lang="es">Español</a>
+  {% endif %}
+
+  {% if session.lang == 'es' %}
+    <a href="{{ url_for('.set_locale', lang_code='pt_BR') }}" lang="pt-BR">Português</a>
+    <a href="{{ url_for('.set_locale', lang_code='en') }}" lang="en">English</a>
+  {% endif %}
+  -->
+
+  <div class="dropdown">
+    <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--left dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
+      <span class="material-icons-outlined">language</span>
+  
+      {% if session.lang == 'pt_BR' %}
+        <span class="d-sm-none">PT</span>
+        <span class="d-none d-sm-block">Português</span>
+      {% endif %}
+  
+      {% if session.lang == 'en' %}
+        <span class="d-sm-none">EN</span>
+        <span class="d-none d-sm-block">English</span>
+      {% endif %}
+  
+      {% if session.lang == 'es' %}
+        <span class="d-sm-none">ES</span>
+        <span class="d-none d-sm-block">Español</span>
+      {% endif %}
+  
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+      {% if session.lang == 'pt_BR' %}
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code='es') }}" lang="es">Español</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code='en') }}" lang="en">English</a></li>
+      {% endif %}
+  
+      {% if session.lang == 'en' %}
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code='pt_BR') }}" lang="pt-BR">Português</a>
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code='es') }}" lang="es">Español</a>
+      {% endif %}
+  
+      {% if session.lang == 'es' %}
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code='pt_BR') }}" lang="pt-BR">Português</a>
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code='en') }}" lang="en">English</a>
+      {% endif %}
+    
+    </ul>
+  </div>
+</div>
+

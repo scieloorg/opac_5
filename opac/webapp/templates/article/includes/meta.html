@@ -1,4 +1,3 @@
-{% import "macros/article.html" as article_macros %}
 
 <!-- social share tags -->
 <meta property="og:url" content="{{ request.url }}"/>
@@ -73,9 +72,12 @@
     {% endif -%}
 {% endif -%}
 
-<meta name="citation_doi" content="{{ article_macros.get_doi_by_lang(article=article, article_lang=article_lang) }}"></meta>
+{% if article.doi -%}
+    <meta name="citation_doi" content="{{ article.doi }}"></meta>
+{% endif -%}
 
 <meta name="citation_fulltext_world_readable" content=""></meta>
+
 
 {% if journal.print_issn -%}
     <meta name="citation_issn" content="{{ journal.print_issn }}"></meta>
@@ -85,8 +87,19 @@
     <meta name="citation_issn" content="{{ journal.eletronic_issn }}"></meta>
 {% endif -%}
 
-
-<meta name="citation_title" content="{{ article_macros.get_translate_title_by_lang(article=article, article_lang=article_lang) }}"></meta>
+{% if article.original_language == article_lang %}
+    {% if article.title -%}
+        <meta name="citation_title" content="{{ article.title|escape }}"></meta>
+    {% endif -%}
+{%else -%}
+    {%- if article.translated_titles -%}
+        {%- for title in article.translated_titles -%}
+            {%- if article_lang == title.language -%}
+                <meta name="citation_title" content="{{ title.name|escape }}"></meta>
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+{% endif -%}
 
 <meta name="citation_language" content="{{ article_lang }}"></meta>
 

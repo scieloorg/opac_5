@@ -3,10 +3,18 @@
 {% block title %}{{ issue_bibliographic_strip|default('--', True) }}{% endblock %}
 
 {% block main_content %}
-  <!-- issue id: {{ issue._id }} -->
+
+<style>
+  .journalContent .row div{
+    outline: 0px solid orange;
+  }
+</style>
+
   <section class="journalContent">
       <div class="container">
-          <div class="col-md-4 col-md-offset-8 share">
+        <div class="row">
+          <div class="col-md-4 col-md-offset-8 --share">
+              <!--
               <a href="javascript:window.print();" class="sharePrint showTooltip" data-placement="top" title="{% trans %}Imprimir{% endtrans %}"><span class="glyphBtn print"></span></a>
               <a href="{{ url_for('main.issue_feed', url_seg=journal.url_segment, url_seg_issue=issue.url_segment)}}" class="showTooltip" data-placement="top" title="Atom" target="_blank"><span class="glyphBtn rssMini"></span></a>
               <span class="divisor"></span>
@@ -24,6 +32,7 @@
                   <li><a href="" class="shareCiteULike"><span class="glyphBtn citeULike"></span> CiteULike</a></li>
                   <li><a href="" class="shareMendeley"><span class="glyphBtn mendeley"></span> Mendeley</a></li>
               </ul>
+              -->
           </div>
 
           {# Por hora iremos garantir que a interface não fique com conteúdo fixo #}
@@ -69,7 +78,7 @@
                     <div class="row row-filtro-ordena">
                       <div class="col-md-6 col-sm-6">
                         <a href="javascript:;" class="collapse-title">
-                          <h1>{% trans %}Sumário{% endtrans %}</h1>
+                          <h2 class="h5">{% trans %}Sumário{% endtrans %}</h2>
                         </a>
                       </div>
 
@@ -101,7 +110,7 @@
 
                         {% if sections %}
                           <li>
-                            <a href="{{this_page_url}}" rel="nofollow">
+                            <a href="{{this_page_url}}">
                               {% if section_filter|length == 0 %}
                                 {% trans %}Todas as seções{% endtrans %} <span style="color: #6789d3;">&laquo;</span>
                               {% else %}
@@ -114,7 +123,7 @@
                         {% for section in sections %}
                           {% if section %}
                             <li>
-                              <a href="{{this_page_url}}?section={{ section|upper }}" rel="nofollow">
+                              <a href="{{this_page_url}}?section={{ section|upper }}">
                                 {% if section_filter|upper == section|upper %}
                                   {{ section }} <span style="color: #6789d3;">&laquo;</span>
                                 {% else %}
@@ -141,18 +150,18 @@
                       <li data-date="{% if article.publication_date %}{{ article.publication_date.replace('-', "") }}{% endif %}">
 
                         {% if session.lang %}
-                          <h2>{{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|safe }} <span class="badge">{{ article.get_section_by_lang(session.lang[:2])|default("", true)|title }}</span></h2>
+                          <strong style="display:block;">{{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true) | safe }} <span class="badge badge-info">{{ article.section|default("", true) }}</span></strong>
                           <!-- publication_date: {{article.publication_date}} -->
                           <!-- PID: {{article.pid}} -->
                         {% endif %}
 
                         {%- for author in article.authors %}
                           {% if session.lang %}
-                            <a href='{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:"{{ author }}"'>
+                            <a href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:{{ author }}">
                               {{- author|striptags -}}
                             </a>{% if not loop.last %};{% endif %}
                           {% else %}
-                            <a href='{{config['URL_SEARCH']}}?q=au:"{{ author }}"'>
+                            <a href="{{config['URL_SEARCH']}}?q=au:{{ author }}">
                               {{- author|striptags -}}
                             </a>{% if not loop.last %};{% endif %}
                           {% endif %}
@@ -163,7 +172,7 @@
                             <li>
                               {% trans %}Resumo{% endtrans %}:
                               {% for lang in article.abstract_languages|sort %}
-                                <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid,
+                                <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, 
                                 part='abstract',
                                 lang=lang) }}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
                                   {{ lang }}
@@ -226,7 +235,7 @@
               </div>
 
           </div>
-          <div class="clearfix"></div>
+        </div>
       </div>
   </section>
 

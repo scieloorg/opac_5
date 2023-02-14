@@ -43,8 +43,6 @@
   <body class="{% block body_class %}{% endblock %}">
     <a name="top"></a>
 
-    <a class="btn floatingBtnError" href="#" id="#floatingBtnError">{% trans %}Acessibilidade / Reportar erro{% endtrans %}</a>
-
     {% block content %}{% endblock %}
 
     <!-- share modal -->
@@ -86,7 +84,91 @@
       </div>
     </div>
 
+    <!--
+    <a class="floatingBtnError" href="#" id="#floatingBtnError"></a>
+    -->
+    
+    <a class="floatingBtnError btn btn-danger" href="#" id="#floatingBtnError">Reportar erro</a>
+
+    <!-- error modal -->
+   
+    <!--
+    Forma antiga de chamar os js.
     <script src="{{ url_for('static', filename='js/scielo-bundle-min.js') }}"></script>
+    -->
+
+    <!--
+    Forma atualizada com bootstrap5 e design system
+    -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scielo-bundle-min.js') }}"></script>
+
+    <!-- 
+    Carregando o slick 
+    -->
+    <script src="{{ url_for('static', filename='js/slick.min.js') }}"></script>
+    <script>
+
+      $(document).ready(function() {
+
+        
+
+          $('.scielo-slider').slick({
+            /*
+              lazyLoad: 'ondemand',
+              slidesToShow: 1,
+              slidesToScroll: 1,
+              dots: true,
+              mobileFirst: true,
+
+              responsive: [{
+                      breakpoint: 768,
+                      settings: {
+                          slidesToShow: 2,
+                          slidesToScroll: 2,
+                          infinite: true,
+                          dots: true
+                      }
+                  },
+                  {
+                      breakpoint: 1024,
+                      settings: {
+                          slidesToShow: 4,
+                          slidesToScroll: 4,
+                          infinite: true,
+                          dots: true
+                      }
+                  },
+
+
+                  // You can unslick at a given breakpoint now by adding:
+                  // settings: "unslick"
+                  // instead of a settings object
+              ]
+            */
+            'slidesToShow': 4.5,
+                'infinite': false,
+                'centerPadding': '0',
+                'arrows': true,
+                'dots': true,
+                'responsive': [{
+                    'breakpoint': 767,
+                    'settings': {
+                    'dots': true,
+                    'slidesToShow': 1.3,
+                    'slidesToScroll': 1,
+                    'centerMode': false,
+                    'arrows': false,
+                    }
+                }]
+
+          });
+
+          
+      });
+    </script>
+
 
     {% if config.COOKIE_POLICY_ENABLED %}
       <script src="{{ config.COOKIE_POLICY_URL }}"></script>
@@ -143,10 +225,10 @@
 
       </style>
 
-      <div class="bugherd">
+      <div class="bugherd" style="display:none;">
         <div class="bugherd=container">
           <div class="btn-group" role="group" aria-label="...">
-            <a href="//github.com/scieloorg/opac/issues/new" target="_blank" class="btn bugherd-btn-danger">Reportar erro</a>
+            <a href="//github.com/scieloorg/opac/issues/new" target="_blank" class="btn btn-danger">Reportar erro</a>
           </div>
         </div>
       </div>

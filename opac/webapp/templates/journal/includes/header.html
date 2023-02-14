@@ -1,45 +1,480 @@
 {% import 'macros/images.html' as cimages %}
 {% import 'macros/collection.html' as coll_macro %}
 
-<header>
+<style>
+  header *{
+    outline: 0px solid blue;
+    
+  }
+  header div {
+    outline: 0px solid blue;
+  }
+  header .row{
+    outline: 0px solid red;
+  }
+  header{
+    padding-top: 1rem;
+  }
+
+  header img{
+   /* width: 100%;*/
+  }
+  header img.logo-open-access{
+    margin-top: -5px;
+  }
+
+  /*
+  Ajustes para serem feitos no Design System:
+  */
+
+  .scielo__menu{
+    position: static;
+  }
+  .scielo__list-links{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+  }
+
+</style>
+
+<header class="d-none d-sm-block pt-2">
+  <nav style="border-bottom: 1px solid #ccc">
+    <div class="container">
+      <div class="row">
+        <div class="col-1 pt-3">
+  
+          <a href="javascript:;" class="scielo__menu" data-rel="#mainMenu" title="Abrir menu">
+            <span class="material-icons-outlined scielo-ico-menu">menu</span>
+            <span class="material-icons-outlined scielo-ico-menu-opened">menu_open</span>
+          </a>
+          
+          <h2 class="logo-svg">
+              <a href="/" title="Ir para a homepage da coleção: {{ coll_macro.get_collection_name() }}"></a>
+          </h2>
+          
+          <div class="scielo__mainMenu" id="mainMenu">
+              <div class="row">
+                  <div class="col text-center">
+                    <div class="scielo__logo-scielo--small"></div>
+                  </div>
+              </div>
+              
+              <nav>
+                  <ul>
+                    <li>
+                      <a href="{{ url_for('.index') }}">
+  
+                        <!--<strong>{{ coll_macro.get_collection_name() }}</strong>-->
+                        <strong>{{ coll_macro.get_collection_name() }}</strong>
+                      </a>
+                      <ul>
+                          <li>
+                            <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
+                              Lista alfabética de periódicos
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
+                              Lista temática de periódicos
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
+                              Busca
+                            </a>
+                          </li>
+                          <li>
+                            <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}">
+                              Métricas
+                            </a>
+                          </li>
+                          <!--
+                          <li>
+                            <a href="{{ url_for('.about_collection') }}">
+                              Sobre: {{ coll_macro.get_collection_name() }}
+                            </a>
+                          </li>
+                          -->
+                          <li>
+                            <a href="{{ url_for('.about_collection') }}">
+                              Sobre: Coleção
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ url_for('.about_collection') }}">
+                              Contatos
+                            </a>
+                          </li>
+                      </ul>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <strong>SciELO.org - Rede SciELO</strong>
+                      </a>
+                      <ul>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
+                            Coleções nacionais e temáticas
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_title }}">
+                              Lista alfabética de periódicos
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_subject }}">
+                              Lista de periódicos por assunto
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SEARCH }}">
+                            Busca
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.METRICS_URL }}">
+                            Métricas
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.oai_and_rss }}">
+                              Acesso OAI e RSS
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
+                              Sobre a Rede SciELO
+                          </a>
+                        </li>
+                        <li>
+                          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.contact }}">
+                            Contatos
+                          </a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                        <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
+                          <strong>Blog SciELO em Perspectiva</strong>
+                        </a>
+                    </li>
+                  </ul>
+                </nav>
+  
+          </div>
+  
+        </div>
+        <div class="col-8 ps-0">
+          <div class="scielo__logo-scielo-collection">
+            <small>Brasil</small>
+          </div>
+        </div>
+        <div class="col-3 pe-0 pt-3">
+          <div class="language">
+            {% include "includes/language.html" %}
+          </div>
+         
+        </div>
+      </div> 
+    </div>
+  </nav>
   <div class="container">
-    <div class="topFunction">
-      <div class="col-md-2 col-sm-3 mainNav">
-        <a href="" class="menu" data-rel="#mainMenu" title="Abrir menu">{% trans %}Abrir menu{% endtrans %}</a>
-          {% if coll_macro.get_image() != "None" %}
-            <h2 class="logo-svg">
-              <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}"
-              style="background:url({{ coll_macro.get_image() }}); background-position: 0px; background-repeat: no-repeat;">
-              </a>
-            </h2>
-          {% else %}
-            <h2 class="logo-svg">
-              <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
-              </a>
-            </h2>
+    <div class="row">
+      
+      <div class="col-9 pt-4 pb-4">
+        <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">
+          <!--
+          <img src="{{ cimages.proxy_ssm_resource_url(journal.logo_url) }}"
+               class="image" alt="Logomarca do periódico: {{ journal.title }}" />
+          -->
+          <img src="../../static/img/abcd_glogo.gif"
+               class="image" alt="Logomarca do periódico: {{ journal.title }}" />
+        </a>
+        <h1 class="h4" style="margin: 1rem auto">
+          <img src="https://scielo.parati.design/aberto-ds-scielo/examples/bootstrap/img/logo-open-access.svg" alt="Open-access" class="logo-open-access" data-bs-toggle="tooltip" data-bs-original-title="by 4.0 "> {{ journal.title }}
+        </h1>
+        <span class="publisher">
+          {% trans %}Publicação de:{% endtrans %} <strong class="namePlublisher">{{ journal.publisher_name}}</strong>
+        </span>
+        </br>
+        <span class="theme">
+          <span class="area">
+            {% trans %}Área:{% endtrans %}
+          </span>
+          {% if journal_study_areas %}
+            {% if journal_study_areas|length > 3 %}
+              {% trans %}Multidisciplinar{% endtrans %}
+            {% else %}
+              {{ journal_study_areas|join(', ')|title|truncate(60) }}
+            {% endif %}
           {% endif %}
+        </span>
+        <span class="issn">
+          {% if journal.print_issn %}
+            <span class="issnLabel">
+              {% trans %}Versão impressa ISSN:{% endtrans %}
+            </span>
+            {{ journal.print_issn }}
+            {% if journal.eletronic_issn %}<br/>{% endif %}
+          {% endif %}
+          {% if journal.eletronic_issn %}
+            <span class="issnLabel">
+              {% trans %}Versão on-line ISSN:{% endtrans %}
+            </span>
+            {{ journal.eletronic_issn }}
+          {% endif %}
+        </span>
+
+        <!-- Ini - Se houver um outro título-->
+        {% if journal.next_title %}
+          <span class="otherTitle">
+            <span>{% trans %}Novo título:{% endtrans %}</span>
+              {% if journal.url_next_journal %}
+                <a href="{{ url_for('.journal_detail', url_seg=journal.url_next_journal) }}" class="NewCollectionLink">
+                    {{ journal.next_title }}
+                </a>
+              {% else %}
+                <span class="NewCollectionLink">
+                  {{ journal.next_title }}
+                </span>
+              {% endif %}
+          </span>
+        {% endif %}
+        <!-- Fim - Se houver um outro título-->
+
+        <!-- Ini - Se houver um outro título antigo -->
+        {% if journal.previous_journal_ref %}
+          <span class="otherTitle">
+            <span>{% trans %}Título anterior:{% endtrans %}</span>
+              {% if journal.url_previous_journal %}
+                <a href="{{ url_for('.journal_detail', url_seg=journal.url_previous_journal) }}" class="NewCollectionLink">
+                    {{ journal.previous_journal_ref }}
+                </a>
+              {% else %}
+                <span class="NewCollectionLink">
+                  {{ journal.previous_journal_ref }}
+                </span>
+              {% endif %}
+          </span>
+        {% endif %}
+         <!-- Fim - Se houver um outro título antigo-->
+      </div>
+      <div class="col-3 pt-5">
+        <ul class="scielo__list-links">
+          {% if journal.online_submission_url and journal.current_status == 'current' %}
+            <li>
+              <a href="{{ journal.online_submission_url|default('', true) }}" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
+            </li>
+          {% endif %}
+          <li>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#about" class="scroll"><span class="material-icons-outlined">info</span> {% trans %}Sobre o periódico{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="scroll"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#instructions" class="scroll"><span class="material-icons-outlined">help_outline</span> {% trans %}Instruções aos autores{% endtrans %}</a>
+          </li>
+          {% if journal.enable_contact %}
+            <li>
+              <a href="javascript:;" class="contact_modal_id" data-url="{{ url_for('main.form_contact', url_seg=journal.url_segment) }}">
+                <span class="glyphBtn contact"></span> {% trans %}Contato{% endtrans %}
+              </a>
+            </li>
+          {% endif %}
+          {% if journal.social_networks %}
+            <li>
+              <a href="#followus">
+                <span class="glyphBtn otherNetworks"></span>
+                {% trans %}Siga-nos{% endtrans %}
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<header class="d-none ---d-sm-block">
+  <div class="container">
+    <div class="row">
+      <div class="col-1 mainNav">
+        
+        <a href="javascript:;" class="menu" data-rel="#mainMenu" title="Abrir menu">{% trans %}Abrir menu{% endtrans %}</a>
         <div class="mainMenu" id="mainMenu">
           <div class="row">
-            {% if coll_macro.get_image() != "None" %}
-            <div class="col-md-7 col-md-offset-2 col-sm-7 col-sm-offset-2 logo logo-svg" style="background:url({{ coll_macro.get_image() }}); background-position: 0px; background-repeat: no-repeat;"></div>       
-            {% else %}
-            <div class="col-md-7 col-md-offset-2 col-sm-7 col-sm-offset-2 logo logo-svg"></div>       
+            <div class="col-md-7 col-md-offset-2 col-sm-7 col-sm-offset-2 logo logo-svg"></div>
+          </div>
+          {% include "collection/includes/nav.html" %}
+        </div>
+
+        <a class="scielo__logo-scielo" href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}"></a>
+        
+      </div>
+      <div class="col-9">
+
+        <div class="row">
+          {% if journal.logo_url %}
+            <div class="col">
+              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">
+                  <!--
+                  <img src="{{ cimages.proxy_ssm_resource_url(journal.logo_url) }}"
+                       class="image" alt="Logomarca do periódico: {{ journal.title }}" />
+                  -->
+                  <img src="../../static/img/abcd_glogo.gif"
+                       class="image" alt="Logomarca do periódico: {{ journal.title }}" />
+              </a>
+            </div>
+          {% else %}
+            <div class="col">
+            </div>
+          {% endif %}
+          <div class="col-8">
+            <h1 class="h4">
+              <img src="https://scielo.parati.design/aberto-ds-scielo/examples/bootstrap/img/logo-open-access.svg" alt="Open-access" class="logo-open-access" data-bs-toggle="tooltip" data-bs-original-title="by 4.0 "> {{ journal.title }}
+            </h1>
+            <span class="publisher">
+              {% trans %}Publicação de:{% endtrans %} <strong class="namePlublisher">{{ journal.publisher_name}}</strong>
+            </span>
+            </br>
+            <span class="theme">
+              <span class="area">
+                {% trans %}Área:{% endtrans %}
+              </span>
+              {% if journal_study_areas %}
+                {% if journal_study_areas|length > 3 %}
+                  {% trans %}Multidisciplinar{% endtrans %}
+                {% else %}
+                  {{ journal_study_areas|join(', ')|title|truncate(60) }}
+                {% endif %}
+              {% endif %}
+            </span>
+            <span class="issn">
+              {% if journal.print_issn %}
+                <span class="issnLabel">
+                  {% trans %}Versão impressa ISSN:{% endtrans %}
+                </span>
+                {{ journal.print_issn }}
+                {% if journal.eletronic_issn %}<br/>{% endif %}
+              {% endif %}
+              {% if journal.eletronic_issn %}
+                <span class="issnLabel">
+                  {% trans %}Versão on-line ISSN:{% endtrans %}
+                </span>
+                {{ journal.eletronic_issn }}
+              {% endif %}
+            </span>
+
+            <!-- Ini - Se houver um outro título-->
+            {% if journal.next_title %}
+              <span class="otherTitle">
+                <span>{% trans %}Novo título:{% endtrans %}</span>
+                  {% if journal.url_next_journal %}
+                    <a href="{{ url_for('.journal_detail', url_seg=journal.url_next_journal) }}" class="NewCollectionLink">
+                        {{ journal.next_title }}
+                    </a>
+                  {% else %}
+                    <span class="NewCollectionLink">
+                      {{ journal.next_title }}
+                    </span>
+                  {% endif %}
+              </span>
             {% endif %}
+            <!-- Fim - Se houver um outro título-->
+
+            <!-- Ini - Se houver um outro título antigo -->
+            {% if journal.previous_journal_ref %}
+              <span class="otherTitle">
+                <span>{% trans %}Título anterior:{% endtrans %}</span>
+                  {% if journal.url_previous_journal %}
+                    <a href="{{ url_for('.journal_detail', url_seg=journal.url_previous_journal) }}" class="NewCollectionLink">
+                        {{ journal.previous_journal_ref }}
+                    </a>
+                  {% else %}
+                    <span class="NewCollectionLink">
+                      {{ journal.previous_journal_ref }}
+                    </span>
+                  {% endif %}
+              </span>
+            {% endif %}
+             <!-- Fim - Se houver um outro título antigo-->
+
+          </div>
+        </div>
+
+      </div>
+      <div class="col-2">
+        <div class="language">
+          {% include "includes/language.html" %}
+        </div>
+        <ul>
+          {% if journal.online_submission_url and journal.current_status == 'current' %}
+            <li>
+              <a href="{{ journal.online_submission_url|default('', true) }}" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
+            </li>
+          {% endif %}
+          <li>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#about" class="scroll"><span class="material-icons-outlined">info</span> {% trans %}Sobre o periódico{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="scroll"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
+          </li>
+          <li>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#instructions" class="scroll"><span class="material-icons-outlined">help_outline</span> {% trans %}Instruções aos autores{% endtrans %}</a>
+          </li>
+          {% if journal.enable_contact %}
+            <li>
+              <a href="javascript:;" class="contact_modal_id" data-url="{{ url_for('main.form_contact', url_seg=journal.url_segment) }}">
+                <span class="glyphBtn contact"></span> {% trans %}Contato{% endtrans %}
+              </a>
+            </li>
+          {% endif %}
+          {% if journal.social_networks %}
+            <li>
+              <a href="#followus">
+                <span class="glyphBtn otherNetworks"></span>
+                {% trans %}Siga-nos{% endtrans %}
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div> 
+    </div>
+  </div>
+</header>
+
+
+<header style="outline: 4px solid purple; display:none;">
+  <div class="container">
+    <div class="topFunction row">
+      <div class="col-md-2 col-sm-3 mainNav   d-none d-sm-block" style="outline: 2px solid red;">
+        <a href="" class="menu" data-rel="#mainMenu" title="Abrir menu">{% trans %}Abrir menu{% endtrans %}</a>
+          <h2 class="--logo-svg scielo__logo-scielo">
+            <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
+            </a>
+          </h2>
+        <div class="mainMenu" id="mainMenu">
+          <div class="row">
+            <div class="col-md-7 col-md-offset-2 col-sm-7 col-sm-offset-2 logo logo-svg"></div>
           </div>
           {% include "collection/includes/nav.html" %}
         </div>
       </div>
-      <div class="col-md-8 col-sm-6 brandLogo">
+      <div class="col-md-8 col-sm-6 brandLogo   d-none d-sm-block" style="outline: 2px solid blue;">
         <div class="row">
           {% if journal.logo_url %}
-            <div class="col-md-3 hidden-sm">
-              <a href="{{ url_for('main.journal_detail', url_seg=journal.url_segment) }}">
+            <div class="col-md-3 d-sm-none d-md-block">
+              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">
                   <img src="{{ cimages.proxy_ssm_resource_url(journal.logo_url) }}"
                        class="image" alt="Logomarca do periódico: {{ journal.title }}" />
               </a>
             </div>
           {% else %}
-            <div class="col-md-1 hidden-sm">
+            <div class="col-md-1 d-sm-none d-md-block">
             </div>
           {% endif %}
           <div class="col-md-9 col-md-offset-0 col-sm-11 col-sm-offset-1">
@@ -119,32 +554,24 @@
           </div>
         </div>
       </div>
-      <div class="col-md-2 col-sm-3 journalMenu">
+      <div class="col-md-2 col-sm-3 journalMenu   d-none d-sm-block" style="outline: 2px solid green">
         <div class="language">
           {% include "includes/language.html" %}
         </div>
         <ul>
           {% if journal.online_submission_url and journal.current_status == 'current' %}
             <li>
-              <a href="{{ journal.online_submission_url|default('', true) }}" target="_blank">
-                <span class="glyphBtn submission"></span> {% trans %}Submissão de manuscritos{% endtrans %}
-              </a>
+              <a href="{{ journal.online_submission_url|default('', true) }}" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
             </li>
           {% endif %}
           <li>
-            <a href="{{ url_for('main.about_journal', url_seg=journal.url_segment) }}#about" class="scroll">
-              <span class="glyphBtn about"></span> {% trans %}Sobre o periódico{% endtrans %}
-            </a>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#about" class="scroll"><span class="material-icons-outlined">info</span> {% trans %}Sobre o periódico{% endtrans %}</a>
           </li>
           <li>
-            <a href="{{ url_for('main.about_journal', url_seg=journal.url_segment) }}#editors" class="scroll">
-              <span class="glyphBtn editorial"></span> {% trans %}Corpo Editorial{% endtrans %}
-            </a>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="scroll"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
           </li>
           <li>
-            <a href="{{ url_for('main.about_journal', url_seg=journal.url_segment) }}#instructions" class="scroll">
-              <span class="glyphBtn authorInstructions"></span> {% trans %}Instruções aos autores{% endtrans %}
-            </a>
+            <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#instructions" class="scroll"><span class="material-icons-outlined">help_outline</span> {% trans %}Instruções aos autores{% endtrans %}</a>
           </li>
           {% if journal.enable_contact %}
             <li>
@@ -163,7 +590,6 @@
           {% endif %}
         </ul>
       </div>
-      <div class="clearfix"></div>
     </div>
   </div>
 

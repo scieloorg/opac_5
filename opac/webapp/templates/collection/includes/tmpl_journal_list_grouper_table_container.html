@@ -3,14 +3,14 @@
     <thead>
       <tr>
         <th>
-          <div class="col-xs-6">
+          <div class="col">
             <%- main_label %>
             <small class="collectionListTotalInfo">
               (total <%= data.meta.themes_count %> <%- grouper_name_plural %>
               <%= data.meta.total %> {% trans %}periódicos{% endtrans %})
             </small>
           </div>
-          <div class="col-xs-6 right download">
+          <div class="col right download">
             {% trans %}download da lista{% endtrans %}
             <a data-toggle="tooltip" class="collectionListDownloadXLS" href="#" title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
               <span class="glyphBtn downloadXLS"></span>
