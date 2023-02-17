@@ -4,15 +4,13 @@ import unittest
 from flask import render_template, url_for
 from itsdangerous import URLSafeTimedSerializer
 from mock import patch
-from webapp.notifications import (send_confirmation_email,
-                                  send_reset_password_email)
+from webapp.notifications import send_confirmation_email, send_reset_password_email
 from webapp.utils import get_timed_serializer
 
 from .base import BaseTestCase
 
 
 class NotificationsTestCase(BaseTestCase):
-
     def test_send_confirmation_email_with_empty_recipient_email(self):
         """
         Com:
@@ -53,7 +51,7 @@ class NotificationsTestCase(BaseTestCase):
             - Que ocorra uma exeção por causa do email inválido para recipient_email
         """
 
-        recipient_email = 'foo@bar'
+        recipient_email = "foo@bar"
 
         with self.assertRaises(ValueError):
             send_confirmation_email(recipient_email)
@@ -68,7 +66,7 @@ class NotificationsTestCase(BaseTestCase):
             - Que ocorra uma exeção por causa do email inválido para recipient_email
         """
 
-        recipient_email = 'foo@bar'
+        recipient_email = "foo@bar"
 
         with self.assertRaises(ValueError):
             send_reset_password_email(recipient_email)
@@ -83,9 +81,9 @@ class NotificationsTestCase(BaseTestCase):
               get_timed_serializer ao enviar a notificação de confirmação de email.
         """
 
-        recipient_email = 'foo@bar.baz'
+        recipient_email = "foo@bar.baz"
 
-        with patch('webapp.notifications.utils') as mock:
+        with patch("webapp.notifications.utils") as mock:
             mock.get_timed_serializer.return_value = URLSafeTimedSerializer(None)
 
             expected = "Token inválido"
@@ -104,9 +102,9 @@ class NotificationsTestCase(BaseTestCase):
               get_timed_serializer ao enviar a notificação de resetar a senha.
         """
 
-        recipient_email = 'foo@bar.baz'
+        recipient_email = "foo@bar.baz"
 
-        with patch('webapp.notifications.utils') as mock:
+        with patch("webapp.notifications.utils") as mock:
             mock.get_timed_serializer.return_value = URLSafeTimedSerializer(None)
 
             expected = "Token inválido"
@@ -128,19 +126,20 @@ class NotificationsTestCase(BaseTestCase):
             - Que o valor de retorno da função: send_confirmation_email seja: (True, '')
         """
 
-        recipient_email = 'foo@bar.baz'
+        recipient_email = "foo@bar.baz"
         ts = get_timed_serializer()
-        token = ts.dumps(recipient_email, salt='email-confirm-key')
-        confirm_url = url_for('admin.confirm_email', token=token, _external=True)
-        result_expected = (True, '')
+        token = ts.dumps(recipient_email, salt="email-confirm-key")
+        confirm_url = url_for("admin.confirm_email", token=token, _external=True)
+        result_expected = (True, "")
 
-        with patch('webapp.utils.utils.send_email', return_value=result_expected) as mock:
-
+        with patch(
+            "webapp.utils.utils.send_email", return_value=result_expected
+        ) as mock:
             result = send_confirmation_email(recipient_email)
             mock.assert_called_with(
                 recipient_email,
                 "Confirmação de email",
-                render_template('email/activate.html', confirm_url=confirm_url)
+                render_template("email/activate.html", confirm_url=confirm_url),
             )
 
             self.assertEqual(result_expected, result)
@@ -159,20 +158,21 @@ class NotificationsTestCase(BaseTestCase):
             - Que o valor de retorno da função: send_confirmation_email seja: (True, '')
         """
 
-        recipient_email = 'foo@bar.baz'
+        recipient_email = "foo@bar.baz"
         ts = get_timed_serializer()
-        token = ts.dumps(recipient_email, salt='recover-key')
-        recover_url = url_for('admin.reset_with_token', token=token, _external=True)
-        result_expected = (True, '')
+        token = ts.dumps(recipient_email, salt="recover-key")
+        recover_url = url_for("admin.reset_with_token", token=token, _external=True)
+        result_expected = (True, "")
 
-        with patch('webapp.utils.utils.send_email', return_value=result_expected) as mock:
-
+        with patch(
+            "webapp.utils.utils.send_email", return_value=result_expected
+        ) as mock:
             result = send_reset_password_email(recipient_email)
 
             mock.assert_called_with(
                 recipient_email,
                 "Instruções para recuperar sua senha",
-                render_template('email/recover.html', recover_url=recover_url)
+                render_template("email/recover.html", recover_url=recover_url),
             )
 
             self.assertEqual(result_expected, result)
