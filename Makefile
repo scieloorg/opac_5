@@ -1,116 +1,68 @@
-default: test
+# This makefile has been created to help developers perform common actions.
+# Most actions assume it is operating in a virtual environment where the
+# python command links to the appropriate virtual environment Python.
 
-COMPOSE_FILE_DEV = docker-compose-dev.yml
-COMPOSE_FILE_BUILD = docker-compose-build.yml
+MAKEFLAGS += --no-print-directory
 
-export OPAC_BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-export OPAC_VCS_REF=$(strip $(shell git rev-parse --short HEAD))
+# Envs: 
 export OPAC_WEBAPP_VERSION=$(strip $(shell cat VERSION))
 
-ifndef OPAC_STATIC_REPO_PATH
-    OPAC_STATIC_REPO_PATH=$(abspath $(dir $CURDIR/../../../bitbucket.org/portal-scielo/))
-else
-    @echo "$$OPAC_STATIC_REPO_PATH já foi definida previamente: $(OPAC_STATIC_REPO_PATH)"
-endif
+# Do not remove this block. It is used by the 'help' rule when
+# constructing the help output.
+# help:
+# help: Make SciELO Site (OPAC)
+# help:
 
+# help: help                           - display this makefile's help information
+.PHONY: help
+help:
+	@grep "^# help\:" Makefile | grep -v grep | sed 's/\# help\: //' | sed 's/\# help\://'
+
+# help: opac_version                   - OPAC version.
 opac_version:
 	@echo "Version file: " $(OPAC_WEBAPP_VERSION)
 
-vcs_ref:
-	@echo "Latest commit: " $(OPAC_VCS_REF)
+# help: venv                           - create a virtual environment for development
+.PHONY: venv
+venv:
+	@rm -Rf venv
+	@python3 -m venv venv --prompt opac
+	@/bin/bash -c "source venv/bin/activate && pip install pip --upgrade && pip install -r requirements.dev.txt && pip install -r requirements.txt"
+	@echo "Enter virtual environment using:\n\n\t$ source venv/bin/activate\n"
 
-build_date:
-	@echo "Build date: " $(OPAC_BUILD_DATE)
+# help: clean                          - clean all files using .gitignore rules
+.PHONY: clean
+clean:
+	@git clean -X -f -d -n
 
-############################################
-## atalhos docker-compose desenvolvimento ##
-############################################
-
-dev_compose_build:
-	@docker-compose -f $(COMPOSE_FILE_DEV) build
-
-dev_compose_up:
-	@docker-compose -f $(COMPOSE_FILE_DEV) up -d
-
-dev_compose_logs:
-	@docker-compose -f $(COMPOSE_FILE_DEV) logs -f $(SERVICE)
-
-dev_compose_stop:
-	@docker-compose -f $(COMPOSE_FILE_DEV) stop
-
-dev_compose_ps:
-	@docker-compose -f $(COMPOSE_FILE_DEV) ps
-
-dev_compose_rm:
-	@docker-compose -f $(COMPOSE_FILE_DEV) rm -f
-
-dev_compose_exec_shell_webapp:
-	@docker-compose -f $(COMPOSE_FILE_DEV) exec opac_webapp sh
-
-dev_compose_make_test:
-	@docker-compose -f $(COMPOSE_FILE_DEV) exec opac_webapp make test
-
-dev_compose_invalidate_cache:
-	@docker-compose -f $(COMPOSE_FILE_DEV) exec opac_webapp make invalidate_cache
-
-dev_compose_invalidate_cache_forced:
-	@docker-compose -f $(COMPOSE_FILE_DEV) exec opac_webapp make invalidate_cache_forced
+# help: scrub                          - clean all files, even untracked files
+.PHONY: scrub
+scrub:
+	git clean -x -f -d
 
 
-#####################################################
-## atalhos docker-compose build e testes no traivs ##
-#####################################################
+##################
+## python format #
+##################
 
-travis_compose_build:
-	@echo "[Travis Build] opac version: " $(OPAC_WEBAPP_VERSION)
-	@echo "[Travis Build] lates commit: " $(OPAC_VCS_REF)
-	@echo "[Travis Build] build date: " $(OPAC_BUILD_DATE)
-	@echo "[Travis Build] compose file: " $(COMPOSE_FILE_BUILD)
-	@docker-compose -f $(COMPOSE_FILE_BUILD) build
+# help: format                         - perform code style format
+.PHONY: format
+format:
+	@black opac 
 
-travis_compose_up:
-	@docker-compose -f $(COMPOSE_FILE_BUILD) up -d
 
-travis_compose_make_test:
-	@docker-compose -f $(COMPOSE_FILE_BUILD) exec opac_webapp make test
+# help: check-format                   - check code format compliance
+.PHONY: check-format
+check-format:
+	@black --check opac 
 
-travis_run_audit:
-	@docker run \
-	-it --net host --pid host \
-	--cap-add audit_control \
-	-v /var/lib:/var/lib \
-  	-v /var/run/docker.sock:/var/run/docker.sock \
-  	-v /usr/lib/systemd:/usr/lib/systemd \
-  	-v /etc:/etc \
-  	--label docker_bench_security \
-  	docker/docker-bench-security
 
-###########################################################
-## atalhos docker-compose build e push para o Docker Hub ##
-###########################################################
+# help: sort-imports                   - apply import sort ordering
+.PHONY: sort-imports
+sort-imports:
+	@isort . --profile black
 
-release_docker_build:
-	@echo "[Building] Release version: " $(OPAC_WEBAPP_VERSION)
-	@echo "[Building] Latest commit: " $(OPAC_VCS_REF)
-	@echo "[Building] Build date: " $(OPAC_BUILD_DATE)
-	@echo "[Building] Image full tag: $(TRAVIS_REPO_SLUG):$(COMMIT)"
-	@docker build \
-	-t $(TRAVIS_REPO_SLUG):$(COMMIT) \
-	--build-arg OPAC_BUILD_DATE=$(OPAC_BUILD_DATE) \
-	--build-arg OPAC_VCS_REF=$(OPAC_VCS_REF) \
-	--build-arg OPAC_WEBAPP_VERSION=$(OPAC_WEBAPP_VERSION) .
 
-release_docker_tag:
-	@echo "[Tagging] Target image -> $(TRAVIS_REPO_SLUG):$(COMMIT)"
-	@echo "[Tagging] Image name:latest -> $(TRAVIS_REPO_SLUG):latest"
-	@docker tag $(TRAVIS_REPO_SLUG):$(COMMIT) $(TRAVIS_REPO_SLUG):latest
-	@echo "[Tagging] Image name:latest -> $(TRAVIS_REPO_SLUG):travis-$(TRAVIS_BUILD_NUMBER)"
-	@docker tag $(TRAVIS_REPO_SLUG):$(COMMIT) $(TRAVIS_REPO_SLUG):travis-$(TRAVIS_BUILD_NUMBER)
-
-release_docker_push:
-	@echo "[Pushing] pushing image: $(TRAVIS_REPO_SLUG)"
-	@docker push $(TRAVIS_REPO_SLUG)
-	@echo "[Pushing] push $(TRAVIS_REPO_SLUG) done!"
 
 #########
 ## i18n #
@@ -126,82 +78,92 @@ release_docker_push:
 # 6. make compile_messages para gerar os arquivo .mo
 # 7. realize a atualização no repositório de códigos.
 
-# Faz um scan em toda a opac/webapp buscando strings traduzíveis e o resultado fica em opac/webapp/translations/messages.pot
+# help: make_messages                  - Faz um scan em toda a opac/webapp buscando strings traduzíveis e o resultado fica em opac/webapp/translations/messages.pot
+.PHONY: make_messages
 make_messages:
 	pybabel extract -F opac/webapp/config/babel.cfg -k lazy_gettext -k __ -o opac/webapp/translations/messages.pot .
 
-# cria o catalogo para o idioma definido pela variável LANG, a partir das strings: opac/webapp/translations/messages.pot
-# executar: $ LANG=en make create_catalog
+# help: create_catalog                 - cria o catalogo para o idioma definido pela variável LANG, a partir das strings: opac/webapp/translations/messages.pot executar: $LANG=en make create_catalog
+.PHONY: create_catalog
 create_catalog:
 	pybabel init -i opac/webapp/translations/messages.pot -d opac/webapp/translations -l $(LANG)
 
-# atualiza os catalogos, a partir das strings: opac/webapp/translations/messages.pot
+# help: update_catalog                 - atualiza os catalogos, a partir das strings: opac/webapp/translations/messages.pot
+.PHONY: update_catalog
 update_catalog:
 	pybabel update -i opac/webapp/translations/messages.pot -d opac/webapp/translations
 
-# compila as traduções dos .po em arquivos .mo prontos para serem utilizados.
+#help: compile_messages                - compila as traduções dos .po em arquivos .mo prontos para serem utilizados.
+.PHONY: compile_messages
 compile_messages:
 	pybabel compile -d opac/webapp/translations
 
+#build_i18n 
+.PHONY: build_i18n
 build_i18n:
 	@make make_messages && make update_catalog && make compile_messages
+
 
 #########
 ## test #
 #########
 
-test:
-	export OPAC_CONFIG="config/templates/testing.template" && python opac/manager.py test
 
-test_coverage:
-	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && python opac/manager.py test
+# help: test                           - run local tests
+.PHONY: test
+test: make_messages compile_messages build_i18n
+	export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test
 
-#########
-## cache #
-#########
+# help: coverage                       - perform test coverage checks
+.PHONY: coverage
+coverage:
+	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && flask --app opac/app.py test
 
+##########
+# cache  #
+##########
+
+# help: invalidate_cache               - invalidate cache
+.PHONY: invalidate_cache
 invalidate_cache:
-	python opac/manager.py invalidate_cache
+	flask --app opac/app.py invalidate_cache
 
+# help: invalidate_cache_forced        - invalidate cache forced
+.PHONY: invalidate_cache_forced
 invalidate_cache_forced:
-	python opac/manager.py invalidate_cache	--force_clear
+	flask --app opac/app.py invalidate_cache --force_clear true
 
+#################
+## static files #
+#################
 
-#####################################
-## OPAC_STATIC_REPO_PATH - frontend #
-#####################################
-
-static_show_repo_dir:
-	@echo "using: OPAC_STATIC_REPO_PATH="$(OPAC_STATIC_REPO_PATH)
-
-static_copy_less: static_show_repo_dir
-	cp -R $(OPAC_STATIC_REPO_PATH)/static/less ./opac/webapp/static
-
-static_copy_fonts: static_show_repo_dir
-	cp -R $(OPAC_STATIC_REPO_PATH)/static/fonts-new ./opac/webapp/static/
-
-static_copy_js_vendor: static_show_repo_dir
-	cp -R $(OPAC_STATIC_REPO_PATH)/static/js/vendor ./opac/webapp/static/js/
-
-static_copy_js: static_show_repo_dir
-	cp $(OPAC_STATIC_REPO_PATH)/static/js/*.js ./opac/webapp/static/js/
-
-static_copy_all: static_show_repo_dir static_copy_less static_copy_fonts static_copy_js_vendor static_copy_js
-	@echo "[COPIADO static/less, static/fonts-new, static/js/vendor e static/js/*.js]"
-
-static_clean_js_bundles:
+# help: clean_js_bundles           	    - clean the scielo-article-standalone.js and scielo-bundle.js
+.PHONY: clean_js_bundles
+clean_js_bundles:
 	@rm -f ./opac/webapp/static/js/scielo-article-standalone.js \
 	      ./opac/webapp/static/js/scielo-bundle.js
 	@echo 'arquivo JS removidos com sucesso!'
 
-static_clean_all_bundles: static_clean_js_bundles
+# help: clean_all_bundles           	    - clean all JS and CSSs
+.PHONY: clean_all_bundles
+clean_all_bundles: clean_js_bundles
 	@echo 'arquivo JS e CSS removidos com sucesso!'
 
-static_check_deps:
+# help: check_js_deps           	    - check all dependence of Javascript (NodeJS, NPM andGulp)
+.PHONY: check_js_deps
+check_js_deps:
 	@echo 'NodeJs version:' $(shell node -v)
 	@echo 'npm version:' $(shell npm -v)
 	@echo 'Gulp.js version:' $(shell gulp -v)
 
-static_install_deps:
+# help: install_npm_deps           	    - install npm dependece from package.json
+.PHONY: install_npm_deps
+install_npm_deps:
 	@echo 'instalando as dependência (package.json):'
 	@npm install
+
+# help: build_bundles           	    - construct all static files
+.PHONY: build_bundles
+build_bundles:
+	@echo 'Generating CSS and JS files'
+	@gulp
