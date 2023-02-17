@@ -43,7 +43,6 @@ class JournalHomeTestCase(BaseTestCase):
             expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
             self.assertIn(expected, content)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_journal_detail_subject_areas_with_es_language(self):
         """
         Teste para verificar se na interface inicial da revista esta retornando o texto no
@@ -75,7 +74,6 @@ class JournalHomeTestCase(BaseTestCase):
             expected = "Ciencias Sociales Aplicadas, Ciencias Agrícolas"
             self.assertIn(expected, content)
     
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_journal_detail_subject_areas_with_en_language(self):
         """
         Teste para verificar se na interface inicial da revista esta retornando
@@ -108,7 +106,6 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertIn(expected, content)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_journal_detail_subject_areas_more_than_three(self):
         """
         Teste para verificar se na interface retorna ``Multidiciplinar`` quando a quantidade de areas é maior que 3.
@@ -630,8 +627,8 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertIn('<meta property="og:url" content="http://0.0.0.0:8000/j/journal_acron/"/>', response.data.decode('utf-8'))
+            self.assertIn('<meta property="og:url" content="http://%s/j/journal_acron/"/>' % current_app.config['SERVER_NAME'], response.data.decode('utf-8'))
             self.assertIn('<meta property="og:type" content="website"/>', response.data.decode('utf-8'))
             self.assertIn('<meta property="og:title" content="Social Meta tags"/>', response.data.decode('utf-8'))
-            self.assertIn('<meta property="og:image" content="http://0.0.0.0:8000/None"/>', response.data.decode('utf-8'))
+            self.assertIn('<meta property="og:image" content="http://%s/None"/>' % current_app.config['SERVER_NAME'], response.data.decode('utf-8'))
             self.assertIn('<meta property="og:description" content="This journal is aiming xpto"/>', response.data.decode('utf-8'))

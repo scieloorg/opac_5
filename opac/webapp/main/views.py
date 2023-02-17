@@ -136,7 +136,7 @@ def get_locale():
         # Caso não seja possível detectar o idioma e não tenhamos a chave lang
         # no seção, fixamos o idioma padrão.
         session['lang'] = current_app.config.get('BABEL_DEFAULT_LOCALE')
-
+    
     return session['lang']
 
 

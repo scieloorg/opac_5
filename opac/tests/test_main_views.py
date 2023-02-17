@@ -2247,7 +2247,7 @@ class TestJournalGrid(BaseTestCase):
             self.assertStatus(response, 200)
             self.assertTemplateUsed('issue/grid.html')
             self.assertIn(
-                '<meta property="og:url" content="http://0.0.0.0:8000/j/journal_acron/grid" />', response.data.decode('utf-8'))
+                '<meta property="og:url" content="http://%s/j/journal_acron/grid" />' % current_app.config['SERVER_NAME'], response.data.decode('utf-8'))
             self.assertIn(
                 '<meta property="og:type" content="website" />', response.data.decode('utf-8'))
             self.assertIn(
@@ -2255,7 +2255,7 @@ class TestJournalGrid(BaseTestCase):
             self.assertIn(
                 '<meta property="og:description" content="Esse periódico tem com objetivo xpto" />', response.data.decode('utf-8'))
             self.assertIn(
-                '<meta property="og:image" content="http://0.0.0.0:8000/None" />', response.data.decode('utf-8'))
+                '<meta property="og:image" content="http://%s/None" />' % current_app.config['SERVER_NAME'], response.data.decode('utf-8'))
 
 
 class TestIssueToc(BaseTestCase):
@@ -2453,7 +2453,7 @@ class TestIssueToc(BaseTestCase):
             self.assertTemplateUsed('issue/toc.html')
 
             self.assertIn(
-                '<meta property="og:url" content="http://0.0.0.0:8000/j/journal_acron/i/2023.v10n31supplX/" />', response.data.decode('utf-8'))
+                '<meta property="og:url" content="http://%s/j/journal_acron/i/2023.v10n31supplX/" />' % current_app.config['SERVER_NAME'], response.data.decode('utf-8'))
             self.assertIn(
                 '<meta property="og:type" content="website" />', response.data.decode('utf-8'))
             self.assertIn(
@@ -2461,7 +2461,7 @@ class TestIssueToc(BaseTestCase):
             self.assertIn(
                 '<meta property="og:description" content="Esse periódico tem com objetivo xpto" />', response.data.decode('utf-8'))
             self.assertIn(
-                '<meta property="og:image" content="http://0.0.0.0:8000/None" />', response.data.decode('utf-8'))
+                '<meta property="og:image" content="http://%s/None" />' % current_app.config['SERVER_NAME'], response.data.decode('utf-8'))
 
 
 class TestAOPToc(BaseTestCase):
@@ -2797,7 +2797,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
             content = response.data.decode('utf-8')
 
             self.assertIn(
-                '<meta property="og:url" content="http://0.0.0.0:8000/j/journal_acron/a/%s/"/>' % article.aid, response.data.decode('utf-8'))
+                '<meta property="og:url" content="http://%s/j/journal_acron/a/%s/"/>' % (current_app.config["SERVER_NAME"], article.aid), response.data.decode('utf-8'))
             self.assertIn(
                 '<meta property="og:type" content="article"/>', response.data.decode('utf-8'))
             self.assertIn('<meta property="og:title" content="%s"/>' %
@@ -2805,7 +2805,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
             self.assertIn('<meta property="og:description" content="%s"/>' %
                           article.abstract, response.data.decode('utf-8'))
             self.assertIn(
-                '<meta property="og:image" content="http://0.0.0.0:8000/None"/>', response.data.decode('utf-8'))
+                '<meta property="og:image" content="http://%s/None"/>' % current_app.config["SERVER_NAME"], response.data.decode('utf-8'))
 
     def test_article_detail_v3_citation_author_tags(self):
         """

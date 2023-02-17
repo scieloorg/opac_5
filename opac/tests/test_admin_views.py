@@ -436,7 +436,6 @@ class AdminViewsTestCase(BaseTestCase):
                     error_msg = self.get_context_variable('message')
                     self.assertEqual(error_msg, expected_errors_msg)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_reset_password_of_valid_user_proceed_ok(self):
         """
         Com:
@@ -471,7 +470,6 @@ class AdminViewsTestCase(BaseTestCase):
                     self.assertTemplateUsed('admin/auth/login.html')
                     self.assertIn(expected_msg, response.data.decode('utf-8'))
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_reset_password_of_valid_user_email_sent(self):
         """
         Com:
@@ -519,7 +517,6 @@ class AdminViewsTestCase(BaseTestCase):
                             self.assertEqual(expected_email['recipients'], email_msg.recipients)
                             self.assertIn(expected_email['body_has_link'], email_msg.html)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_reset_password_send_valid_link_via_email(self):
         """
         Com:
@@ -571,7 +568,6 @@ class AdminViewsTestCase(BaseTestCase):
                     context_form = self.get_context_variable('form')
                     self.assertIsInstance(context_form, forms.PasswordForm)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_link_sent_via_email_to_reset_password_works_fine(self):
         """
         Com:
@@ -625,7 +621,6 @@ class AdminViewsTestCase(BaseTestCase):
                     user = get_user_by_email(credentials['email'])
                     self.assertTrue(user.is_correct_password(new_password))
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_reset_password_with_invalid_password_raise_validation_error(self):
         """
         Com:
@@ -720,7 +715,6 @@ class AdminViewsTestCase(BaseTestCase):
                         user = get_user_by_email(credentials['email'])
                         self.assertTrue(user.is_correct_password(credentials['password']))
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_reset_password_with_unconfirmed_email_raise_validation_error_2(self):
         """
         Com:
@@ -831,7 +825,6 @@ class AdminViewsTestCase(BaseTestCase):
                     error_message = self.get_context_variable('message')
                     self.assertEqual(expected_errors_msg, error_message)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_confirmation_email_send_email_with_token(self):
         """
         Com:
@@ -916,7 +909,6 @@ class AdminViewsTestCase(BaseTestCase):
                         self.assertIsNotNone(email_confirmation_url_with_token)
                         self.assertFalse(email_confirmation_url_with_token == '')
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_open_confirm_url_with_token_sent_via_email_open_the_correct_page(self):
         """
         Com:
@@ -991,7 +983,6 @@ class AdminViewsTestCase(BaseTestCase):
                     user = get_user_by_email(normal_user['email'])
                     self.assertTrue(user.email_confirmed)
 
-    @unittest.skip("Pula essa teste temporariamente...")
     def test_email_confimation_token_of_invalid_user_raise_404_error_message(self):
         """
         Com:
