@@ -2564,3 +2564,5 @@ msgstr "Ver"
 #~ msgid "ao conteúdo"
 #~ msgstr "al contenido"
 
+#~ msgid "Este documento possui um comentário"
+#~ msgstr "Este documento tiene un comentario"
