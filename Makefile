@@ -4,8 +4,15 @@
 
 MAKEFLAGS += --no-print-directory
 
+# Variables
+COMPOSE_DEV = docker-compose-dev.yml
+REPO_SLUG = infrascielo
+PROJECT_NAME = opac_5
+
 # Envs: 
 export OPAC_WEBAPP_VERSION=$(strip $(shell cat VERSION))
+export OPAC_BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+export COMMIT=$(strip $(shell git rev-parse --short HEAD))
 
 # Do not remove this block. It is used by the 'help' rule when
 # constructing the help output.
@@ -33,7 +40,7 @@ venv:
 # help: clean                          - clean all files using .gitignore rules
 .PHONY: clean
 clean:
-	@git clean -X -f -d -n
+	@git clean -X -f -d 
 
 # help: scrub                          - clean all files, even untracked files
 .PHONY: scrub
@@ -61,7 +68,6 @@ check-format:
 .PHONY: sort-imports
 sort-imports:
 	@isort . --profile black
-
 
 
 #########
@@ -137,33 +143,117 @@ invalidate_cache_forced:
 ## static files #
 #################
 
-# help: clean_js_bundles           	    - clean the scielo-article-standalone.js and scielo-bundle.js
+# help: clean_js_bundles               - clean the scielo-article-standalone.js and scielo-bundle.js
 .PHONY: clean_js_bundles
 clean_js_bundles:
 	@rm -f ./opac/webapp/static/js/scielo-article-standalone.js \
 	      ./opac/webapp/static/js/scielo-bundle.js
 	@echo 'arquivo JS removidos com sucesso!'
 
-# help: clean_all_bundles           	    - clean all JS and CSSs
+# help: clean_all_bundles              - clean all JS and CSSs
 .PHONY: clean_all_bundles
 clean_all_bundles: clean_js_bundles
 	@echo 'arquivo JS e CSS removidos com sucesso!'
 
-# help: check_js_deps           	    - check all dependence of Javascript (NodeJS, NPM andGulp)
+# help: check_js_deps                  - check all dependence of Javascript (NodeJS, NPM andGulp)
 .PHONY: check_js_deps
 check_js_deps:
 	@echo 'NodeJs version:' $(shell node -v)
 	@echo 'npm version:' $(shell npm -v)
 	@echo 'Gulp.js version:' $(shell gulp -v)
 
-# help: install_npm_deps           	    - install npm dependece from package.json
+# help: install_npm_deps               - install npm dependece from package.json
 .PHONY: install_npm_deps
 install_npm_deps:
 	@echo 'instalando as dependência (package.json):'
 	@npm install
 
-# help: build_bundles           	    - construct all static files
+# help: build_bundles                  - construct all static files
 .PHONY: build_bundles
 build_bundles:
 	@echo 'Generating CSS and JS files'
 	@gulp
+
+
+
+#################
+## docker       #
+#################
+
+# help: build                          - build the containers
+.PHONY: build
+build:
+	@docker-compose -f $(COMPOSE_DEV) build
+
+# help: up           	               - start the containers
+.PHONY: up
+up:
+	@docker-compose -f $(COMPOSE_DEV) up -d
+
+# help: logs           	               - show the containers logs
+.PHONY: logs
+logs:
+	@docker-compose -f $(COMPOSE_DEV) logs -f 
+
+# help: logs_tail           	       - show the containers logs 50 latest lines
+.PHONY: logs_tail
+logs_tail:
+	@docker-compose -f $(COMPOSE_DEV) logs -f --tail=50
+
+# help: stop           	               - stop the containers
+.PHONY: stop
+stop:
+	@docker-compose -f $(COMPOSE_DEV) stop
+
+# help: ps           	               - show the containers Process Status
+.PHONY: ps
+ps:
+	@docker-compose -f $(COMPOSE_DEV) ps
+
+# help: rm           	               - remove all containers from $(COMPOSE_DEV)
+.PHONY: rm
+rm:
+	@docker-compose -f $(COMPOSE_DEV) rm -f
+
+# help: shell                          - open a shell from containers
+.PHONY: shell
+shell: up
+	@docker-compose -f $(COMPOSE_DEV) exec opac_webapp sh
+
+# help: docker_test           	       - run the tests from containers
+.PHONY: docker_test
+docker_test: up
+	@docker-compose -f $(COMPOSE_DEV) exec opac_webapp make test
+
+#################
+##docker release#
+#################
+
+# help: release_docker_build           - create a docker release
+.PHONY: release_docker_build
+release_docker_build:
+	@echo "[Building] Release version: " $(OPAC_WEBAPP_VERSION)
+	@echo "[Building] Latest commit: " $(COMMIT)
+	@echo "[Building] Build date: " $(OPAC_BUILD_DATE)
+	@echo "[Building] Image full tag: $(REPO_SLUG):$(COMMIT)"
+	@docker build \
+	-t $(REPO_SLUG):$(COMMIT) \
+	--build-arg OPAC_BUILD_DATE=$(OPAC_BUILD_DATE) \
+	--build-arg COMMIT=$(COMMIT) \
+	--build-arg OPAC_WEBAPP_VERSION=$(OPAC_WEBAPP_VERSION) .
+
+# help: release_docker_tag             - create a docker release tag
+.PHONY: release_docker_tag
+release_docker_tag:
+	@echo "[Tagging] Target image -> $(REPO_SLUG):$(COMMIT)"
+	@echo "[Tagging] Image name:latest -> $(REPO_SLUG):latest"
+	@echo "[Tagging] Image name:$(OPAC_WEBAPP_VERSION) -> $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)"
+	@docker tag $(REPO_SLUG):$(COMMIT) $(REPO_SLUG):latest
+	@docker tag $(REPO_SLUG):$(COMMIT) $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)
+
+# help: release_docker_push            - push release version to $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)
+.PHONY: release_docker_push
+release_docker_push:
+	@echo "[Pushing] pushing image: $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)"
+	@docker push $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)
+	@echo "[Pushing] push $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION) done!"
