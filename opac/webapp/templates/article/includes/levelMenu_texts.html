@@ -1,8 +1,9 @@
 {% if article and text_versions %}
 
+
     <div class="dropdown">
-      <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-      <span>{% trans %}Texto{% endtrans %}
+      <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        {% trans %}Texto{% endtrans %}
         {% for lang, text_lang, uri in text_versions  %}
           {% if not gs_abstract and lang == article_lang %}        
             {% if lang == 'es' %}
@@ -11,19 +12,18 @@
               (EN)
             {% elif lang == 'pt' %}
               (PT)
-            {% else %}
+            {% else %} 
               ({{ text_lang }})
             {% endif %}
           {% endif %}
         {% endfor %}
-      </span>
-      <span class="caret"></span></button>
+      </button>
       <ul class="dropdown-menu">
         {% for lang, text_lang, uri in text_versions  %}
         <li>
           {% if not gs_abstract and lang == article_lang %}
             <!-- página de texto -->
-            <a href="#" class="current"> 
+            <a href="#" class="current dropdown-item"> 
                 {% trans %}Texto{% endtrans %}
                 {% if lang == 'es' %}
                   ({% trans %}Espanhol{% endtrans %})
@@ -36,7 +36,7 @@
                 {% endif %}
             </a>
         {% else %}
-            <a href="{{ uri }}">
+            <a href="{{ uri }}" class="dropdown-item">
                 {% trans %}Texto {% endtrans %}
                 {% if lang == 'es' %}
                   ({% trans %}Espanhol{% endtrans %})
@@ -54,4 +54,7 @@
       </ul>
     </div>
 
-{% endif %}
+  {% endif %}
+
+
+

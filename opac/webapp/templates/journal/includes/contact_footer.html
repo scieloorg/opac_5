@@ -1,62 +1,63 @@
 <section class="journalContacts">
   <div class="container">
-    <div class="col-md-5 col-sm-5 journalAddress">
-      <div class="col-md-1 col-sm-2">
-        <span class="glyphBtn pin"></span>
+    <div class="row">
+      <div class="col-md-5 col-sm-5 journalAddress">
+        <div class="row">
+          <div class="col-md-1 col-sm-2">
+            <span class="material-icons-outlined">location_on</span>
+          </div>
+          <div class="col-md-10 col-sm-9">
+            <strong>{{ journal.publisher_name }}</strong>
+            {% if journal.publisher_address %}
+              {{ journal.publisher_address }} -
+            {% endif %}
+            {% if journal.publisher_city %}
+              {{ journal.publisher_city }} -
+            {% endif %}
+            {% if journal.publisher_state %}
+               {{ journal.publisher_state }} -
+            {% endif %}
+            {% if journal.publisher_country %}
+               {{ journal.publisher_country }} <br/>
+            {% endif %}
+            {% if journal.publisher_telephone %}
+              Tel/Fax: {{ journal.publisher_telephone }}
+            {% endif %}
+            {% if journal.editor_email %}
+              <b>E-mail:</b> {{ journal.editor_email }}
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div class="col-md-10 col-sm-9">
-        <strong>{{ journal.publisher_name }}</strong>
-        {% if journal.publisher_address %}
-          {{ journal.publisher_address }} -
-        {% endif %}
-        {% if journal.publisher_city %}
-          {{ journal.publisher_city }} -
-        {% endif %}
-        {% if journal.publisher_state %}
-           {{ journal.publisher_state }} -
-        {% endif %}
-        {% if journal.publisher_country %}
-           {{ journal.publisher_country }} <br/>
-        {% endif %}
-        {% if journal.publisher_telephone %}
-          Tel/Fax: {{ journal.publisher_telephone }}
-        {% endif %}
-        {% if journal.editor_email %}
-          <b>E-mail:</b> {{ journal.editor_email }}
-        {% endif %}
+      <div id="followus" class="col-md-4 col-sm-4 journalLinks">
+        {% for sn in journal.social_networks %}
+          <a href="{{sn.account}}" data-toggle="tooltip" title="{{sn.network|title}}">
+            <span
+              {% with network = sn.network|lower  %}
+                {% if network == 'twitter' %}
+                   class="glyphBtn bigTwitter"
+                {% elif network == 'facebook' %}
+                   class="glyphBtn bigFacebook"
+                {% elif network == 'google+' or network == 'google' %}
+                   class="glyphBtn bigGooglePlus"
+                {% else %}
+                   class="glyphBtn"
+                {% endif %}
+              {% endwith %}
+              >
+            </span>
+          </a>
+          {% if loop.last %}
+            <span class="text">{% trans %}Siga este periódico nas redes sociais{% endtrans %}</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="col-md-3 col-sm-3 journalLinks">
+        <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" data-toggle="tooltip" title="{% trans %}RSS do número mais recente do periódico{% endtrans %}" target="_blank"><span class="material-icons-outlined">rss_feed</span></a>
+        <span class="text" style="width: 70%;">
+          {% trans %}Acompanhe os números deste periódico no seu leitor de RSS{% endtrans %}
+        </span>
       </div>
     </div>
-    <div id="followus" class="col-md-4 col-sm-4 journalLinks">
-      {% for sn in journal.social_networks %}
-        <a href="{{sn.account}}" data-toggle="tooltip" title="{{sn.network|title}}">
-          <span
-            {% with network = sn.network|lower  %}
-              {% if network == 'twitter' %}
-                 class="glyphBtn bigTwitter"
-              {% elif network == 'facebook' %}
-                 class="glyphBtn bigFacebook"
-              {% elif network == 'google+' or network == 'google' %}
-                 class="glyphBtn bigGooglePlus"
-              {% else %}
-                 class="glyphBtn"
-              {% endif %}
-            {% endwith %}
-            >
-          </span>
-        </a>
-        {% if loop.last %}
-          <span class="text">{% trans %}Siga este periódico nas redes sociais{% endtrans %}</span>
-        {% endif %}
-      {% endfor %}
-    </div>
-    <div class="col-md-3 col-sm-3 journalLinks">
-      <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" data-toggle="tooltip" title="{% trans %}RSS do número mais recente do periódico{% endtrans %}" target="_blank">
-        <span class="glyphBtn bigRSS"></span>
-      </a>
-      <span class="text" style="width: 70%;">
-        {% trans %}Acompanhe os números deste periódico no seu leitor de RSS{% endtrans %}
-      </span>
-    </div>
-    <div class="clearfix"></div>
   </div>
 </section>

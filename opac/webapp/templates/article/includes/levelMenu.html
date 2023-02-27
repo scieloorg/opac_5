@@ -1,116 +1,140 @@
 <!-- Exibe para todos dispositivos menos mobile -->
-<section class="levelMenu hidden-xs">
+<section class="levelMenu d-none d-sm-block d-md-block d-lg-block">
     <div class="container">
         
-        <div class="col-lg-6 col-md-6 col-sm-5">
+        <div class="row">
+          <div class="col-lg-6 col-md-6 col-sm-5">
 
-          <div class="btn-group">
-            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn">
-              <span class="sci-ico-home"></span>
-            </a>
-            
-            {# Sumário #}
-            <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn group">
-                {% trans %}sumário{% endtrans %}
-            </a>
-
-            {# Anterior #}
-              {% if not previous_article %}
-                  <a href="#" class="btn group disabled hidden-sm">
-              {% else %}
-                {% if is_pdf_page -%}
-                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='previous', format='pdf') }}" class="btn group hidden-sm">
-                {%- else -%}
-                  <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='previous') }}" class="btn group hidden-sm">
-                {% endif %}
-              {%- endif %}
-                <span class="hidden-md">&laquo; {% trans %}anterior{% endtrans %}</span>
-                <span class="sci-ico-arrowLeft hidden-lg"></span>
+            <div class="btn-group">
+              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only"><span class="material-icons-outlined">home</span></a>
+              
+              {# Sumário #}
+              <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn group">
+                  {% trans %}sumário{% endtrans %}
+              </a> 
+  
+              {# Anterior #}
+                {% if not previous_article %}
+                    <a href="#" class="btn disabled scielo__btn-with-icon--left">
+                {% else %}
+                  {% if is_pdf_page -%}
+                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='previous', format='pdf') }}" class="btn scielo__btn-with-icon--left">
+                  {%- else -%}
+                    <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='previous') }}" class="btn scielo__btn-with-icon--left">
+                  {% endif %}
+                {%- endif %}
+                  <span class="material-icons-outlined">navigate_before</span>
+                  {% trans %}anterior{% endtrans %}
+                  
+                </a>
+  
+              {# Atual #}
+              <a href="#" class="btn group disabled ">
+                  {% trans %}atual{% endtrans %}
               </a>
-
-            {# Atual #}
-            <a href="#" class="btn group disabled hidden-sm">
-                {% trans %}atual{% endtrans %}
-            </a>
-
-            {# Próximo #}
-            {% if not next_article %}
-                <a href="#" class="btn group disabled hidden-sm">
-            {% else %}
-              {%- if is_pdf_page -%}
-                <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='next', format='pdf') }}" class="btn group hidden-sm">
-              {%- else -%}
-                <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='next') }}" class="btn group hidden-sm">
+  
+              {# Próximo #}
+              {% if not next_article %}
+                  <a href="#" class="btn group disabled scielo__btn-with-icon--right">
+              {% else %}
+                {%- if is_pdf_page -%}
+                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='next', format='pdf') }}" class="btn group scielo__btn-with-icon--right">
+                {%- else -%}
+                  <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='next') }}" class="btn group scielo__btn-with-icon--right">
+                {%- endif %}
               {%- endif %}
-            {%- endif %}
-              <span class="hidden-md">{% trans %}seguinte{% endtrans %} &raquo;</span>
-              <span class="sci-ico-arrowRight hidden-lg"></span>
-            </a>
-
+                {% trans %}seguinte{% endtrans %}
+                <span class="material-icons-outlined">navigate_next</span>
+              </a>
+  
+            </div>
           </div>
-        </div>
+  
+          <div class="col-lg-4 col-md-5 col-sm-6">
+            {% include "article/includes/levelMenu_abstracts.html" %}
+            {% include "article/includes/levelMenu_texts.html" %}
+            {% include "article/includes/levelMenu_pdf.html" %}
+          </div>
+  
+          <div class="col-lg-2 col-md-1 col-sm-1 ---share text-end">
+            
+            <!--
+            <span class="">{% trans %}Compartilhe{% endtrans %}</span>
+            -->  
 
-        <div class="col-lg-4 col-md-5 col-sm-6">
-          {% include "article/includes/levelMenu_abstracts.html" %}
-          {% include "article/includes/levelMenu_texts.html" %}
-          {% include "article/includes/levelMenu_pdf.html" %}
-        </div>
+            <div class="dropdown">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="material-icons-outlined">share</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1" style="">
+                <li><a class="dropdown-item" href="#">Facebook</a></li>
+                <li><a class="dropdown-item" href="#">Twitter</a></li>
+                <li><a class="dropdown-item" href="#">Google+</a></li>
+                <li><a class="dropdown-item" href="#">LinkedIn</a></li>
+                <li><a class="dropdown-item" href="#">Reddit</a></li>
+                <li><a class="dropdown-item" href="#">StambleUpon</a></li>
+                <li><a class="dropdown-item" href="#">CiteULike</a></li>
+                <li><a class="dropdown-item" href="#">Mendeley</a></li>
+              </ul>
+            </div>
+        
 
-        <div class="col-lg-2 col-md-1 col-sm-1 share">
-          <span class="hidden-sm">{% trans %}Compartilhe{% endtrans %}</span>
-            <a href="javascript:;" class="btn dropdown-toggle" data-toggle="dropdown">
-              <span class="sci-ico-socialOther"></span><span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu menu-share-mobile" role="menu">
-              <li class="dropdown-header">
-                {% trans %}Compartilhe{% endtrans %}
-              </li>
-              <li>
-                <a href="#" class="share_modal_id">
-                  <span class="sci-ico-socialEmail"></span> E-mail
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareFacebook">
-                  <span class="sci-ico-socialFacebook"></span> Facebook
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareTwitter">
-                  <span class="sci-ico-socialTwitterSingle"></span> Twitter
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareGooglePlus">
-                  <span class="glyphBtn googlePlus"></span> Google+
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareLinkedIn">
-                  <span class="glyphBtn linkedIn"></span> LinkedIn
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareReddit">
-                  <span class="glyphBtn reddit"></span> Reddit
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareStambleUpon">
-                  <span class="glyphBtn stambleUpon"></span> StambleUpon
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareCiteULike">
-                  <span class="glyphBtn citeULike"></span> CiteULike
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareMendeley">
-                  <span class="glyphBtn mendeley"></span> Mendeley
-                </a>
-              </li>
-            </ul>
+              <!--
+              <a href="javascript:;" class="btn dropdown-toggle" data-toggle="dropdown">
+                <span class="sci-ico-socialOther"></span><span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu menu-share-mobile" role="menu">
+                <li class="dropdown-header">
+                  {% trans %}Compartilhe{% endtrans %}
+                </li>
+                <li>
+                  <a href="#" class="share_modal_id">
+                    <span class="sci-ico-socialEmail"></span> E-mail
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareFacebook">
+                    <span class="sci-ico-socialFacebook"></span> Facebook
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareTwitter">
+                    <span class="sci-ico-socialTwitterSingle"></span> Twitter
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareGooglePlus">
+                    <span class="glyphBtn googlePlus"></span> Google+
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareLinkedIn">
+                    <span class="glyphBtn linkedIn"></span> LinkedIn
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareReddit">
+                    <span class="glyphBtn reddit"></span> Reddit
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareStambleUpon">
+                    <span class="glyphBtn stambleUpon"></span> StambleUpon
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareCiteULike">
+                    <span class="glyphBtn citeULike"></span> CiteULike
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="shareMendeley">
+                    <span class="glyphBtn mendeley"></span> Mendeley
+                  </a>
+                </li>
+              </ul>
+              -->
+          </div>
         </div>
 
     </div>
@@ -118,15 +142,13 @@
 
 
 <!-- Exibe somente no mobile -->
-<section class="levelMenu levelMenu-xs hidden-sm hidden-md hidden-lg">
+<section class="levelMenu levelMenu-xs d-block d-sm-none d-md-none d-lg-none">
     <div class="container">
       <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
           <div class="btn-group btn-group-nav-mobile" role="group">
             
-            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn">
-              <span class="sci-ico-home"></span>
-            </a>
+            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn"><span class="material-icons-outlined">home</span></a>
             <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn no-ico-util">
               {% trans %}Sumário{% endtrans %}
             </a>
@@ -188,7 +210,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
           <div class="btn-group btn-group-nav-mobile-content" role="group">
             {% include "article/includes/levelMenu_abstracts.html" %}
             {% include "article/includes/levelMenu_texts.html" %}

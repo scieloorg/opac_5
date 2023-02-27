@@ -1,43 +1,40 @@
 <footer>
-  <div class="collectionSignature">
-    <div class="container">
-      <div class="col-md-2 col-sm-2">
-        <span class="logo-svg-footer"></span>
-      </div>
-      <div class="col-md-8 col-sm-9">
-        <strong>SciELO - Scientific Electronic Library Online</strong><br/>
-        {{ g.collection.address1 or '' }}<br/>
-        {{ g.collection.address2 or '' }}
-      </div>
-    </div>
-  </div>
-  {% if g.collection and g.collection.sponsors %}
-    <div class="partners">
-      {% for sponsor in g.collection.sponsors|sort(attribute='order') %}
-        {% if sponsor.url and sponsor.logo_url %}
-          <a href="{{ sponsor.url }}" target="_blank">
-            {% if sponsor.logo_url %}
-                <img src="{{ sponsor.logo_url }}" alt="{{ sponsor.name }}">
-            {% else %}
-                {{ sponsor.name }}
-            {% endif %}
-          </a>
-        {% elif sponsor.logo_url %}
-          <img src="{{ sponsor.logo_url }}" alt="{{ sponsor.name }}">
-        {% else %}
-          {{ sponsor.name }}
-        {% endif %}
-      {% endfor %}
-    </div>
-  {% endif %}
-
-  <div class="container collectionLicense">
-    <a href="{{ url_for('main.about_collection') }}">
-      <img alt="{% trans %}Open Access{% endtrans %}" style="border-width:0" class="image" src="{{ url_for('static', filename='img/oa_logo_32.png') }}">
-      <span>
-        <strong>{% trans %}Leia{% endtrans %}</strong> {% trans %}a Declaração de Acesso Aberto{% endtrans %}
-      </span>
-    </a>
-  </div>
-
+	<section class="address-scielo">
+		<div class="container">
+			<div class="row">
+				<div class="col col-12 col-sm-2 text-center">
+					<div class="scielo__logo-scielo--small" alt="Logo SciELO"></div>
+				</div>
+				<div class="col col-12 col-sm-10 text-center text-sm-start">
+					<p><small><strong> SciELO - Scientific Electronic Library Online</strong></small></p>
+					<p><small>Av. Onze de Junho, 269 - Vila Clementino 04041-050 São Paulo SP - Brasil</small></p>
+					<p><small>E-mail: scielo@scielo.org</small></p>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section>
+		<div class="container">
+		
+			<div class="row">
+				<div class="col partners text-center">
+					<a href="http://www.fapesp.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-fapesp.svg', _external=True) }}" alt="FAPESP"></a>
+					<a href="http://www.capes.gov.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-capes.svg', _external=True) }}" height="27" alt="CAPES"></a>
+					<a href="http://www.cnpq.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-cnpq.svg', _external=True) }}" alt="CNPq"></a>
+					<a href="http://bvsalud.org/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-bvs.svg', _external=True) }}" alt="BVS"></a>
+					  <a href="http://regional.bvsalud.org/bvs/bireme/homepage.htm" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-bireme.svg', _external=True) }}" alt="BIREME"></a>
+					<a href="https://www.fapunifesp.edu.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-fap.svg', _external=True) }}" alt="FAP-UNIFESP"></a>
+				  </div>
+			</div>
+		</div>
+	</section> 
+	<section>
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					<p class="text-center"><a href="{{ url_for('.about_collection') }}"><img src="{{ url_for('static', filename='img/logo-open-access.svg', _external=True) }}" alt="{% trans %}Open Access{% endtrans %}" class="logo-open-access"></a> <a href="{{ url_for('.about_collection') }}">{% trans %}Leia{% endtrans %}</a> {% trans %}a Declaração de Acesso Aberto{% endtrans %}</p>
+				  </div>
+			</div>
+		</div> 
+	</section>	
 </footer>

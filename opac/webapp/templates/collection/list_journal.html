@@ -10,76 +10,123 @@
 
   <section class="collection collectionList">
     <div class="container">
-      <ul class="nav nav-pills">
-        <li class="home-tab">
-          <a href="{{ url_for('main.index') }}">
-            <span class="glyphBtn home" style="height: 20px;"></span> {% trans %}Home{% endtrans %}
-          </a>
-        </li>
-        <li role="presentation" {% if 'alpha' in request.url_rule.rule %}class="active" {% endif %}>
-          <a href="{{ url_for('.collection_list') }}?status=current">
-            {% trans %}Alfabética{% endtrans %}
-          </a>
-        </li>
-        <li role="presentation" {% if 'thematic' in request.url_rule.rule %}class="active" {% endif %}>
-          <a href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
-        </li>
-        {# <li role="presentation"><a href="#publisher" data-toggle="tab">Por instituição</a></li> #}
-        {# <li role="presentation"><a href="#newIssue" data-toggle="tab">Novos números</a></li>
-        <li role="presentation"><a href="#newJournals" data-toggle="tab">Novos periódicos</a></li>
-        <li role="presentation"><a href="#metricas" data-toggle="tab">Métricas</a></li> #}
-      </ul>
 
+      <ul class="nav nav-tabs">
+        <!--
+          Removido da interface
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">
+            <span class="material-icons-outlined">home</span> {% trans %}Home{% endtrans %}
+          </a>
+        </li>
+        -->
+        <li class="nav-item">
+          <a class="nav-link active alpha-tab" href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link thematic-tab" href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
+        </li>
+      </ul>
+      
       <div class="tab-content">
 
         <!-- Alpha -->
         <div class="tab-pane active collectionListStart" id="alpha">
             <!-- Alpha content -->
                 <div class="row collectionListSearch">
-                  <div class="col-md-5 col-sm-12">
+                  <div class="col-12 col-sm-12 col-md-6">
+                    
                     <ul class="nav nav-pills">
-                      <li role="presentation" {% if query_filter == "" %}class="active" {% endif %}>
-                        <a href="{{ url_for('.collection_list') }}">
+                      <li class="nav-item" role="presentation">
+                        <a class="btn btn-sm btn-secondary {% if query_filter == '' %}active {% endif %}" href="{{ url_for('.collection_list') }}">
                             {% trans %}Todos{% endtrans %}
-                        </a>
+                        </a> 
                       </li>
-                      <li role="presentation" {% if query_filter == "current" %}class="active" {% endif %}>
-                        <a href="{{ url_for('.collection_list') }}?status=current">
-                          <span class="lbl-corrente">{% trans %}Periódicos ativos{% endtrans %}</span>
-                        </a>
+                      <li class="nav-item" role="presentation">
+                        <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %}" href="{{ url_for('.collection_list') }}?status=current">
+                          <span class="lbl-corrente">{% trans %}Ativos{% endtrans %}</span>
+                        </a> 
                       </li>
-                      <li role="presentation" {% if query_filter == "no-current" %}class="active" {% endif %} >
-                        <a href="{{ url_for('.collection_list') }}?status=no-current">
-                          <span class="lbl-nao-corrente">{% trans %}Periódicos descontinuados{% endtrans %}</span>
-                        </a>
+                      <li class="nav-item" role="presentation">
+                        <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'no-current' %}active {% endif %}" href="{{ url_for('.collection_list') }}?status=no-current">
+                          <span class="lbl-nao-corrente">{% trans %}Descontinuados{% endtrans %}</span>
+                        </a> 
                       </li>
                     </ul>
                   </div>
 
-                  <div class="col-md-5 col-md-offset-2 col-sm-12 col-sm-offset-0 col-sm-mt-15">
-                    <input type="text" class="form-control collectionSearch" placeholder="{% trans %}Digite uma ou mais palavras para filtrar a lista{% endtrans %}"/>
+                  <div class="col-12 col-sm-12 col-md-6">
+                    <input type="text" class="form-control form-control-sm collectionSearch" placeholder="{% trans %}Digite para filtrar a lista{% endtrans %}"/>
                   </div>
                 </div>
 
+
+
+
                 <div class="collectionListTable">
-                  <table class="table-journal-list">
+                  <table class="table table-hover table-journal-list">
                     <thead>
                       <tr>
                         <th class="actions"></th>
                         <th>
-                          <div class="col-xs-6">
-                            {% trans %}Periódico{% endtrans %} <small class="collectionListTotalInfo"></small>
+                          
+                          <div class="row">
+                            <div class="col-9 pt-1">
+                              {% trans %}Títulos{% endtrans %} <small class="collectionListTotalInfo"></small>
+                            </div>
+                            <div class="col-3 right">
+                              <!--
+                              {% trans %}download da lista{% endtrans %}
+                             
+                                                          
+                              <a data-toggle="tooltip" href="#" class="collectionListDownloadXLS" title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
+                                <span class="glyphBtn downloadXLS"></span>
+                              </a>
+                              <a data-toggle="tooltip" href="#" class="collectionListDownloadCSV" title="{% trans %}Lista em arquivo CSV{% endtrans %}">
+                                <span class="glyphBtn downloadCSV"></span>
+                              </a>
+                            -->
+
+                              <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="material-icons-outlined">download</span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+                                <li>
+                                  <a class="dropdown-item" href="#">
+                                    XLS
+                                  </a>
+                                </li>
+                                <li>
+                                  <a class="dropdown-item collectionListDownloadCSV" href="#">
+                                    CSV
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
                           </div>
-                          <div class="col-xs-6 right download">
-                            {% trans %}download da lista{% endtrans %}
-                            <a data-toggle="tooltip" href="#" class="collectionListDownloadXLS" title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
-                              <span class="glyphBtn downloadXLS"></span>
-                            </a>
-                            <a data-toggle="tooltip" href="#" class="collectionListDownloadCSV" title="{% trans %}Lista em arquivo CSV{% endtrans %}">
-                              <span class="glyphBtn downloadCSV"></span>
-                            </a>
-                          </div>
+                         
+
                         </th>
+
+                        <th style="display:none;">
+
+                          <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="material-icons-outlined">download</span>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+                            <li>
+                              <a class="dropdown-item" href="#">
+                                XLS
+                              </a>
+                            </li>
+                            <li>
+                              <a class="dropdown-item collectionListDownloadCSV" href="#">
+                                CSV
+                              </a>
+                            </li>
+                          </ul>
+                        </th>
+
                       </tr>
                     </thead>
                     <tbody id="journals_table_body">
@@ -138,5 +185,13 @@
       var target_url = "{{ url_for('.download_journal_list', list_type='alpha', extension='csv') }}";
       open_download_url(target_url, '.collectionSearch');
     });
+
+    $('.thematic-tab').click(function(event) {
+
+      window.location.href = "{{ url_for('.collection_list_thematic') }}?status=current";
+
+    });
+
+
   </script>
 {% endblock %}

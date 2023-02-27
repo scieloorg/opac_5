@@ -1,35 +1,50 @@
+<style>
+  .slick-slide{
+    height: auto !important;
+  }
+  .slick-dots li{
+    margin-top: 8px !important;
+  }
+</style>
+
 {% extends "journal/base.html" %}
 
 {% block main_content %}
 
   <section class="journalContent">
     <div class="container">
-      <div class="col-md-4 col-md-offset-8 share">
-        <a href="javascript:window.print();" class="sharePrint showTooltip" data-placement="top" title="{% trans %}Imprimir{% endtrans %}"><span class="glyphBtn print"></span></a>
-        <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" class="showTooltip" data-placement="top" title="{% trans %}RSS do número mais recente do periódico{% endtrans %}" target="_blank"><span class="glyphBtn rssMini"></span></a>
-        <span class="divisor"></span>
-        {% trans %}Compartilhe{% endtrans %}
-        <a href="" class="share_modal_id showTooltip" data-placement="top" title="{% trans %}Enviar link por e-mail{% endtrans %}"><span class="glyphBtn sendMail"></span></a>
-        <a href="" class="shareFacebook showTooltip" data-placement="top" title="{% trans %}Compartilhar no Facebook{% endtrans %}"><span class="glyphBtn facebook"></span></a>
-        <a href="" class="shareTwitter showTooltip" data-placement="top" title="{% trans %}Compartilhar no Twitter{% endtrans %}"><span class="glyphBtn twitter"></span></a>
-        <a href="" class="showTooltip dropdown-toggle" data-toggle="dropdown" data-placement="top" title="{% trans %}Outras redes sociais{% endtrans %}"><span class="glyphBtn otherNetworks"></span></a>
-        <ul class="dropdown-menu">
-          <li class="dropdown-header">{% trans %}Outras redes sociais{% endtrans %}</li>
-          <li><a href="" class="shareGooglePlus"><span class="glyphBtn googlePlus"></span> Google+</a></li>
-          <li><a href="" class="shareLinkedIn"><span class="glyphBtn linkedIn"></span> LinkedIn</a></li>
-          <li><a href="" class="shareReddit"><span class="glyphBtn reddit"></span> Reddit</a></li>
-          <li><a href="" class="shareStambleUpon"><span class="glyphBtn stambleUpon"></span> StambleUpon</a></li>
-          <li><a href="" class="shareCiteULike"><span class="glyphBtn citeULike"></span> CiteULike</a></li>
-          <li><a href="" class="shareMendeley"><span class="glyphBtn mendeley"></span> Mendeley</a></li>
-        </ul>
-      </div>
-      <div class="col-md-12 content journalHome">
+      <div class="row">
+        <div class="col">
+          <!--
+          <a href="javascript:window.print();" class="sharePrint showTooltip" data-placement="top" title="{% trans %}Imprimir{% endtrans %}"><i class="material-icons-outlined">print</i></a>
+          <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" class="showTooltip" data-placement="top" title="{% trans %}RSS do número mais recente do periódico{% endtrans %}" target="_blank"><i class="material-icons-outlined">rss_feed</i></a>
+          <span class="divisor"></span>
+          {% trans %}Compartilhe{% endtrans %}
+          <a href="" class="share_modal_id showTooltip" data-placement="top" title="{% trans %}Enviar link por e-mail{% endtrans %}"><span class="glyphBtn sendMail"></span></a>
+          <a href="" class="shareFacebook showTooltip" data-placement="top" title="{% trans %}Compartilhar no Facebook{% endtrans %}"><span class="glyphBtn facebook"></span></a>
+          <a href="" class="shareTwitter showTooltip" data-placement="top" title="{% trans %}Compartilhar no Twitter{% endtrans %}"><span class="glyphBtn twitter"></span></a>
+          <a href="" class="showTooltip dropdown-toggle" data-toggle="dropdown" data-placement="top" title="{% trans %}Outras redes sociais{% endtrans %}"><span class="glyphBtn otherNetworks"></span></a>
+          <ul class="dropdown-menu">
+            <li class="dropdown-header">{% trans %}Outras redes sociais{% endtrans %}</li>
+            <li><a href="" class="shareGooglePlus"><span class="glyphBtn googlePlus"></span> Google+</a></li>
+            <li><a href="" class="shareLinkedIn"><span class="glyphBtn linkedIn"></span> LinkedIn</a></li>
+            <li><a href="" class="shareReddit"><span class="glyphBtn reddit"></span> Reddit</a></li>
+            <li><a href="" class="shareStambleUpon"><span class="glyphBtn stambleUpon"></span> StambleUpon</a></li>
+            <li><a href="" class="shareCiteULike"><span class="glyphBtn citeULike"></span> CiteULike</a></li>
+            <li><a href="" class="shareMendeley"><span class="glyphBtn mendeley"></span> Mendeley</a></li>
+          </ul>
+          -->
 
-        <div class="block mission">
+          
+
+        </div>
+        <div class="col content journalHome" style="outline: 0px solid purple">  
+
+          <div class="row block mission" style="outline: 0px solid orange;">
           {# mission #}
           {% if journal.mission %}
-            <div class="col-md-6 col-sm-6">
-                <h1>{% trans %}Nossa Missão{% endtrans %}</h1>
+            <div class="col-12 col-sm-6">
+                <h1 class="scielo__text-title--2">{% trans %}Nossa Missão{% endtrans %}</h1>
                 {% if session.lang %}
                     <p>{{ journal.get_mission_by_lang(session.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
                 {% endif %}
@@ -42,17 +57,29 @@
 
         {# last issue #}
         {% if journal.last_issue %}
+
+        <!--
           <div class="block lastIssue">
-            <div class="col-md-12 col-sm-12">
-              <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+        -->
+            <div class="col-12 col-sm-6">
+              
                 {% if journal.last_issue.cover_url %}
+                <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
                   <img src="{{ latest_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
+                </a>
                 {% endif %}
                 <span class="text">
                   <small>{% trans %}Número mais recente{% endtrans %}</small>
-                  <h2>{{ latest_issue_legend|default('--', True) }}</h2>
+                  <!--
+                  <h2 class="scielo__text-title--4">{{ latest_issue_legend|default('--', True) }}</h2>
+                  -->
+                  <p>
+                    <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                    <strong>{{ latest_issue_legend|default('--', True) }}</strong>
+                    </a>
+                  </p>
                 </span>
-              </a>
+              
             </div>
             {% if sections %}
               <div class="col-md-6 col-sm-6">
@@ -64,95 +91,102 @@
                 </ul>
               </div>
             {% endif %}
-            <div class="clearfix"></div>
+            
+        <!--
           </div>
-
+        -->
         {% endif %}
         {# last issue #}
 
         {# press_releases #}
         {% if press_releases %}
-          <div class="block releases">
-            <div class="col-md-12">
+          <div class="col-12 block releases">
+            <!--
+            <div class="">
+            -->
               <h2>
                 Press-releases
                 {% if session.lang != "pt_BR" %}
-                  <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ session.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="glyphBtn rssMini"></span></a>
+                  <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ session.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
                 {% else %}
-                  <a href="{{ config.URL_BLOG_PRESSRELEASE }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="glyphBtn rssMini"></span></a>
+                  <a href="{{ config.URL_BLOG_PRESSRELEASE }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
                 {% endif %}
-              </h2>
-              <div class="slider" id="pressrelease">
-                <a href="javascript:;" class="slide-back" style="top: 85.5px; display: none;"><span class="glyphBtn arrowLeft"></span></a>
-                <a href="javascript:;" class="slide-next" style="top: 85.5px;"><span class="glyphBtn arrowRight"></span></a>
-                <div class="slide-container" style="height: 171px;">
-                  <div class="slide-wrapper" style="width: 1220px;">
+              </h2>  
+              
 
-                    {% for press_release in press_releases  %}
-                      {% include "press_release/includes/press_releases_row.html" %}
-                    {% endfor %}
+              {% if press_releases|length > 1 %}
+                  
+                <div class="scielo-slider">
 
-                  </div>
+                  {% for press_release in press_releases  %}
+                    {% include "press_release/includes/press_releases_row.html" %}
+                  {% endfor %}
+
                 </div>
-              </div>
+              
+              {% else %}    
+                  
+                  {% for press_release in press_releases  %}
+                    {% include "press_release/includes/press_releases_row.html" %}
+                  {% endfor %}
+              
+              {% endif %}
+            
+              <!--
             </div>
-            <div class="clearfix"></div>
+            -->
+            
           </div>
         {% endif %}
         {# press_release #}
 
         {# recent_articles #}
         {% if recent_articles %}
-          <div class="block recent_articles">
-            <div class="col-md-12">
-              <h2>{% trans %}Artigos mais recentes{% endtrans %}</h2>
-              <div class="slider" id="recent_articles">
-                <a href="javascript:;" class="slide-back" style="top: 85.5px; display: none;"><span class="glyphBtn arrowLeft"></span></a>
-                <a href="javascript:;" class="slide-next" style="top: 85.5px;"><span class="glyphBtn arrowRight"></span></a>
-                <div class="slide-container" style="height: 171px;">
-                  <div class="slide-wrapper" style="width: 1220px;">
-                    {% for article in recent_articles  %}
-                      {% include "article/includes/recent_articles_row.html" %}
-                    {% endfor %}
-                  </div>
-                </div>
+          <div class="col block recent_articles">
+           
+              <h2 class="scielo__text-title--2">{% trans %}Artigos mais <br class="d-block d-sm-none">recentes{% endtrans %}</h2>
+             
+              <div class="scielo-slider">
+                {% for article in recent_articles  %}
+                  {% include "article/includes/recent_articles_row.html" %}
+                {% endfor %}
               </div>
-            </div>
-            <div class="clearfix"></div>
+
           </div>
         {% endif %}
         {# recent_articles #}
 
         {# news #}
         {% if news %}
-          <div class="block news">
-            <div class="col-md-12">
+          <div class="col block news">
+            
               <h2>{% trans %}Notícias{% endtrans %}</h2>
-              <div class="slider" id="noticias">
-                <a href="javascript:;" class="slide-back" style="top: 90.5px; display: none;"><span class="glyphBtn arrowLeft"></span></a>
-                <a href="javascript:;" class="slide-next" style="top: 90.5px;"><span class="glyphBtn arrowRight"></span></a>
 
-                <div class="slide-container" style="height: 181px;">
-                  <div class="slide-wrapper" style="width: 2260px;">
-
-                  {% for item in news  %}
-                    {% include "news/includes/journal_news_row.html" %}
-                  {% endfor %}
-
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
+              <div class="scielo-slider">
+                {% for item in news  %}
+                  {% include "news/includes/journal_news_row.html" %}
+                {% endfor %}
               </div>
-            </div>
-            <div class="clearfix"></div>
+
           </div>
         {% endif %}
         {# news #}
 
       </div>
     </div>
+    
+    
+    </div>
   </section>
+
+  
 
   {% include "journal/includes/contact_footer.html" %}
 
+  
+
 {% endblock %}
+
+
+
+
