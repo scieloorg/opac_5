@@ -2,38 +2,25 @@
 
 <header>
   <div class="container">
-    <div class="topFunction">
-      <div class="col-md-3 col-sm-4 mainNav">
+    <div class="row topFunction">
+      
+      <div class="col-12 col-sm-4 col-md-3 mainNav">
           <a href="#" class="menu" data-rel=".mainMenu" title="Abrir menu">{% trans %}Abrir menu{% endtrans %}</a>
           <div class="mainMenu">
           {% include "collection/includes/nav.html" %}
+          </div>
+      </div>
+      <div class="col-12 col-sm-4 col-md-6 brandLogo text-center">
+        
+        <div class="scielo__logo-scielo-caption">
+          <small>Brasil</small>
         </div>
+        
       </div>
-
-      <div class="col-md-6 col-sm-4 brandLogo">
-      
-        {% if coll_macro.get_image() != "None" %}
-          <h1 class="logo-svg-legenda">
-            <a href="/" style="background:url({{ coll_macro.get_image() }}); background-repeat:no-repeat;background-position:6px;background-size:75%;">
-              <small style="margin-top:-31px;margin-left:17px;">{{ coll_macro.get_collection_name() }}</small>
-              <span style="margin-top:10px;">Scientific Electronic Library Online</span>
-            </a>
-          </h1>
-        {% else %}
-          <h1 class="logo-svg-legenda">
-            <a href="/">
-              <small>{{ coll_macro.get_collection_name() }}</small>
-              <span>Scientific Electronic Library Online</span>
-            </a>
-          </h1>
-        {% endif %}
-      
-      </div>
-
-      <div class="col-md-3 col-sm-4 language">
+      <div class="col-12 col-sm-4 col-md-3">
         {% include "includes/language.html" %}
       </div>
-      <div class="clearfix"></div>
+     
     </div>
   </div>
 </header>

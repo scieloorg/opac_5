@@ -123,7 +123,8 @@ TWITTER_SCREEN_NAME = 'RedeSciELO'
 TWITTER_LIMIT = '10'
 
 # Server Name
-SERVER_NAME = os.environ.get('OPAC_SERVER_NAME', '0.0.0.0:8000')
+OPAC_SCHEME = os.environ.get('OPAC_OPAC_SCHEME', 'http')
+SERVER_NAME = os.environ.get('OPAC_SERVER_NAME', 'localhost')
 
 # Google Meta tags
 FORCE_USE_HTTPS_GOOGLE_TAGS = False
