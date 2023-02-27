@@ -1140,10 +1140,16 @@ def render_html_from_xml(article, lang, gs_abstract=False):
     else:
         result = fetch_data(article.xml)
 
+    try:
+        xslt = current_app.config["HTML_GENERATOR_VERSION"]
+    except:
+        xslt = "3.0"
+
     xml = etree.parse(BytesIO(result))
 
     generator = HTMLGenerator.parse(
-        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website"
+        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website",
+        xslt=xslt,
     )
 
     return generator.generate(lang), generator.languages

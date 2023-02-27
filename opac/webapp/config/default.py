@@ -484,6 +484,8 @@ SSM_MEDIA_PATH = os.environ.get("OPAC_SSM_MEDIA_PATH", "/media/assets/")
 SSM_XML_URL_REWRITE = os.environ.get("OPAC_SSM_XML_URL_REWRITE", "True") == "True"
 SSM_ARTICLE_ASSETS_OR_RENDITIONS_URL_REWRITE = SSM_XML_URL_REWRITE
 
+HTML_GENERATOR_VERSION = os.environ.get('HTML_GENERATOR_VERSION', '3.0')
+
 # SSM_BASE_URI ex: 'https://homolog.ssm.scielo.org:80/'
 SSM_BASE_URI = "{scheme}://{domain}:{port}".format(
     scheme=SSM_SCHEME, domain=SSM_DOMAIN, port=SSM_PORT
