@@ -1,17 +1,27 @@
-<div class="slide-item release">
-  <div class="col-md-12">
-    <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}">
-      {% if session.lang %}
-        <h3 class="ellipsis">
-          {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags }}
-        </h3>
-      {% endif %}
 
-      <div class="info">
-        {{ latest_issue_legend|default('--', True) }}
-        <br>
-        <strong>{% trans%}Continue lendo{% endtrans %} &raquo;</strong>
-      </div>
-    </a>
+  <div class="card">
+    
+    <!--
+    <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="35%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+    -->
+    
+    <div class="card-body">
+
+        {% if session.lang %}
+          <!--
+          <h5 class="card-title">
+            {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|truncate(50)|capitalize }}
+          </h5>
+          -->
+
+          <h5 class="card-title">
+            {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|truncate(80)|capitalize }}
+          </h5>
+        {% endif %}
+        
+        <!--
+        <p class="card-text">{{ latest_issue_legend|default('--', True) }}</p>
+        -->
+        <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}" class="btn btn-secondary">{% trans%}Continue lendo{% endtrans %}</a>
+    </div>
   </div>
-</div>

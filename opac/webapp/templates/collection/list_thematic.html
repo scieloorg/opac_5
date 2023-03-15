@@ -10,6 +10,25 @@
 
 <section class="collection collectionList">
     <div class="container">
+
+        <ul class="nav nav-tabs">
+            <!--
+                Removido da interface
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">
+                <span class="material-icons-outlined">home</span> {% trans %}Home{% endtrans %}
+                </a>
+            </li>
+            -->
+            <li class="nav-item">
+                <a class="nav-link alpha-tab" href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active thematic-tab" href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
+            </li>
+        </ul>
+
+        <!--
         <ul class="nav nav-pills">
             <li class="home-tab">
                 <a href="{{ url_for('main.index') }}">
@@ -26,10 +45,11 @@
                     href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
             </li>
         </ul>
+        -->
 
         <div class="row collectionListSearch">
-            <div class="col-md-4">
-                <select class="form-control collection-areas-filter" onchange="changeAreaFilter(this)">
+            <div class="col col-md-6">
+                <select class="form-select collection-areas-filter" onchange="changeAreaFilter(this)">
                     <option value="areas" {% if filter == "areas" %} selected {% endif %}>{% trans %}Grandes áreas do
                         conhecimento{% endtrans %}</option>
                     <option value="wos" {% if filter == "wos" %} selected {% endif %}>{% trans %}Áreas temáticas do Web
@@ -41,7 +61,8 @@
         <div class="tab-content">
             <div class="tab-pane active collectionListStart" id="areasConhecimento">
                 <div class="row collectionListSearch">
-                    <div class="col-md-5 col-sm-12">
+                    <div class="col-12 col-sm-12 col-md-6">
+                        <!--
                         <ul class="nav nav-pills">
                             <li role="presentation" {% if query_filter == "" %}class="active" {% endif %}>
                                 <a href="{{ url_for('.collection_list_thematic') }}">
@@ -60,74 +81,115 @@
                                 </a>
                             </li>
                         </ul>
+                        -->
+
+                        <ul class="nav nav-pills">
+                            <li class="nav-item" role="presentation">
+                                <a class="btn btn-sm btn-secondary {% if query_filter == '' %}active {% endif %}" href="{{ url_for('.collection_list_thematic') }}">
+                                    {% trans %}Todos{% endtrans %}
+                                </a> 
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %}" href="{{ url_for('.collection_list_thematic') }}?status=current">
+                                <span class="lbl-corrente">{% trans %}Ativos{% endtrans %}</span>
+                                </a> 
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'no-current' %}active {% endif %}" href="{{ url_for('.collection_list_thematic') }}?status=no-current">
+                                <span class="lbl-nao-corrente">{% trans %}Descontinuados{% endtrans %}</span>
+                                </a> 
+                            </li>
+                        </ul>
                     </div>
 
-                    <div class="col-md-5 col-md-offset-2 col-sm-12 col-sm-offset-0 col-sm-mt-15">
-                        <input type="text" class="form-control collectionSearch"
-                            placeholder="{% trans %}Digite uma ou mais palavras para filtrar a lista{% endtrans %}" />
+                    <div class="col-12 col-sm-12 col-md-6">
+                        <input type="text" class="form-control form-control-sm collectionSearch"
+                            placeholder="{% trans %}Digite para filtrar a lista{% endtrans %}" />
                     </div>
                 </div>
 
                 <div class="collectionListTable">
-                    <table class="table-journal-list">
+                    <table class="table table-hover table-journal-list">
                         <thead>
                             <tr>
+                                <!--
                                 <th class="actions"></th>
+                                -->
                                 <th>
-                                    <div class="col-xs-6">
-                                        {% trans %}Periódico{% endtrans %}
-                                        {% if filter == "areas" %}
-                                        <small class="collectionListTotalInfo">(total {{ objects.meta.themes_count }}
-                                            {% trans %}grandes áreas{% endtrans %} {{ objects.meta.total }}
-                                            {% trans %}periódicos{% endtrans %}) </small>
-                                        {% elif filter == "wos"%}
-                                        <small class="collectionListTotalInfo">(total {{ objects.meta.themes_count }}
-                                            {% trans %}áreas WOS{% endtrans %} {{ objects.meta.total }}
-                                            {% trans %}periódicos{% endtrans %}) </small>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-xs-6 right download">
-                                        {% trans %}download da lista{% endtrans %}
-                                        <a data-toggle="tooltip" href="#" class="collectionListDownloadXLS"
-                                            title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
-                                            <span class="glyphBtn downloadXLS"></span>
-                                        </a>
-                                        <a data-toggle="tooltip" href="#" class="collectionListDownloadCSV"
-                                            title="{% trans %}Lista em arquivo CSV{% endtrans %}">
-                                            <span class="glyphBtn downloadCSV"></span>
-                                        </a>
+                                    <div class="row">
+                                        <div class="col-9 pt-1">
+                                            {% trans %}Periódicos{% endtrans %}
+                                            {% if filter == "areas" %}
+                                            <small class="collectionListTotalInfo">(total {{ objects.meta.themes_count }}
+                                                {% trans %}grandes áreas{% endtrans %} {{ objects.meta.total }}
+                                                {% trans %}periódicos{% endtrans %}) </small>
+                                            {% elif filter == "wos"%}
+                                            <small class="collectionListTotalInfo">(total {{ objects.meta.themes_count }}
+                                                {% trans %}áreas WOS{% endtrans %} {{ objects.meta.total }}
+                                                {% trans %}periódicos{% endtrans %}) </small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-3 right download">
+                                            <!--
+                                            {% trans %}download da lista{% endtrans %}
+                                            <a data-toggle="tooltip" href="#" class="collectionListDownloadXLS"
+                                                title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
+                                                <span class="glyphBtn downloadXLS"></span>
+                                            </a>
+                                            <a data-toggle="tooltip" href="#" class="collectionListDownloadCSV"
+                                                title="{% trans %}Lista em arquivo CSV{% endtrans %}">
+                                                <span class="glyphBtn downloadCSV"></span>
+                                            </a>
+                                            -->
+                                            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="material-icons-outlined">download</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+                                                <li>
+                                                    <a class="dropdown-item" href="#" class="collectionListDownloadXLS" title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
+                                                    XLS
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item collectionListDownloadCSV" href="#" class="collectionListDownloadCSV" title="{% trans %}Lista em arquivo CSV{% endtrans %}">
+                                                    CSV
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </th>
                             </tr>
                         </thead>
+                    </table>
+
+                    <!--
                         <tbody id="journals_table_body">
+                    -->
                             {# preenchido com a lista de periódicos com js #}
 
                             {% if objects %}
-
-                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                            <br />
+                            <div class="accordion accordion-flush" id="accordionFlushExample">
                                 {% for group in objects.objects|sort %}
+                               
+                                <!--
                                 <tr>
                                     <td colspan="2" class="td-thematic">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading" role="tab" id="heading-{{ loop.index }}">
-                                                <h4 class="panel-title">
-                                                    <a class="collapsed" role="button" data-toggle="collapse"
-                                                        data-parent="#accordion"
-                                                        href="#collapseContent-{{ loop.index }}" aria-expanded="true"
-                                                        aria-controls="collapseContent-{{ loop.index }}">
-                                                        {{ group }}
-                                                    </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapseContent-{{ loop.index }}" class="panel-collapse collapse"
-                                                role="tabpanel" aria-labelledby="heading-{{ loop.index }}">
-                                                <div class="panel-body">
-                                                    <table>
+                                -->        
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="heading-{{ loop.index }}">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContent-{{ loop.index }}" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                    {{ group }}
+                                                </button>
+                                            </h2>
+                                            <div id="collapseContent-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample" style="">
+                                                <div class="accordion-body">
+                                                    <table class="table table-hover table-journal-list">
                                                         <thead>
                                                             <tr>
                                                                 <th class="actions"></th>
-                                                                <th>{% trans %}Periódico{% endtrans %}</th>
+                                                                <th>{% trans %}Títulos{% endtrans %}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -138,14 +200,22 @@
                                                     </table>
                                                 </div>
                                             </div>
+
                                         </div>
+                                    
+                                    <!--    
                                     </td>
                                 </tr>
+                                -->
+
                                 {% endfor %}
                             </div>
                             {% endif %}
+                        
+                        <!--    
                         </tbody>
                     </table>
+                    -->
                 </div>
             </div>
         </div>
@@ -195,6 +265,12 @@
         event.preventDefault();
         var target_url = "{{ url_for('.download_journal_list', list_type=filter, extension='csv') }}";
         open_download_url(target_url, '.collectionSearch');
+    });
+
+    $('.alpha-tab').click(function(event) {
+
+        window.location.href = "{{ url_for('.collection_list') }}?status=current";
+
     });
 
 </script>

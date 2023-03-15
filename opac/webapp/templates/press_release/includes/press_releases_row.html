@@ -1,3 +1,4 @@
+<!--
 <div class="slide-item release">
   <div class="col-md-12">
     <a href="{{ press_release.url }}" target="_blank">
@@ -6,3 +7,19 @@
     </a>
   </div>
 </div>
+<div class="slide-item release">
+-->
+
+
+
+  <div class="card">
+    <div class="card-body"> 
+      <h6 class="card-subtitle">{{ press_release.publication_date|datetimefilter }}</h6>
+      <h5 class="card-title">{{ press_release.title|striptags}}</h5>
+      <a href="{{ press_release.url }}" target="_blank" class="btn btn-secondary">{% trans%}Continue lendo{% endtrans %}</a>
+    </div>
+  </div>
+
+<!--
+</div>
+-->

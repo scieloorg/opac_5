@@ -11,25 +11,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  OPAC\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-12-04 17:12-0200\n"
+"POT-Creation-Date: 2023-02-17 16:03-0300\n"
 "PO-Revision-Date: 2018-03-06 19:50+0000\n"
 "Last-Translator: jamil Atta <atta.jamil@gmail.com>\n"
 "Language: en\n"
 "Language-Team: English "
 "(http://www.transifex.com/scielo/opac/language/en/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+"Generated-By: Babel 2.11.0\n"
 
-#: opac/tests/test_admin_custom_filters.py:100
-#: opac/tests/test_admin_custom_filters.py:114
-#: opac/tests/test_admin_custom_filters.py:129
-#: opac/tests/test_admin_custom_filters.py:144
-#: opac/tests/test_admin_custom_filters.py:158 opac/webapp/__init__.py:188
-#: opac/webapp/admin/views.py:554 opac/webapp/admin/views.py:631
-#: opac/webapp/admin/views.py:726
+#: opac/tests/test_admin_custom_filters.py:113
+#: opac/tests/test_admin_custom_filters.py:126
+#: opac/tests/test_admin_custom_filters.py:141
+#: opac/tests/test_admin_custom_filters.py:155
+#: opac/tests/test_admin_custom_filters.py:168 opac/webapp/__init__.py:197
+#: opac/webapp/admin/views.py:699 opac/webapp/admin/views.py:808
+#: opac/webapp/admin/views.py:930
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:28
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:71
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_grouper_table_row.html:15
@@ -41,35 +41,35 @@ msgstr ""
 msgid "Periódico"
 msgstr "Journal"
 
-#: opac/tests/test_controller.py:595 opac/webapp/controllers.py:806
+#: opac/tests/test_controller.py:606 opac/webapp/controllers.py:874
 msgid "Obrigatório um assets_code."
 msgstr " assets_code is mandatory."
 
-#: opac/tests/test_controller.py:604 opac/webapp/controllers.py:809
+#: opac/tests/test_controller.py:615 opac/webapp/controllers.py:877
 msgid "Obrigatório um journal."
 msgstr "Journal is mandatory."
 
-#: opac/tests/test_controller.py:1468 opac/webapp/controllers.py:1258
-#: opac/webapp/controllers.py:1303
+#: opac/tests/test_controller.py:1561 opac/webapp/controllers.py:1323
+#: opac/webapp/controllers.py:1371
 msgid "Obrigatório o acrônimo do periódico."
 msgstr ""
 
-#: opac/tests/test_controller.py:1475 opac/webapp/controllers.py:1260
-#: opac/webapp/controllers.py:1305
+#: opac/tests/test_controller.py:1568 opac/webapp/controllers.py:1325
+#: opac/webapp/controllers.py:1373
 msgid "Obrigatório o campo issue_label."
 msgstr ""
 
-#: opac/tests/test_controller.py:1482 opac/webapp/controllers.py:1262
-#: opac/webapp/controllers.py:1307
+#: opac/tests/test_controller.py:1575 opac/webapp/controllers.py:1327
+#: opac/webapp/controllers.py:1375
 msgid "Obrigatório o nome do arquivo PDF."
 msgstr ""
 
-#: opac/tests/test_interface_journal_home.py:557
-#: opac/tests/test_interface_journal_home.py:600
+#: opac/tests/test_interface_journal_home.py:573
+#: opac/tests/test_interface_journal_home.py:616
 msgid "ano"
 msgstr "year"
 
-#: opac/tests/test_interface_journal_home.py:562
+#: opac/tests/test_interface_journal_home.py:578
 msgid "Não possui"
 msgstr "Does not have"
 
@@ -77,18 +77,18 @@ msgstr "Does not have"
 msgid "NOME DA COLEÇÃO!!"
 msgstr "COLLECTION NAME!!"
 
-#: opac/tests/test_interface_menu.py:53 opac/tests/test_interface_menu.py:75
+#: opac/tests/test_interface_menu.py:58 opac/tests/test_interface_menu.py:123
 #: opac/webapp/templates/collection/includes/nav.html:12
 #: opac/webapp/templates/collection/includes/nav.html:54
 msgid "Lista alfabética de periódicos"
 msgstr "Journal list by title"
 
-#: opac/tests/test_interface_menu.py:55
+#: opac/tests/test_interface_menu.py:66
 #: opac/webapp/templates/collection/includes/nav.html:17
 msgid "Lista temática de periódicos"
 msgstr "Journal list by subject area"
 
-#: opac/tests/test_interface_menu.py:61
+#: opac/tests/test_interface_menu.py:87
 #: opac/webapp/templates/article/includes/floating_menu.html:11
 #: opac/webapp/templates/article/includes/floating_menu.html:70
 #: opac/webapp/templates/collection/includes/nav.html:27
@@ -101,97 +101,97 @@ msgstr "Journal list by subject area"
 msgid "Métricas"
 msgstr "Metrics"
 
-#: opac/tests/test_interface_menu.py:63
+#: opac/tests/test_interface_menu.py:95
 #: opac/webapp/templates/collection/includes/levelMenu.html:12
 #: opac/webapp/templates/collection/includes/levelMenu.html:29
 msgid "Sobre o SciELO"
 msgstr "About SciELO"
 
-#: opac/tests/test_interface_menu.py:65 opac/tests/test_interface_menu.py:99
+#: opac/tests/test_interface_menu.py:102 opac/tests/test_interface_menu.py:161
 #: opac/webapp/templates/collection/includes/nav.html:37
 #: opac/webapp/templates/collection/includes/nav.html:84
 msgid "Contatos"
 msgstr "Contacts"
 
-#: opac/tests/test_interface_menu.py:67
+#: opac/tests/test_interface_menu.py:107
 msgid "Rede SciELO"
 msgstr "The SciELO Network"
 
-#: opac/tests/test_interface_menu.py:71
+#: opac/tests/test_interface_menu.py:115
 #: opac/webapp/templates/collection/includes/nav.html:49
 msgid "Coleções nacionais e temáticas"
 msgstr "National and thematic collections"
 
-#: opac/tests/test_interface_menu.py:79
+#: opac/tests/test_interface_menu.py:131
 #: opac/webapp/templates/collection/includes/nav.html:59
 msgid "Lista de periódicos por assunto"
 msgstr "Journal list by subject"
 
-#: opac/tests/test_interface_menu.py:91
+#: opac/tests/test_interface_menu.py:151
 #: opac/webapp/templates/collection/includes/nav.html:74
 msgid "Acesso OAI e RSS"
 msgstr "OAI and RSS"
 
-#: opac/tests/test_interface_menu.py:95
+#: opac/tests/test_interface_menu.py:156
 #: opac/webapp/templates/collection/includes/nav.html:79
 msgid "Sobre a Rede SciELO"
 msgstr "About the SciELO Network"
 
-#: opac/tests/test_main_errors.py:8
+#: opac/tests/test_main_errors.py:10
 msgid "Mensagem de erro explicativo para o usuário"
 msgstr "Explanatory user error message"
 
-#: opac/webapp/__init__.py:187 opac/webapp/__init__.py:188
-#: opac/webapp/__init__.py:189 opac/webapp/__init__.py:190
-#: opac/webapp/__init__.py:191 opac/webapp/__init__.py:192
+#: opac/webapp/__init__.py:192 opac/webapp/__init__.py:197
+#: opac/webapp/__init__.py:202 opac/webapp/__init__.py:207
+#: opac/webapp/__init__.py:212 opac/webapp/__init__.py:218
 msgid "Catálogo"
 msgstr "Catalog"
 
-#: opac/webapp/__init__.py:187 opac/webapp/admin/views.py:473
+#: opac/webapp/__init__.py:192 opac/webapp/admin/views.py:596
 msgid "Coleção"
 msgstr "Collection"
 
-#: opac/webapp/__init__.py:189 opac/webapp/admin/views.py:558
-#: opac/webapp/admin/views.py:630 opac/webapp/templates/issue/grid.html:41
+#: opac/webapp/__init__.py:202 opac/webapp/admin/views.py:703
+#: opac/webapp/admin/views.py:807 opac/webapp/templates/issue/grid.html:41
 #: opac/webapp/templates/news/includes/issue_last_row.html:11
 msgid "Número"
 msgstr "Number"
 
-#: opac/webapp/__init__.py:190
+#: opac/webapp/__init__.py:207
 msgid "Artigo"
 msgstr "Article"
 
-#: opac/webapp/__init__.py:191
+#: opac/webapp/__init__.py:212
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:27
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:70
 msgid "Financiador"
 msgstr "Funder"
 
-#: opac/webapp/__init__.py:192
+#: opac/webapp/__init__.py:219
 msgid "Press Release"
 msgstr "Press release"
 
-#: opac/webapp/__init__.py:193 opac/webapp/templates/journal/detail.html:130
+#: opac/webapp/__init__.py:222 opac/webapp/templates/journal/detail.html:130
 msgid "Notícias"
 msgstr "News"
 
-#: opac/webapp/__init__.py:194 opac/webapp/__init__.py:195
+#: opac/webapp/__init__.py:224 opac/webapp/__init__.py:227
 msgid "Ativos"
 msgstr "Static files"
 
-#: opac/webapp/__init__.py:196
+#: opac/webapp/__init__.py:229
 msgid "Páginas"
 msgstr "Pages"
 
-#: opac/webapp/__init__.py:197 opac/webapp/__init__.py:198
+#: opac/webapp/__init__.py:233 opac/webapp/__init__.py:241
 msgid "Gestão"
 msgstr "Management"
 
-#: opac/webapp/__init__.py:197
+#: opac/webapp/__init__.py:234
 msgid "Auditoria: Páginas"
 msgstr "Auditoria: Pages"
 
-#: opac/webapp/__init__.py:198 opac/webapp/admin/views.py:996
+#: opac/webapp/__init__.py:242 opac/webapp/admin/views.py:1235
 msgid "Usuário"
 msgstr "User"
 
@@ -306,136 +306,136 @@ msgstr "Human Sciences"
 msgid "Lingüística, Letras e Artes"
 msgstr "Linguistics, Literature and Arts"
 
-#: opac/webapp/controllers.py:396
+#: opac/webapp/controllers.py:451
 msgid "Lista Alfabética"
 msgstr "Alphabetic List"
 
-#: opac/webapp/controllers.py:400
+#: opac/webapp/controllers.py:457
 msgid "Lista Temática"
 msgstr "Thematic List"
 
-#: opac/webapp/controllers.py:404
+#: opac/webapp/controllers.py:463
 msgid "Lista Web of Science"
 msgstr "Web of Science List"
 
-#: opac/webapp/controllers.py:408
+#: opac/webapp/controllers.py:469
 msgid "Lista by Institution"
 msgstr "List by Institution"
 
-#: opac/webapp/controllers.py:467 opac/webapp/controllers.py:688
+#: opac/webapp/controllers.py:527 opac/webapp/controllers.py:751
 msgid "Obrigatório um jid."
 msgstr "A jid is required."
 
-#: opac/webapp/controllers.py:483
+#: opac/webapp/controllers.py:543
 msgid "Obrigatório um acronym."
 msgstr "An acronym is required."
 
-#: opac/webapp/controllers.py:499
+#: opac/webapp/controllers.py:559
 msgid "Obrigatório um url_seg."
 msgstr "A url_seg is required."
 
-#: opac/webapp/controllers.py:515
+#: opac/webapp/controllers.py:575
 msgid "Obrigatório um issn."
 msgstr "ISSN is required."
 
-#: opac/webapp/controllers.py:532
+#: opac/webapp/controllers.py:592
 msgid "Obrigatório um title."
 msgstr ""
 
-#: opac/webapp/controllers.py:570 opac/webapp/controllers.py:729
-#: opac/webapp/controllers.py:1064 opac/webapp/controllers.py:1075
+#: opac/webapp/controllers.py:630 opac/webapp/controllers.py:792
+#: opac/webapp/controllers.py:1129 opac/webapp/controllers.py:1141
 msgid "Obrigatório uma lista de ids."
 msgstr "A list of id's is required."
 
-#: opac/webapp/controllers.py:673 opac/webapp/controllers.py:1094
+#: opac/webapp/controllers.py:736 opac/webapp/controllers.py:1160
 msgid "Obrigatório um iid."
 msgstr "A iid is required."
 
-#: opac/webapp/controllers.py:691
+#: opac/webapp/controllers.py:754
 msgid "Obrigatório um label do issue."
 msgstr ""
 
-#: opac/webapp/controllers.py:748
+#: opac/webapp/controllers.py:811
 msgid "Obrigatório um jacron e issue_label."
 msgstr "A jacron and issue_label are required."
 
-#: opac/webapp/controllers.py:761
+#: opac/webapp/controllers.py:826
 msgid "Obrigatório um PID."
 msgstr "PID is required."
 
-#: opac/webapp/controllers.py:777
+#: opac/webapp/controllers.py:842
 msgid "Obrigatório um url_seg e url_seg_issue."
 msgstr "A url_seg and url_seg_issue are required."
 
-#: opac/webapp/controllers.py:823
+#: opac/webapp/controllers.py:894
 msgid "Obrigatório um aid."
 msgstr "A aid is required."
 
-#: opac/webapp/controllers.py:982
+#: opac/webapp/controllers.py:1050
 msgid "Obrigatório um url_seg_article."
 msgstr "A url_seg_article is required."
 
-#: opac/webapp/controllers.py:1000
+#: opac/webapp/controllers.py:1068
 msgid "Obrigatório um iid and url_seg_article."
 msgstr "A iid and url_seg_article are required."
 
-#: opac/webapp/controllers.py:1019
+#: opac/webapp/controllers.py:1087
 msgid "Obrigatório um jid, url_seg_issue and url_seg_article."
 msgstr ""
 
-#: opac/webapp/controllers.py:1140 opac/webapp/controllers.py:1160
-#: opac/webapp/controllers.py:1192 opac/webapp/controllers.py:1211
+#: opac/webapp/controllers.py:1206 opac/webapp/controllers.py:1222
+#: opac/webapp/controllers.py:1254 opac/webapp/controllers.py:1278
 msgid "Obrigatório um pid."
 msgstr "pid is required."
 
-#: opac/webapp/controllers.py:1176
+#: opac/webapp/controllers.py:1238
 msgid "Obrigatório um aop_pid."
 msgstr "aop_pid is mandatory."
 
-#: opac/webapp/controllers.py:1239
+#: opac/webapp/controllers.py:1306
 msgid "Parámetro obrigatório: issue_iid."
 msgstr "issue_iid is mandatory."
 
-#: opac/webapp/controllers.py:1378
+#: opac/webapp/controllers.py:1448
 msgid "Parâmetro email deve ser uma string"
 msgstr "The parameter \"email\" must be a string."
 
-#: opac/webapp/controllers.py:1389
+#: opac/webapp/controllers.py:1459
 msgid "Parâmetro email deve ser uma inteiro"
 msgstr "The parameter \"email\" must be an integer."
 
-#: opac/webapp/controllers.py:1401 opac/webapp/controllers.py:1415
+#: opac/webapp/controllers.py:1471 opac/webapp/controllers.py:1485
 #, python-format
 msgid "Usuário deve ser do tipo %s"
 msgstr "User must be of type %s"
 
-#: opac/webapp/controllers.py:1473
+#: opac/webapp/controllers.py:1545
 msgid "Compartilhamento de link SciELO"
 msgstr "SciELO link sharing"
 
-#: opac/webapp/controllers.py:1474
+#: opac/webapp/controllers.py:1547
 #, python-format
 msgid "O usuário %s compartilha este link: %s, da SciELO"
 msgstr "The user %s share link: %s, of SciELO"
 
-#: opac/webapp/controllers.py:1482 opac/webapp/controllers.py:1518
-#: opac/webapp/controllers.py:1540
+#: opac/webapp/controllers.py:1556 opac/webapp/controllers.py:1595
+#: opac/webapp/controllers.py:1619
 msgid "Mensagem enviada!"
 msgstr "Message sent!"
 
-#: opac/webapp/controllers.py:1499
+#: opac/webapp/controllers.py:1574
 msgid "[Erro] Erro informado pelo usuário no site SciELO"
 msgstr "[Error] Error informed by the user in the SciELO site"
 
-#: opac/webapp/controllers.py:1502
+#: opac/webapp/controllers.py:1577
 msgid "aplicação"
 msgstr ""
 
-#: opac/webapp/controllers.py:1504
+#: opac/webapp/controllers.py:1579
 msgid "conteúdo"
 msgstr ""
 
-#: opac/webapp/controllers.py:1509
+#: opac/webapp/controllers.py:1585
 #, python-format
 msgid ""
 "O usuário <b>%s</b> com e-mail: <b>%s</b>, informa que existe um erro na "
@@ -446,84 +446,84 @@ msgstr ""
 " %s in the website SciELO.<br><br><b>Title of page:</b> "
 "%s<br><br><b>Link:</b> %s"
 
-#: opac/webapp/controllers.py:1530
+#: opac/webapp/controllers.py:1607
 msgid "Contato de usuário via site SciELO"
 msgstr "User contact by SciELO website"
 
-#: opac/webapp/controllers.py:1532
+#: opac/webapp/controllers.py:1610
 #, python-format
 msgid "O usuário %s, com e-mail: %s, entra em contato com a seguinte mensagem:"
 msgstr "User %s, e-mail: %s, contact us with the following message:"
 
-#: opac/webapp/controllers.py:1564
+#: opac/webapp/controllers.py:1643
 msgid "Obrigatório um slug_name."
 msgstr "An slug_name is required"
 
-#: opac/webapp/controllers.py:1600
+#: opac/webapp/controllers.py:1679
 msgid "Obrigatório url_seg para get_aop_issues"
 msgstr ""
 
-#: opac/webapp/forms.py:29
+#: opac/webapp/forms.py:30
 msgid "Endereço de e-mail inválido."
 msgstr "Invalid e-mail address."
 
-#: opac/webapp/admin/forms.py:9 opac/webapp/admin/forms.py:21
+#: opac/webapp/admin/forms.py:10 opac/webapp/admin/forms.py:23
 msgid "Email"
 msgstr "Email"
 
-#: opac/webapp/admin/forms.py:10 opac/webapp/admin/forms.py:25
+#: opac/webapp/admin/forms.py:12 opac/webapp/admin/forms.py:27
 msgid "Senha"
 msgstr "Password"
 
-#: opac/webapp/admin/forms.py:15
+#: opac/webapp/admin/forms.py:17
 msgid "Usuário inválido"
 msgstr "Invalid user"
 
-#: opac/webapp/admin/forms.py:17
+#: opac/webapp/admin/forms.py:19
 msgid "Senha inválida"
 msgstr "Invalid password"
 
-#: opac/webapp/admin/views.py:32
+#: opac/webapp/admin/views.py:53
 msgid "Tem certeza que quer publicar os itens selecionados?"
 msgstr "Are you sure you want to publish the selected items?"
 
-#: opac/webapp/admin/views.py:33
+#: opac/webapp/admin/views.py:56
 msgid "Tem certeza que quer despublicar os itens selecionados?"
 msgstr "Are you sure you want to unpublish the selected items?"
 
-#: opac/webapp/admin/views.py:34
+#: opac/webapp/admin/views.py:59
 msgid "Tem certeza que quer reconstruir os artigos selecionados?"
 msgstr "Are you sure you want to rebuild the selected articles?"
 
-#: opac/webapp/admin/views.py:35
+#: opac/webapp/admin/views.py:62
 msgid ""
 "Tem certeza que quer enviar email de confirmação aos usuários "
 "selecionados?"
 msgstr "Are you sure you want to send a confirmation email to the selected users?"
 
-#: opac/webapp/admin/views.py:36
+#: opac/webapp/admin/views.py:65
 msgid "Tem certeza que deseja disponibilizar o texto completo?"
 msgstr "Make the full text available?"
 
-#: opac/webapp/admin/views.py:37
+#: opac/webapp/admin/views.py:68
 msgid "Tem certeza que deseja indisponibilizar o texto completo?"
 msgstr "Make the full text unavailable?"
 
-#: opac/webapp/admin/views.py:97 opac/webapp/admin/views.py:110
+#: opac/webapp/admin/views.py:152 opac/webapp/admin/views.py:165
 msgid "Usuário não encontrado"
 msgstr "User not found"
 
-#: opac/webapp/admin/views.py:100
+#: opac/webapp/admin/views.py:155
 #, python-format
 msgid "Email: %(email)s confirmado com sucesso!"
 msgstr "Email: %(email)s successfully confirmed!"
 
-#: opac/webapp/admin/views.py:116
+#: opac/webapp/admin/views.py:172
 #, python-format
 msgid "Enviamos as instruções para recuperar a senha para: %(email)s"
 msgstr "The instructions to reset the password have been sent to: %(email)s "
 
-#: opac/webapp/admin/views.py:119
+#: opac/webapp/admin/views.py:179
 #, python-format
 msgid ""
 "Ocorreu um erro no envio das instruções por email para: %(email)s. Erro: "
@@ -532,342 +532,342 @@ msgstr ""
 "Error in sending the instructions via email to: %(email)s. Error: "
 "%(error)s"
 
-#: opac/webapp/admin/views.py:145
+#: opac/webapp/admin/views.py:209
 msgid "Nova senha salva com sucesso!!"
 msgstr "New password successfully saved!!"
 
-#: opac/webapp/admin/views.py:173 opac/webapp/admin/views.py:192
+#: opac/webapp/admin/views.py:237 opac/webapp/admin/views.py:269
 #, python-format
 msgid "Enviamos o email de confirmação para: %(email)s"
 msgstr "A confirmation email has been sent to: %(email)s"
 
-#: opac/webapp/admin/views.py:176
+#: opac/webapp/admin/views.py:244
 #, python-format
 msgid ""
 "Ocorreu um erro no envio do email de confirmação para: %(email)s "
 "%(error_msg)s"
 msgstr "There was an error sending confirmation email to: %(email)s %(error_msg)s"
 
-#: opac/webapp/admin/views.py:183
+#: opac/webapp/admin/views.py:257
 msgid "Enviar email de confirmação"
 msgstr "Send a confirmation email"
 
-#: opac/webapp/admin/views.py:195
+#: opac/webapp/admin/views.py:276
 #, python-format
 msgid "Ocorreu um erro no envio do email de confirmação para: %(email)s"
 msgstr "An error occurred in sending the confirmation email to: %(email)s"
 
-#: opac/webapp/admin/views.py:199
+#: opac/webapp/admin/views.py:283
 #, python-format
 msgid "%(count)s usuários foram notificados com sucesso!"
 msgstr "%(count)s users were successfully notified!"
 
-#: opac/webapp/admin/views.py:202
+#: opac/webapp/admin/views.py:288
 #, python-format
 msgid "Ocorreu um erro no envio do emails de confirmação. Erro: %(ex)s"
 msgstr "An error occurred in sending the confirmation emails. Error: %(ex)s"
 
-#: opac/webapp/admin/views.py:237 opac/webapp/admin/views.py:278
-#: opac/webapp/admin/views.py:383 opac/webapp/admin/views.py:413
-#: opac/webapp/admin/views.py:723
+#: opac/webapp/admin/views.py:325 opac/webapp/admin/views.py:364
+#: opac/webapp/admin/views.py:468 opac/webapp/admin/views.py:505
+#: opac/webapp/admin/views.py:927
 msgid "Nome"
 msgstr "Name"
 
-#: opac/webapp/admin/views.py:238 opac/webapp/admin/views.py:280
+#: opac/webapp/admin/views.py:326 opac/webapp/admin/views.py:366
 msgid "Link"
 msgstr "Link"
 
-#: opac/webapp/admin/views.py:239 opac/webapp/admin/views.py:281
-#: opac/webapp/admin/views.py:724
+#: opac/webapp/admin/views.py:327 opac/webapp/admin/views.py:367
+#: opac/webapp/admin/views.py:928
 msgid "Idioma"
 msgstr "Language"
 
-#: opac/webapp/admin/views.py:279
+#: opac/webapp/admin/views.py:365
 msgid "Previsualização"
 msgstr "Preview"
 
-#: opac/webapp/admin/views.py:382 opac/webapp/admin/views.py:568
-#: opac/webapp/admin/views.py:648
+#: opac/webapp/admin/views.py:467 opac/webapp/admin/views.py:713
+#: opac/webapp/admin/views.py:825
 msgid "Ordem"
 msgstr "Order"
 
-#: opac/webapp/admin/views.py:384
+#: opac/webapp/admin/views.py:469
 msgid "URL"
 msgstr "URL"
 
-#: opac/webapp/admin/views.py:385
+#: opac/webapp/admin/views.py:470
 msgid "URL da logomarca"
 msgstr "Logo URL"
 
-#: opac/webapp/admin/views.py:395
+#: opac/webapp/admin/views.py:480
 msgid "Financiador com Ordem ou Nome já cadastrado!"
 msgstr "Sponsor Order or Name already registered!"
 
-#: opac/webapp/admin/views.py:414
+#: opac/webapp/admin/views.py:506
 msgid "Acerca de"
 msgstr "About"
 
-#: opac/webapp/admin/views.py:415 opac/webapp/admin/views.py:483
+#: opac/webapp/admin/views.py:507 opac/webapp/admin/views.py:606
 msgid "Acrônimo"
 msgstr "Acronym"
 
-#: opac/webapp/admin/views.py:416
+#: opac/webapp/admin/views.py:508
 msgid "Endereço principal"
 msgstr "Main address"
 
-#: opac/webapp/admin/views.py:417
+#: opac/webapp/admin/views.py:509
 msgid "Endereço secundário"
 msgstr "Secondary address"
 
-#: opac/webapp/admin/views.py:418
+#: opac/webapp/admin/views.py:510
 msgid "Logo da Home (PT)"
 msgstr "Homepage's logo (PT)"
 
-#: opac/webapp/admin/views.py:419
+#: opac/webapp/admin/views.py:511
 msgid "Logo da Home (EN)"
 msgstr "Homepage's logo (EN)"
 
-#: opac/webapp/admin/views.py:420
+#: opac/webapp/admin/views.py:512
 msgid "Logo da Home (ES)"
 msgstr "Homepage's logo (ES)"
 
-#: opac/webapp/admin/views.py:421
+#: opac/webapp/admin/views.py:513
 msgid "Logo do cabeçalho (PT)"
 msgstr "Header's logo (PT)"
 
-#: opac/webapp/admin/views.py:422
+#: opac/webapp/admin/views.py:514
 msgid "Logo do cabeçalho (EN)"
 msgstr "Header's logo (EN)"
 
-#: opac/webapp/admin/views.py:423
+#: opac/webapp/admin/views.py:515
 msgid "Logo do cabeçalho (ES)"
 msgstr "Header's logo (ES)"
 
-#: opac/webapp/admin/views.py:424
+#: opac/webapp/admin/views.py:516
 msgid "Logo do menu (PT)"
 msgstr "Menu's logo (PT)"
 
-#: opac/webapp/admin/views.py:425 opac/webapp/admin/views.py:426
+#: opac/webapp/admin/views.py:517 opac/webapp/admin/views.py:518
 msgid "Logo do menu (ES)"
 msgstr "Menu's logo (ES)"
 
-#: opac/webapp/admin/views.py:427
+#: opac/webapp/admin/views.py:519
 msgid "Logo do menu (drop)"
 msgstr "Drop menu's logo"
 
-#: opac/webapp/admin/views.py:428
+#: opac/webapp/admin/views.py:520
 msgid "Logo do rodapé"
 msgstr "Footer's logo"
 
-#: opac/webapp/admin/views.py:472
+#: opac/webapp/admin/views.py:595
 msgid "Id Periódico"
 msgstr "Journal Id"
 
-#: opac/webapp/admin/views.py:474
+#: opac/webapp/admin/views.py:597
 msgid "Linha do tempo"
 msgstr "Timeline"
 
-#: opac/webapp/admin/views.py:475
+#: opac/webapp/admin/views.py:598
 msgid "Categorias de assunto"
 msgstr "Subject Categories"
 
-#: opac/webapp/admin/views.py:476
+#: opac/webapp/admin/views.py:599
 msgid "Áreas de estudo"
 msgstr "Areas of study"
 
-#: opac/webapp/admin/views.py:477
+#: opac/webapp/admin/views.py:600
 msgid "Redes sociais"
 msgstr "Social networks"
 
-#: opac/webapp/admin/views.py:478 opac/webapp/admin/views.py:632
+#: opac/webapp/admin/views.py:601 opac/webapp/admin/views.py:809
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:30
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:73
 msgid "Título"
 msgstr "Title"
 
-#: opac/webapp/admin/views.py:479
+#: opac/webapp/admin/views.py:602
 msgid "Título ISO"
 msgstr "ISO title"
 
-#: opac/webapp/admin/views.py:480
+#: opac/webapp/admin/views.py:603
 msgid "Título curto"
 msgstr "Abbreviated title"
 
-#: opac/webapp/admin/views.py:481 opac/webapp/admin/views.py:559
-#: opac/webapp/admin/views.py:635
+#: opac/webapp/admin/views.py:604 opac/webapp/admin/views.py:704
+#: opac/webapp/admin/views.py:812
 msgid "Criado"
 msgstr "Created"
 
-#: opac/webapp/admin/views.py:482 opac/webapp/admin/views.py:560
-#: opac/webapp/admin/views.py:636
+#: opac/webapp/admin/views.py:605 opac/webapp/admin/views.py:705
+#: opac/webapp/admin/views.py:813
 msgid "Atualizado"
 msgstr "Updated"
 
-#: opac/webapp/admin/views.py:484
+#: opac/webapp/admin/views.py:607
 msgid "ISSN SciELO"
 msgstr "SciELO ISSN"
 
-#: opac/webapp/admin/views.py:485
+#: opac/webapp/admin/views.py:608
 msgid "ISSN impresso"
 msgstr "print ISSN"
 
-#: opac/webapp/admin/views.py:486
+#: opac/webapp/admin/views.py:609
 msgid "ISSN eletrônico"
 msgstr "electronic ISSN"
 
-#: opac/webapp/admin/views.py:487
+#: opac/webapp/admin/views.py:610
 msgid "Descritores de assunto"
 msgstr "Subject descriptors"
 
-#: opac/webapp/admin/views.py:488
+#: opac/webapp/admin/views.py:611
 msgid "Url da submissão online"
 msgstr "online submission URL"
 
-#: opac/webapp/admin/views.py:489
+#: opac/webapp/admin/views.py:612
 msgid "Url do capa"
 msgstr "Cover URL"
 
-#: opac/webapp/admin/views.py:490
+#: opac/webapp/admin/views.py:613
 msgid "Url do logotipo"
 msgstr "Logo URL"
 
-#: opac/webapp/admin/views.py:491
+#: opac/webapp/admin/views.py:614
 msgid "Outros títulos"
 msgstr "Other titles"
 
-#: opac/webapp/admin/views.py:492
+#: opac/webapp/admin/views.py:615
 msgid "Nome da editora"
 msgstr "Publisher name"
 
-#: opac/webapp/admin/views.py:493
+#: opac/webapp/admin/views.py:616
 msgid "País da editora"
 msgstr "Publisher country"
 
-#: opac/webapp/admin/views.py:494
+#: opac/webapp/admin/views.py:617
 msgid "Estado da editora"
 msgstr "Publisher state"
 
-#: opac/webapp/admin/views.py:495
+#: opac/webapp/admin/views.py:618
 msgid "Cidade da editora"
 msgstr "Publisher city"
 
-#: opac/webapp/admin/views.py:496
+#: opac/webapp/admin/views.py:619
 msgid "Endereço da editora"
 msgstr "Publisher address"
 
-#: opac/webapp/admin/views.py:497
+#: opac/webapp/admin/views.py:620
 msgid "Telefone da editora"
 msgstr "Publisher telephone"
 
-#: opac/webapp/admin/views.py:498
+#: opac/webapp/admin/views.py:621
 msgid "Missão"
 msgstr "Mission"
 
-#: opac/webapp/admin/views.py:499
+#: opac/webapp/admin/views.py:622
 msgid "No índice"
 msgstr "In index"
 
-#: opac/webapp/admin/views.py:500
+#: opac/webapp/admin/views.py:623
 msgid "Patrocinadores"
 msgstr "Sponsors"
 
-#: opac/webapp/admin/views.py:501
+#: opac/webapp/admin/views.py:624
 msgid "Ref periódico anterior"
 msgstr "Previous journal reference"
 
-#: opac/webapp/admin/views.py:502
+#: opac/webapp/admin/views.py:625
 msgid "Situação atual"
 msgstr "Journal status"
 
-#: opac/webapp/admin/views.py:503
+#: opac/webapp/admin/views.py:626
 msgid "Total de números"
 msgstr "Total number of issues"
 
-#: opac/webapp/admin/views.py:504 opac/webapp/admin/views.py:569
-#: opac/webapp/admin/views.py:639
+#: opac/webapp/admin/views.py:627 opac/webapp/admin/views.py:714
+#: opac/webapp/admin/views.py:816
 msgid "Publicado?"
 msgstr "Published?"
 
-#: opac/webapp/admin/views.py:505 opac/webapp/admin/views.py:570
-#: opac/webapp/admin/views.py:640
+#: opac/webapp/admin/views.py:628 opac/webapp/admin/views.py:715
+#: opac/webapp/admin/views.py:817
 msgid "Motivo de despublicação"
 msgstr "Reason for unpublishing"
 
-#: opac/webapp/admin/views.py:506 opac/webapp/admin/views.py:572
-#: opac/webapp/admin/views.py:641
+#: opac/webapp/admin/views.py:629 opac/webapp/admin/views.py:717
+#: opac/webapp/admin/views.py:818
 msgid "Segmento de URL"
 msgstr "URL Segment"
 
-#: opac/webapp/admin/views.py:509 opac/webapp/admin/views.py:575
-#: opac/webapp/admin/views.py:679
+#: opac/webapp/admin/views.py:632 opac/webapp/admin/views.py:720
+#: opac/webapp/admin/views.py:870
 msgid "Publicar"
 msgstr "Publish"
 
-#: opac/webapp/admin/views.py:514
+#: opac/webapp/admin/views.py:637
 msgid "Periódico(s) publicado(s) com sucesso!!"
 msgstr "Journal(s) successfully published!!"
 
-#: opac/webapp/admin/views.py:516
+#: opac/webapp/admin/views.py:639
 msgid "Ocorreu um erro tentando publicar o(s) periódico(s)!!"
 msgstr "An error occurred trying to publish the journal(s)!!"
 
-#: opac/webapp/admin/views.py:522
+#: opac/webapp/admin/views.py:645
 msgid "Periódico(s) despublicado com sucesso!!"
 msgstr "Journal(s) successfully unpublished!!"
 
-#: opac/webapp/admin/views.py:525
+#: opac/webapp/admin/views.py:650
 #, python-format
 msgid "Ocorreu um erro tentando despublicar o(s) periódico(s)!!. Erro: %(ex)s"
 msgstr ""
 "An error occurred while attempting to unpublish the journal(s)!!. Error: "
 "%(ex)s"
 
-#: opac/webapp/admin/views.py:529 opac/webapp/admin/views.py:597
-#: opac/webapp/admin/views.py:702
+#: opac/webapp/admin/views.py:658 opac/webapp/admin/views.py:752
+#: opac/webapp/admin/views.py:903
 #, python-format
 msgid "Despublicar por %s"
 msgstr "Unpublished because of %s"
 
-#: opac/webapp/admin/views.py:553
+#: opac/webapp/admin/views.py:698
 msgid "Id Número"
 msgstr "ID number"
 
-#: opac/webapp/admin/views.py:555 opac/webapp/admin/views.py:645
+#: opac/webapp/admin/views.py:700 opac/webapp/admin/views.py:822
 msgid "Seções"
 msgstr "Sections"
 
-#: opac/webapp/admin/views.py:556
+#: opac/webapp/admin/views.py:701
 msgid "Url da capa"
 msgstr "Cover's URL"
 
-#: opac/webapp/admin/views.py:557
+#: opac/webapp/admin/views.py:702
 #: opac/webapp/templates/collection/list_feed_content.html:3
 #: opac/webapp/templates/issue/grid.html:40
 #: opac/webapp/templates/news/includes/issue_last_row.html:7
 msgid "Volume"
 msgstr "Volume"
 
-#: opac/webapp/admin/views.py:561
+#: opac/webapp/admin/views.py:706
 msgid "Tipo"
 msgstr "Type"
 
-#: opac/webapp/admin/views.py:562
+#: opac/webapp/admin/views.py:707
 msgid "Texto do suplemento"
 msgstr "Text for supplement"
 
-#: opac/webapp/admin/views.py:563
+#: opac/webapp/admin/views.py:708
 msgid "Texto do especial"
 msgstr "Text for special"
 
-#: opac/webapp/admin/views.py:564
+#: opac/webapp/admin/views.py:709
 msgid "Mês inicial"
 msgstr "Beginning month"
 
-#: opac/webapp/admin/views.py:565
+#: opac/webapp/admin/views.py:710
 msgid "Mês final"
 msgstr "End month"
 
-#: opac/webapp/admin/views.py:566
+#: opac/webapp/admin/views.py:711
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:25
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:68
 #: opac/webapp/templates/issue/grid.html:39
@@ -875,65 +875,65 @@ msgstr "End month"
 msgid "Ano"
 msgstr "Year"
 
-#: opac/webapp/admin/views.py:567
+#: opac/webapp/admin/views.py:712
 msgid "Etiqueta"
 msgstr "Tag"
 
-#: opac/webapp/admin/views.py:571 opac/webapp/admin/views.py:642
+#: opac/webapp/admin/views.py:716 opac/webapp/admin/views.py:819
 msgid "PID"
 msgstr "PID"
 
-#: opac/webapp/admin/views.py:580
+#: opac/webapp/admin/views.py:725
 msgid "Número(s) publicado(s) com sucesso!!"
 msgstr "Issue(s) published successfully!!"
 
-#: opac/webapp/admin/views.py:583 opac/webapp/admin/views.py:688
+#: opac/webapp/admin/views.py:730 opac/webapp/admin/views.py:881
 #, python-format
 msgid "Ocorreu um erro tentando publicar o(s) número(s)!!. Erro: %(ex)s"
 msgstr "There was an error trying to publish the Issue(s) !!. Error: %(ex)s"
 
-#: opac/webapp/admin/views.py:590
+#: opac/webapp/admin/views.py:739
 msgid "Número(s) despublicado(s) com sucesso!!"
 msgstr "Issue(s) unpublished successfully!!"
 
-#: opac/webapp/admin/views.py:593 opac/webapp/admin/views.py:698
+#: opac/webapp/admin/views.py:744 opac/webapp/admin/views.py:895
 #, python-format
 msgid "Ocorreu um erro tentando despublicar o(s) número(s)!!. Erro: %(ex)s"
 msgstr "There was an error trying to unpublish the Issue(s) !!. Error: %(ex)s"
 
-#: opac/webapp/admin/views.py:629
+#: opac/webapp/admin/views.py:806
 msgid "Id Artigo"
 msgstr "Article ID"
 
-#: opac/webapp/admin/views.py:633
+#: opac/webapp/admin/views.py:810
 msgid "Seção"
 msgstr "Section"
 
-#: opac/webapp/admin/views.py:634
+#: opac/webapp/admin/views.py:811
 msgid "É Ahead of Print?"
 msgstr "Ahead of Print?"
 
-#: opac/webapp/admin/views.py:637
+#: opac/webapp/admin/views.py:814
 msgid "HTML's"
 msgstr "HTML's"
 
-#: opac/webapp/admin/views.py:638
+#: opac/webapp/admin/views.py:815
 msgid "Chave de domínio"
 msgstr "Domain key"
 
-#: opac/webapp/admin/views.py:643
+#: opac/webapp/admin/views.py:820
 msgid "Idioma original"
 msgstr "Original language"
 
-#: opac/webapp/admin/views.py:644
+#: opac/webapp/admin/views.py:821
 msgid "Idiomas das traduções"
 msgstr "Translations languages"
 
-#: opac/webapp/admin/views.py:646
+#: opac/webapp/admin/views.py:823
 msgid "Autores"
 msgstr "Authors"
 
-#: opac/webapp/admin/views.py:647
+#: opac/webapp/admin/views.py:824
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:5
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:26
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:29
@@ -942,155 +942,155 @@ msgstr "Authors"
 msgid "Resumo"
 msgstr "Abstract"
 
-#: opac/webapp/admin/views.py:649
+#: opac/webapp/admin/views.py:826
 msgid "DOI"
 msgstr "DOI"
 
-#: opac/webapp/admin/views.py:650
+#: opac/webapp/admin/views.py:827
 msgid "Idiomas"
 msgstr "Languages"
 
-#: opac/webapp/admin/views.py:651
+#: opac/webapp/admin/views.py:828
 msgid "Idiomas dos resumos"
 msgstr "Abstracts languages"
 
-#: opac/webapp/admin/views.py:652
+#: opac/webapp/admin/views.py:829
 msgid "Texto completo disponível?"
 msgstr "The full text is available?"
 
-#: opac/webapp/admin/views.py:656
+#: opac/webapp/admin/views.py:834
 msgid "Indisponibilizar texto completo"
 msgstr "Make full text unavailable"
 
-#: opac/webapp/admin/views.py:660
+#: opac/webapp/admin/views.py:840
 msgid "Texto completo foi indisponibilizado"
 msgstr "The full text has been unavailable"
 
-#: opac/webapp/admin/views.py:664
+#: opac/webapp/admin/views.py:846
 #, python-format
 msgid "Ocorreu um erro ao tentar indisponibilizar completo. Erro: %(ex)s"
 msgstr ""
 "An error was thrown while trying to make the full text unavailable. Erro:"
 " %(ex)s"
 
-#: opac/webapp/admin/views.py:667
+#: opac/webapp/admin/views.py:853
 msgid "Disponibilizar texto completo"
 msgstr "Make full text available"
 
-#: opac/webapp/admin/views.py:671
+#: opac/webapp/admin/views.py:859
 msgid "Texto completo foi disponibilizado"
 msgstr "The full text has been available"
 
-#: opac/webapp/admin/views.py:675
+#: opac/webapp/admin/views.py:865
 #, python-format
 msgid "Ocorreu um erro ao tentar disponibilizar completo Erro: %(ex)s"
 msgstr ""
 "An error was thrown while trying to make the full text unavailable. Erro:"
 " %(ex)s"
 
-#: opac/webapp/admin/views.py:684
+#: opac/webapp/admin/views.py:875
 msgid "Artigo(s) publicado com sucesso!!"
 msgstr "Article(s) successfully published!!"
 
-#: opac/webapp/admin/views.py:695
+#: opac/webapp/admin/views.py:890
 msgid "Artigo(s) despublicado com sucesso!!"
 msgstr "Article(s) successfully unpublished!!"
 
-#: opac/webapp/admin/views.py:725
+#: opac/webapp/admin/views.py:929
 msgid "Conteúdo"
 msgstr "Content"
 
-#: opac/webapp/admin/views.py:727 opac/webapp/admin/views.py:1001
+#: opac/webapp/admin/views.py:931 opac/webapp/admin/views.py:1240
 msgid "Descrição"
 msgstr "Description"
 
-#: opac/webapp/admin/views.py:728 opac/webapp/admin/views.py:998
+#: opac/webapp/admin/views.py:932 opac/webapp/admin/views.py:1237
 msgid "Data de Criação"
 msgstr "Creation Date"
 
-#: opac/webapp/admin/views.py:729
+#: opac/webapp/admin/views.py:933
 msgid "Data de Atualização"
 msgstr "Update Date"
 
-#: opac/webapp/admin/views.py:997
+#: opac/webapp/admin/views.py:1236
 msgid "Ação"
 msgstr "Action"
 
-#: opac/webapp/admin/views.py:999
+#: opac/webapp/admin/views.py:1238
 msgid "Modelo Auditado"
 msgstr "Audited Module"
 
-#: opac/webapp/admin/views.py:1000
+#: opac/webapp/admin/views.py:1239
 msgid "Id Auditado"
 msgstr "Audited Id"
 
-#: opac/webapp/admin/views.py:1002
+#: opac/webapp/admin/views.py:1241
 msgid "Dados dos campos"
 msgstr "Field data"
 
-#: opac/webapp/main/views.py:32
+#: opac/webapp/main/views.py:44
 msgid "O periódico está indisponível por motivo de: "
 msgstr "The journal is unavailable because:"
 
-#: opac/webapp/main/views.py:33
+#: opac/webapp/main/views.py:45
 msgid "O número está indisponível por motivo de: "
 msgstr "The Issue is unavailable because of:"
 
-#: opac/webapp/main/views.py:34
+#: opac/webapp/main/views.py:46
 msgid "O artigo está indisponível por motivo de: "
 msgstr "The article is unavailable because:"
 
-#: opac/webapp/main/views.py:146
+#: opac/webapp/main/views.py:159
 msgid "Código de idioma inválido"
 msgstr "Invalid language code"
 
-#: opac/webapp/main/views.py:278
+#: opac/webapp/main/views.py:294
 msgid "Últimos periódicos inseridos na coleção"
 msgstr "Latest journals added to the collection"
 
-#: opac/webapp/main/views.py:279
+#: opac/webapp/main/views.py:296
 #, python-format
 msgid "10 últimos periódicos inseridos na coleção %s"
 msgstr "10 latest journals added to the collection %s"
 
-#: opac/webapp/main/views.py:341 opac/webapp/main/views.py:1683
+#: opac/webapp/main/views.py:355 opac/webapp/main/views.py:1961
 msgid "Página não encontrada"
 msgstr ""
 
-#: opac/webapp/main/views.py:366 opac/webapp/main/views.py:458
-#: opac/webapp/main/views.py:1479
+#: opac/webapp/main/views.py:384 opac/webapp/main/views.py:479
+#: opac/webapp/main/views.py:1583
 #, python-format
 msgid "Requsição inválida ao tentar acessar o artigo com pid: %s"
 msgstr ""
 
-#: opac/webapp/main/views.py:374 opac/webapp/main/views.py:431
-#: opac/webapp/main/views.py:477 opac/webapp/main/views.py:541
-#: opac/webapp/main/views.py:588 opac/webapp/main/views.py:735
-#: opac/webapp/main/views.py:757
+#: opac/webapp/main/views.py:391 opac/webapp/main/views.py:450
+#: opac/webapp/main/views.py:498 opac/webapp/main/views.py:571
+#: opac/webapp/main/views.py:623 opac/webapp/main/views.py:801
+#: opac/webapp/main/views.py:821
 msgid "Periódico não encontrado"
 msgstr "Journal not found"
 
-#: opac/webapp/main/views.py:387 opac/webapp/main/views.py:826
-#: opac/webapp/main/views.py:996
+#: opac/webapp/main/views.py:404 opac/webapp/main/views.py:893
+#: opac/webapp/main/views.py:1067
 msgid "Número não encontrado"
 msgstr "Issue not found"
 
-#: opac/webapp/main/views.py:411 opac/webapp/main/views.py:443
-#: opac/webapp/main/views.py:1047 opac/webapp/main/views.py:1148
-#: opac/webapp/main/views.py:1197 opac/webapp/main/views.py:1424
-#: opac/webapp/main/views.py:1483
+#: opac/webapp/main/views.py:427 opac/webapp/main/views.py:463
+#: opac/webapp/main/views.py:1124 opac/webapp/main/views.py:1235
+#: opac/webapp/main/views.py:1282 opac/webapp/main/views.py:1518
+#: opac/webapp/main/views.py:1587 opac/webapp/main/views.py:1615
 msgid "Artigo não encontrado"
 msgstr "Article not found"
 
-#: opac/webapp/main/views.py:565
+#: opac/webapp/main/views.py:597
 msgid "Artigo sem título"
 msgstr "Article not found"
 
-#: opac/webapp/main/views.py:628 opac/webapp/main/views.py:649
+#: opac/webapp/main/views.py:671 opac/webapp/main/views.py:689
 msgid "Requisição inválida. Deve ser por ajax"
 msgstr "Invalid request. Must be made via ajax"
 
-#: opac/webapp/main/views.py:668
+#: opac/webapp/main/views.py:712
 msgid ""
 "Parámetro \"filter\" é inválido, deve ser \"areas\", \"wos\" ou "
 "\"publisher\"."
@@ -1098,11 +1098,11 @@ msgstr ""
 "Invalid parameter \"filter\". Should be \"areas\", \"wos\" or "
 "\"publisher\"."
 
-#: opac/webapp/main/views.py:677
+#: opac/webapp/main/views.py:729
 msgid "Parámetro \"extension\" é inválido, deve ser \"csv\" ou \"xls\"."
 msgstr "Invalid parameter \"extension\". Should be \"csv\" or \"xls\"."
 
-#: opac/webapp/main/views.py:679
+#: opac/webapp/main/views.py:733
 msgid ""
 "Parámetro \"list_type\" é inválido, deve ser: \"alpha\", \"areas\", "
 "\"wos\" ou \"publisher\"."
@@ -1110,87 +1110,96 @@ msgstr ""
 "Invalid parameter \"list_type\". Should be: \"alpha\", \"areas\", \"wos\""
 " or \"publisher\"."
 
-#: opac/webapp/main/views.py:701
+#: opac/webapp/main/views.py:756
 msgid "Requisição inválida, deve ser ajax."
 msgstr ""
 
-#: opac/webapp/main/views.py:710
+#: opac/webapp/main/views.py:764
 msgid "Periódico não permite envio de email."
 msgstr ""
 
-#: opac/webapp/main/views.py:728
+#: opac/webapp/main/views.py:794
 msgid "Requisição inválida, captcha inválido."
 msgstr ""
 
-#: opac/webapp/main/views.py:936 opac/webapp/main/views.py:957
+#: opac/webapp/main/views.py:1010 opac/webapp/main/views.py:1030
 msgid "Artigos ahead of print não encontrados"
 msgstr ""
 
-#: opac/webapp/main/views.py:1139 opac/webapp/main/views.py:1419
+#: opac/webapp/main/views.py:1227 opac/webapp/main/views.py:1514
 msgid "Issue não encontrado"
 msgstr "Issue not found"
 
-#: opac/webapp/main/views.py:1172
+#: opac/webapp/main/views.py:1258
 msgid "Não existe '{}'. No seu lugar use '{}'"
 msgstr ""
 
-#: opac/webapp/main/views.py:1193
+#: opac/webapp/main/views.py:1279
 msgid "Resumo inexistente"
 msgstr ""
 
-#: opac/webapp/main/views.py:1194
+#: opac/webapp/main/views.py:1280
 msgid "Artigo inexistente"
 msgstr ""
 
-#: opac/webapp/main/views.py:1209 opac/webapp/main/views.py:1376
+#: opac/webapp/main/views.py:1294 opac/webapp/main/views.py:1465
 msgid "Recurso não encontrado"
 msgstr ""
 
-#: opac/webapp/main/views.py:1246
+#: opac/webapp/main/views.py:1329
 msgid "HTML do Artigo não encontrado ou indisponível"
 msgstr "HTML of article not found or unavailable"
 
-#: opac/webapp/main/views.py:1248 opac/webapp/main/views.py:1359
-#: opac/webapp/main/views.py:1378
+#: opac/webapp/main/views.py:1331 opac/webapp/main/views.py:1449
+#: opac/webapp/main/views.py:1467
 msgid "Erro inesperado"
 msgstr ""
 
-#: opac/webapp/main/views.py:1294 opac/webapp/main/views.py:1298
-#: opac/webapp/main/views.py:1303
+#: opac/webapp/main/views.py:1377 opac/webapp/main/views.py:1381
+#: opac/webapp/main/views.py:1386
 msgid "PDF do Artigo não encontrado"
 msgstr "Article's PDF not found"
 
-#: opac/webapp/main/views.py:1308 opac/webapp/main/views.py:1398
+#: opac/webapp/main/views.py:1390 opac/webapp/main/views.py:1487
 msgid "Recurso do Artigo não encontrado. Caminho inválido!"
 msgstr "Article resource not found. Invalid path!"
 
-#: opac/webapp/main/views.py:1326
+#: opac/webapp/main/views.py:1416
 msgid "Formato não suportado"
 msgstr ""
 
-#: opac/webapp/main/views.py:1339
+#: opac/webapp/main/views.py:1429
 msgid "Parâmetros insuficientes para obter o EPDF do artigo"
 msgstr "Insufficient parameters to obtain article's EPDF"
 
-#: opac/webapp/main/views.py:1357
+#: opac/webapp/main/views.py:1447
 msgid "PDF não encontrado"
 msgstr ""
 
-#: opac/webapp/main/views.py:1446
+#: opac/webapp/main/views.py:1545
 #, python-format
 msgid "Este PDF não existe em %s. Consulte %s"
 msgstr ""
 
-#: opac/webapp/main/views.py:1458
+#: opac/webapp/main/views.py:1562
 msgid "PDF do artigo não foi encontrado"
 msgstr "Article's PDF not found"
 
-#: opac/webapp/main/views.py:1502 opac/webapp/main/views.py:1534
-#: opac/webapp/main/views.py:1732
+#: opac/webapp/main/views.py:1710
+msgid "Formato de exportação não suportado."
+msgstr ""
+
+#: opac/webapp/main/views.py:1717
+#, fuzzy
+msgid "Artigo não encontrado."
+msgstr "Article not found"
+
+#: opac/webapp/main/views.py:1745 opac/webapp/main/views.py:1791
+#: opac/webapp/main/views.py:2010
 msgid "Requisição inválida."
 msgstr "Invalid request"
 
-#: opac/webapp/templates/base.html:87
+#: opac/webapp/templates/base.html:46
 msgid "Acessibilidade / Reportar erro"
 msgstr "Accessibility / Report Error"
 
@@ -1276,7 +1285,7 @@ msgstr "You’re already logged in!"
 #: opac/webapp/templates/admin/auth/login.html:24
 #: opac/webapp/templates/admin/auth/reset.html:13
 #: opac/webapp/templates/admin/auth/reset_with_token.html:13
-#: opac/webapp/templates/includes/error_form.html:72
+#: opac/webapp/templates/includes/error_form.html:70
 msgid "Enviar"
 msgstr "Send"
 
@@ -1323,7 +1332,7 @@ msgstr ""
 "otherwise the page will be a collection page, check the collection pages "
 "at <em>About SciELO</em>"
 
-#: opac/webapp/templates/article/base.html:122
+#: opac/webapp/templates/article/base.html:146
 msgid " SCImago image"
 msgstr ""
 
@@ -1525,6 +1534,30 @@ msgstr "Untitled document"
 msgid "Continue lendo"
 msgstr "Continue reading"
 
+#: opac/webapp/templates/article/includes/related-article.html:7
+msgid "Esta errata corrige o documento"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/related-article.html:9
+msgid "Esta retratação retrata o documento"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/related-article.html:11
+msgid "Este adendo adiciona informação ao documento"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/related-article.html:13
+msgid "Este documento possui um adendo"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/related-article.html:15
+msgid "Este documento possui uma retratação"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/related-article.html:17
+msgid "Este documento possui uma errata"
+msgstr ""
+
 #: opac/webapp/templates/article/includes/modal/download.html:6
 #: opac/webapp/templates/article/includes/modal/related_article.html:7
 #: opac/webapp/templates/email/email_form.html:7
@@ -1539,6 +1572,24 @@ msgstr "PDF version for download"
 #: opac/webapp/templates/article/includes/modal/download.html:39
 msgid "O periódico não forneceu este documento em formato PDF."
 msgstr "The journal did not provide this document in PDF format."
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:24
+msgid "Close"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:25
+msgid "Como citar"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:48
+msgid "Outros formatos de citação e exportação"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:50
+msgid ""
+"Enter references manager format or citation style (e.g., \"APA\", "
+"\"AMA\", \"MLA\", \"Vancouver\")"
+msgstr ""
 
 #: opac/webapp/templates/article/includes/modal/translate_version.html:6
 msgid "Versões e tradução automática"
@@ -1887,7 +1938,7 @@ msgid "Email enviado com sucesso."
 msgstr "Email sent with success."
 
 #: opac/webapp/templates/email/email_form.html:76
-#: opac/webapp/templates/includes/error_form.html:98
+#: opac/webapp/templates/includes/error_form.html:96
 #: opac/webapp/templates/journal/includes/contact_form.html:77
 msgid "Erro ao tentar enviar e-mail, por favor tente mais tarde."
 msgstr "Error trying send e-mail, please, try again later."
@@ -1953,39 +2004,38 @@ msgid ""
 "link externo"
 msgstr " our survey to map the profile of SciELO site users - external link"
 
-#: opac/webapp/templates/includes/error_form.html:38
+#: opac/webapp/templates/includes/error_form.html:41
 msgid "outro tipo de erro"
 msgstr "other type of error"
 
-#: opac/webapp/templates/includes/error_form.html:42
+#: opac/webapp/templates/includes/error_form.html:46
 msgid ""
 "Caso o erro esteja no conteúdo de um documento e apresente-se também na "
 "versão em PDF do mesmo documento, por favor não utilize este formulário. "
 "Entre em contato com o periódico que publicou o documento e reporte o "
 "erro diretamente a ele."
-msgstr "If the error is in the content and also presents itself in the PDF version of the document, please do not use this form. Contact the journal that published the document and report the error directly to them."
+msgstr ""
+"If the error is in the content and also presents itself in the PDF "
+"version of the document, please do not use this form. Contact the journal"
+" that published the document and report the error directly to them."
 
-#: opac/webapp/templates/includes/error_form.html:47
-msgid "ao conteúdo"
-msgstr "to content"
-
-#: opac/webapp/templates/includes/error_form.html:51
+#: opac/webapp/templates/includes/error_form.html:49
 msgid "à aplicação"
 msgstr "the app"
 
-#: opac/webapp/templates/includes/error_form.html:58
+#: opac/webapp/templates/includes/error_form.html:56
 msgid "Descrição do erro"
 msgstr "Erro description"
 
-#: opac/webapp/templates/includes/error_form.html:59
+#: opac/webapp/templates/includes/error_form.html:57
 msgid "Digite sua mensagem"
 msgstr "Enter your message"
 
-#: opac/webapp/templates/includes/error_form.html:61
+#: opac/webapp/templates/includes/error_form.html:59
 msgid "Obs.: Link e título da página são enviados automaticamente"
 msgstr "Note: Link and page title are sent automatically"
 
-#: opac/webapp/templates/includes/error_form.html:97
+#: opac/webapp/templates/includes/error_form.html:95
 msgid "Email de erro enviado com sucesso."
 msgstr "Error email sent successfully."
 
@@ -2492,4 +2542,7 @@ msgstr "Open"
 
 #~ msgid "Erro referente"
 #~ msgstr "Referring error"
+
+#~ msgid "ao conteúdo"
+#~ msgstr "to content"
 

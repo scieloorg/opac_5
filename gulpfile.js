@@ -390,7 +390,6 @@ function processBootstrapBundle(){
     .pipe(dest(output['js']['folder']));
 }
 
-
 exports.watch = series(
     processScieloBundleLess,
     processScieloArticleLess,

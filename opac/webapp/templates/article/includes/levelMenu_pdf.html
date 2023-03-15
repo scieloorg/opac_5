@@ -1,35 +1,29 @@
           {% if article and article.pdfs|length == 1 %}
-            <!--
-            <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="btn">
-              <span class="sci-ico-filePDF"></span> PDF
-            </a>
-            -->
-
-            <div class="dropdown">
-              <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-              <span class="sci-ico-filePDF"></span>
-              <span>PDF</span>
-              <span class="caret"></span></button>
-              <ul class="dropdown-menu menu-share-mobile">
-                {% for pdf in article.pdfs  %}
-                  <li>
-                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}">
-                      {% if pdf.lang == 'es' %}
-                        {% trans %}Download PDF (Espanhol){% endtrans %}
-                      {% elif pdf.lang == 'en' %}
-                        {% trans %}Download PDF (Inglês){% endtrans %}
-                      {% elif pdf.lang == 'pt' %}
-                        {% trans %}Download PDF (Português){% endtrans %}
-                      {% else %}
-                        {{ pdf.lang }}
-                      {% endif %}
-                    </a>
-                  </li>
-                {% endfor %}
-              </ul>
-            </div>
+           
+          <div class="dropdown">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              PDF
+            </button>
+            <ul class="dropdown-menu menu-share-mobile">
+              {% for pdf in article.pdfs  %}
+                <li>
+                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
+                    {% if pdf.lang == 'es' %}
+                      {% trans %}Download PDF (Espanhol){% endtrans %}
+                    {% elif pdf.lang == 'en' %}
+                      {% trans %}Download PDF (Inglês){% endtrans %}
+                    {% elif pdf.lang == 'pt' %}
+                      {% trans %}Download PDF (Português){% endtrans %}
+                    {% else %}
+                      {{ pdf.lang }}
+                    {% endif %}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
           {% endif%}
-
+          
           {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
             {% if article and article.pdfs|length == 1 %}
               <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=article.pdfs[0].url, lang=article.pdfs[0].lang) }}" class="btn">
@@ -37,19 +31,18 @@
               </a>
             {% endif %}
           {% endif %}
-
+          
           {% if article and article.pdfs|length > 1 %}
 
             {# PDF #}
             <div class="dropdown">
-              <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-              <span class="sci-ico-filePDF"></span>
-              <span>PDF</span>
-              <span class="caret"></span></button>
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                PDF
+              </button>
               <ul class="dropdown-menu menu-share-mobile">
                 {% for pdf in article.pdfs  %}
                   <li>
-                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}">
+                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
                       {% if pdf.lang == 'es' %}
                         {% trans %}Download PDF (Espanhol){% endtrans %}
                       {% elif pdf.lang == 'en' %}
@@ -67,28 +60,28 @@
 
             {# ePDF #}
             {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
-              <div class="dropdown">
-                <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="sci-ico-filePDF"></span>
-                <span class="hidden-sm">ePDF</span>
-                <span class="caret"></span></button>
-                <ul class="dropdown-menu">
-                  {% for pdf in article.pdfs  %}
-                    <li>
-                      <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}">
-                        {% if pdf.lang == 'es' %}
-                          {% trans %}Download PDF (Espanhol){% endtrans %}
-                        {% elif pdf.lang == 'en' %}
-                          {% trans %}Download PDF (Inglês){% endtrans %}
-                        {% elif pdf.lang == 'pt' %}
-                          {% trans %}Download PDF (Português){% endtrans %}
-                        {% else %}
-                          {{ pdf.lang }}
-                        {% endif %}
-                      </a>
-                    </li>
-                  {% endfor %}
-                </ul>
-              </div>
+
+            <div class="dropdown">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="material-icons-outlined">share</span>
+              </button>
+              <ul class="dropdown-menu">
+                {% for pdf in article.pdfs  %}
+                  <li>
+                    <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
+                      {% if pdf.lang == 'es' %}
+                        {% trans %}Download PDF (Espanhol){% endtrans %}
+                      {% elif pdf.lang == 'en' %}
+                        {% trans %}Download PDF (Inglês){% endtrans %}
+                      {% elif pdf.lang == 'pt' %}
+                        {% trans %}Download PDF (Português){% endtrans %}
+                      {% else %}
+                        {{ pdf.lang }}
+                      {% endif %}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
             {% endif %}
           {% endif %}
