@@ -382,6 +382,13 @@ function processDesignSystemImg(){
     .pipe(dest(output['img']['folder']));
 }
 
+/*
+Copiando bundle bootstrap para dentro do projeto
+*/
+function processBootstrapBundle(){
+    return src('node_modules/bootstrap/dist/js/bootstrap.bundle.js')
+    .pipe(dest(output['js']['folder']));
+}
 
 exports.watch = series(
     processScieloBundleLess,
@@ -405,11 +412,14 @@ exports.default = series(
 
 
 /*
-Tasks para copiar e gerar arquivos baseados no Design System direto do node_modules
+Tasks para copiar e gerar arquivos baseados no 
+Design System direto do node_modules.
+Arquivos Sass
 */
 exports.bundleSass = processScieloBundleSass;
 exports.bootstrapSass = processBootstrapSass;
 exports.processImages = processDesignSystemImg; 
-
 exports.articleSass = processScieloArticleSass;
+exports.bootstrapBundleJs = processBootstrapBundle;
 exports.scieloBundleJs = processScieloBundleJs;
+
