@@ -62,59 +62,66 @@
             <div class="col-md-6 right">
             </div>
           </div>
-          <div class="levelMenu">
-            <ul>
-              <li>
-                <a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
-              </li>
-              <li>
-                <a href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
-              </li>
-              <li class="periodicals-search">
 
-                <!-- Form search periódicos -->
-                <div class="typeahead__container">
-                  <div class="typeahead__field">
-                    <div class="typeahead__query">
-                      <input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control" autocomplete="off" name="tst" id="tst">
+          <div class="scielo__levelMenu mb-4">
+    
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-6 col-sm-3 col-md-2">
+                        <a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
                     </div>
-                  </div>
-                </div>
+                    <div class="col-6 col-sm-3 col-md-2">
+                        <a href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
+                    </div>
+                    <div class="col">
 
-              </li>
-{#               <li>
-                <a href="{{ url_for('.collection_list') }}#publisher">{% trans %}Por instituição{% endtrans %}</a>
-              </li>
-              <li>
-                <a href="{{ url_for('.collection_list') }}#newIssue">{% trans %}Novos números{% endtrans %}</a>
-              </li>
-              <li>
-                <a href="{{ url_for('.collection_list') }}#newJournals">{% trans %}Novos períodicos{% endtrans %}</a>
-              </li>
-              <li>
-                <a href="{{ analytics.urls.other }}">{% trans %}Métricas{% endtrans %}</a>
-              </li> #}
-            </ul>
-            <div class="clearfix"></div>
-          </div>
+                        <!-- Form search periódicos -->
+                        <div class="typeahead__container">
+                            <div class="typeahead__field">
+                                <div class="typeahead__query">
+                                    <span class="typeahead__cancel-button">×</span><input placeholder="Busca por periódicos" type="search" class="form-control" autocomplete="off" name="tst" id="tst">
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    {#
+                    <!--
+                    <li>
+                      <a href="{{ url_for('.collection_list') }}#publisher">{% trans %}Por instituição{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('.collection_list') }}#newIssue">{% trans %}Novos números{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('.collection_list') }}#newJournals">{% trans %}Novos períodicos{% endtrans %}</a>
+                    </li>
+                    <li>
+                      <a href="{{ analytics.urls.other }}">{% trans %}Métricas{% endtrans %}</a>
+                    </li> 
+                    -->
+                    #}
+
+                </div>
+            </div>
+        </div>
+
+
         </div>
       </div>
       {% if press_releases %}
         <div class="row">
           <div class="block releases">
             <div class="col-md-12">
+              
               <h2>SciELO <span>Press Releases</span></h2>
-              <div class="slider" id="pressreleases">
-                <a href="javascript:;" class="slide-back"><span class="glyphBtn arrowLeft"></span></a>
-                <a href="javascript:;" class="slide-next"><span class="glyphBtn arrowRight"></span></a>
-                <div class="slide-container">
-                  <div class="slide-wrapper">
-                    {% for press_release in press_releases %}
-                      {% include "press_release/includes/press_releases_row.html" %}
-                    {% endfor %}
-                  </div>
-                </div>
+              <div class="scielo-slider">
+                {% for press_release in press_releases %}
+                  {% include "press_release/includes/press_releases_row.html" %}
+                {% endfor %}
               </div>
+
             </div>
             
           </div>
@@ -126,17 +133,13 @@
           <div class="block perspective">
             <div class="col-md-12">
               <h2>SciELO <span>{% trans %}em perspectiva{% endtrans %}</span></h2>
-              <div class="slider" id="perspective">
-                <a href="javascript:;" class="slide-back"><span class="glyphBtn arrowLeft"></span></a>
-                <a href="javascript:;" class="slide-next"><span class="glyphBtn arrowRight"></span></a>
-                <div class="slide-container">
-                  <div class="slide-wrapper">
-                    {% for item in news %}
-                      {% include "news/includes/collection_news_row.html" %}
-                    {% endfor %}
-                  </div>
-                </div>
+              <div class="scielo-slider">
+                {% for item in news %}
+                  {% include "news/includes/collection_news_row.html" %}
+                {% endfor %} 
               </div>
+              
+            
             </div>
             
           </div>
