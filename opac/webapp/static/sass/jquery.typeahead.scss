@@ -95,8 +95,8 @@
 
 .typeahead__container {
 	position: relative;
-	min-width: 350px;
-	margin: 0 0 0 50px;
+	//min-width: 350px;
+	//margin: 0 0 0 50px;
 }
 
 .typeahead__container * {
@@ -304,7 +304,7 @@
 	left: 0;
 	z-index: 4;
 	width: 100%;
-	min-width: 350px;
+	//min-width: 350px;
 	padding: 5px 0;
 	margin: 2px 0 0;
 	list-style: none;

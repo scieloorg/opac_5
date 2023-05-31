@@ -1,41 +1,24 @@
-<!--
-<div class="slide-item release">
-  <div class="col-md-12">
-    <a href="{{ item.url }}" target="_blank">
-      <span>{{ item.publication_date|datetimefilter }}</span>
-      {% if item.image_url %}
-          <img src="{{ item.image_url }}">
-      {% else %}
-          <img src="../../static/img/img-post-blog-scielo-exemplo.jpg">
-      {% endif %}
-      <h3 class="ellipsis">{{ item.title }}</h3>
-      <div class="info">
-        <div class="ellipsis">
-          {{ item.description|striptags|replace('Read More →', '') }}
-          <br>
-        </div>
-        <strong>{% trans%}continue lendo{% endtrans %} &raquo;</strong>
-      </div>
-    </a>
-  </div>
-</div>
--->
 
 
-<div class="slide-item release">
-  <div class="card">
-    {% if item.image_url %}
-      <img src="{{ item.image_url }}">
-    {% else %}
-      <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="35%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
-    {% endif %}
-    <div class="card-body">
+<div class="card">
+  
+  {% if item.image_url %}
+      <img src="{{ item.image_url }}" class="card-img-top">
+  {% else %}
+      <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
+  {% endif %}
+  
+  <div class="card-body">
+
       <h6 class="card-subtitle">{{ item.publication_date|datetimefilter }}</h6>
-      <h5 class="card-title">{{ item.title }}</h5>
+      <h5 class="card-title">
+        {{ item.title }}
+      </h5>
       <p class="card-text">
         {{ item.description|striptags|replace('Read More →', '') }}
       </p>
-      <a href="{{ item.url }}" target="_blank" class="btn btn-secondary">{% trans%}Continue lendo{% endtrans %}</a>
-    </div>
+
+      <a href="{{ item.url }}" class="btn btn-secondary">{% trans%}Continue lendo{% endtrans %}</a>
   </div>
+  
 </div>
