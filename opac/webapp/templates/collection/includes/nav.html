@@ -1,99 +1,123 @@
 {% import 'macros/collection.html' as coll_macro %}
 
-<nav>
-  <ul>
-    <li>
-      <a href="{{ url_for('.index') }}">
-        <strong>{{ coll_macro.get_collection_name() }}</strong>
-      </a>
-      <ul>
+
+<a href="javascript:;" class="scielo__menu" data-rel="#mainMenu" title="Abrir menu">
+  <span class="material-icons-outlined scielo-ico-menu">menu</span>
+  <span class="material-icons-outlined scielo-ico-menu-opened">menu_open</span>
+</a>
+
+<h2 class="logo-svg">
+    <a href="/" title="Ir para a homepage da coleção: {{ coll_macro.get_collection_name() }}"></a>
+</h2>
+
+<div class="scielo__mainMenu" id="mainMenu">
+    <div class="row">
+        <div class="col text-center">
+          <div class="scielo__logo-scielo--small"></div>
+        </div>
+    </div>
+    
+    <nav>
+        <ul>
           <li>
-            <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
-              {% trans %}Lista alfabética de periódicos{% endtrans %}
+            <a href="{{ url_for('.index') }}">
+
+              <!--<strong>{{ coll_macro.get_collection_name() }}</strong>-->
+              <strong>Coleção</strong>
             </a>
+            <ul>
+                <li>
+                  <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
+                    Lista alfabética de periódicos
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
+                    Lista temática de periódicos
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
+                    Busca
+                  </a>
+                </li>
+                <li>
+                  <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}">
+                    Métricas
+                  </a>
+                </li>
+                <!--
+                <li>
+                  <a href="{{ url_for('.about_collection') }}">
+                    Sobre: {{ coll_macro.get_collection_name() }}
+                  </a>
+                </li>
+                -->
+                <li>
+                  <a href="{{ url_for('.about_collection') }}">
+                    Sobre: Coleção
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ url_for('.about_collection') }}">
+                    Contatos
+                  </a>
+                </li>
+            </ul>
           </li>
           <li>
-            <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
-              {% trans %}Lista temática de periódicos{% endtrans %}
+            <a href="#">
+              <strong>SciELO.org - Rede SciELO</strong>
             </a>
+            <ul>
+              <li>
+                <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
+                  Coleções nacionais e temáticas
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_title }}">
+                    Lista alfabética de periódicos
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_subject }}">
+                    Lista de periódicos por assunto
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.URL_SEARCH }}">
+                  Busca
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.METRICS_URL }}">
+                  Métricas
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.oai_and_rss }}">
+                    Acesso OAI e RSS
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
+                    Sobre a Rede SciELO
+                </a>
+              </li>
+              <li>
+                <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.contact }}">
+                  Contatos
+                </a>
+              </li>
+            </ul>
           </li>
           <li>
-            <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
-              {% trans %}Busca{% endtrans %}
-            </a>
+              <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
+                <strong>Blog SciELO em Perspectiva</strong>
+              </a>
           </li>
-          <li>
-            <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}">
-              {% trans %}Métricas{% endtrans %}
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('.about_collection') }}">
-              {% trans %}Sobre:{% endtrans %} {{ coll_macro.get_collection_name() }}
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('.about_collection') }}">
-              {% trans %}Contatos{% endtrans %}
-            </a>
-          </li>
-      </ul>
-    </li>
-    <li>
-      <a href="#">
-        <strong>{% trans %}SciELO.org - Rede SciELO{% endtrans %}</strong>
-      </a>
-      <ul>
-        <li>
-          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
-            {% trans %}Coleções nacionais e temáticas{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_title }}">
-              {% trans %}Lista alfabética de periódicos{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_subject }}">
-              {% trans %}Lista de periódicos por assunto{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.URL_SEARCH }}">
-            {% trans %}Busca{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.METRICS_URL }}">
-            {% trans %}Métricas{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.oai_and_rss }}">
-              {% trans %}Acesso OAI e RSS{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
-              {% trans %}Sobre a Rede SciELO{% endtrans %}
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.contact }}">
-            {% trans %}Contatos{% endtrans %}
-          </a>
-        </li>
-      </ul>
-    </li>
-    <li>
-      {% if session.lang == 'pt_BR' %}
-        <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}">
-      {% else  %}
-        <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
-      {% endif %}
-          <strong>{% trans %}Blog SciELO em Perspectiva{% endtrans %}</strong>
-        </a>
-    </li>
-  </ul>
-</nav>
+        </ul>
+      </nav>
+
+</div>

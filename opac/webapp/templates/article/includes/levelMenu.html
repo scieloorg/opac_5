@@ -1,69 +1,72 @@
+
 <!-- Exibe para todos dispositivos menos mobile -->
 <section class="levelMenu d-none d-sm-block d-md-block d-lg-block">
     <div class="container">
         
         <div class="row">
-          <div class="col-lg-6 col-md-6 col-sm-5">
+          <div class="col">
 
             <div class="btn-group">
-              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only"><span class="material-icons-outlined">home</span></a>
+              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0"><span class="material-icons-outlined">home</span></a>
               
               {# Sumário #}
-              <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn group">
-                  {% trans %}sumário{% endtrans %}
+              <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn mb-0">
+                  {% trans %}Sumário{% endtrans %}
               </a> 
   
               {# Anterior #}
                 {% if not previous_article %}
-                    <a href="#" class="btn disabled scielo__btn-with-icon--left">
+                    <a href="#" class="btn disabled scielo__btn-with-icon--left mb-0">
                 {% else %}
                   {% if is_pdf_page -%}
-                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='previous', format='pdf') }}" class="btn scielo__btn-with-icon--left">
+                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='previous', format='pdf') }}" class="btn scielo__btn-with-icon--left mb-0">
                   {%- else -%}
-                    <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='previous') }}" class="btn scielo__btn-with-icon--left">
+                    <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='previous') }}" class="btn scielo__btn-with-icon--left mb-0">
                   {% endif %}
                 {%- endif %}
                   <span class="material-icons-outlined">navigate_before</span>
-                  {% trans %}anterior{% endtrans %}
+                  {% trans %}Anterior{% endtrans %}
                   
                 </a>
   
               {# Atual #}
-              <a href="#" class="btn group disabled ">
-                  {% trans %}atual{% endtrans %}
+              <a href="#" class="btn group disabled mb-0">
+                  {% trans %}Atual{% endtrans %}
               </a>
   
               {# Próximo #}
               {% if not next_article %}
-                  <a href="#" class="btn group disabled scielo__btn-with-icon--right">
+                  <a href="#" class="btn disabled scielo__btn-with-icon--right mb-0">
               {% else %}
                 {%- if is_pdf_page -%}
-                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='next', format='pdf') }}" class="btn group scielo__btn-with-icon--right">
+                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='next', format='pdf') }}" class="btn scielo__btn-with-icon--right mb-0">
                 {%- else -%}
-                  <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='next') }}" class="btn group scielo__btn-with-icon--right">
+                  <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='next') }}" class="btn scielo__btn-with-icon--right mb-0">
                 {%- endif %}
               {%- endif %}
-                {% trans %}seguinte{% endtrans %}
+                {% trans %}Seguinte{% endtrans %}
                 <span class="material-icons-outlined">navigate_next</span>
               </a>
   
             </div>
           </div>
   
-          <div class="col-lg-4 col-md-5 col-sm-6">
-            {% include "article/includes/levelMenu_abstracts.html" %}
-            {% include "article/includes/levelMenu_texts.html" %}
-            {% include "article/includes/levelMenu_pdf.html" %}
+          <div class="col">
+            <div class="btn-group">
+              {% include "article/includes/levelMenu_abstracts.html" %}
+              {% include "article/includes/levelMenu_texts.html" %}
+              {% include "article/includes/levelMenu_pdf.html" %}
+            </div>
           </div>
-  
-          <div class="col-lg-2 col-md-1 col-sm-1 ---share text-end">
+          
+          <div class="col-1">
             
             <!--
             <span class="">{% trans %}Compartilhe{% endtrans %}</span>
             -->  
 
-            <div class="dropdown">
-              <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="dropdown float-end">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="material-icons-outlined">share</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1" style="">

@@ -117,9 +117,15 @@
               
               <h2>SciELO <span>Press Releases</span></h2>
               <div class="scielo-slider">
+                
                 {% for press_release in press_releases %}
-                  {% include "press_release/includes/press_releases_row.html" %}
+
+                  {% if loop.index <= 15 %}
+                    {% include "press_release/includes/press_releases_row.html" %}
+                  {% endif %}
+
                 {% endfor %}
+
               </div>
 
             </div>
