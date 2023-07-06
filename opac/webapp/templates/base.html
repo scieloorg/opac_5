@@ -16,8 +16,13 @@
     {% block extra_meta %}{% endblock %}
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
+    <!--
     <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-bundle.css') }}?v={{ config.VCS_REF }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-bundle-print.css') }}?v={{ config.VCS_REF }}" media="print">
+    -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}?v={{ config.VCS_REF }}">
+    
+    
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -102,7 +107,7 @@
     -->
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/scielo-bundle-min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scielo-ds-min.js') }}"></script>
 
     <!-- 
     Carregando o slick 
@@ -147,11 +152,12 @@
                   // instead of a settings object
               ]
             */
-            'slidesToShow': 4.5,
+            'slidesToShow': 3.5,
                 'infinite': false,
                 'centerPadding': '0',
                 'arrows': true,
                 'dots': true,
+                'slidesToScroll': 3,
                 'responsive': [{
                     'breakpoint': 767,
                     'settings': {

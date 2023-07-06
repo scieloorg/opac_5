@@ -1,7 +1,7 @@
           {% if article and article.pdfs|length == 1 %}
            
-          <div class="dropdown">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="btn-group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
               PDF
             </button>
             <ul class="dropdown-menu menu-share-mobile">
@@ -26,7 +26,7 @@
           
           {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
             {% if article and article.pdfs|length == 1 %}
-              <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=article.pdfs[0].url, lang=article.pdfs[0].lang) }}" class="btn">
+              <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=article.pdfs[0].url, lang=article.pdfs[0].lang) }}" class="btn mb-0">
                 <span class="sci-ico-filePDF"></span> ePDF
               </a>
             {% endif %}
@@ -35,8 +35,8 @@
           {% if article and article.pdfs|length > 1 %}
 
             {# PDF #}
-            <div class="dropdown">
-              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="btn-group">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
                 PDF
               </button>
               <ul class="dropdown-menu menu-share-mobile">
@@ -61,8 +61,8 @@
             {# ePDF #}
             {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
 
-            <div class="dropdown">
-              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="btn-group">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="material-icons-outlined">share</span>
               </button>
               <ul class="dropdown-menu">

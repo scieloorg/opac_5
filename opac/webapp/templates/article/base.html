@@ -14,7 +14,10 @@
 {% endblock %}
 
 {% block extra_css %}
+<!--
   <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-article.css') }}" type="text/css" async/>
+-->  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}?v={{ config.VCS_REF }}" type="text/css" async/>
 {% endblock %}
 
 {% block content %}
@@ -38,8 +41,10 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script type="text/javascript" src="{{ url_for('static', filename='js/scielo-article-min.js') }}"></script>
 
+  <!--
+  <script type="text/javascript" src="{{ url_for('static', filename='js/scielo-article-min.js') }}"></script>
+  -->
   {% if config.USE_PLUMX %}
     <script type="text/javascript" src="{{ config.PLUMX_METRICS_URL }}"></script>
   {% endif %}
