@@ -6,9 +6,12 @@
     {% include "collection/includes/levelMenu_search.html" %}
 {% endblock %}
 
+
+
 {% block main_content %}
   <section class="collection">
     <div class="container">
+      
       {% if config.USE_HOME_METRICS %}
         <div class="row">
           <div class="col-md-12 col-sm-12 metrics">
@@ -53,107 +56,102 @@
           </div>
         </div>
       {% endif %}
+
       <div class="row">
-        <div class="col-md-12 col-sm-12 periodicals">
-          <div class="row">
-            <div class="col-md-6">
-              <h2>{% trans %}Lista de periódicos{% endtrans %}</h2>
-            </div>
-            <div class="col-md-6 right">
-            </div>
-          </div>
-
-          <div class="scielo__levelMenu mb-4">
-    
+        <div class="col">
+          
+          <h2 class="h4  text-center text-md-start">{% trans %}Lista de periódicos{% endtrans %}</h2>
+          
+          <div class="scielo__levelMenu mb-5">
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-6 col-sm-3 col-md-2">
-                        <a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
-                    </div>
-                    <div class="col-6 col-sm-3 col-md-2">
-                        <a href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
-                    </div>
-                    <div class="col">
-
-                        <!-- Form search periódicos -->
-                        <div class="typeahead__container">
-                            <div class="typeahead__field">
-                                <div class="typeahead__query">
-                                    <span class="typeahead__cancel-button">×</span><input placeholder="Busca por periódicos" type="search" class="form-control" autocomplete="off" name="tst" id="tst">
-                                </div>
-                            </div>
+               <div class="row align-items-center">
+                  <div class="col-6 col-sm-3 col-md-2">
+                     <a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
+                  </div>
+                  <div class="col-6 col-sm-3 col-md-2">
+                     <a href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
+                  </div>
+                  <div class="col">
+                     <!-- Form search periódicos -->
+                     <div class="typeahead__container">
+                        <div class="typeahead__field">
+                           <div class="typeahead__query">
+                              <span class="typeahead__cancel-button">×</span><input placeholder="Busca por periódicos" type="search" class="form-control" autocomplete="off" name="tst" id="tst">
+                           </div>
                         </div>
-                        
-                    </div>
-                    
-                    {#
-                    <!--
-                    <li>
-                      <a href="{{ url_for('.collection_list') }}#publisher">{% trans %}Por instituição{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('.collection_list') }}#newIssue">{% trans %}Novos números{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('.collection_list') }}#newJournals">{% trans %}Novos períodicos{% endtrans %}</a>
-                    </li>
-                    <li>
-                      <a href="{{ analytics.urls.other }}">{% trans %}Métricas{% endtrans %}</a>
-                    </li> 
-                    -->
-                    #}
-
-                </div>
+                     </div>
+                  </div>
+                  {#
+                  <!--
+                     <li>
+                       <a href="{{ url_for('.collection_list') }}#publisher">{% trans %}Por instituição{% endtrans %}</a>
+                     </li>
+                     <li>
+                       <a href="{{ url_for('.collection_list') }}#newIssue">{% trans %}Novos números{% endtrans %}</a>
+                     </li>
+                     <li>
+                       <a href="{{ url_for('.collection_list') }}#newJournals">{% trans %}Novos períodicos{% endtrans %}</a>
+                     </li>
+                     <li>
+                       <a href="{{ analytics.urls.other }}">{% trans %}Métricas{% endtrans %}</a>
+                     </li> 
+                     -->
+                  #}
+               </div>
             </div>
-        </div>
-
-
+          
         </div>
       </div>
-      {% if press_releases %}
-        <div class="row">
-          <div class="block releases">
-            <div class="col-md-12">
+
+    </div>
+  </section>
+
+  {% if press_releases %}
+    <section class="collection collection-press-release mb-5">
+      <div class="container-fluid g-0 container-md">
+        <div class="row-fluid row-lg">
+          <div class="col">
               
-              <h2>SciELO <span>Press Releases</span></h2>
-              <div class="scielo-slider">
-                
-                {% for press_release in press_releases %}
+            <h2 class="h4 text-center text-md-start">SciELO <span>Press Releases</span></h2>
+            <div class="scielo-slider">
+              
+              {% for press_release in press_releases %}
 
-                  {% if loop.index <= 15 %}
-                    {% include "press_release/includes/press_releases_row.html" %}
-                  {% endif %}
+                {% if loop.index <= 15 %}
+                  {% include "press_release/includes/press_releases_row.html" %}
+                {% endif %}
 
-                {% endfor %}
-
-              </div>
+              {% endfor %}
 
             </div>
-            
+
           </div>
         </div> {# /row #}
-      {% endif %}
+      </div>
+    </section>  
+  {% endif %}
 
-      {% if news %}
-        <div class="row">
-          <div class="block perspective">
-            <div class="col-md-12">
-              <h2>SciELO <span>{% trans %}em perspectiva{% endtrans %}</span></h2>
-              <div class="scielo-slider">
-                {% for item in news %}
-                  {% include "news/includes/collection_news_row.html" %}
-                {% endfor %} 
-              </div>
-              
-            
+  {% if news %}
+    <section class="collection collection-news mb-5">
+      <div class="container-fluid g-0 container-md">
+        <div class="row-fluid row-lg">
+          <div class="col">
+            <h2 class="h4 text-center text-md-start">SciELO <span>{% trans %}em perspectiva{% endtrans %}</span></h2>
+            <div class="scielo-slider">
+              {% for item in news %}
+                {% include "news/includes/collection_news_row.html" %}
+              {% endfor %} 
             </div>
-            
           </div>
         </div> {# /row #}
-      {% endif %}
+      </div>
+    </section> 
+  {% endif %}
 
-      {% if tweets %}
-        <div class="row">
+  {% if tweets %}
+    <section class="collection collection-news">
+      <div class="container">
+      <div class="row">
           <div class="block twitter">
             <div class="col-md-12">
               <h2><span>Twitter</span> <a href="https://twitter.com/{{ config.TWITTER_SCREEN_NAME }}" target="_blank">@{{ config.TWITTER_SCREEN_NAME }}</a></h2>
@@ -174,10 +172,9 @@
             <div class="clearfix"></div>
           </div>
         </div> {# /row #}
-      {% endif %}
-
-    </div>
-  </section>
+      </div>
+    </section>
+  {% endif %}
 
 {% endblock %}
 

@@ -1,20 +1,19 @@
-
-
 <div class="card">
 
   <div class="card-body">
 
     <h6 class="card-subtitle mb-1">{{ press_release.publication_date|datetimefilter }}</h6>
     
-    <h5 class="card-title">
+    <!--
+    <h5 class="card-title"></h5>
+    -->
+    
+    <strong class="card-title">
       {{ press_release.title|striptags|truncate(90) }}
-    </h5>
-    
-    
+    </strong>
+
+    <a href="{{ press_release.url }}" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
   
-  </div>
-  <div class="card-body">
-    <a href="{{ press_release.url }}" class="btn btn-secondary">{% trans%}Continue lendo{% endtrans %}</a>
   </div>
 
 </div>

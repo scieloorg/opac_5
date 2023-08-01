@@ -1,12 +1,12 @@
 
 <!-- Exibe para todos dispositivos menos mobile -->
-<section class="levelMenu d-none d-sm-block d-md-block d-lg-block">
+<section class="levelMenu d-none d-md-block">
     <div class="container">
         
         <div class="row">
           <div class="col">
 
-            <div class="btn-group">
+            <div class="btn-group mt-1">
               <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0"><span class="material-icons-outlined">home</span></a>
               
               {# Sumário #}
@@ -16,17 +16,16 @@
   
               {# Anterior #}
                 {% if not previous_article %}
-                    <a href="#" class="btn disabled scielo__btn-with-icon--left mb-0">
+                    <a href="#" class="btn disabled scielo__btn-with-icon--left mb-0 pe-md-2">
                 {% else %}
                   {% if is_pdf_page -%}
-                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='previous', format='pdf') }}" class="btn scielo__btn-with-icon--left mb-0">
+                    <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='previous', format='pdf') }}" class="btn scielo__btn-with-icon--left mb-0 pe-md-2">
                   {%- else -%}
-                    <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='previous') }}" class="btn scielo__btn-with-icon--left mb-0">
+                    <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='previous') }}" class="btn scielo__btn-with-icon--left mb-0 pe-md-2">
                   {% endif %}
                 {%- endif %}
                   <span class="material-icons-outlined">navigate_before</span>
-                  {% trans %}Anterior{% endtrans %}
-                  
+                  <span class="d-none d-xl-block">{% trans %}Anterior{% endtrans %}</span>
                 </a>
   
               {# Atual #}
@@ -36,36 +35,208 @@
   
               {# Próximo #}
               {% if not next_article %}
-                  <a href="#" class="btn disabled scielo__btn-with-icon--right mb-0">
+                  <a href="#" class="btn disabled scielo__btn-with-icon--right mb-0 ps-md-2">
               {% else %}
                 {%- if is_pdf_page -%}
-                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='next', format='pdf') }}" class="btn scielo__btn-with-icon--right mb-0">
+                  <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, goto='next', format='pdf') }}" class="btn scielo__btn-with-icon--right mb-0 ps-md-2">
                 {%- else -%}
-                  <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='next') }}" class="btn scielo__btn-with-icon--right mb-0">
+                  <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part=part, lang=article_lang, goto='next') }}" class="btn scielo__btn-with-icon--right mb-0 ps-md-2">
                 {%- endif %}
               {%- endif %}
-                {% trans %}Seguinte{% endtrans %}
+
+                <span class="d-none d-xl-block">{% trans %}Seguinte{% endtrans %}</span>
                 <span class="material-icons-outlined">navigate_next</span>
               </a>
   
             </div>
           </div>
   
-          <div class="col">
-            <div class="btn-group">
+          <div class="col d-md-none d-lg-block">
+            <div class="btn-group mt-1">
               {% include "article/includes/levelMenu_abstracts.html" %}
               {% include "article/includes/levelMenu_texts.html" %}
               {% include "article/includes/levelMenu_pdf.html" %}
             </div>
           </div>
+          <div class="col d-none d-md-block d-lg-none">
+            <div class="dropdown mt-1 float-end">
+              <button class="btn btn-secondary dropdown-toggle mb-0 scielo__btn-with-icon--left " data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="material-icons-outlined">article</span> <strong>Conteúdo:</strong> 
+                <!--resumo-->
+                {% if article and article.abstracts|length > 1 %}
+                
+                {% for abstract in article.abstracts  %}
+                {% if gs_abstract and article_lang == abstract['language'] %}  
+                {% if abstract['language'] == 'es' %}
+                {% trans %}Resumo{% endtrans %} (ES)
+                {% elif abstract['language'] == 'en' %}
+                {% trans %}Resumo{% endtrans %} (EN)
+                {% elif abstract['language'] == 'pt' %}
+                {% trans %}Resumo{% endtrans %} (PT)
+                {% else %}
+                {{ abstract['language'] }}
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+
+                <!--texto-->
+                {% if article and text_versions %}
+                
+                {% for lang, text_lang, uri in text_versions  %}
+                {% if not gs_abstract and lang == article_lang %}        
+                {% if lang == 'es' %}
+                {% trans %}Texto{% endtrans %} (ES)
+                {% elif lang == 'en' %}
+                {% trans %}Texto{% endtrans %} (EN)
+                {% elif lang == 'pt' %}
+                {% trans %}Texto{% endtrans %} (PT)
+                {% else %} 
+                ({{ text_lang }})
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+                <!--resumo-->
+                {% if article and article.abstracts|length > 1 %}
+                {% for abstract in article.abstracts  %}
+                <li>
+                {% if gs_abstract and article_lang == abstract['language'] %}
+                <a href="#" class="current dropdown-item">
+                {% trans %}Resumo{% endtrans %}
+                {% if abstract['language'] == 'es' %}
+                ({% trans %}Espanhol{% endtrans %})
+                {% elif abstract['language'] == 'en' %}
+                ({% trans %}Inglês{% endtrans %})
+                {% elif abstract['language'] == 'pt' %}
+                ({% trans %}Português{% endtrans %})
+                {% else %}
+                ({{ abstract['language'] }})
+                {% endif %}
+                </a>
+                {% else %}
+                <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}" class="dropdown-item">
+                {% trans %}Resumo {% endtrans %}
+                {% if abstract['language'] == 'es' %}
+                ({% trans %}Espanhol{% endtrans %})
+                {% elif abstract['language'] == 'en' %}
+                ({% trans %}Inglês{% endtrans %})
+                {% elif abstract['language'] == 'pt' %}
+                ({% trans %}Português{% endtrans %})
+                {% else %}
+                ({{ abstract['language'] }})
+                {% endif %}
+                </a>
+                {% endif %}
+                <li>
+                {% endfor %}
+                {% endif %}
+
+                <!--texto-->
+                {% if article and text_versions %}
+                {% for lang, text_lang, uri in text_versions  %}
+                <li>
+                {% if not gs_abstract and lang == article_lang %}
+                <!-- página de texto -->
+                <a href="#" class="current dropdown-item"> 
+                {% trans %}Texto{% endtrans %}
+                {% if lang == 'es' %}
+                ({% trans %}Espanhol{% endtrans %})
+                {% elif lang == 'en' %}
+                ({% trans %}Inglês{% endtrans %})
+                {% elif lang == 'pt' %}
+                ({% trans %}Português{% endtrans %})
+                {% else %}
+                ({{ text_lang }})
+                {% endif %}
+                </a>
+                {% else %}
+                <a href="{{ uri }}" class="dropdown-item">
+                {% trans %}Texto {% endtrans %}
+                {% if lang == 'es' %}
+                ({% trans %}Espanhol{% endtrans %})
+                {% elif lang == 'en' %}
+                ({% trans %}Inglês{% endtrans %})
+                {% elif lang == 'pt' %}
+                ({% trans %}Português{% endtrans %})
+                {% else %}
+                ({{ text_lang }})
+                {% endif %}
+                </a>
+                {% endif %}
+                </li>
+                {% endfor %}
+                {% endif %}
+
+                <!--PDF-->
+                {% if article and article.pdfs|length == 1 %}
+                {% for pdf in article.pdfs  %}
+                <li>
+                <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
+                {% if pdf.lang == 'es' %}
+                {% trans %}Download PDF (Espanhol){% endtrans %}
+                {% elif pdf.lang == 'en' %}
+                {% trans %}Download PDF (Inglês){% endtrans %}
+                {% elif pdf.lang == 'pt' %}
+                {% trans %}Download PDF (Português){% endtrans %}
+                {% else %}
+                {{ pdf.lang }}
+                {% endif %}
+                </a>
+                </li>
+                {% endfor %}
+                {% endif %}
+
+
+                <!--PDF REDCUBE-->
+                {% if article and article.pdfs|length > 1 %}
+                {% for pdf in article.pdfs  %}
+                <li>
+                <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
+                {% if pdf.lang == 'es' %}
+                {% trans %}Download PDF (Espanhol){% endtrans %}
+                {% elif pdf.lang == 'en' %}
+                {% trans %}Download PDF (Inglês){% endtrans %}
+                {% elif pdf.lang == 'pt' %}
+                {% trans %}Download PDF (Português){% endtrans %}
+                {% else %}
+                {{ pdf.lang }}
+                {% endif %}
+                </a>
+                </li>
+                {% endfor %}
+                {% endif %}
+
+
+                <!--ePDF-->
+                {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
+                {% for pdf in article.pdfs  %}
+                <li>
+                <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
+                {% if pdf.lang == 'es' %}
+                {% trans %}Download PDF (Espanhol){% endtrans %}
+                {% elif pdf.lang == 'en' %}
+                {% trans %}Download PDF (Inglês){% endtrans %}
+                {% elif pdf.lang == 'pt' %}
+                {% trans %}Download PDF (Português){% endtrans %}
+                {% else %}
+                {{ pdf.lang }}
+                {% endif %}
+                </a>
+                </li>
+                {% endfor %}
+                {% endif %}
+
+              </ul>
+            </div>
+          </div>
+
           
           <div class="col-1">
-            
-            <!--
-            <span class="">{% trans %}Compartilhe{% endtrans %}</span>
-            -->  
 
-            <div class="dropdown float-end">
+            <div class="dropdown float-end mt-1">
               <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="material-icons-outlined">share</span>
               </button>
@@ -80,63 +251,7 @@
                 <li><a class="dropdown-item" href="#">Mendeley</a></li>
               </ul>
             </div>
-        
 
-              <!--
-              <a href="javascript:;" class="btn dropdown-toggle" data-toggle="dropdown">
-                <span class="sci-ico-socialOther"></span><span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu menu-share-mobile" role="menu">
-                <li class="dropdown-header">
-                  {% trans %}Compartilhe{% endtrans %}
-                </li>
-                <li>
-                  <a href="#" class="share_modal_id">
-                    <span class="sci-ico-socialEmail"></span> E-mail
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareFacebook">
-                    <span class="sci-ico-socialFacebook"></span> Facebook
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareTwitter">
-                    <span class="sci-ico-socialTwitterSingle"></span> Twitter
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareGooglePlus">
-                    <span class="glyphBtn googlePlus"></span> Google+
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareLinkedIn">
-                    <span class="glyphBtn linkedIn"></span> LinkedIn
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareReddit">
-                    <span class="glyphBtn reddit"></span> Reddit
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareStambleUpon">
-                    <span class="glyphBtn stambleUpon"></span> StambleUpon
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareCiteULike">
-                    <span class="glyphBtn citeULike"></span> CiteULike
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="shareMendeley">
-                    <span class="glyphBtn mendeley"></span> Mendeley
-                  </a>
-                </li>
-              </ul>
-              -->
           </div>
         </div>
 
@@ -145,80 +260,242 @@
 
 
 <!-- Exibe somente no mobile -->
-<section class="levelMenu levelMenu-xs d-block d-sm-none d-md-none d-lg-none">
+<section class="levelMenu levelMenu-xs d-block d-md-none d-lg-none mt-5" style="padding-bottom:110px;">
     <div class="container">
       <div class="row">
-        <div class="col-12">
-          <div class="btn-group btn-group-nav-mobile" role="group">
+        <div class="col">
+          <div class="btn-group w-100 --btn-group-nav-mobile" role="group">
             
-            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn"><span class="material-icons-outlined">home</span></a>
-            <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn no-ico-util">
+            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0"><span class="material-icons-outlined">home</span></a>
+            <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn mb-0">
               {% trans %}Sumário{% endtrans %}
             </a>
-            <a href="javascript:;" class="btn dropdown-toggle" data-toggle="dropdown">
-              <span class="sci-ico-socialOther"></span><span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu menu-share-mobile" role="menu">
-              <li class="dropdown-header">
-                {% trans %}Compartilhe{% endtrans %}
-              </li>
-              <li>
-                <a href="#" class="share_modal_id">
-                  <span class="sci-ico-socialEmail"></span> E-mail
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareFacebook">
-                  <span class="sci-ico-socialFacebook"></span> Facebook
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareTwitter">
-                  <span class="sci-ico-socialTwitterSingle"></span> Twitter
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareGooglePlus">
-                  <span class="glyphBtn googlePlus"></span> Google+
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareLinkedIn">
-                  <span class="glyphBtn linkedIn"></span> LinkedIn
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareReddit">
-                  <span class="glyphBtn reddit"></span> Reddit
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareStambleUpon">
-                  <span class="glyphBtn stambleUpon"></span> StambleUpon
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareCiteULike">
-                  <span class="glyphBtn citeULike"></span> CiteULike
-                </a>
-              </li>
-              <li>
-                <a href="#" class="shareMendeley">
-                  <span class="glyphBtn mendeley"></span> Mendeley
-                </a>
-              </li>
-            </ul>
+            
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                <span class="material-icons-outlined">share</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#">Facebook</a></li>
+                <li><a class="dropdown-item" href="#">Twitter</a></li>
+                <li><a class="dropdown-item" href="#">Google+</a></li>
+                <li><a class="dropdown-item" href="#">LinkedIn</a></li>
+                <li><a class="dropdown-item" href="#">Reddit</a></li>
+                <li><a class="dropdown-item" href="#">StambleUpon</a></li>
+                <li><a class="dropdown-item" href="#">CiteULike</a></li>
+                <li><a class="dropdown-item" href="#">Mendeley</a></li>
+              </ul>
+            </div>
+          
 
           </div>
         </div>
       </div>
       <div class="row">
-        <div class="col-12">
-          <div class="btn-group btn-group-nav-mobile-content" role="group">
-            {% include "article/includes/levelMenu_abstracts.html" %}
-            {% include "article/includes/levelMenu_texts.html" %}
-            {% include "article/includes/levelMenu_pdf.html" %}
+        <div class="col-4">
+          {% if article and article.abstracts|length > 1 %}
+
+          <div class="dropdown mt-1">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          {% trans %}Resumo{% endtrans %}
+          {% for abstract in article.abstracts  %}
+          {% if gs_abstract and article_lang == abstract['language'] %}  
+          {% if abstract['language'] == 'es' %}
+          (ES)
+          {% elif abstract['language'] == 'en' %}
+          (EN)
+          {% elif abstract['language'] == 'pt' %}
+          (PT)
+          {% else %}
+          {{ abstract['language'] }}
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+          {% for abstract in article.abstracts  %}
+          <li>
+          {% if gs_abstract and article_lang == abstract['language'] %}
+          <a href="#" class="current dropdown-item">
+          {% trans %}Resumo{% endtrans %}
+          {% if abstract['language'] == 'es' %}
+            ({% trans %}Espanhol{% endtrans %})
+          {% elif abstract['language'] == 'en' %}
+            ({% trans %}Inglês{% endtrans %})
+          {% elif abstract['language'] == 'pt' %}
+            ({% trans %}Português{% endtrans %})
+          {% else %}
+            ({{ abstract['language'] }})
+          {% endif %}
+          </a>
+          {% else %}
+          <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}" class="dropdown-item">
+          {% trans %}Resumo {% endtrans %}
+          {% if abstract['language'] == 'es' %}
+            ({% trans %}Espanhol{% endtrans %})
+          {% elif abstract['language'] == 'en' %}
+            ({% trans %}Inglês{% endtrans %})
+          {% elif abstract['language'] == 'pt' %}
+            ({% trans %}Português{% endtrans %})
+          {% else %}
+            ({{ abstract['language'] }})
+          {% endif %}
+          </a>
+          {% endif %}
+          <li>
+          {% endfor %}
+          </ul>
           </div>
+          {% endif %}
+
+
+        </div>
+        <div class="col-4">
+
+          {% if article and text_versions %}
+          <div class="dropdown mt-1">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          {% trans %}Texto{% endtrans %}
+          {% for lang, text_lang, uri in text_versions  %}
+          {% if not gs_abstract and lang == article_lang %}        
+          {% if lang == 'es' %}
+          (ES)
+          {% elif lang == 'en' %}
+          (EN)
+          {% elif lang == 'pt' %}
+          (PT)
+          {% else %} 
+          ({{ text_lang }})
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+          </button>
+          <ul class="dropdown-menu">
+          {% for lang, text_lang, uri in text_versions  %}
+          <li>
+          {% if not gs_abstract and lang == article_lang %}
+          <!-- página de texto -->
+          <a href="#" class="current dropdown-item"> 
+          {% trans %}Texto{% endtrans %}
+          {% if lang == 'es' %}
+          ({% trans %}Espanhol{% endtrans %})
+          {% elif lang == 'en' %}
+          ({% trans %}Inglês{% endtrans %})
+          {% elif lang == 'pt' %}
+          ({% trans %}Português{% endtrans %})
+          {% else %}
+          ({{ text_lang }})
+          {% endif %}
+          </a>
+          {% else %}
+          <a href="{{ uri }}" class="dropdown-item">
+          {% trans %}Texto {% endtrans %}
+          {% if lang == 'es' %}
+          ({% trans %}Espanhol{% endtrans %})
+          {% elif lang == 'en' %}
+          ({% trans %}Inglês{% endtrans %})
+          {% elif lang == 'pt' %}
+          ({% trans %}Português{% endtrans %})
+          {% else %}
+          ({{ text_lang }})
+          {% endif %}
+          </a>
+          {% endif %}
+          </li>
+          {% endfor %}
+          </ul>
+          </div>
+
+          {% endif %}
+        </div>
+        <div class="col-4">
+          {% if article and article.pdfs|length == 1 %}
+
+          <div class="dropdown float-end mt-1">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+          PDF
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+          {% for pdf in article.pdfs  %}
+          <li>
+          <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
+          {% if pdf.lang == 'es' %}
+          {% trans %}Download PDF (Espanhol){% endtrans %}
+          {% elif pdf.lang == 'en' %}
+          {% trans %}Download PDF (Inglês){% endtrans %}
+          {% elif pdf.lang == 'pt' %}
+          {% trans %}Download PDF (Português){% endtrans %}
+          {% else %}
+          {{ pdf.lang }}
+          {% endif %}
+          </a>
+          </li>
+          {% endfor %}
+          </ul>
+          </div>
+          {% endif%}
+
+          {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
+          {% if article and article.pdfs|length == 1 %}
+          <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=article.pdfs[0].url, lang=article.pdfs[0].lang) }}" class="btn mb-0">
+          <span class="sci-ico-filePDF"></span> ePDF
+          </a>
+          {% endif %}
+          {% endif %}
+
+          {% if article and article.pdfs|length > 1 %}
+
+          {# PDF #}
+          <div class="dropdown float-end mt-1">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+          PDF
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+          {% for pdf in article.pdfs  %}
+          <li>
+          <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
+          {% if pdf.lang == 'es' %}
+          {% trans %}Download PDF (Espanhol){% endtrans %}
+          {% elif pdf.lang == 'en' %}
+          {% trans %}Download PDF (Inglês){% endtrans %}
+          {% elif pdf.lang == 'pt' %}
+          {% trans %}Download PDF (Português){% endtrans %}
+          {% else %}
+          {{ pdf.lang }}
+          {% endif %}
+          </a>
+          </li>
+          {% endfor %}
+          </ul>
+          </div>
+
+          {# ePDF #}
+          {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
+
+          <div class="dropdown float-end mt-1">
+          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="material-icons-outlined">share</span>
+          </button>
+          <ul class="dropdown-menu">
+          {% for pdf in article.pdfs  %}
+          <li>
+          <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
+          {% if pdf.lang == 'es' %}
+          {% trans %}Download PDF (Espanhol){% endtrans %}
+          {% elif pdf.lang == 'en' %}
+          {% trans %}Download PDF (Inglês){% endtrans %}
+          {% elif pdf.lang == 'pt' %}
+          {% trans %}Download PDF (Português){% endtrans %}
+          {% else %}
+          {{ pdf.lang }}
+          {% endif %}
+          </a>
+          </li>
+          {% endfor %}
+          </ul>
+          </div>
+          {% endif %}
+          {% endif %}
         </div>
       </div>
     </div>

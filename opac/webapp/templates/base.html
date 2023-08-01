@@ -158,20 +158,104 @@
                 'arrows': true,
                 'dots': true,
                 'slidesToScroll': 3,
-                'responsive': [{
+                'responsive': [
+                  {
                     'breakpoint': 767,
                     'settings': {
-                    'dots': true,
-                    'slidesToShow': 1.3,
-                    'slidesToScroll': 1,
-                    'centerMode': false,
-                    'arrows': false,
+                      'dots': true,
+                      'slidesToShow': 1.2,
+                      'slidesToScroll': 1,
+                      'centerMode': false,
+                      'arrows': false,
                     }
-                }]
+                  },
+                  {
+                    'breakpoint': 992,
+                    'settings': {
+                      'dots': true,
+                      'slidesToShow': 2.2,
+                      'slidesToScroll': 2,
+                      'centerMode': false,
+                      'arrows': false,
+                    }
+                  }
+                ]
 
           });
-
           
+          /* abrir menu global*/
+      var trigger = document.querySelector('.scielo__menu');
+      var triggerOpened = document.querySelector('.opened');
+      var el = document.querySelector('.scielo__mainMenu');
+
+      var icoMenu = document.querySelector('.scielo-ico-menu');
+      var icoMenuOpened = document.querySelector('.scielo-ico-menu-opened');
+
+      trigger.addEventListener('click', function () {
+        
+        if(this.classList.contains('opened')){
+
+          console.log('menu off');
+          
+          this.classList.remove('opened');
+          
+          icoMenu.style.display = "inline-block";
+          icoMenuOpened.style.display = "none";
+
+          el.animate([
+          // keyframes
+            { top: '0px' },
+            { top: '-1000px' }
+          ], {
+          // timing options
+            duration: 600,
+            iterations: 1
+          });
+
+          el.style.top = "-1000px";
+
+        }else{
+
+          console.log('menu on');
+          
+          this.classList.add('opened');
+          icoMenu.style.display = "none";
+          icoMenuOpened.style.display = "inline-block";
+
+          el.animate([
+          // keyframes
+            { top: '-500px' },
+            { top: '0px' }
+          ], {
+          // timing options
+            duration: 100,
+            iterations: 1
+          });
+
+          //el.style.display = "block";
+          el.style.top = "0px";
+        
+        }
+      
+      });
+          
+
+      // add rows article search
+      let addRowBtn = $('.addRowBtn');
+            let placeRow = $('.scielo__dinamic-row');
+            let newFormRow = '<div class="row"><div class="col-12"><hr></div><div class="col-2 col-lg-1 text-end"><button type="button" class="btn btn-danger scielo__btn-with-icon--only"><i class="material-icons-outlined">clear</i></button></div><div class="col-10 col-lg-11"><div class="input-group"><div class="input-group-preppend"><select class="form-select"><option selected value="and">AND</option><option value="or">OR</option><option value="and not">AND NOT</option></select></div><textarea class="form-control" aria-label="With textarea" placeholder="Entre uma ou mais palavras"></textarea><div class="input-group-append"><select class="form-select"><option selected value="todos">Todos os índices</option><option value="ano">Ano</option><option value="autor">Autor</option><option value="financiador">Financiador</option><option value="periodico">Periódico</option><option value="resumo">Resumo</option><option value="titulo">Título</option></select></div></div></div></div>';
+
+            let btnRemoveRow = $('.btn-danger');
+
+            addRowBtn.on( "click", function() {
+                placeRow.append( newFormRow );
+                console.log('linha adicionada');
+            })
+
+            // remove as linhas inseridas dinamicamente e as que já estavam lá.
+            placeRow.on( "click", ".btn-danger", function() {
+                $(this).parent().parent().animate({'opacity':0},300).hide(1);
+            })
       });
     </script>
 
@@ -243,5 +327,9 @@
     {% if config.PINGDOM_VISITOR_INSIGHTS_JS_SRC %}
       <script src="{{ config.PINGDOM_VISITOR_INSIGHTS_JS_SRC }}" async></script>
     {% endif %}
+
+
+   
+
   </body>
 </html>

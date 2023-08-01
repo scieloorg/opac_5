@@ -40,6 +40,6 @@
     "gulp-include": "^2.4.1",
     "jquery": "^3.6.0",
     "jquery-typeahead": "^2.11.1",
-    "scielo-design-system": "file:scielo-design-system-1.1.5.tgz"
+    "scielo-design-system": "file:scielo-design-system-1.1.7.tgz"
   }
 }

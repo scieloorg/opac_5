@@ -1,16 +1,9 @@
 {% import 'macros/collection.html' as coll_macro %}
 
-<section class="levelMenu">
+<section class="levelMenu d-none">
   <div class="container">
-    <a href="{{ url_for('.about_collection') }}" class="onlineSubmission">
-      
-      <!--
-      <span class="glyphBtn infoMenu"></span>
-      -->
-      <span class="material-icons-outlined">
-        info
-      </span>
-      
+    <a href="{{ url_for('.about_collection') }}" class="onlineSubmission d-none d-lg-block">
+      <span class="material-icons-outlined">info</span>
       {% trans %}Sobre o{% endtrans %} SciELO {{ coll_macro.get_collection_name() }}
     </a>
     <form method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
@@ -18,7 +11,7 @@
       <input type="hidden" name="lang" id="lang" value="{% if session.lang %}{{ session.lang[:2] }}{% endif %}">
       <input type="hidden" name="filter[in][]" value="{{ config.OPAC_COLLECTION }}">
     </form>
-    <form name="searchFormBuilder" action="{{ config.URL_SEARCH }}" method="get" class="searchForm searchFormBuilder d-none d-sm-block">
+    <form name="searchFormBuilder" action="{{ config.URL_SEARCH }}" method="get" class="searchForm searchFormBuilder">
     <div class="row">  
       <div class="col-xs-8 col-sm-10 col-md-10">
 
@@ -95,6 +88,80 @@
     </form>
   </div>
 </section>
+
+<section class="d-none">
+  <div class="container">
+      <div class="row">
+          <div class="col-12 text-end">
+              <a href="#">
+                  <span class="material-icons-outlined">info</span>
+                  Sobre o SciELO Brasil
+              </a>
+          </div>
+      </div>
+  </div>
+</section>
+<section class="scielo__search-articles mb-5">
+  <div class="container">
+      
+      <div class="row">
+          <div class="col-12 col-md-8 col-lg-10">
+              
+              <div class="row">
+                  <div class="col">
+
+                      <div class="input-group">
+                          <textarea class="form-control" aria-label="With textarea" placeholder="Entre uma ou mais palavras"></textarea>
+                          <div class="input-group-append">
+                              <select class="form-select">
+                                  <option selected value="todos">Todos os índices</option>
+                                  <option value="ano">Ano</option>
+                                  <option value="autor">Autor</option>
+                                  <option value="financiador">Financiador</option>
+                                  <option value="periodico">Periódico</option>
+                                  <option value="resumo">Resumo</option>
+                                  <option value="titulo">Título</option>
+                              </select>
+                          </div>
+                      </div>
+
+                  </div>
+              </div>
+
+              <!-- begin dinamic row -->
+              <div class="scielo__dinamic-row">
+              </div>
+              <!-- end dinamic row -->
+
+
+              <div class="row">
+                  <div class="col-12 text-end">
+                      
+                      <a href="#" class="addRowBtn mt-3 d-block d-md-inline-block btn btn-link ps-0 pe-0">
+                         Adicionar outro campo
+                      </a>
+                      
+                  </div>
+              </div>
+              
+              <div class="row d-sm-none">
+                  <div class="col">
+                      <hr>
+                  </div>
+              </div>
+
+          </div>
+          <div class="col-12 col-md-4 col-lg-2 d-grid gap-2">
+              <button type="button" class="btn btn-primary">
+                  Buscar
+              </button>
+          </div>
+      </div>
+     
+  </div>
+</section>
+
+
 <div class="modal fade" id="NotFound" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
@@ -110,3 +177,4 @@
     </div>
   </div>
 </div>
+
