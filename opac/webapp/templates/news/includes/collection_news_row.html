@@ -3,22 +3,28 @@
 <div class="card">
   
   {% if item.image_url %}
+      <!--
       <img src="{{ item.image_url }}" class="card-img-top">
+      -->
+      <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
   {% else %}
       <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
   {% endif %}
   
   <div class="card-body">
 
-      <h6 class="card-subtitle">{{ item.publication_date|datetimefilter }}</h6>
-      <h5 class="card-title">
+      <h6 class="card-subtitle mb-1">{{ item.publication_date|datetimefilter }}</h6>
+      <!--
+      <h5 class="card-title"></h5>
+      -->
+      <strong class="card-title">
         {{ item.title }}
-      </h5>
-      <p class="card-text">
-        {{ item.description|striptags|replace('Read More →', '') }}
+      </strong>
+      <p class="card-text mt-2">
+        {{ item.description|striptags|replace('Read More →', '')|truncate(70) }}
       </p>
 
-      <a href="{{ item.url }}" class="btn btn-secondary">{% trans%}Continue lendo{% endtrans %}</a>
+      <a href="{{ item.url }}" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
   </div>
   
 </div>

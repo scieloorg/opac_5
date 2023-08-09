@@ -21,7 +21,7 @@
     {% for abstract in article.abstracts  %}
       <li>
           {% if gs_abstract and article_lang == abstract['language'] %}
-              <a href="#" class="current" class="dropdown-item">
+              <a href="#" class="current dropdown-item">
                 {% trans %}Resumo{% endtrans %}
                 {% if abstract['language'] == 'es' %}
                   ({% trans %}Espanhol{% endtrans %})

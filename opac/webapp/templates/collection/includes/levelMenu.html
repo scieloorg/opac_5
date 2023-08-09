@@ -1,7 +1,7 @@
 {% import 'macros/menu.html' as mmenu %}
 {% import 'macros/collection.html' as coll_macro %}
 
-<section class="bread">
+<section class="breadcrumb mt-3">
   <div class="container">
     <div class="row">
       <div class="col-9">
@@ -27,9 +27,9 @@
           #}
   
           {% if pages %}
-            <h1 class="breadTitle"> {% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</h1>
+            <h1 class="h4 pt-1 mb-0"> {% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</h1>
           {% else %}
-            <h1 class="breadTitle scielo__text-title--2 mb-0"> {% trans %}Periódicos{% endtrans %}</h1>
+            <h1 class="h4 pt-1 mb-0"> {% trans %}Periódicos{% endtrans %}</h1>
           {% endif %}
   
         {% endif %}

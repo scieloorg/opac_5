@@ -1,18 +1,7 @@
 {% for journal in journals_list %}
   <tr>
     
-    <td class="actions">
-      <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.detail }}" title="{% trans %}Homepage{% endtrans %}"><span class="material-icons-outlined">home</span></a>
-      {% if journal.is_active  %}
-        <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.submission }}" title="{% trans %}Submissão de manuscritos{% endtrans %}" target="_blank"><span class="material-icons-outlined">launch</span></a>
-        <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.editors }}" title="{% trans %}Corpo Editorial{% endtrans %}"><span class="material-icons-outlined">people</span></a>
-        <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.instructions }}" title="{% trans %}Instruções aos autores{% endtrans %}"><span class="material-icons-outlined">help_outline</span></a>
-        <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.about }}" title="{% trans %}Sobre o periódico{% endtrans %}"><span class="material-icons-outlined">info</span></a>
-        <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.contact }}" title="{% trans %}Contato{% endtrans %}"><span class="material-icons-outlined">markunread</span></a>
-      {% endif %}
-    </td>
-    
-    <td>
+    <td colspan="2">
       <a title="{% trans %}Título do periódico{% endtrans %}"
          class="collectionLink {% if not journal.is_active %} disabled {% endif %}" href="{{ journal.links.detail }}">
         <strong class="journalTitle">{{ journal.title }}</strong>,
@@ -47,6 +36,18 @@
           </span>
           {% endif %}
         {% endif %}
+
+        
+        <div class="d-block mt-2">
+          <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.detail }}" title="{% trans %}Homepage{% endtrans %}"><span class="material-icons-outlined">home</span></a>
+          {% if journal.is_active  %}
+            <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.submission }}" title="{% trans %}Submissão de manuscritos{% endtrans %}" target="_blank"><span class="material-icons-outlined">launch</span></a>
+            <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.editors }}" title="{% trans %}Corpo Editorial{% endtrans %}"><span class="material-icons-outlined">people</span></a>
+            <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.instructions }}" title="{% trans %}Instruções aos autores{% endtrans %}"><span class="material-icons-outlined">help_outline</span></a>
+            <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.about }}" title="{% trans %}Sobre o periódico{% endtrans %}"><span class="material-icons-outlined">info</span></a>
+            <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.contact }}" title="{% trans %}Contato{% endtrans %}"><span class="material-icons-outlined">markunread</span></a>
+          {% endif %}
+        </div>
 
     </td>
   </tr>

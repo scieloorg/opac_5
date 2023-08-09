@@ -34,7 +34,7 @@
         <div class="tab-pane active collectionListStart" id="alpha">
             <!-- Alpha content -->
                 <div class="row collectionListSearch">
-                  <div class="col-12 col-sm-12 col-md-6">
+                  <div class="col-12 col-sm-12 col-md-7">
                     
                     <ul class="nav nav-pills">
                       <li class="nav-item" role="presentation">
@@ -43,19 +43,20 @@
                         </a> 
                       </li>
                       <li class="nav-item" role="presentation">
-                        <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %}" href="{{ url_for('.collection_list') }}?status=current">
-                          <span class="lbl-corrente">{% trans %}Ativos{% endtrans %}</span>
+                        <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list') }}?status=current">
+                          <span class="lbl-corrente">
+                            <span class="material-icons" style="color: #2c9d45;">fiber_manual_record</span> {% trans %}Ativos{% endtrans %}</span>
                         </a> 
                       </li>
                       <li class="nav-item" role="presentation">
-                        <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'no-current' %}active {% endif %}" href="{{ url_for('.collection_list') }}?status=no-current">
-                          <span class="lbl-nao-corrente">{% trans %}Descontinuados{% endtrans %}</span>
+                        <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'no-current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list') }}?status=no-current">
+                          <span class="lbl-nao-corrente"><span class="material-icons" style="color: #c63800;">fiber_manual_record</span> {% trans %}Descontinuados{% endtrans %}</span>
                         </a> 
                       </li>
                     </ul>
                   </div>
 
-                  <div class="col-12 col-sm-12 col-md-6">
+                  <div class="col-12 col-sm-12 col-md-5">
                     <input type="text" class="form-control form-control-sm collectionSearch" placeholder="{% trans %}Digite para filtrar a lista{% endtrans %}"/>
                   </div>
                 </div>
@@ -63,54 +64,16 @@
 
 
 
-                <div class="collectionListTable">
+                <div class="collectionListTable mt-2">
                   <table class="table table-hover table-journal-list">
                     <thead>
                       <tr>
-                        <th class="actions"></th>
+                        
                         <th>
-                          
-                          <div class="row">
-                            <div class="col-9 pt-1">
-                              {% trans %}Títulos{% endtrans %} <small class="collectionListTotalInfo"></small>
-                            </div>
-                            <div class="col-3 right">
-                              <!--
-                              {% trans %}download da lista{% endtrans %}
-                             
-                                                          
-                              <a data-toggle="tooltip" href="#" class="collectionListDownloadXLS" title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
-                                <span class="glyphBtn downloadXLS"></span>
-                              </a>
-                              <a data-toggle="tooltip" href="#" class="collectionListDownloadCSV" title="{% trans %}Lista em arquivo CSV{% endtrans %}">
-                                <span class="glyphBtn downloadCSV"></span>
-                              </a>
-                            -->
-
-                              <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="material-icons-outlined">download</span>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
-                                <li>
-                                  <a class="dropdown-item" href="#">
-                                    XLS
-                                  </a>
-                                </li>
-                                <li>
-                                  <a class="dropdown-item collectionListDownloadCSV" href="#">
-                                    CSV
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                         
-
+                          {% trans %}Títulos{% endtrans %} <small class="collectionListTotalInfo"></small>
                         </th>
-
-                        <th style="display:none;">
-
-                          <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <th class="pe-0">
+                          <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="material-icons-outlined">download</span>
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">

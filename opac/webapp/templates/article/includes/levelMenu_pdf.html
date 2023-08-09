@@ -1,10 +1,10 @@
           {% if article and article.pdfs|length == 1 %}
            
           <div class="btn-group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
               PDF
             </button>
-            <ul class="dropdown-menu menu-share-mobile">
+            <ul class="dropdown-menu dropdown-menu-end">
               {% for pdf in article.pdfs  %}
                 <li>
                   <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
@@ -36,10 +36,10 @@
 
             {# PDF #}
             <div class="btn-group">
-              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+              <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
                 PDF
               </button>
-              <ul class="dropdown-menu menu-share-mobile">
+              <ul class="dropdown-menu dropdown-menu-end">
                 {% for pdf in article.pdfs  %}
                   <li>
                     <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
