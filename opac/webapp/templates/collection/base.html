@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% block body_class %}portal collection{% endblock %}
 {% block content %}
-  <div class="alert-warning" style="padding: 0 5px; text-align: center">
+  
     {% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')) %}
       {% if config.get('ALERT_MSG') %}
-        <span>
+
+      <div class="alert alert-warning alert-dismissible text-center">
+        
         {% if html_lang == 'pt_BR' %}
           {{ config.get('ALERT_MSG_PT') }}
         {% elif html_lang == 'es' %}
@@ -12,22 +14,27 @@
         {% else %}
           {{ config.get('ALERT_MSG_EN') }}
         {% endif %}
-        </span>
+
+        {% if config.get('PREVIOUS_WEBSITE_URI') %}
+          {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
+            <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+            {{ config.get('PREVIOUS_WEBSITE_URI') }}
+            </a>
+          {% else %}
+            <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+            {{ config.get('PREVIOUS_WEBSITE_URI') }}
+            </a>
+          {% endif %}
+        {% endif %}
+
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="this.parentElement.style.display = 'none';"></button>
+      </div>
+        
       {% endif %}
 
-      {% if config.get('PREVIOUS_WEBSITE_URI') %}
-        {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
-          <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-          {{ config.get('PREVIOUS_WEBSITE_URI') }}
-          </a>
-        {% else %}
-          <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-          {{ config.get('PREVIOUS_WEBSITE_URI') }}
-          </a>
-        {% endif %}
-      {% endif %}
+      
     {% endwith %}
-  </div>
+
   {% include "collection/includes/header.html" %}
   {% block level_menu %}{% endblock %}
 

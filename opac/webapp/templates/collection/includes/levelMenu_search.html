@@ -1,5 +1,6 @@
 {% import 'macros/collection.html' as coll_macro %}
 
+<!--
 <section class="levelMenu d-none">
   <div class="container">
     <a href="{{ url_for('.about_collection') }}" class="onlineSubmission d-none d-lg-block">
@@ -88,22 +89,16 @@
     </form>
   </div>
 </section>
+-->
 
-<section class="d-none">
-  <div class="container">
-      <div class="row">
-          <div class="col-12 text-end">
-              <a href="#">
-                  <span class="material-icons-outlined">info</span>
-                  Sobre o SciELO Brasil
-              </a>
-          </div>
-      </div>
-  </div>
-</section>
 <section class="scielo__search-articles mb-5">
   <div class="container">
-      
+    <form method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
+      <input type="hidden" name="q" id="q" value="">
+      <input type="hidden" name="lang" id="lang" value="{% if session.lang %}{{ session.lang[:2] }}{% endif %}">
+      <input type="hidden" name="filter[in][]" value="{{ config.OPAC_COLLECTION }}">
+    </form>
+    <form name="searchFormBuilder" action="{{ config.URL_SEARCH }}" method="get" class="searchForm searchFormBuilder">
       <div class="row">
           <div class="col-12 col-md-8 col-lg-10">
               
@@ -111,17 +106,19 @@
                   <div class="col">
 
                       <div class="input-group">
-                          <textarea class="form-control" aria-label="With textarea" placeholder="Entre uma ou mais palavras"></textarea>
+                        <textarea name="q[]" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}" rows="1" class="form-control"></textarea>
+                        <a href="javascript:;" class="clearIptText showTooltip" title="Limpar expressão" style="display: none;"></a> 
+                          
                           <div class="input-group-append">
-                              <select class="form-select">
-                                  <option selected value="todos">Todos os índices</option>
-                                  <option value="ano">Ano</option>
-                                  <option value="autor">Autor</option>
-                                  <option value="financiador">Financiador</option>
-                                  <option value="periodico">Periódico</option>
-                                  <option value="resumo">Resumo</option>
-                                  <option value="titulo">Título</option>
-                              </select>
+                            <select name="index[]" class="form-select">
+                              <option value="">{% trans %}Todos os índices{% endtrans %}</option>
+                              <option value="year_cluster">{% trans %}Ano{% endtrans %}</option>
+                              <option value="au">{% trans %}Autor{% endtrans %}</option>
+                              <option value="sponsor">{% trans %}Financiador{% endtrans %}</option>
+                              <option value="ta">{% trans %}Periódico{% endtrans %}</option>
+                              <option value="ab">{% trans %}Resumo{% endtrans %}</option>
+                              <option value="ti">{% trans %}Título{% endtrans %}</option>
+                            </select>
                           </div>
                       </div>
 
@@ -137,8 +134,8 @@
               <div class="row">
                   <div class="col-12 text-end">
                       
-                      <a href="#" class="addRowBtn mt-3 d-block d-md-inline-block btn btn-link ps-0 pe-0">
-                         Adicionar outro campo
+                      <a href="#" class="addRowBtn d-block d-md-inline-block btn btn-link ps-0 pe-0 my-0">
+                        {% trans %}Adicionar outro campo{% endtrans %}
                       </a>
                       
                   </div>
@@ -152,12 +149,10 @@
 
           </div>
           <div class="col-12 col-md-4 col-lg-2 d-grid gap-2">
-              <button type="button" class="btn btn-primary">
-                  Buscar
-              </button>
+              <input type="submit" value="{% trans %}Buscar{% endtrans %}" class="btn btn-primary">
           </div>
       </div>
-     
+    </form>
   </div>
 </section>
 

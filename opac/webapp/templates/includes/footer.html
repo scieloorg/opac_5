@@ -1,5 +1,5 @@
 <footer>
-	<section class="address-scielo">
+	<section class="address-scielo pt-4 pb-4">
 		<div class="container">
 			<div class="row">
 				<div class="col col-12 col-sm-2 text-center">
@@ -17,13 +17,13 @@
 		<div class="container">
 		
 			<div class="row">
-				<div class="col partners text-center">
-					<a href="http://www.fapesp.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-fapesp.svg', _external=True) }}" alt="FAPESP"></a>
-					<a href="http://www.capes.gov.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-capes.svg', _external=True) }}" height="27" alt="CAPES"></a>
-					<a href="http://www.cnpq.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-cnpq.svg', _external=True) }}" alt="CNPq"></a>
-					<a href="http://bvsalud.org/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-bvs.svg', _external=True) }}" alt="BVS"></a>
-					  <a href="http://regional.bvsalud.org/bvs/bireme/homepage.htm" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-bireme.svg', _external=True) }}" alt="BIREME"></a>
-					<a href="https://www.fapunifesp.edu.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-fap.svg', _external=True) }}" alt="FAP-UNIFESP"></a>
+				<div class="col --partners text-center mt-4 mb-4">
+					<a class="mx-4 my-2 d-inline-block" href="http://www.fapesp.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-fapesp.svg', _external=True) }}" alt="FAPESP"></a>
+					<a class="mx-4 my-2 d-inline-block" href="http://www.capes.gov.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-capes.svg', _external=True) }}" height="27" alt="CAPES"></a>
+					<a class="mx-4 my-2 d-inline-block" href="http://www.cnpq.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-cnpq.svg', _external=True) }}" alt="CNPq"></a>
+					<a class="mx-4 my-2 d-inline-block" href="http://bvsalud.org/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-bvs.svg', _external=True) }}" alt="BVS"></a>
+					<a class="mx-4 my-2 d-inline-block" href="http://regional.bvsalud.org/bvs/bireme/homepage.htm" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-bireme.svg', _external=True) }}" alt="BIREME"></a>
+					<a class="mx-4 my-2 d-inline-block" href="https://www.fapunifesp.edu.br/" target="_blank"><img src="{{ url_for('static', filename='img/logo-footer-fap.svg', _external=True) }}" alt="FAP-UNIFESP"></a>
 				  </div>
 			</div>
 		</div>
@@ -33,7 +33,7 @@
 			<div class="row">
 				<div class="col">
 					<p class="text-center"><a href="{{ url_for('.about_collection') }}"><img src="{{ url_for('static', filename='img/logo-open-access.svg', _external=True) }}" alt="{% trans %}Open Access{% endtrans %}" class="logo-open-access"></a> <a href="{{ url_for('.about_collection') }}">{% trans %}Leia{% endtrans %}</a> {% trans %}a Declaração de Acesso Aberto{% endtrans %}</p>
-				  </div>
+				</div>
 			</div>
 		</div> 
 	</section>	
