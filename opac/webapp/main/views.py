@@ -925,8 +925,8 @@ def issue_toc(url_seg, url_seg_issue):
     # obtém PDF e TEXT de cada documento
     has_math_content = False
     for article in articles:
-        article_text_languages = [doc["lang"] for doc in article.htmls]
-        article_pdf_languages = [(doc["lang"], doc["url"]) for doc in article.pdfs]
+        article_text_languages = set([doc["lang"] for doc in article.htmls])
+        article_pdf_languages = set([(doc["lang"], doc["url"]) for doc in article.pdfs])
         setattr(article, "article_text_languages", article_text_languages)
         setattr(article, "article_pdf_languages", article_pdf_languages)
         if "mml:" in article.title:
@@ -1034,8 +1034,8 @@ def aop_toc(url_seg):
         articles = [a for a in articles if a.section.upper() == section_filter]
 
     for article in articles:
-        article_text_languages = [doc["lang"] for doc in article.htmls]
-        article_pdf_languages = [(doc["lang"], doc["url"]) for doc in article.pdfs]
+        article_text_languages = set([doc["lang"] for doc in article.htmls])
+        article_pdf_languages = set([(doc["lang"], doc["url"]) for doc in article.pdfs])
 
         setattr(article, "article_text_languages", article_text_languages)
         setattr(article, "article_pdf_languages", article_pdf_languages)
@@ -1148,8 +1148,7 @@ def render_html_from_xml(article, lang, gs_abstract=False):
     xml = etree.parse(BytesIO(result))
 
     generator = HTMLGenerator.parse(
-        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website",
-        xslt=xslt,
+        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website"
     )
 
     return generator.generate(lang), generator.languages
@@ -1906,7 +1905,12 @@ def router_counter_dicts():
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
     except ValueError:
         end_date = datetime.now()
-    begin_date = end_date - timedelta(days=30)
+
+    begin_date = request.args.get("begin_date", "", type=str)
+    try:
+        begin_date = datetime.strptime(begin_date, "%Y-%m-%d")
+    except ValueError:
+        begin_date = end_date - timedelta(days=30)
 
     page = request.args.get("page", type=int)
     if not page:
