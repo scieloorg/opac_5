@@ -5,64 +5,29 @@
 
 {% block main_content %}
 
+  <section class="breadcrumb">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1 class="h4 pt-1 mb-0">{% trans %}Todos os números{% endtrans %}</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="journalContent">
     <div class="container">
       <div class="row">
-        <div class="col-md-4 col-md-offset-8 share">
-          <!--
-          <a href="javascript:window.print();" class="sharePrint showTooltip" data-placement="top" title="Imprimir"><span class="glyphBtn print"></span></a>
-          <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" class="showTooltip" data-placement="top" title="Atom" target="blank"><span class="glyphBtn rssMini"></span></a>
-          <span class="divisor"></span>
-          
-          {% trans %}Compartilhe{% endtrans %}
-          <a href="" class="share_modal_id showTooltip" data-placement="top" title="Enviar link por e-mail"><span class="glyphBtn sendMail"></span></a>
-          <a href="" class="shareFacebook showTooltip" data-placement="top" title="Compartilhar no Facebook"><span class="glyphBtn facebook"></span></a>
-          <a href="" class="shareTwitter showTooltip" data-placement="top" title="Compartilhar no Twitter"><span class="glyphBtn twitter"></span></a>
-          <a href="" class="showTooltip dropdown-toggle" data-toggle="dropdown" data-placement="top" title="Outras redes sociais"><span class="glyphBtn otherNetworks"></span></a>
-          <ul class="dropdown-menu">
-            <li class="dropdown-header">{% trans %}Outras redes sociais{% endtrans %}</li>
-            <li><a href="" class="shareGooglePlus"><span class="glyphBtn googlePlus"></span> Google+</a></li>
-            <li><a href="" class="shareLinkedIn"><span class="glyphBtn linkedIn"></span> LinkedIn</a></li>
-            <li><a href="" class="shareReddit"><span class="glyphBtn reddit"></span> Reddit</a></li>
-            <li><a href="" class="shareStambleUpon"><span class="glyphBtn stambleUpon"></span> StambleUpon</a></li>
-            <li><a href="" class="shareCiteULike"><span class="glyphBtn citeULike"></span> CiteULike</a></li>
-            <li><a href="" class="shareMendeley"><span class="glyphBtn mendeley"></span> Mendeley</a></li>
-          </ul>
-          -->
-
-          <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="material-icons-outlined">share</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
-            <li><a href="javascript:window.print();" class="dropdown-item">Imprimir</a></li>
-            <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item">RSS</a></li>
-            <li><a href="javascript:;" class="dropdown-item">E-mail</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Facebook</a></li>
-            <li><a class="dropdown-item" href="#">Twitter</a></li>
-            <li><a class="dropdown-item" href="#">Google+</a></li>
-            <li><a class="dropdown-item" href="#">LinkedIn</a></li>
-            <li><a class="dropdown-item" href="#">Reddit</a></li>
-            <li><a class="dropdown-item" href="#">StambleUpon</a></li>
-            <li><a class="dropdown-item" href="#">CiteULike</a></li>
-            <li><a class="dropdown-item" href="#">Mendeley</a></li>
-          </ul>
-
-        </div>
-        <div class="col-md-12 content issueList" id="issueList">
+        
+        <div class="col content issueList" id="issueList">
           {% if result_dict or ahead %}
-            <div class="row">
-              <div class="col-md-12 col-sm-12">
-                <h1>{% trans %}Todos os números{% endtrans %}</h1>
-              </div>
-            </div>
-            <table>
-              <thead class="sticky-top" style="top:105px;">
+            
+            <table class="table table-hover mb-5">
+              <thead>
                 <tr>
-                  <td class="col-1">{% trans %}Ano{% endtrans %}</td>
-                  <th class="col-1">{% trans %}Volume{% endtrans %}</th>
-                  <td class="col-10 left">{% trans %}Número{% endtrans %}
-                  </td>
+                  <th class="col-1">{% trans %}Ano{% endtrans %}</th>
+                  <th class="col-1 table-active">{% trans %}Volume{% endtrans %}</th>
+                  <th class="col-10 left">{% trans %}Número{% endtrans %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,7 +45,7 @@
                   {% for volume, issue_list in v.items() %}
                     <tr>
                       <td>{{ year }}</td>
-                      <th>
+                      <th class="table-active">
                         {% if volume %}
                           {{ volume }}
                         {% else %}
@@ -123,24 +88,27 @@
           {% else %}
             {% trans %}Nenhum número encontrado para esse periódico{% endtrans %}
           {% endif%}
-          <div class="col-md-12">
-            {% if journal.timeline %}
-              <h2>{% trans %}Histórico deste periódico na coleção{% endtrans %}</h2>
-              <ul>
-                {% for event in journal.timeline %}
-                  {% if event.status == 'current'%}
-                    <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Admitido na coleção{% endtrans %}.</li>
-                  {% elif event.status == 'rejected' %}
-                    <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Rejeitado na coleção SciELO{% endtrans %}({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
-                  {% elif event.status == 'suspended' %}
-                    <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Suspenso da coleção SciELO{% endtrans %} ({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
-                  {% elif event.status == 'deceased' %}
-                    <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Terminado{% endtrans %}, {% trans %}continuado como{% endtrans %}<a href="{{ url_for('main.journal_detail', url_seg=journal.url_next_journal)}}"> {{ journal.next_title }}</a>.</li>
-                  {% endif %}
-                {% endfor %}
-              </ul>
-            {% endif %}
-          </div>
+          
+        </div>
+      </div>
+      <div class="row">
+        <div class="col mb-5">
+          {% if journal.timeline %}
+            <h3 class="h5">{% trans %}Histórico deste periódico na coleção{% endtrans %}</h3>
+            <ul>
+              {% for event in journal.timeline %}
+                {% if event.status == 'current'%}
+                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Admitido na coleção{% endtrans %}.</li>
+                {% elif event.status == 'rejected' %}
+                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Rejeitado na coleção SciELO{% endtrans %}({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
+                {% elif event.status == 'suspended' %}
+                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Suspenso da coleção SciELO{% endtrans %} ({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
+                {% elif event.status == 'deceased' %}
+                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Terminado{% endtrans %}, {% trans %}continuado como{% endtrans %}<a href="{{ url_for('main.journal_detail', url_seg=journal.url_next_journal)}}"> {{ journal.next_title }}</a>.</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          {% endif %}
         </div>
       </div>
       

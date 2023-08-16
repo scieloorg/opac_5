@@ -1,9 +1,9 @@
 {% import 'macros/menu.html' as mmenu %}
 
-<section class="levelMenu" style="padding: 1.8rem 0 1rem !important">
+<section class="levelMenu mt-4 mb-3">
 
   <!-- exibe apenas lg -->
-  <div class="container d-none d-lg-block">
+  <div class="container d-none d-xl-block">
     <div class="row">
       <div class="col-md-2 col-sm-2">
         <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--left {{ mmenu.endpoint_selected(view_name='main.journal_detail') }}"><span class="material-icons-outlined">home</span> {% trans %}Home do periódico{% endtrans %}</a>
@@ -112,7 +112,7 @@
   <!-- exibe apenas lg -->
 
   <!-- exibe apenas sm, md -->
-  <div class="container d-lg-none" style="outline: 0px solid blue;margin-top:60px;">
+  <div class="container d-xl-none" style="outline: 0px solid blue;">
 
     <style>
       .btn-group .btn{

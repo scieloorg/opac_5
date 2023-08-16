@@ -69,9 +69,16 @@
           <div class="col-2 col-sm-1">
             {% include "collection/includes/nav.html" %}
           </div>
-          
           <div class="col">
-            
+
+          </div>
+          <div class="col-3">
+            <div class="d-none d-lg-block mt-4 text-end">
+              <a href="{{ url_for('.about_collection') }}" class="onlineSubmission d-none d-lg-block">
+                <span class="material-icons-outlined">info</span>
+                {% trans %}Sobre o{% endtrans %} SciELO {{ coll_macro.get_collection_name() }}
+              </a>
+            </div>
           </div>
           <div class="col-2">
               <div class="language mt-3">
@@ -81,9 +88,11 @@
       </div>
       <div class="row">
         <div class="col text-center">
+          <a href="/">
           <div class="scielo__logo-scielo-caption mt-1">
             <small>Brasil</small>
           </div>
+          </a>
         </div>
       </div>
      

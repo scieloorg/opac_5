@@ -1,35 +1,41 @@
-<section class="journalContacts">
+<section class="journalContacts pt-4 pb-4">
   <div class="container">
     <div class="row">
-      <div class="col-md-5 col-sm-5 journalAddress">
+      <div class="col-12 col-sm-8 text-center text-sm-start">
         <div class="row">
           <div class="col-md-1 col-sm-2">
             <span class="material-icons-outlined">location_on</span>
           </div>
           <div class="col-md-10 col-sm-9">
-            <strong>{{ journal.publisher_name }}</strong>
+            <strong class="d-block">{{ journal.publisher_name }}</strong>
             {% if journal.publisher_address %}
-              {{ journal.publisher_address }} -
+              <span>{{ journal.publisher_address }}</span> - 
             {% endif %}
             {% if journal.publisher_city %}
-              {{ journal.publisher_city }} -
+            <span>{{ journal.publisher_city }}</span> -
             {% endif %}
             {% if journal.publisher_state %}
-               {{ journal.publisher_state }} -
+            <span>{{ journal.publisher_state }}</span> -
             {% endif %}
             {% if journal.publisher_country %}
-               {{ journal.publisher_country }} <br/>
+            <span>{{ journal.publisher_country }}</span> <br/>
             {% endif %}
             {% if journal.publisher_telephone %}
-              Tel/Fax: {{ journal.publisher_telephone }}
+            <span>Tel/Fax: {{ journal.publisher_telephone }}</span>
             {% endif %}
             {% if journal.editor_email %}
-              <b>E-mail:</b> {{ journal.editor_email }}
+              <strong>E-mail:</strong> {{ journal.editor_email }}
             {% endif %}
           </div>
         </div>
       </div>
-      <div id="followus" class="col-md-4 col-sm-4 journalLinks">
+
+      <div class="col-12 col-sm-4 text-center text-sm-start pt-4 pt-sm-0">
+        <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" data-toggle="tooltip" title="{% trans %}RSS do número mais recente do periódico{% endtrans %}" target="_blank"><span class="material-icons-outlined">rss_feed</span></a>
+        <span>
+          {% trans %}Acompanhe os números deste periódico no seu leitor de RSS{% endtrans %}
+        </span>
+
         {% for sn in journal.social_networks %}
           <a href="{{sn.account}}" data-toggle="tooltip" title="{{sn.network|title}}">
             <span
@@ -51,12 +57,6 @@
             <span class="text">{% trans %}Siga este periódico nas redes sociais{% endtrans %}</span>
           {% endif %}
         {% endfor %}
-      </div>
-      <div class="col-md-3 col-sm-3 journalLinks">
-        <a href="{{ url_for('main.journal_feed', url_seg=journal.url_segment)}}" data-toggle="tooltip" title="{% trans %}RSS do número mais recente do periódico{% endtrans %}" target="_blank"><span class="material-icons-outlined">rss_feed</span></a>
-        <span class="text" style="width: 70%;">
-          {% trans %}Acompanhe os números deste periódico no seu leitor de RSS{% endtrans %}
-        </span>
       </div>
     </div>
   </div>

@@ -5,36 +5,40 @@
 {% block main_content %}
 
 <style>
+  .journalContent{
+    border: 0px solid green;
+  }
   .journalContent .row div{
     outline: 0px solid orange;
   }
+  #issueIndex{
+    border: 0px solid purple;
+  }
+  #issueData{
+    border: 13px solid blue;
+  }
+
+  .journalContent .btn-group{
+    display:none;
+  }
+ 
 </style>
+
+  <section class="breadcrumb">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1 class="h4 pt-1 mb-0">Sumário</h1>
+          <strong class="h6 fw-bold">{{ issue_bibliographic_strip|default('--', True) }}</strong>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="journalContent">
       <div class="container">
         <div class="row">
-          <div class="col-md-4 col-md-offset-8 --share">
-              <!--
-              <a href="javascript:window.print();" class="sharePrint showTooltip" data-placement="top" title="{% trans %}Imprimir{% endtrans %}"><span class="glyphBtn print"></span></a>
-              <a href="{{ url_for('main.issue_feed', url_seg=journal.url_segment, url_seg_issue=issue.url_segment)}}" class="showTooltip" data-placement="top" title="Atom" target="_blank"><span class="glyphBtn rssMini"></span></a>
-              <span class="divisor"></span>
-              {% trans %}Compartilhe{% endtrans %}
-              <a href="" class="share_modal_id showTooltip" data-placement="top" title="{% trans %}Enviar link por e-mail{% endtrans %}"><span class="glyphBtn sendMail"></span></a>
-              <a href="" class="shareFacebook showTooltip" data-placement="top" title="{% trans %}Compartilhar no Facebook{% endtrans %}"><span class="glyphBtn facebook"></span></a>
-              <a href="" class="shareTwitter showTooltip" data-placement="top" title="{% trans %}Compartilhar no Twitter{% endtrans %}"><span class="glyphBtn twitter"></span></a>
-              <a href="" class="showTooltip dropdown-toggle" data-toggle="dropdown" data-placement="top" title="{% trans %}Outras redes sociais{% endtrans %}"><span class="glyphBtn otherNetworks"></span></a>
-              <ul class="dropdown-menu">
-                  <li class="dropdown-header">{% trans %}Outras redes sociais{% endtrans %}</li>
-                  <li><a href="" class="shareGooglePlus"><span class="glyphBtn googlePlus"></span> Google+</a></li>
-                  <li><a href="" class="shareLinkedIn"><span class="glyphBtn linkedIn"></span> LinkedIn</a></li>
-                  <li><a href="" class="shareReddit"><span class="glyphBtn reddit"></span> Reddit</a></li>
-                  <li><a href="" class="shareStambleUpon"><span class="glyphBtn stambleUpon"></span> StambleUpon</a></li>
-                  <li><a href="" class="shareCiteULike"><span class="glyphBtn citeULike"></span> CiteULike</a></li>
-                  <li><a href="" class="shareMendeley"><span class="glyphBtn mendeley"></span> Mendeley</a></li>
-              </ul>
-              -->
-          </div>
-
+          
           {# Por hora iremos garantir que a interface não fique com conteúdo fixo #}
           {% if issue.editorial_board %}
             <div class="col-md-3 col-sm-4 issueData" id="issueData">
@@ -67,19 +71,24 @@
           {% endif %}
 
           {# Por hora iremos garantir que a interface não fique com conteúdo fixo #}
-          <div class="{% if issue.editorial_board %}col-md-8 col-sm-8{% else %}col-md-12 col-sm-12{% endif %} content issueIndex" id="issueIndex">
+          <div class="col content issueIndex" id="issueIndex">
               {% if issue.editorial_board %}
-                <a href="" class="expandCollapseContent showTooltip" title="{% trans %}Expandir/recolher conteúdo{% endtrans %}"><span class="glyphBtn opened"></span></a>
+                <a href="" class="expandCollapseContent showTooltip" title="{% trans %}Expandir/recolher conteúdo{% endtrans %}"><span class="glyphBtn opened"></span>AAA</a>
               {% endif %}
+              
               <div class="block summary collapseContent">
                 <div class="row">
                   <div class="col-sm-12 col-md-12">
 
                     <div class="row row-filtro-ordena">
                       <div class="col-md-6 col-sm-6">
+                        <!--
                         <a href="javascript:;" class="collapse-title">
-                          <h2 class="h5">{% trans %}Sumário{% endtrans %}</h2>
+                          <h2 class="h4">{% trans %}Sumário{% endtrans %}</h2>
                         </a>
+                        
+                        <h2 class="h4">{% trans %}Sumário{% endtrans %}</h2>
+                        -->
                       </div>
 
                       {% if issue.type == 'volume_issue' %}
@@ -99,12 +108,12 @@
 
                     </div>
 
+                    <!-- esse trecho está oculto -->
                     <div class="collapse-content issueIndent">
-                    <strong>
+                    <h2 class="h4 d-none">
                       {{ issue_bibliographic_strip|default('--', True) }}
-                    </strong>
+                    </h2>
                     <!-- Cabeçalho do Issue Toc -->
-
                     <ul>
                       {% if config['FILTER_SECTION_ENABLE'] %}
 
@@ -144,93 +153,97 @@
 
               <div class="issueIndent">
                 <!-- Corpo com artigos -->
-                <ul class="articles">
-                  {% for article in articles %}
-
-                      <li data-date="{% if article.publication_date %}{{ article.publication_date.replace('-', "") }}{% endif %}">
-
+                <table class="table table-hover table-journal-list mb-5">
+                  <thead>
+                    <tr>
+                      <th>{% trans %}Artigos{% endtrans %}</th>
+                    </tr>
+                  </thead>
+                
+                    {% for article in articles %}
+                      <tr>
+                        <td class="pt-4 pb-4" data-date="{% if article.publication_date %}{{ article.publication_date.replace('-', "") }}{% endif %}">
+  
                         {% if session.lang %}
-                          <strong style="display:block;">{{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true) | safe }} <span class="badge badge-info">{{ article.section|default("", true) }}</span></strong>
+                          <span class="badge badge-info d-inline px-2 py-1 border-0">{{ article.section|default("", true) }}</span><br>
+                          <strong class="d-block mt-2">{{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true) | safe }}</strong>
                           <!-- publication_date: {{article.publication_date}} -->
                           <!-- PID: {{article.pid}} -->
                         {% endif %}
 
+                        <!-- Autores --->
                         {%- for author in article.authors %}
                           {% if session.lang %}
-                            <a href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:{{ author }}">
-                              {{- author|striptags -}}
-                            </a>{% if not loop.last %};{% endif %}
+                            <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:{{ author }}">{{- author|striptags -}}</a>
                           {% else %}
-                            <a href="{{config['URL_SEARCH']}}?q=au:{{ author }}">
-                              {{- author|striptags -}}
-                            </a>{% if not loop.last %};{% endif %}
+                            <a class="me-2" href="{{config['URL_SEARCH']}}?q=au:{{ author }}">{{- author|striptags -}}</a>
+                          {% if not loop.last %};{% endif %}
                           {% endif %}
                         {% endfor -%}
 
-                        <ul class="links">
-                            {% if article.abstract_languages|length > 0 %}
-                            <li>
-                              {% trans %}Resumo{% endtrans %}:
-                              {% for lang in article.abstract_languages|sort %}
-                                <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, 
-                                part='abstract',
-                                lang=lang) }}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
-                                  {{ lang }}
-                                </a>
-                              {% endfor %}
-                            </li>
-                            {% endif %}
+                        <ul class="nav mt-3">
+                        
+                        <!-- Resumo --->
+                        {% if article.abstract_languages|length > 0 %}
+                          <li class="nav-item me-4">
+                            <strong>{% trans %}Resumo{% endtrans %}:</strong>
+                            {% for lang in article.abstract_languages|sort %}
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, 
+                                   part='abstract',
+                                   lang=lang) }}">{{ lang }}</a>
+                               {% endfor %}
+                          </li>    
+                        {% endif %}
 
-                            {% if article.article_text_languages|length > 0 %}
-                            <li>
-                              {% trans %}Texto{% endtrans %}:
-                              {% for lang in article.article_text_languages|sort %}
-                                <a href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, lang=lang) }}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
-                                  {{ lang }}
-                                </a>
-                              {% endfor %}
-                            </li>
-                            {% endif %}
+                        <!-- Texto --->
+                        {% if article.article_text_languages|length > 0 %}
+                          <li class="nav-item me-4">
+                            <strong>{% trans %}Texto{% endtrans %}:</strong>
+                            {% for lang in article.article_text_languages|sort %}
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, lang=lang) }}">{{ lang }}</a>
+                            {% endfor %}
+                          </li>
+                        {% endif %}
 
-                            {% if article.article_pdf_languages|length > 0 %}
-                            <li>
-                              {% trans %}PDF{% endtrans %}:
-                              {% for lang, url in article.article_pdf_languages|sort(attribute='0') %}
-                                <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=lang) }}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
-                                  {{ lang }}
-                                </a>
-                              {% endfor %}
-                            </li>
-                            {% endif %}
+                        <!-- PDF --->
+                        {% if article.article_pdf_languages|length > 0 %}
+                          <li class="nav-item me-4">
+                            <strong>{% trans %}PDF{% endtrans %}:</strong>
+                            {% for lang, url in article.article_pdf_languages|sort(attribute='0') %}
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=lang) }}">{{ lang }}</a>
+                            {% endfor %}
+                          </li>
+                        {% endif %}
 
-                            {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
-                            <li>
-                              {% trans %}ePDF{% endtrans %}:
-                              {% for lang, url in article.article_pdf_languages|sort(attribute='0') %}
-                                <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=url, lang=lang) }}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
-                                  {{ lang }}
-                                </a>
-                              {% endfor %}
-                            </li>
-                            {% endif %}
-
+                        <!-- ePDF Readcube --->
+                        {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
+                          <li class="nav-item">
+                            <strong>{% trans %}ePDF{% endtrans %}:</strong>
+                            {% for lang, url in article.article_pdf_languages|sort(attribute='0') %}
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=url, lang=lang) }}">{{ lang }}</a> 
+                            {% endfor %}
+                          </li>
+                        {% endif %} 
                         </ul>
 
+
+                        <!-- ! -->
                         {# Adicionar divs com os resumos #}
                         {% for lang in article.abstract_languages|sort|reverse %}
-                          <div class="collapseAbstractContent" id="{{article.id}}_{{lang}}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
+                          <div class="collapseAbstractContent d-none" id="{{article.id}}_{{lang}}" data-toggle="tooltip" data-placement="bottom" title="{{lang|trans_alpha2}}">
                             {% if article.get_abstract_by_lang(lang) %}
                               <p><strong>{% trans %}Resumo em{% endtrans %} {{ lang|trans_alpha2 }}:</strong></p>
                               {{ article.get_abstract_by_lang(lang) }}
                             {% endif %}
                           </div>
                         {% endfor %}
-
-                      </li>
+                      
+                        </td>
+                      </tr>
 
                   {% endfor %}
 
-                </ul>
+                </table>
                 <!-- Corpo com artigos -->
               </div>
 

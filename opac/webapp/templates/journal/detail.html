@@ -1,9 +1,16 @@
 <style>
+  body{
+    /*padding-top: 74px;*/
+  }
   .slick-slide{
     height: auto !important;
   }
   .slick-dots li{
     margin-top: 8px !important;
+  }
+  
+  .card{
+    width: 346px;
   }
 </style>
 
@@ -11,7 +18,158 @@
 
 {% block main_content %}
 
-  <section class="journalContent">
+  <!-- missao --->
+  <section class="journalContent mb-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-lg-6">
+          {# mission #}
+          {% if journal.mission %}
+            <h2 class="scielo__text-title--4">{% trans %}Nossa Missão{% endtrans %}</h2>
+            {% if session.lang %}
+                <p>{{ journal.get_mission_by_lang(session.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
+            {% endif %}
+          {% endif %}
+          {# mission #}
+        </div>
+
+        {# last issue #}
+        {% if journal.last_issue %}
+
+            <div class="col-12 col-lg-6">
+              
+                {% if journal.last_issue.cover_url %}
+                <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                  <img src="{{ latest_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
+                </a>
+                {% endif %}
+                <span class="text">
+                  <strong><small>{% trans %}Número mais recente{% endtrans %}</small></strong>
+                  <p>
+                    <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                    <strong>{{ latest_issue_legend|default('--', True) }}</strong>
+                    </a>
+                  </p>
+                </span>
+            </div>
+            {% if sections %}
+              <div class="col-6">
+                <h3>{% trans %}Sumário{% endtrans %}</h3>
+                <ul>
+                  {% for section in sections %}
+                    <li><a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}#{{ section|upper }}">{{ section }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          
+        {% endif %}
+        {# last issue #}
+
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- press releases --->
+  {# press_releases #}
+  {% if press_releases %}
+  <section class="journalContent mb-5">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          
+          <h2 class="scielo__text-title--4">
+            Press-releases
+            {% if session.lang != "pt_BR" %}
+              <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ session.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
+            {% else %}
+              <a href="{{ config.URL_BLOG_PRESSRELEASE }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
+            {% endif %}
+          </h2>  
+          
+          {% if press_releases|length > 1 %}
+              
+            <div class="scielo-slider">
+
+              {% for press_release in press_releases  %}
+                {% include "press_release/includes/press_releases_row.html" %}
+              {% endfor %}
+
+            </div>
+          
+          {% else %}    
+              
+              {% for press_release in press_releases  %}
+                {% include "press_release/includes/press_releases_row.html" %}
+              {% endfor %}
+          
+          {% endif %}
+           
+        </div>
+      </div>
+    </div>    
+  </section>
+  {% endif %}
+  {# press_release #}
+
+
+  <!-- artigos mais recentes --->
+  {# recent_articles #}
+  {% if recent_articles %}
+  <section class="journalContent mb-5">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+           
+            <h2 class="scielo__text-title--4">{% trans %}Artigos mais recentes{% endtrans %}</h2>
+            
+            <div class="scielo-slider">
+              {% for article in recent_articles  %}
+                {% include "article/includes/recent_articles_row.html" %}
+              {% endfor %}
+            </div>
+  
+        </div>
+      </div>
+    </div>    
+  </section>
+  {% endif %}
+  {# recent_articles #}
+  
+
+  <!-- notícias --->
+  {# news #}
+  {% if news %}
+  <section class="journalContent mb-5">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+              
+            <h2 class="scielo__text-title--4">{% trans %}Notícias{% endtrans %}</h2>
+
+            <div class="scielo-slider">
+              
+              {% for item in news  %}
+
+                <!-- comentado o news/includes/journal_news_row.html pois parece ter o mesmo conteúdo do news/includes/collection_news_row.html -->
+                {# % include "news/includes/journal_news_row.html" % #}
+
+                {% include "news/includes/collection_news_row.html" %}
+            
+              {% endfor %}
+            </div>
+  
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+  {# news #}
+
+
+  <!-- conteudo antigo antes do responsivo -->
+  <section class="journalContent d-none">
     <div class="container">
       <div class="row">
         <div class="col">
@@ -38,13 +196,13 @@
           
 
         </div>
-        <div class="col content journalHome" style="outline: 0px solid purple">  
+        <div class="col content journalHome">  
 
-          <div class="row block mission" style="outline: 0px solid orange;">
+          <div class="row block mission">
           {# mission #}
           {% if journal.mission %}
             <div class="col-12 col-sm-6">
-                <h1 class="scielo__text-title--2">{% trans %}Nossa Missão{% endtrans %}</h1>
+                <h2 class="scielo__text-title--4">{% trans %}Nossa Missão{% endtrans %}</h2>
                 {% if session.lang %}
                     <p>{{ journal.get_mission_by_lang(session.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
                 {% endif %}
@@ -104,7 +262,7 @@
             <!--
             <div class="">
             -->
-              <h2>
+              <h2 class="scielo__text-title--4">
                 Press-releases
                 {% if session.lang != "pt_BR" %}
                   <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ session.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
@@ -144,7 +302,7 @@
         {% if recent_articles %}
           <div class="col block recent_articles">
            
-              <h2 class="scielo__text-title--2">{% trans %}Artigos mais <br class="d-block d-sm-none">recentes{% endtrans %}</h2>
+              <h2 class="scielo__text-title--4">{% trans %}Artigos mais <br class="d-block d-sm-none">recentes{% endtrans %}</h2>
              
               <div class="scielo-slider">
                 {% for article in recent_articles  %}
@@ -160,11 +318,17 @@
         {% if news %}
           <div class="col block news">
             
-              <h2>{% trans %}Notícias{% endtrans %}</h2>
+              <h2 class="scielo__text-title--4">{% trans %}Notícias{% endtrans %}</h2>
 
               <div class="scielo-slider">
+                
                 {% for item in news  %}
-                  {% include "news/includes/journal_news_row.html" %}
+
+                  <!-- comentado o news/includes/journal_news_row.html pois parece ter o mesmo conteúdo do news/includes/collection_news_row.html -->
+                  {# % include "news/includes/journal_news_row.html" % #}
+
+                  {% include "news/includes/collection_news_row.html" %}
+              
                 {% endfor %}
               </div>
 
