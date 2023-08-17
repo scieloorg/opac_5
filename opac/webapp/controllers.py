@@ -50,6 +50,25 @@ HIGHLIGHTED_TYPES = (
 )
 
 
+_PIDS_FIXES = (
+    ("0102-7638", "1678-9741"),
+    ("1807-0302", "0101-8205"),
+    ("1806-1117", "0102-4744"),
+    ("1678-4510", "0100-879X"),
+    ("1678-9741", "0102-7638"),
+    ("0101-8205", "1807-0302"),
+    ("0102-4744", "1806-1117"),
+    ("0100-879X", "1678-4510"),
+)
+
+
+def _fix_pid(pid):
+    for found, replace in _PIDS_FIXES:
+        if found in pid:
+            return pid.replace(found, replace)
+    return pid
+
+
 class ArticleAbstractNotFoundError(Exception):
     ...
 
@@ -683,6 +702,12 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
             **kwargs,
         ).order_by(*order_by)
         issue_ahead = issues.filter(type="ahead").first()
+
+        if issue_ahead:
+            # Verifica que contém artigos no issue de ahead
+            if not get_articles_by_iid(issue_ahead.id, is_public=True):
+                issue_ahead = None
+
         issues_without_ahead = issues.filter(type__ne="ahead")
 
     volume_issue = {}
@@ -696,7 +721,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
             volume_issue.setdefault(issue.volume, {})
             volume_issue[issue.volume]["issue"] = issue
             volume_issue[issue.volume]["art_count"] = len(
-                get_articles_by_iid(issue.iid)
+                get_articles_by_iid(issue.iid, is_public=True)
             )
 
         key_volume = issue.volume
@@ -896,9 +921,9 @@ def get_article_by_aid(
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    articles = Article.objects(pk=aid, is_public=True, **kwargs)
-    if not articles:
-        articles = Article.objects(scielo_pids__other=aid, is_public=True, **kwargs)
+    articles = Article.objects(
+        Q(pk=aid) | Q(scielo_pids__other=aid), is_public=True, **kwargs
+    )
 
     if articles:
         article = articles[0]
@@ -1168,7 +1193,7 @@ def get_articles_by_iid(iid, **kwargs):
     # poderia ser chamado uma única vez
     # No entanto, há um issue relacionado: #1435
     articles = Article.objects(issue=iid, **kwargs).order_by("order")
-    if is_aop_issue(articles) or is_open_issue(articles):
+    if is_aop_issue(articles):
         return articles.order_by("-publication_date")
     return articles
 
@@ -1224,7 +1249,7 @@ def get_article_by_pid(pid, **kwargs):
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    return Article.objects(pid=pid, **kwargs).first()
+    return Article.objects(Q(pid=pid) | Q(pid=_fix_pid(pid)), **kwargs).first()
 
 
 def get_article_by_oap_pid(aop_pid, **kwargs):
@@ -1240,7 +1265,9 @@ def get_article_by_oap_pid(aop_pid, **kwargs):
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    return Article.objects(aop_pid=aop_pid, **kwargs).first()
+    return Article.objects(
+        Q(aop_pid=aop_pid) | Q(aop_pid=_fix_pid(aop_pid)), **kwargs
+    ).first()
 
 
 def get_article_by_scielo_pid(scielo_pid, **kwargs):
@@ -1282,18 +1309,13 @@ def get_article_by_pid_v2(v2, **kwargs):
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    articles = Article.objects(pid=v2, is_public=True, **kwargs)
+    fixed = _fix_pid(v2)
+    q = Q(pid=v2) | Q(aop_pid=v2) | Q(scielo_pids__other=v2)
+    if fixed != v2:
+        q = Q(pid=fixed) | Q(aop_pid=fixed) | Q(scielo_pids__other=fixed) | q
+    articles = Article.objects(q, is_public=True, **kwargs)
     if articles:
         return articles[0]
-
-    articles = Article.objects(aop_pid=v2, is_public=True, **kwargs)
-    if articles:
-        return articles[0]
-
-    articles = Article.objects(scielo_pids__other=v2, is_public=True, **kwargs)
-    if articles:
-        return articles[0]
-
     return None
 
 
@@ -1577,6 +1599,8 @@ def send_email_error(
         _type = __("aplicação")
     elif error_type == "content":
         _type = __("conteúdo")
+    elif error_type == "acessibility":
+        _type = __("acessibilidade")
 
     msg = __(
         "O usuário <b>%s</b> com e-mail: <b>%s</b>,"
