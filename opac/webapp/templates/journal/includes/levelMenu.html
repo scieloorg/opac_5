@@ -72,7 +72,7 @@
       </div>
       <div class="col-md-3 col-sm-3 text-end">
         <div class="btn-group" role="group" aria-label="Basic example">
-          <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[ta_cluster][]={% if journal.short_title %}{{ journal.short_title }}{% endif %}" class="btn scielo__btn-with-icon--left"><span class="material-icons-outlined">search</span> {% trans %}Buscar{% endtrans %}</a>
+          <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[journal_title][]={% if journal.title %}{{ journal.title }}{% endif %}" class="btn single"><span class="glyphBtn search"></span> {% trans %}buscar{% endtrans %}</a>
           
           {% if journal.scielo_issn or journal.eletronic_issn or journal.print_issn %}
             <a target="_blank" href="{{ config.METRICS_URL }}/?journal={{ journal.scielo_issn or journal.eletronic_issn or journal.print_issn }}&collection={{ config.OPAC_COLLECTION }}" class="btn scielo__btn-with-icon--left"><span class="material-icons-outlined">show_chart</span> {% trans %}Métricas{% endtrans %}</a>
