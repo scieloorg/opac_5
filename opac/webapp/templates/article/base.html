@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-article.css') }}" type="text/css" async/>
 -->  
   <link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}?v={{ config.VCS_REF }}" type="text/css" async/>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" async />
+  <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" async />
 {% endblock %}
 
 {% block content %}
@@ -110,7 +112,6 @@
   affiliations = {};
 
   function add_scimago_image(selector, remove_br=true, add_br_after=true, find_div=false){
-    console.log("here");
     $(selector).each(
 
     function () {
