@@ -1148,7 +1148,7 @@ def render_html_from_xml(article, lang, gs_abstract=False):
     xml = etree.parse(BytesIO(result))
 
     generator = HTMLGenerator.parse(
-        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website"
+        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website", xslt=xslt
     )
 
     return generator.generate(lang), generator.languages
