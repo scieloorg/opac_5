@@ -353,6 +353,7 @@ var Portal = {
 				modal.find('.modal-title').text(title);
 			});
 
+			
 			if ($('#tst').length){
 				$('#tst').typeahead({
 					order: "asc",
@@ -393,6 +394,7 @@ var Portal = {
 					}
 				});
 			}
+			
 		},
 		Slider: function() {
 			var id = $(this).attr("id"),
@@ -616,8 +618,8 @@ var Portal = {
 			t.data("count",c);
 		},
 		TextareaAutoHeight: function() {
-			$(this).css("height","auto");
-			$(this).height(this.scrollHeight);
+			//$(this).css("height","auto");
+			//$(this).height(this.scrollHeight);
 			if(this.value != "")
 				$(this).next("a").fadeIn("fast");
 			else
@@ -671,12 +673,14 @@ var Portal = {
 	},
 	Collection = {
 		Init: function() {
+
+			/* Lista alphabetica */
 			var trs = $(".collectionListStart .table-journal-list tbody tr");
 			var tds = $(".collectionListStart .table-journal-list tr td");
 			var searchInput = $(".collectionListStart .collectionSearch");
 
 			$('#alpha .collectionListTotalInfo').text('(total ' + trs.length + ')');
-
+			
 			searchInput.on("keyup", function (event) {
 				var searchTerm = event.target.value.toUpperCase();
 				for (var i = 0; i < tds.length; i++) {
@@ -690,6 +694,7 @@ var Portal = {
 					}
 				}
 			});
+
 
 				/*
 				download.on("click",function(e) {
@@ -1149,7 +1154,6 @@ var Cookie = {
 };
 
 $(function() {
-
 
 	Portal.Init();
 

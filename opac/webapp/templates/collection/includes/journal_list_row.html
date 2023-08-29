@@ -1,7 +1,12 @@
 {% for journal in journals_list %}
   <tr>
-    
     <td colspan="2">
+      {% if journal.is_active %} 
+        <span class="material-icons" style="color: #2c9d45; vertical-align:sub;font-size:20px;">fiber_manual_record</span>
+      {% endif %}
+      {% if not journal.is_active %} 
+        <span class="material-icons" style="color: #c63800; vertical-align:sub;font-size:20px;">fiber_manual_record</span>
+      {% endif %}
       <a title="{% trans %}Título do periódico{% endtrans %}"
          class="collectionLink {% if not journal.is_active %} disabled {% endif %}" href="{{ journal.links.detail }}">
         <strong class="journalTitle">{{ journal.title }}</strong>,

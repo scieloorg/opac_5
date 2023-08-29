@@ -34,7 +34,7 @@
 			-->
 			<strong class="card-title">{{ item.title }}</strong>
 			<p class="card-text">{{ item.description|striptags|replace('Read More →', '')|truncate(100) }}</p>
-			<a href="{{ item.url }}" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
+			<a href="{{ item.url }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
 		</div>
 	</div>
 

@@ -37,82 +37,9 @@
       </div>
       <div class="col-3 pt-1">
         
-        <!--
-          {% trans %}Compartilhe{% endtrans %}
-        <a href="javascript:window.print();" class="sharePrint showTooltip" data-placement="top" title="Imprimir"><span class="material-icons-outlined">print</span></a>
-        <a data-toggle="tooltip" href="{{ url_for('main.collection_list_feed')}}" title="Atom" target="_blank"><span class="material-icons-outlined">rss_feed</span></a>
-        <a href="" class="share_modal_id showTooltip" data-placement="top" title="Enviar link por e-mail"><span class="material-icons-outlined">email</span></a>
-        -->
-        <!--
-        <a href="" class="shareFacebook showTooltip" data-placement="top" title="Compartilhar no Facebook"><span class="glyphBtn facebook"></span></a>
-        <a href="" class="shareTwitter showTooltip" data-placement="top" title="Compartilhar no Twitter"><span class="glyphBtn twitter"></span></a>
-        -->
-        <!--
-        <a href="" class="showTooltip dropdown-toggle" data-toggle="dropdown" data-placement="top" title="Outras redes sociais"><span class="material-icons-outlined">share</span></a>
-        <ul class="dropdown-menu">
-          <li class="dropdown-header"> {% trans %}Outras redes sociais{% endtrans %}</li>
-          <li><a href="" class="shareGooglePlus"><span class="glyphBtn googlePlus"></span> Google+</a></li>
-          <li><a href="" class="shareLinkedIn"><span class="glyphBtn linkedIn"></span> LinkedIn</a></li>
-          <li><a href="" class="shareReddit"><span class="glyphBtn reddit"></span> Reddit</a></li>
-          <li><a href="" class="shareStambleUpon"><span class="glyphBtn stambleUpon"></span> StambleUpon</a></li>
-          <li><a href="" class="shareCiteULike"><span class="glyphBtn citeULike"></span> CiteULike</a></li>
-          <li><a href="" class="shareMendeley"><span class="glyphBtn mendeley"></span> Mendeley</a></li>
-        </ul>
-        -->
-        <!-- novo dropdonw -->
-
-        <!--
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle scielo__btn-with-icon--only" type="button" id="share1" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="material-icons-outlined">share</span>
-          </button>
-          <div class="dropdown-menu" aria-labelledby="share1" style="">
-            <a class="dropdown-item" href="#">Facebook</a>
-            <a class="dropdown-item" href="#">Twitter</a>
-            <a class="dropdown-item" href="#">Google+</a>
-            <a class="dropdown-item" href="#">LinkedIn</a>
-            <a class="dropdown-item" href="#">Reddit</a>
-            <a class="dropdown-item" href="#">StambleUpon</a>
-            <a class="dropdown-item" href="#">CiteULike</a>
-            <a class="dropdown-item" href="#">Mendeley</a>
-          </div>
-        </div>
-        -->
-
+          <!-- share --> 
+          {% include "includes/share.html" %}
         
-          <!--
-          <a href="javascript:window.print();" class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" title="Imprimir">
-            <i class="material-icons-outlined">print</i>
-          </a>
-          <a href="{{ url_for('main.collection_list_feed')}}" type="button" class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" title="Atom">
-            <i class="material-icons-outlined">rss_feed</i>
-          </a>
-          <button type="button" class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" title="Enviar link por e-mail">
-            <span class="material-icons-outlined">email</span>
-          </button>
-          -->
-          <div class="dropdown">
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
-              <span class="material-icons-outlined">share</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
-              <li><a href="javascript:window.print();" class="dropdown-item">Imprimir</a></li>
-              <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item">RSS</a></li>
-              <li><a href="javascript:;" class="dropdown-item">E-mail</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#">Facebook</a></li>
-              <li><a class="dropdown-item" href="#">Twitter</a></li>
-              <li><a class="dropdown-item" href="#">Google+</a></li>
-              <li><a class="dropdown-item" href="#">LinkedIn</a></li>
-              <li><a class="dropdown-item" href="#">Reddit</a></li>
-              <li><a class="dropdown-item" href="#">StambleUpon</a></li>
-              <li><a class="dropdown-item" href="#">CiteULike</a></li>
-              <li><a class="dropdown-item" href="#">Mendeley</a></li>
-            </ul>
-          </div>
-        
-       
-
       </div>
     </div>
   </div>
