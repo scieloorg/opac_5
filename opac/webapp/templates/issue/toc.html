@@ -4,31 +4,11 @@
 
 {% block main_content %}
 
-<style>
-  .journalContent{
-    border: 0px solid green;
-  }
-  .journalContent .row div{
-    outline: 0px solid orange;
-  }
-  #issueIndex{
-    border: 0px solid purple;
-  }
-  #issueData{
-    border: 13px solid blue;
-  }
-
-  .journalContent .btn-group{
-    display:none;
-  }
- 
-</style>
-
   <section class="breadcrumb">
     <div class="container">
       <div class="row">
         <div class="col">
-          <h1 class="h4 pt-1 mb-0">Sumário</h1>
+          <h1 class="h4 pt-1 mb-0">{% trans %}Sumário{% endtrans %}</h1>
           <strong class="h6 fw-bold">{{ issue_bibliographic_strip|default('--', True) }}</strong>
         </div>
       </div>

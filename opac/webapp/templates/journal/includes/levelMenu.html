@@ -13,7 +13,7 @@
         <div class="btn-group">
   
           {# Todos #}
-          <a href="{{ url_for('.issue_grid', url_seg=journal.url_segment) }}" class="btn {{ mmenu.endpoint_selected(view_name='main.issue_grid') }}">
+          <a href="{{ url_for('.issue_grid', url_seg=journal.url_segment) }}" class="btn {{ mmenu.endpoint_selected(view_name='main.issue_grid') }} {% if 'grid' in request.url_rule.rule %} active {% endif %}">
             {% trans %}Todos os números{% endtrans %}
           </a>
   
@@ -41,7 +41,7 @@
             </a>
           {% elif issue and last_issue.url_segment == issue.url_segment %}
             {# página do sumário #}
-            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn selected">
+            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn active">
               {% trans %}Número atual{% endtrans %}
             </a>
           {% else %}
@@ -91,17 +91,16 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
               <li><a href="javascript:window.print();" class="dropdown-item">Imprimir</a></li>
-              <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item">RSS</a></li>
-              <li><a href="javascript:;" class="dropdown-item">E-mail</a></li>
+              <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item" target="_blank">RSS</a></li>
+              <li><a href="javascript:;" class="dropdown-item share_modal_id">E-mail</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#">Facebook</a></li>
-              <li><a class="dropdown-item" href="#">Twitter</a></li>
-              <li><a class="dropdown-item" href="#">Google+</a></li>
-              <li><a class="dropdown-item" href="#">LinkedIn</a></li>
-              <li><a class="dropdown-item" href="#">Reddit</a></li>
-              <li><a class="dropdown-item" href="#">StambleUpon</a></li>
-              <li><a class="dropdown-item" href="#">CiteULike</a></li>
-              <li><a class="dropdown-item" href="#">Mendeley</a></li>
+              <li><a class="dropdown-item shareFacebook" href="#">Facebook</a></li>
+              <li><a class="dropdown-item shareTwitter" href="#">Twitter</a></li>
+              <li><a class="dropdown-item shareLinkedIn" href="#">LinkedIn</a></li>
+              <li><a class="dropdown-item shareReddit" href="#">Reddit</a></li>
+              <li><a class="dropdown-item shareStambleUpon" href="#">StambleUpon</a></li>
+              <li><a class="dropdown-item shareCiteULike" href="#">CiteULike</a></li>
+              <li><a class="dropdown-item shareMendeley" href="#">Mendeley</a></li>
             </ul>
           </div>
         </div>
@@ -126,7 +125,7 @@
           
           <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn btn-secondary scielo__btn-with-icon--only {{ mmenu.endpoint_selected(view_name='main.journal_detail') }}"><span class="material-icons-outlined">home</span></a>
           {# Todos #}
-          <a href="{{ url_for('.issue_grid', url_seg=journal.url_segment) }}" class="btn btn-secondary {{ mmenu.endpoint_selected(view_name='main.issue_grid') }}">
+          <a href="{{ url_for('.issue_grid', url_seg=journal.url_segment) }}" class="btn btn-secondary {{ mmenu.endpoint_selected(view_name='main.issue_grid') }} {% if 'grid' in request.url_rule.rule %} active {% endif %}">
             {% trans %}Todos{% endtrans %}
           </a>
           <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[ta_cluster][]={% if journal.short_title %}{{ journal.short_title }}{% endif %}" class="btn btn-secondary">{% trans %}Buscar{% endtrans %}</a>
@@ -255,7 +254,7 @@
       </div>
       <div class="col-md-2 col-sm-2">
         <h2>&#160;</h2>
-        <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[ta_cluster][]={% if journal.short_title %}{{ journal.short_title }}{% endif %}" class="btn single"><span class="material-icons-outlined">search</span> {% trans %}buscar{% endtrans %}</a>
+        <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[ta_cluster][]={% if journal.short_title %}{{ journal.short_title }}{% endif %}" class="btn single"><span class="material-icons-outlined">search</span> {% trans %}Buscar{% endtrans %}</a>
       </div>
       <div class="col-md-2 col-sm-2">
         <h2>&#160;</h2>
