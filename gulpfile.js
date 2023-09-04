@@ -70,8 +70,8 @@ let target_src = {
     'js': {
         'scielo-bundle': [
             // instruções JS (designer)
-          //  path.join(paths['jquery_js'], 'jquery.js'),                   // foi setado para carregar separadamente
-          //  path.join(paths['bootstrap_js'], 'bootstrap.js'),             // foi setado para carregar separadamente
+            path.join(paths['jquery_js'], 'jquery.js'),                                     // foi setado para carregar separadamente
+            path.join(paths['scielo_design_system_bootstrap_js'], 'bootstrap.bundle.js'),   // foi setado para carregar separadamente
             path.join(paths['jquery-typeahead_js'], 'jquery.typeahead.min.js'),
             path.join(paths['static_js'], 'plugins.js'),
             path.join(paths['static_js'], 'main.js'),
@@ -89,7 +89,7 @@ let target_src = {
         ],
         'scielo-article-standalone': [
             path.join(paths['jquery_js'], 'jquery.js'),
-            path.join(paths['bootstrap_js'], 'bootstrap.js'),
+            path.join(paths['scielo_design_system_bootstrap_js'], 'bootstrap.bundle.js'),
             path.join(paths['static_js'], 'plugins.js'),
             path.join(paths['static_js'], 'scielo-article.js'),
         ],
@@ -223,7 +223,7 @@ function processScieloBundleJs(){
     return src(target_src['js']['scielo-bundle'])
     .pipe(concat(output['js']['scielo-bundle']))
     .pipe(sourceMaps.init())
-    .pipe(stripDebug())
+    //.pipe(stripDebug())
     .pipe(uglify())
     .pipe(sourceMaps.write('../maps'))
     .pipe(dest(output['js']['folder']));
