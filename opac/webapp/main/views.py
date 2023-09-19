@@ -1148,7 +1148,11 @@ def render_html_from_xml(article, lang, gs_abstract=False):
     xml = etree.parse(BytesIO(result))
 
     generator = HTMLGenerator.parse(
-        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website", xslt=xslt
+        xml,
+        valid_only=False,
+        gs_abstract=gs_abstract,
+        output_style="website",
+        xslt=xslt,
     )
 
     return generator.generate(lang), generator.languages
@@ -1894,52 +1898,6 @@ def router_legacy_info_pages(journal_seg, page):
     )
 
 
-@main.route("/api/v1/counter_dict", methods=["GET"])
-def router_counter_dicts():
-    """
-    Essa view function retorna um dicionário, em formato JSON, que mapeia PIDs a insumos
-    necessários para o funcionamento das aplicações Matomo & COUNTER & SUSHI.
-    """
-    end_date = request.args.get("end_date", "", type=str)
-    try:
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        end_date = datetime.now()
-
-    begin_date = request.args.get("begin_date", "", type=str)
-    try:
-        begin_date = datetime.strptime(begin_date, "%Y-%m-%d")
-    except ValueError:
-        begin_date = end_date - timedelta(days=30)
-
-    page = request.args.get("page", type=int)
-    if not page:
-        page = 1
-
-    limit = request.args.get("limit", type=int)
-    if not limit or limit > 100 or limit < 0:
-        limit = 100
-
-    results = {
-        "dictionary_date": end_date,
-        "end_date": end_date.strftime("%Y-%m-%d %H-%M-%S"),
-        "begin_date": begin_date.strftime("%Y-%m-%d %H-%M-%S"),
-        "documents": {},
-        "collection": current_app.config["OPAC_COLLECTION"],
-    }
-
-    articles = controllers.get_articles_by_date_range(begin_date, end_date, page, limit)
-    for a in articles.items:
-        results["documents"].update(get_article_counter_data(a))
-
-    results["total"] = articles.total
-    results["pages"] = articles.pages
-    results["limit"] = articles.per_page
-    results["page"] = articles.page
-
-    return jsonify(results)
-
-
 def get_article_counter_data(article):
     return {
         article.aid: {
@@ -2030,3 +1988,112 @@ def scimago_ir():
         return html.find("a").get("href")
     else:
         return ""
+
+
+# ###############################RestAPI########################################
+
+
+@restapi.route("/counter_dict", methods=["GET"])
+def router_counter_dicts():
+    """
+    Essa view function retorna um dicionário, em formato JSON, que mapeia PIDs a insumos
+    necessários para o funcionamento das aplicações Matomo & COUNTER & SUSHI.
+    """
+    end_date = request.args.get("end_date", "", type=str)
+    try:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        end_date = datetime.now()
+
+    begin_date = request.args.get("begin_date", "", type=str)
+    try:
+        begin_date = datetime.strptime(begin_date, "%Y-%m-%d")
+    except ValueError:
+        begin_date = end_date - timedelta(days=30)
+
+    page = request.args.get("page", type=int)
+    if not page:
+        page = 1
+
+    limit = request.args.get("limit", type=int)
+    if not limit or limit > 100 or limit < 0:
+        limit = 100
+
+    results = {
+        "dictionary_date": end_date,
+        "end_date": end_date.strftime("%Y-%m-%d %H-%M-%S"),
+        "begin_date": begin_date.strftime("%Y-%m-%d %H-%M-%S"),
+        "documents": {},
+        "collection": current_app.config["OPAC_COLLECTION"],
+    }
+
+    articles = controllers.get_articles_by_date_range(begin_date, end_date, page, limit)
+    for a in articles.items:
+        results["documents"].update(get_article_counter_data(a))
+
+    results["total"] = articles.total
+    results["pages"] = articles.pages
+    results["limit"] = articles.per_page
+    results["page"] = articles.page
+
+    return jsonify(results)
+
+
+@restapi.route("/journal", methods=["POST", "PUT"])
+def journal():
+    """
+    This endpoint responds for PUT and POST. 
+
+    if in the payload exists the ``id`` field the function ``controllers.add_journal``
+    will update or create. 
+
+    A payload example: 
+
+    { "id": "1678-4464", "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg", "mission": [ { "language": "pt", "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras." }, { "language": "es", "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras." }, { "language": "en", "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others." } ], "title": "Cadernos de Saúde Pública", "title_iso": "Cad. saúde pública", "short_title": "Cad. Saúde Pública", "acronym": "csp", "scielo_issn": "0102-311X", "print_issn": "0102-311X", "electronic_issn": "1678-4464", "status_history": [ { "status": "current", "date": "1999-07-02T00:00:00.000000Z", "reason": "" } ], "subject_areas": [ "HEALTH SCIENCES" ], "sponsors": [ { "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico " } ], "subject_categories": [ "Health Policy & Services" ], "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php", "contact": { "email": "cadernos@ensp.fiocruz.br", "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508" }, "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
+    """
+    
+    payload = request.get_json()
+
+    try:
+        journal = controllers.add_journal(payload)
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "id": journal.id}), 200
+
+
+@restapi.route("/issue", methods=["POST", "PUT"])
+def issue():
+    """
+    This endpoint responds for PUT and POST. 
+
+    if in the payload exists the ``id`` field the function ``controllers.add_issue``
+    will update or create. 
+
+    A payload example:
+
+    { "publication_year": "1998", "volume": "29", "number": "3", "publication_months": { "range": [ 9, 9 ] }, "pid": "1678-446419980003", "id": "1678-4464-1998-v29-n3", "created": "1998-09-01T00:00:00.000000Z", "updated": "2020-04-28T20:16:24.459467Z" }
+
+    """
+    payload = request.get_json()
+    params = request.args.to_dict()
+
+    if not params.get("journal_id"):
+        return jsonify({"failed": True, "error": "missing param journal_id"}), 400 
+    else:
+        journal_id = params.get("journal_id") 
+
+    issue_order = params.get("issue_order", None)
+
+    _type = params.get("type", None) 
+
+    try:
+        issue = controllers.add_issue(payload, journal_id, issue_order, _type)
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "id": issue.id}), 200
+
+
+
+
