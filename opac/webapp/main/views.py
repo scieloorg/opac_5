@@ -37,7 +37,7 @@ from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 
-from . import main
+from . import main, restapi
 
 logger = logging.getLogger(__name__)
 
