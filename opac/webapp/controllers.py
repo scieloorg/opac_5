@@ -38,7 +38,7 @@ from webapp import dbsql
 
 from .choices import INDEX_NAME, JOURNAL_STATUS, STUDY_AREAS
 from .models import User
-from .factory import JournalFactory, IssueFactory
+from .factory import JournalFactory, IssueFactory, ArticleFactory
 from .utils import utils
 
 HIGHLIGHTED_TYPES = (
@@ -577,7 +577,7 @@ def get_journal_by_url_seg(url_seg, **kwargs):
 
     if not url_seg:
         raise ValueError(__("Obrigatório um url_seg."))
-
+    
     return Journal.objects(url_segment=url_seg, **kwargs).first()
 
 
@@ -866,7 +866,7 @@ def get_issue_by_url_seg(url_seg, url_seg_issue):
 
     if not url_seg and url_seg_issue:
         raise ValueError(__("Obrigatório um url_seg e url_seg_issue."))
-
+    
     return Issue.objects.filter(
         journal=journal, url_segment=url_seg_issue, type__ne="pressrelease"
     ).first()
@@ -1738,7 +1738,7 @@ def get_journal_metrics(journal):
 
 def add_journal(data):
     """
-    This function has the responsability to create a journal using a data as dictionary. 
+    This function has the responsability to create a journal using a data as dictionary.
 
     The param data is something like this:
 
@@ -1793,11 +1793,11 @@ def add_journal(data):
             "updated": "2019-07-19T20:33:17.102106Z"
         }
 
-    The mininal fields necessary to create a journal is: 
+    The mininal fields necessary to create a journal is:
 
-        {'title': "teste", "acronym":"te", "id": "0000-0000", "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}    
+        {'title': "teste", "acronym":"te", "id": "0000-0000", "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
 
-    """ 
+    """
     journal = JournalFactory(data)
 
     return journal.save()
@@ -1805,7 +1805,7 @@ def add_journal(data):
 
 def add_issue(data, journal_id, issue_order=None, _type="regular"):
     """
-    This function has the responsability to create a journal using a data as dictionary. 
+    This function has the responsability to create a journal using a data as dictionary.
 
     The param data is something like this:
 
@@ -1825,10 +1825,25 @@ def add_issue(data, journal_id, issue_order=None, _type="regular"):
         "updated": "2020-04-28T20:16:24.459467Z"
     }
 
-    The mininal fields necessary to create a journal is: 
+    The mininal fields necessary to create a journal is:
 
-    
-    """ 
-    issue = IssueFactory(data, journal_id, issue_order=None, _type="regular")
-    
+
+    """
+    issue = IssueFactory(data, journal_id, issue_order=issue_order, _type=_type)
+
     return issue.save()
+
+
+def add_article(
+    document_id,
+    data,
+    issue_id,
+    document_order,
+    document_xml_url,
+    repeated_doc_pids=None,
+):
+    article = ArticleFactory(
+        document_id, data, issue_id, document_order, document_xml_url, repeated_doc_pids
+    )
+    
+    return article.save()
