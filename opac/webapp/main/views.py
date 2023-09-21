@@ -2078,14 +2078,14 @@ def issue():
     payload = request.get_json()
     params = request.args.to_dict()
 
-    if not params.get("journal_id"):
+    if not params.get("journal_id") and not request.json.get("journal_id"):
         return jsonify({"failed": True, "error": "missing param journal_id"}), 400 
     else:
-        journal_id = params.get("journal_id") 
+        journal_id = params.get("journal_id") or request.json.get("journal_id")
 
-    issue_order = params.get("issue_order", None)
+    issue_order = params.get("issue_order", None) or request.json.get("issue_order")
 
-    _type = params.get("type", None) 
+    _type = params.get("type") or request.json.get("type") if params.get("type", None) or request.json.get("type") else "regular"
 
     try:
         issue = controllers.add_issue(payload, journal_id, issue_order, _type)
@@ -2093,6 +2093,50 @@ def issue():
         return jsonify({"failed": True, "error": str(ex)}), 500
     else:
         return jsonify({"failed": False, "id": issue.id}), 200
+
+
+@restapi.route("/article", methods=["POST", "PUT"])
+def article():
+    """
+    This endpoint responds for PUT and POST. 
+
+    if in the payload exists the ``id`` field the function ``controllers.add_issue``
+    will update or create. 
+
+    A payload example:
+
+    """
+    payload = request.get_json()
+    params = request.args.to_dict()
+
+    if not params.get("issue_id") and not request.json.get("issue_id"):
+        return jsonify({"failed": True, "error": "missing param issue_id"}), 400 
+    else:
+        issue_id = params.get("issue_id") or request.json.get("issue_id")
+
+    if not params.get("article_id") and not request.json.get("article_id"):
+        return jsonify({"failed": True, "error": "missing param article_id"}), 400 
+    else:
+        article_id = params.get("article_id")  or request.json.get("article_id")
+
+    if not params.get("order") and not request.json.get("order"):
+        return jsonify({"failed": True, "error": "missing param order"}), 400 
+    else:
+        order = params.get("order")  or request.json.get("order")
+
+    if not params.get("article_url") and not request.json.get("article_url"):
+        return jsonify({"failed": True, "error": "missing param article_url"}), 400 
+    else:
+        article_url = params.get("article_url")  or request.json.get("article_id")
+
+    try:
+        article = controllers.add_article(article_id, payload, issue_id, order, article_url)
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "id": article.id}), 200
+
+
 
 
 
