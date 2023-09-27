@@ -1,5 +1,4 @@
 # coding: utf-8
-import io
 import json
 import logging
 import mimetypes
@@ -21,7 +20,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    send_file,
     send_from_directory,
     session,
     url_for,
@@ -36,6 +34,8 @@ from webapp.choices import STUDY_AREAS
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
+
+from . import helper
 
 from . import main, restapi
 
@@ -1993,6 +1993,10 @@ def scimago_ir():
 # ###############################RestAPI########################################
 
 
+@restapi.route("/auth", methods=["POST"])
+def authenticate():
+    return helper.auth()
+
 @restapi.route("/counter_dict", methods=["GET"])
 def router_counter_dicts():
     """
@@ -2040,7 +2044,8 @@ def router_counter_dicts():
 
 
 @restapi.route("/journal", methods=["POST", "PUT"])
-def journal():
+@helper.token_required
+def journal(*args):
     """
     This endpoint responds for PUT and POST. 
 
@@ -2063,7 +2068,8 @@ def journal():
 
 
 @restapi.route("/issue", methods=["POST", "PUT"])
-def issue():
+@helper.token_required
+def issue(*args):
     """
     This endpoint responds for PUT and POST. 
 
@@ -2096,7 +2102,8 @@ def issue():
 
 
 @restapi.route("/article", methods=["POST", "PUT"])
-def article():
+@helper.token_required
+def article(*args):
     """
     This endpoint responds for PUT and POST. 
 
