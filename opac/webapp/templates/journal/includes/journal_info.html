@@ -14,7 +14,7 @@
           
         </a>
         <h1 class="h4" style="margin: 1rem auto">
-          <img src="https://scielo.parati.design/aberto-ds-scielo/examples/bootstrap/img/logo-open-access.svg" alt="Open-access" class="logo-open-access" data-bs-toggle="tooltip" data-bs-original-title="by 4.0 "> {{ journal.title }}
+          <img src="{{ url_for('static', filename='img/logo-open-access.svg', _external=True) }}" alt="Open-access" class="logo-open-access" data-bs-toggle="tooltip" data-bs-original-title="by 4.0 "> {{ journal.title }}
         </h1>
         <span class="publisher">
           {% trans %}Publicação de:{% endtrans %} <strong class="namePlublisher">{{ journal.publisher_name}}</strong>

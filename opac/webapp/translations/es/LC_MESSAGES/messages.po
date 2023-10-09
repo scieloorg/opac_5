@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  OPAC\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-21 14:18+0000\n"
+"POT-Creation-Date: 2023-09-25 13:33+0000\n"
 "PO-Revision-Date: 2018-03-07 00:47+0000\n"
 "Last-Translator: jamil Atta <atta.jamil@gmail.com>\n"
 "Language: es\n"
@@ -1227,7 +1227,6 @@ msgid "Formato de exportação não suportado."
 msgstr ""
 
 #: opac/webapp/main/views.py:1723
-#, fuzzy
 msgid "Artigo não encontrado."
 msgstr "Artículo no encontrado"
 
@@ -1368,7 +1367,6 @@ msgstr ""
 "administrador.</strong>"
 
 #: opac/webapp/templates/admin/pages/add.html:7
-#, fuzzy
 msgid ""
 "<strong>Atenção:</strong> ao selecionar um <strong>periódico</strong> "
 "esta página será a página\n"
@@ -1551,7 +1549,6 @@ msgid "Sumário"
 msgstr "Tabla de contenido"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:28
-#, fuzzy
 msgid "Anterior"
 msgstr "anterior"
 
@@ -1559,12 +1556,10 @@ msgstr "anterior"
 #: opac/webapp/templates/journal/includes/levelMenu.html:161
 #: opac/webapp/templates/journal/includes/levelMenu.html:165
 #: opac/webapp/templates/journal/includes/levelMenu.html:169
-#, fuzzy
 msgid "Atual"
 msgstr "actual"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:47
-#, fuzzy
 msgid "Seguinte"
 msgstr "número siguiente"
 
@@ -1585,7 +1580,7 @@ msgstr "Texto"
 #: opac/webapp/templates/article/includes/levelMenu.html:335
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:38
 msgid "Resumo "
-msgstr ""
+msgstr "Resumen "
 
 #: opac/webapp/templates/article/includes/levelMenu.html:157
 #: opac/webapp/templates/article/includes/levelMenu.html:394
@@ -1759,7 +1754,6 @@ msgid "Temática"
 msgstr "Temática"
 
 #: opac/webapp/templates/collection/index.html:79
-#, fuzzy
 msgid "Busca por periódicos"
 msgstr "Listado de revistas"
 
@@ -1811,27 +1805,23 @@ msgstr "Todos"
 #: opac/webapp/templates/collection/list_journal.html:53
 #: opac/webapp/templates/collection/list_thematic
 #: opac/webapp/templates/collection/list_thematic.html:79
-#, fuzzy
 msgid "Descontinuados"
-msgstr "discontinuado"
+msgstr "Discontinuado"
 
 #: bkp-accordion-novo.html:66
 #: opac/webapp/templates/collection/list_journal.html:60
 #: opac/webapp/templates/collection/list_thematic
 #: opac/webapp/templates/collection/list_thematic.html:87
-#, fuzzy
 msgid "Digite para filtrar a lista"
 msgstr "Ingrese una o más palabras para filtrar en la lista"
 
 #: bkp-accordion-novo.html:133
 #: opac/webapp/templates/collection/list_journal.html:73
 #: opac/webapp/templates/collection/list_thematic
-#, fuzzy
 msgid "Títulos"
 msgstr "Título"
 
 #: bkp-accordion-novo.html:34 opac/webapp/templates/collection/list_thematic
-#, fuzzy
 msgid "Grandes áreas do conhecimento"
 msgstr "grandes áreas"
 
@@ -1884,6 +1874,7 @@ msgid ""
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/header.html:79
+#: opac/webapp/templates/collection/includes/nav.html:50
 msgid "Sobre o"
 msgstr "Sobre el"
 
@@ -1968,9 +1959,8 @@ msgid "Compartilhar no Facebook"
 msgstr "Compartir en Facebook"
 
 #: opac/webapp/templates/collection/includes/list_journals_section_title.html:22
-#, fuzzy
 msgid "Compartilhar no X"
-msgstr "Compartir en Twitter"
+msgstr "Compartir en X"
 
 #: opac/webapp/templates/collection/includes/list_journals_section_title.html:25
 #: opac/webapp/templates/collection/includes/list_journals_section_title.html:30
@@ -1985,7 +1975,6 @@ msgid "Busca"
 msgstr "Buscar"
 
 #: opac/webapp/templates/collection/includes/nav.html:50
-#, fuzzy
 msgid "Sobre"
 msgstr "Sobre el"
 
@@ -2070,7 +2059,6 @@ msgstr ""
 "por favor, revise e intente nuevamente."
 
 #: opac/webapp/templates/errors/500.html:5
-#, fuzzy
 msgid ""
 "Erro interno do servidor. Tente novamente mais tarde. Nossos engenheiros "
 "foram notificados."
@@ -2102,12 +2090,10 @@ msgid "Digite seu Nome"
 msgstr "Introduzca su nombre"
 
 #: opac/webapp/templates/includes/error_form.html:33
-#, fuzzy
 msgid "Erro referente"
 msgstr "Error relativo a"
 
 #: opac/webapp/templates/includes/error_form.html:37
-#, fuzzy
 msgid "ao conteúdo"
 msgstr "Contenido"
 
@@ -2402,7 +2388,6 @@ msgid "Siga-nos"
 msgstr "Síganos"
 
 #: opac/webapp/templates/journal/includes/levelMenu.html:9
-#, fuzzy
 msgid "Home do periódico"
 msgstr "página de la revista"
 
@@ -2418,7 +2403,6 @@ msgstr "número anterior"
 #: opac/webapp/templates/journal/includes/levelMenu.html:23
 #: opac/webapp/templates/journal/includes/levelMenu.html:28
 #: opac/webapp/templates/journal/includes/levelMenu.html:33
-#, fuzzy
 msgid "Número anterior"
 msgstr "Número anterior"
 
@@ -2434,14 +2418,12 @@ msgstr "número actual"
 #: opac/webapp/templates/journal/includes/levelMenu.html:56
 #: opac/webapp/templates/journal/includes/levelMenu.html:61
 #: opac/webapp/templates/journal/includes/levelMenu.html:66
-#, fuzzy
 msgid "número seguinte"
 msgstr "número siguiente"
 
 #: opac/webapp/templates/journal/includes/levelMenu.html:57
 #: opac/webapp/templates/journal/includes/levelMenu.html:62
 #: opac/webapp/templates/journal/includes/levelMenu.html:67
-#, fuzzy
 msgid "Número seguinte"
 msgstr "número siguiente"
 
@@ -2712,13 +2694,13 @@ msgstr "Ver"
 
 #~ msgid ""
 #~ "Periódicos\n"
-#~ "                                        descontinuados"
+#~ "descontinuados"
 #~ msgstr ""
 
 #~ msgid "Sobre:"
 #~ msgstr "Acerca de:"
 
-#~ msgid " ACESSIBILIDADE/REPORTAR ERRO "
+#~ msgid "ACESSIBILIDADE/REPORTAR ERRO"
 #~ msgstr ""
 
 #~ msgid "acessibilidade (por favor, considere responder ao "
@@ -2772,5 +2754,8 @@ msgstr "Ver"
 #~ msgstr "número siguiente"
 
 #~ msgid "Sobre: SciELO "
+#~ msgstr "Sobre el"
+
+#~ msgid "Sobre"
 #~ msgstr "Sobre el"
 

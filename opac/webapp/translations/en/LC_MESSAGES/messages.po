@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  OPAC\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-21 14:18+0000\n"
+"POT-Creation-Date: 2023-09-25 13:33+0000\n"
 "PO-Revision-Date: 2018-03-06 19:50+0000\n"
 "Last-Translator: jamil Atta <atta.jamil@gmail.com>\n"
 "Language: en\n"
@@ -1872,6 +1872,7 @@ msgid ""
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/header.html:79
+#: opac/webapp/templates/collection/includes/nav.html:50
 msgid "Sobre o"
 msgstr "About"
 
@@ -1970,10 +1971,6 @@ msgstr "Other social networks"
 #: opac/webapp/templates/collection/includes/nav.html:82
 msgid "Busca"
 msgstr "Search"
-
-#: opac/webapp/templates/collection/includes/nav.html:50
-msgid "Sobre"
-msgstr "About"
 
 #: opac/webapp/templates/collection/includes/nav.html:62
 msgid "SciELO.org - Rede SciELO"
@@ -2729,5 +2726,8 @@ msgstr "Open"
 #~ msgstr "Next issue"
 
 #~ msgid "Sobre: SciELO "
+#~ msgstr "About"
+
+#~ msgid "Sobre"
 #~ msgstr "About"
 

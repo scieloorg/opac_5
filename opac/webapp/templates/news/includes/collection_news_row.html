@@ -4,18 +4,16 @@
   
   {% if item.image_url %}
       
-      <img src="{{ item.image_url }}" class="card-img-top">
+      <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
       
   {% else %}
-      <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
+      <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top" alt="{{ item.title }}">
   {% endif %}
   
   <div class="card-body">
 
       <h6 class="card-subtitle mb-1">{{ item.publication_date|datetimefilter }}</h6>
-      <!--
-      <h5 class="card-title"></h5>
-      -->
+      
       <strong class="card-title">
         {{ item.title }}
       </strong>

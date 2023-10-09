@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-09-21 14:18+0000\n"
+"POT-Creation-Date: 2023-09-25 13:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1833,6 +1833,7 @@ msgid ""
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/header.html:79
+#: opac/webapp/templates/collection/includes/nav.html:50
 msgid "Sobre o"
 msgstr ""
 
@@ -1930,10 +1931,6 @@ msgstr ""
 #: opac/webapp/templates/collection/includes/nav.html:40
 #: opac/webapp/templates/collection/includes/nav.html:82
 msgid "Busca"
-msgstr ""
-
-#: opac/webapp/templates/collection/includes/nav.html:50
-msgid "Sobre"
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/nav.html:62

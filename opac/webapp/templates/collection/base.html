@@ -5,7 +5,7 @@
     {% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')) %}
       {% if config.get('ALERT_MSG') %}
 
-      <div class="alert alert-warning alert-dismissible text-center">
+      <div class="alert alert-warning alert-dismissible text-center" style="display:none;">
         
         {% if html_lang == 'pt_BR' %}
           {{ config.get('ALERT_MSG_PT') }}

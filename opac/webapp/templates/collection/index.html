@@ -6,8 +6,6 @@
     {% include "collection/includes/levelMenu_search.html" %}
 {% endblock %}
 
-
-
 {% block main_content %}
   <section class="collection mb-5">
     <div class="container">
@@ -73,6 +71,7 @@
                   </div>
                   <div class="col">
                      <!-- Form search periódicos -->
+                     <label for="tst" class="visually-hidden">{% trans %}Busca por periódicos{% endtrans %}</label>
                      <div class="typeahead__container">
                         <div class="typeahead__field">
                            <div class="typeahead__query">
