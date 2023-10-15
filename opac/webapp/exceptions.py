@@ -1,3 +1,7 @@
+class PublishDocumentError(Exception):
+    ...
+
+
 class GetSPSPackageFromDocManifestException(Exception):
     ...
 

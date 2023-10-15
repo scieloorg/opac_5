@@ -1,29 +1,18 @@
+import logging
 import re
 from datetime import datetime
 from typing import Generator, List
 
-from exceptions import InvalidOrderValueError
+from exceptions import InvalidOrderValueError, PublishDocumentError
 from opac_schema.v1 import models
 
 EMAIL_SPLIT_REGEX = re.compile("[;\\/]+")
 
 
-def _nestget(data, *path, default=""):
-    """Obtém valores de list ou dicionários."""
-    for key_or_index in path:
-        try:
-            data = data[key_or_index]
-        except (KeyError, IndexError):
-            return default
-    return data
-
-
-def _get_main_article_title(data):
-    try:
-        lang = _nestget(data, "article", 0, "lang", 0)
-        return data["display_format"]["article_title"][lang]
-    except KeyError:
-        return _nestget(data, "article_meta", 0, "article_title", 0)
+def isoformat_to_datetime(date_):
+    if not date_:
+        return datetime.utcnow().isoformat()
+    return datetime.fromisoformat(date_)
 
 
 def JournalFactory(data):
@@ -117,8 +106,8 @@ def JournalFactory(data):
     if metadata.get("previous_journal", ""):
         journal.previous_journal_ref = metadata["previous_journal"]["name"]
 
-    journal.created = data.get("created", "")
-    journal.updated = data.get("updated", "")
+    journal.created = journal.created or isoformat_to_datetime(data.get("created"))
+    journal.updated = isoformat_to_datetime(data.get("updated"))
 
     return journal
 
@@ -162,8 +151,12 @@ def IssueFactory(data, journal_id, issue_order=None, _type="regular"):
 
     issue.volume = metadata.get("volume", "")
 
-    if issue_order:
-        issue.order = issue_order
+    if not issue_order and data.get("pid"):
+        issue_order = data.get("order") or data.get("pid")[-5:]
+    try:
+        issue.order = int(issue_order)
+    except (ValueError, TypeError):
+        pass
 
     issue.pid = metadata.get("pid", "")
     issue.journal = models.Journal.objects.get(_id=journal_id)
@@ -204,10 +197,252 @@ def IssueFactory(data, journal_id, issue_order=None, _type="regular"):
     else:
         issue.type = _type
 
-    issue.created = data.get("created", "")
-    issue.updated = data.get("updated", "")
+    issue.created = issue.created or isoformat_to_datetime(data.get("created"))
+    issue.updated = isoformat_to_datetime(data.get("updated"))
 
     return issue
+
+
+class AuxiliarArticleFactory:
+    # https://github.com/scieloorg/opac-airflow/blob/4103e6cab318b737dff66435650bc4aa0c794519/airflow/dags/operations/sync_kernel_to_website_operations.py#L82
+
+    def __init__(self, doc_id, issue_id=None):
+        try:
+            self.doc = models.Article.objects.get(_id=doc_id)
+        except models.Article.DoesNotExist:
+            self.doc = models.Article()
+
+        if not self.doc.issue and issue_id:
+            self.doc.issue = models.Issue.objects.get(_id=issue_id)
+
+        self.doc.journal = self.doc.issue.journal
+
+        self.doc._id = doc_id
+        self.doc.aid = doc_id
+
+        # Garante que o campo de relacionamento esteja vazio
+        self.doc.authors_meta = None
+        self.doc.authors = None
+        self.doc.translated_titles = None
+        self.doc.sections = None
+        self.doc.abstract = None
+        self.doc.abstracts = None
+        self.doc.keywords = None
+        self.doc.doi_with_lang = None
+        self.doc.related_articles = None
+        self.doc.htmls = None
+        self.doc.pdfs = None
+        self.doc.mat_suppl_items = None
+
+    def add_identifiers(self, v2, aop_pid, other_pids=None):
+        # Identificadores
+        self.doc.pid = v2
+
+        self.doc.scielo_pids = self.doc.scielo_pids or {}
+        self.doc.scielo_pids["v2"] = v2
+        self.doc.scielo_pids["v3"] = self.doc._id
+
+        if other_pids:
+            for item in other_pids:
+                self.add_other_pid(item)
+
+        if aop_pid:
+            self.doc.aop_pid = aop_pid
+
+    def add_other_pid(self, other_pid):
+        if other_pid:
+            self.doc.scielo_pids.setdefault("other", [])
+            if other_pid not in self.doc.scielo_pids["other"]:
+                self.doc.scielo_pids["other"].append(other_pid)
+
+    def add_journal(self, journal):
+        if isinstance(journal, Journal):
+            self.doc.journal = journal
+        else:
+            self.doc.journal = Journal.objects.get(_id=journal)
+
+    def add_issue(self, issue):
+        if isinstance(issue, Issue):
+            self.doc.issue = issue
+        else:
+            self.doc.issue = Issue.objects.get(_id=issue)
+
+    def add_main_metadata(self, title, section, abstract, lang, doi):
+        # Dados principais (versão considerada principal)
+        # devem conter estilos html (math, italic, sup, sub)
+        self.doc.title = title
+        self.doc.section = section
+        self.doc.abstract = abstract
+        self.doc.original_language = lang
+        self.doc.doi = doi
+
+    def add_document_type(self, document_type):
+        self.doc.type = document_type
+
+    def add_publication_date(self, publication_date):
+        self.doc.publication_date = publication_date
+
+    def add_in_issue(
+        self, order, fpage=None, fpage_seq=None, lpage=None, elocation=None
+    ):
+        # Dados de localização no issue
+        self.doc.order = order
+        self.doc.elocation = elocation
+        self.doc.fpage = fpage
+        self.doc.fpage_sequence = fpage_seq
+        self.doc.lpage = lpage
+
+    def add_author(self, surname, given_names, suffix, affiliation, orcid):
+        # author meta
+        # authors_meta = EmbeddedDocumentListField(AuthorMeta))
+        if self.doc.authors_meta is None:
+            self.doc.authors_meta = []
+        author = models.AuthorMeta()
+        author.surname = surname
+        author.given_names = given_names
+        author.suffix = suffix
+        author.affiliation = affiliation
+        author.orcid = orcid
+        self.doc.authors_meta.append(author)
+
+        # author
+        if self.doc.authors is None:
+            self.doc.authors = []
+        _author = _format_author_name(
+            surname,
+            given_names,
+            suffix,
+        )
+        self.doc.authors.append(_author)
+
+    def add_translated_title(self, language, name):
+        # translated_titles = EmbeddedDocumentListField(TranslatedTitle))
+        if self.doc.translated_titles is None:
+            self.doc.translated_titles = []
+        _translated_title = models.TranslatedTitle()
+        _translated_title.name = name
+        _translated_title.language = language
+        self.doc.translated_titles.append(_translated_title)
+
+    def add_section(self, language, name):
+        # sections = EmbeddedDocumentListField(TranslatedSection))
+        if self.doc.sections is None:
+            self.doc.sections = []
+        _translated_section = models.TranslatedSection()
+        _translated_section.name = name
+        _translated_section.language = language
+        self.doc.sections.append(_translated_section)
+
+    def add_abstract(self, language, text):
+        # abstracts = EmbeddedDocumentListField(Abstract))
+        if self.doc.abstracts is None:
+            self.doc.abstracts = []
+        _abstract = models.Abstract()
+        _abstract.text = text
+        _abstract.language = language
+        self.doc.abstracts.append(_abstract)
+
+    def add_keywords(self, language, keywords):
+        # kwd_groups = EmbeddedDocumentListField(ArticleKeyword))
+        if self.doc.keywords is None:
+            self.doc.keywords = []
+        _kwd_group = models.ArticleKeyword()
+        _kwd_group.language = language
+        _kwd_group.keywords = keywords
+        self.doc.keywords.append(_kwd_group)
+
+    def add_doi_with_lang(self, language, doi):
+        # doi_with_lang = EmbeddedDocumentListField(DOIWithLang))
+        if self.doc.doi_with_lang is None:
+            self.doc.doi_with_lang = []
+        _doi_with_lang_item = models.DOIWithLang()
+        _doi_with_lang_item.doi = doi
+        _doi_with_lang_item.language = language
+        self.doc.doi_with_lang.append(_doi_with_lang_item)
+
+    def add_related_article(self, doi, ref_id, related_type):
+        # related_article = EmbeddedDocumentListField(RelatedArticle))
+        if self.doc.related_articles is None:
+            self.doc.related_articles = []
+        _related_article = models.RelatedArticle()
+        _related_article.doi = doi
+        _related_article.ref_id = ref_id
+        _related_article.related_type = related_type
+        self.doc.related_articles.append(_related_article)
+
+    def add_xml(self, xml):
+        self.doc.xml = xml
+
+    def add_html(self, language, uri):
+        # htmls = ListField(field=DictField()))
+        if self.doc.htmls is None:
+            self.doc.htmls = []
+        self.doc.htmls.append({"lang": language, "uri": uri})
+        self.doc.languages = [html["lang"] for html in self.doc.htmls]
+
+    def add_pdf(self, lang, url, filename, type, classic_uri=None):
+        # pdfs = ListField(field=DictField()))
+        """
+        {
+            "lang": rendition["lang"],
+            "url": rendition["url"],
+            "filename": rendition["filename"],
+            "type": "pdf",
+        }
+        """
+        if self.doc.pdfs is None:
+            self.doc.pdfs = []
+        self.doc.pdfs.append(
+            dict(
+                lang=lang,
+                url=url,
+                filename=filename,
+                type=type,
+                classic_uri=classic_uri,
+            )
+        )
+
+    def add_mat_suppl(self, lang, url, ref_id, filename):
+        # mat_suppl = EmbeddedDocumentListField(MatSuppl))
+        if self.doc.mat_suppl_items is None:
+            self.doc.mat_suppl_items = []
+        _mat_suppl_item = models.MatSuppl()
+        _mat_suppl_item.url = url
+        _mat_suppl_item.lang = lang
+        _mat_suppl_item.ref_id = ref_id
+        _mat_suppl_item.filename = filename
+        self.doc.mat_suppl_items.append(_mat_suppl_item)
+
+    def publish_document(self, created, updated):
+        """
+        Publishes doc data
+
+        Raises
+        ------
+        DocumentSaveError
+
+        Returns
+        -------
+        opac_schema.v1.models.Article
+        """
+        try:
+            if self.doc.issue and self.doc.issue.number == "ahead":
+                url_segs = {
+                    "url_seg_article": self.doc.url_segment,
+                    "url_seg_issue": self.doc.issue.url_segment,
+                }
+                self.doc.aop_url_segs = models.AOPUrlSegments(**url_segs)
+
+            # atualiza status
+            self.doc.issue.is_public = True
+            self.doc.is_public = True
+            self.doc.created = self.doc.created or isoformat_to_datetime(created)
+            self.doc.updated = isoformat_to_datetime(updated)
+
+            self.doc.save()
+        except Exception as e:
+            raise PublishDocumentError(e)
+        return self.doc
 
 
 def ArticleFactory(
@@ -240,390 +475,93 @@ def ArticleFactory(
         "autor",
     )
 
-    try:
-        article = models.Article.objects.get(_id=document_id)
+    factory = AuxiliarArticleFactory(document_id, issue_id)
 
-        if issue_id is None:
-            issue_id = article.issue._id
-    except models.Article.DoesNotExist:
-        article = models.Article()
-
-    # atualiza status
-    article.is_public = True
-
-    # Garante que o campo de relacionamento com outro artigo esteja vazio.
-    article.related_articles = []
+    article = factory.doc
 
     # Dados principais
-    article.title = _get_main_article_title(data)
-    article.section = _nestget(data, "article_meta", 0, "pub_subject", 0)
-    article.abstract = _nestget(data, "article_meta", 0, "abstract", 0)
-
-    # Identificadores
-    article._id = document_id
-    article.aid = document_id
-    # Lista de SciELO PIDs dentro de article_meta
-    scielo_pids = [
-        (
-            f"v{version}",
-            _nestget(
-                data, "article_meta", 0, f"scielo_pid_v{version}", 0, default=None
-            ),
-        )
-        for version in range(1, 4)
-    ]
-    article.scielo_pids = {
-        version: value for version, value in scielo_pids if value is not None
-    }
-
-    # insere outros tipos de PIDs/IDs em `scielo_ids['other']`
-    article_publisher_id = (
-        _nestget(data, "article_meta", 0, "article_publisher_id") or []
+    factory.add_main_metadata(
+        title=data.get("title"),
+        section=data.get("section"),
+        abstract=data.get("abstract"),
+        lang=data.get("lang"),
+        doi=data.get("doi")
     )
-    repeated_doc_pids = repeated_doc_pids or []
-    repeated_doc_pids = list(set(repeated_doc_pids + article_publisher_id))
-    if repeated_doc_pids:
-        article.scielo_pids.update({"other": repeated_doc_pids})
 
-    article.aop_pid = _nestget(data, "article_meta", 0, "previous_pid", 0)
-    article.pid = article.scielo_pids.get("v2")
+    factory.add_identifiers(
+        v2=data.get("scielo_pids_v2"),
+        aop_pid=data.get("aop_pid"),
+        other_pids=data.get("other_pids"),
+    )
 
-    article.doi = _nestget(data, "article_meta", 0, "article_doi", 0)
-
-    def _get_article_authors(data) -> Generator:
-        """Recupera a lista de autores do artigo"""
-
-        for contrib in _nestget(data, "contrib"):
-            if _nestget(contrib, "contrib_type", 0) in AUTHOR_CONTRIB_TYPES:
-                yield (
-                    "%s%s, %s"
-                    % (
-                        _nestget(contrib, "contrib_surname", 0),
-                        " " + _nestget(contrib, "contrib_suffix", 0)
-                        if _nestget(contrib, "contrib_suffix", 0)
-                        else "",
-                        _nestget(contrib, "contrib_given_names", 0),
-                    )
-                )
-
-    def _get_author_affiliation(data, xref_aff_id):
-        """Recupera a afiliação ``institution_orgname`` de xref_aff_id"""
-
-        for aff in _nestget(data, "aff"):
-            if _nestget(aff, "aff_id", 0) == xref_aff_id:
-                return _nestget(aff, "institution_orgname", 0)
-
-    def _get_article_authors_meta(data):
-        """Recupera a lista de autores do artigo para popular opac_schema.AuthorMeta,
-        contendo a afiliação e orcid"""
-
-        authors = []
-
-        for contrib in _nestget(data, "contrib"):
-            if _nestget(contrib, "contrib_type", 0) in AUTHOR_CONTRIB_TYPES:
-                author_dict = {}
-
-                author_dict["name"] = "%s%s, %s" % (
-                    _nestget(contrib, "contrib_surname", 0),
-                    " " + _nestget(contrib, "contrib_suffix", 0)
-                    if _nestget(contrib, "contrib_suffix", 0)
-                    else "",
-                    _nestget(contrib, "contrib_given_names", 0),
-                )
-
-                if _nestget(contrib, "contrib_orcid", 0):
-                    author_dict["orcid"] = _nestget(contrib, "contrib_orcid", 0)
-
-                aff = _get_author_affiliation(data, _nestget(contrib, "xref_aff", 0))
-
-                if aff:
-                    author_dict["affiliation"] = aff
-
-                authors.append(models.AuthorMeta(**author_dict))
-
-        return authors
-
-    def _get_original_language(data: dict) -> str:
-        return _nestget(data, "article", 0, "lang", 0)
-
-    def _get_languages(data: dict) -> List[str]:
-        """Recupera a lista de idiomas em que o artigo foi publicado"""
-
-        translations_type = [
-            "translation",
-        ]
-
-        languages = [_get_original_language(data)]
-
-        for sub_article in _nestget(data, "sub_article"):
-            if _nestget(sub_article, "article", 0, "type", 0) in translations_type:
-                languages.append(_nestget(sub_article, "article", 0, "lang", 0))
-
-        return languages
-
-    def _get_translated_titles(data: dict) -> Generator:
-        """Recupera a lista de títulos do artigo"""
-        try:
-            _lang = _get_original_language(data)
-            for lang, title in data["display_format"]["article_title"].items():
-                if _lang != lang:
-                    yield models.TranslatedTitle(
-                        **{
-                            "name": title,
-                            "language": lang,
-                        }
-                    )
-        except KeyError:
-            for sub_article in _nestget(data, "sub_article"):
-                yield models.TranslatedTitle(
-                    **{
-                        "name": _nestget(
-                            sub_article, "article_meta", 0, "article_title", 0
-                        ),
-                        "language": _nestget(sub_article, "article", 0, "lang", 0),
-                    }
-                )
-
-    def _get_translated_sections(data: dict) -> List[models.TranslatedSection]:
-        """Recupera a lista de seções traduzidas a partir do document front"""
-
-        translations_type = [
-            "translation",
-        ]
-
-        sections = [
-            models.TranslatedSection(
-                **{
-                    "name": _nestget(data, "article_meta", 0, "pub_subject", 0),
-                    "language": _get_original_language(data),
-                }
-            )
-        ]
-
-        for sub_article in _nestget(data, "sub_article"):
-            if _nestget(sub_article, "article", 0, "type", 0) in translations_type:
-                sections.append(
-                    models.TranslatedSection(
-                        **{
-                            "name": _nestget(
-                                sub_article, "article_meta", 0, "pub_subject", 0
-                            ),
-                            "language": _nestget(sub_article, "article", 0, "lang", 0),
-                        }
-                    )
-                )
-
-        return sections
-
-    def _get_abstracts(data: dict) -> List[models.Abstract]:
-        """Recupera todos os abstracts do artigo"""
-
-        abstracts = []
-
-        # Abstract do texto original
-        if len(_nestget(data, "article_meta", 0, "abstract", 0)) > 0:
-            abstracts.append(
-                models.Abstract(
-                    **{
-                        "text": _nestget(data, "article_meta", 0, "abstract", 0),
-                        "language": _get_original_language(data),
-                    }
-                )
-            )
-
-        # Trans abstracts
-        abstracts += [
-            models.Abstract(
-                **{
-                    "text": _nestget(trans_abstract, "text", 0),
-                    "language": _nestget(trans_abstract, "lang", 0),
-                }
-            )
-            for trans_abstract in data.get("trans_abstract", [])
-            if trans_abstract and _nestget(trans_abstract, "text", 0)
-        ]
-
-        # Abstracts de sub-article
-        abstracts += [
-            models.Abstract(
-                **{
-                    "text": _nestget(sub_article, "article_meta", 0, "abstract", 0),
-                    "language": _nestget(sub_article, "article", 0, "lang", 0),
-                }
-            )
-            for sub_article in _nestget(data, "sub_article")
-            if len(_nestget(sub_article, "article_meta", 0, "abstract", 0)) > 0
-        ]
-
-        return abstracts
-
-    def _get_keywords(data: dict) -> List[models.ArticleKeyword]:
-        """Retorna a lista de palavras chaves do artigo e dos
-        seus sub articles"""
-
-        keywords = [
-            models.ArticleKeyword(
-                **{
-                    "keywords": _nestget(kwd_group, "kwd", default=[]),
-                    "language": _nestget(kwd_group, "lang", 0),
-                }
-            )
-            for kwd_group in _nestget(data, "kwd_group", default=[])
-        ]
-
-        for sub_article in _nestget(data, "sub_article"):
-            [
-                keywords.append(
-                    models.ArticleKeyword(
-                        **{
-                            "keywords": _nestget(kwd_group, "kwd", default=[]),
-                            "language": _nestget(kwd_group, "lang", 0),
-                        }
-                    )
-                )
-                for kwd_group in _nestget(sub_article, "kwd_group", default=[])
-            ]
-
-        return keywords
-
-    def _get_order(document_order, pid_v2):
-        try:
-            return int(document_order)
-        except (ValueError, TypeError):
-            order_err_msg = "'{}' is not a valid value for " "'article.order'".format(
-                document_order
-            )
-            try:
-                document_order = int(pid_v2[-5:])
-                print(
-                    "{}. It was set '{} (the last 5 digits of PID v2)' to "
-                    "'article.order'".format(order_err_msg, document_order)
-                )
-                return document_order
-            except (ValueError, TypeError):
-                raise InvalidOrderValueError(order_err_msg)
-
-    def _get_publication_date_by_type(
-        publication_dates, date_type="pub", reverse_date=True
-    ):
-        """
-        Obtém a lista de datas de publicação do /front do kernel,
-        no seguinte formato, exemplo:
-
-        [{'text': ['2022'],
-          'pub_type': [],
-          'pub_format': ['electronic'],
-          'date_type': ['collection'],
-          'day': [],
-          'month': [],
-          'year': ['2022'],
-          'season': []},
-        {'text': ['02 02 2022'],
-         'pub_type': [],
-         'pub_format': ['electronic'],
-         'date_type': ['pub'],
-         'day': ['02'],
-         'month': ['02'],
-         'year': ['2022'],
-         'season': []}]
-
-         Retorna a data considerando a chave o tipo `date_type`.
-
-         Return a string.
-        """
-
-        def _check_date_format(date_string, format="%Y-%m-%d"):
-            """
-            Check if date as string is a expected format.
-            """
-            try:
-                return datetime.strptime(date_string, format).strftime(format)
-            except ValueError:
-                print("The date isnt in a well format, the correct format: %s" % format)
-
-            return date_string
-
-        try:
-            formed_date = ""
-            for pubdate in publication_dates or []:
-                if date_type in pubdate.get("date_type") or "epub" in pubdate.get(
-                    "pub_type"
-                ):
-                    pubdate_list = [
-                        _nestget(pubdate, "day", 0),
-                        _nestget(pubdate, "month", 0),
-                        _nestget(pubdate, "year", 0),
-                    ]
-                    if reverse_date:
-                        pubdate_list.reverse()
-                    formed_date = "-".join([pub for pub in pubdate_list if pub])
-            return (
-                _check_date_format(formed_date)
-                if reverse_date
-                else _check_date_format(formed_date, "%d-%m-%Y")
-            )
-        except (IndexError, AttributeError):
-            print(
-                "Missing publication date type: {} in list of dates: {}".format(
-                    date_type, publication_dates
-                )
-            )
-
-    article.authors = list(_get_article_authors(data))
-    article.authors_meta = _get_article_authors_meta(data)
-    article.languages = list(_get_languages(data))
-    article.translated_titles = list(_get_translated_titles(data))
-    article.sections = list(_get_translated_sections(data))
-    article.abstracts = list(_get_abstracts(data))
-    article.keywords = list(_get_keywords(data))
-
-    article.abstract_languages = [
-        abstract["language"] for abstract in article.abstracts
-    ]
-
-    article.original_language = _get_original_language(data)
-    publications_date = _nestget(data, "pub_date")
-
-    if publications_date:
-        formed_publication_date = _get_publication_date_by_type(
-            publications_date, "pub"
+    for item in data.get("authors_meta") or []:
+        factory.add_author(
+            surname=item.get("surname"),
+            given_names=item.get("given_names"),
+            suffix=item.get("suffix"),
+            affiliation=item.get("affiliation"),
+            orcid=item.get("orcid"),
         )
-        article.publication_date = formed_publication_date
 
-    article.type = _nestget(data, "article", 0, "type", 0)
+    for item in data.get("htmls") or []:
+        factory.add_html(language=item["lang"], uri=item["uri"])
 
-    # Dados de localização
-    article.elocation = _nestget(data, "article_meta", 0, "pub_elocation", 0)
-    article.fpage = _nestget(data, "article_meta", 0, "pub_fpage", 0)
-    article.fpage_sequence = _nestget(data, "article_meta", 0, "pub_fpage_seq", 0)
-    article.lpage = _nestget(data, "article_meta", 0, "pub_lpage", 0)
+    for item in data.get("pdfs") or []:
+        factory.add_pdf(
+            lang=item["lang"], url=item["url"],
+            filename=item["filename"], type=item["type"],
+            classic_uri=item.get("classic_uri"))
 
-    if article.issue is not None and article.issue.number == "ahead":
-        if article.aop_url_segs is None:
-            url_segs = {
-                "url_seg_article": article.url_segment,
-                "url_seg_issue": article.issue.url_segment,
-            }
-            article.aop_url_segs = models.AOPUrlSegments(**url_segs)
+    for item in data.get("translated_titles") or []:
+        factory.add_translated_title(
+            language=item["language"], name=item["name"],
+        )
 
-    # Issue vinculada
-    issue = models.Issue.objects.get(_id=issue_id)
-    issue.is_public = True
+    for item in data.get("translated_sections") or []:
+        factory.add_section(
+            language=item["language"], name=item["name"],
+        )
 
-    print("ISSUE %s" % str(issue))
-    print("ARTICLE.ISSUE %s" % str(article.issue))
-    print("ARTICLE.AOP_PID %s" % str(article.aop_pid))
-    print("ARTICLE.PID %s" % str(article.pid))
+    for item in data.get("abstracts") or []:
+        factory.add_abstract(
+            language=item["language"], text=item["text"],
+        )
 
-    article.issue = issue
-    article.journal = issue.journal
-    article.order = _get_order(document_order, article.pid)
-    article.xml = document_xml_url
+    for item in data.get("keywords") or []:
+        factory.add_keywords(
+            language=item["language"], keywords=item["keywords"],
+        )
 
-    # Campo de compatibilidade do OPAC
-    article.htmls = [{"lang": lang} for lang in _get_languages(data)]
+    factory.add_publication_date(data.get("publication_date"))
 
-    article.created = article.created or datetime.utcnow().isoformat()
-    article.updated = datetime.utcnow().isoformat()
+    factory.add_document_type(data.get("type"))
+
+    factory.add_in_issue(
+        order=data.get("order"),
+        fpage=data.get("fpage"),
+        fpage_seq=data.get("fpage_sequence"),
+        lpage=data.get("lpage"),
+        elocation=data.get("elocation")
+    )
+
+    for item in data.get("mat_suppl_items") or []:
+        factory.add_mat_suppl(
+            lang=item["lang"], url=item["url"],
+            ref_id=item["ref_id"], filename=item["filename"],
+        )
+
+    factory.add_xml(data.get("xml"))
+
+    # TODO
+    # add_doi_with_lang(self, language, doi)
+    # add_related_article(self, doi, ref_id, related_type)
+    factory.publish_document(data.get("created"), data.get("updated"))
 
     return article
+
+
+def _format_author_name(surname, given_names, suffix):
+    # like airflow
+    if suffix:
+        suffix = " " + suffix
+    return "%s%s, %s" % (surname, suffix or "", given_names)
