@@ -38,6 +38,7 @@ from webapp import dbsql
 
 from .choices import INDEX_NAME, JOURNAL_STATUS, STUDY_AREAS
 from .models import User
+from .factory import JournalFactory, IssueFactory, ArticleFactory
 from .utils import utils
 
 HIGHLIGHTED_TYPES = (
@@ -576,7 +577,7 @@ def get_journal_by_url_seg(url_seg, **kwargs):
 
     if not url_seg:
         raise ValueError(__("Obrigatório um url_seg."))
-
+    
     return Journal.objects(url_segment=url_seg, **kwargs).first()
 
 
@@ -865,7 +866,7 @@ def get_issue_by_url_seg(url_seg, url_seg_issue):
 
     if not url_seg and url_seg_issue:
         raise ValueError(__("Obrigatório um url_seg e url_seg_issue."))
-
+    
     return Issue.objects.filter(
         journal=journal, url_segment=url_seg_issue, type__ne="pressrelease"
     ).first()
@@ -1733,3 +1734,116 @@ def get_journal_metrics(journal):
         "h5_metric_year": int(scielo_metrics.get("year", 0)) if scielo_metrics else 0,
     }
     return metrics
+
+
+def add_journal(data):
+    """
+    This function has the responsability to create a journal using a data as dictionary.
+
+    The param data is something like this:
+
+        {
+            "id": "1678-4464",
+            "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg",
+            "mission": [
+                {
+                "language": "pt",
+                "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras."
+                },
+                {
+                "language": "es",
+                "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras."
+                },
+                {
+                "language": "en",
+                "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others."
+                }
+            ],
+            "title": "Cadernos de Saúde Pública",
+            "title_iso": "Cad. saúde pública",
+            "short_title": "Cad. Saúde Pública",
+            "acronym": "csp",
+            "scielo_issn": "0102-311X",
+            "print_issn": "0102-311X",
+            "electronic_issn": "1678-4464",
+            "status_history": [
+                {
+                "status": "current",
+                "date": "1999-07-02T00:00:00.000000Z",
+                "reason": ""
+                }
+            ],
+            "subject_areas": [
+                "HEALTH SCIENCES"
+            ],
+            "sponsors": [
+                {
+                "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico "
+                }
+            ],
+            "subject_categories": [
+                "Health Policy & Services"
+            ],
+            "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php",
+            "contact": {
+                "email": "cadernos@ensp.fiocruz.br",
+                "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508"
+            },
+            "created": "1999-07-02T00:00:00.000000Z",
+            "updated": "2019-07-19T20:33:17.102106Z"
+        }
+
+    The mininal fields necessary to create a journal is:
+
+        {'title': "teste", "acronym":"te", "id": "0000-0000", "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
+
+    """
+    journal = JournalFactory(data)
+
+    return journal.save()
+
+
+def add_issue(data, journal_id, issue_order=None, _type="regular"):
+    """
+    This function has the responsability to create a journal using a data as dictionary.
+
+    The param data is something like this:
+
+    {
+        "publication_year": "1998",
+        "volume": "29",
+        "number": "3",
+        "publication_months": {
+            "range": [
+                9,
+                9
+            ]
+        },
+        "pid": "1678-446419980003",
+        "id": "1678-4464-1998-v29-n3",
+        "created": "1998-09-01T00:00:00.000000Z",
+        "updated": "2020-04-28T20:16:24.459467Z"
+    }
+
+    The mininal fields necessary to create a journal is:
+
+
+    """
+    issue = IssueFactory(data, journal_id, issue_order=issue_order, _type=_type)
+
+    return issue.save()
+
+
+def add_article(
+    document_id,
+    data,
+    issue_id,
+    document_order,
+    document_xml_url,
+    repeated_doc_pids=None,
+):
+    article = ArticleFactory(
+        document_id, data, issue_id, document_order, document_xml_url, repeated_doc_pids
+    )
+    
+    return article.save()

@@ -1,0 +1,50 @@
+{
+    "id": "1678-4464",
+    "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg",
+    "mission": [
+        {
+            "language": "pt",
+            "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras."
+        },
+        {
+            "language": "es",
+            "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras."
+        },
+        {
+            "language": "en",
+            "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others."
+        }
+    ],
+    "title": "Cadernos de Saúde Pública",
+    "title_iso": "Cad. saúde pública",
+    "short_title": "Cad. Saúde Pública",
+    "acronym": "csp",
+    "scielo_issn": "0102-311X",
+    "print_issn": "0102-311X",
+    "electronic_issn": "1678-4464",
+    "status_history": [
+        {
+            "status": "current",
+            "date": "1999-07-02T00:00:00.000000Z",
+            "reason": ""
+        }
+    ],
+    "subject_areas": [
+        "HEALTH SCIENCES"
+    ],
+    "sponsors": [
+        {
+            "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico "
+        }
+    ],
+    "subject_categories": [
+        "Health Policy & Services"
+    ],
+    "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php",
+    "contact": {
+        "email": "cadernos@ensp.fiocruz.br",
+        "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508"
+    },
+    "created": "1999-07-02T00:00:00.000000Z",
+    "updated": "2019-07-19T20:33:17.102106Z"
+}
