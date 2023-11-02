@@ -152,7 +152,7 @@ def IssueFactory(data, journal_id, issue_order=None, _type="regular"):
     issue.volume = metadata.get("volume", "")
 
     if not issue_order and data.get("pid"):
-        issue_order = data.get("order") or data.get("pid")[-5:]
+        issue_order = data.get("order") or data.get("pid")[-4:]
     try:
         issue.order = int(issue_order)
     except (ValueError, TypeError):
@@ -176,26 +176,28 @@ def IssueFactory(data, journal_id, issue_order=None, _type="regular"):
         return "".join(
             f"{prefix}{metadata.get(name)}"
             for prefix, name in zip(prefixes, names)
-            if metadata.get(name)
+            if metadata.get(name) is not None
         )
 
+    issue.suppl_text = metadata.get("supplement")
     issue.label = _get_issue_label(metadata) or None
+    issue.type = metadata.get("type")
 
-    if metadata.get("supplement"):
-        issue.suppl_text = metadata.get("supplement")
-        issue.type = "supplement"
-    elif issue.volume and not issue.number:
-        issue.type = "volume_issue"
-    elif issue.number and "spe" in issue.number:
-        issue.type = "special"
-    elif _type == "ahead" and not data.get("items"):
-        """
-        Caso não haja nenhum artigo no bundle de ahead, ele é definido como
-        ``outdated_ahead``, para que não apareça na grade de fascículos
-        """
-        issue.type = "outdated_ahead"
-    else:
-        issue.type = _type
+    if not issue.type:
+        if metadata.get("supplement"):
+            issue.type = "supplement"
+        elif issue.volume and not issue.number:
+            issue.type = "volume_issue"
+        elif issue.number and "spe" in issue.number:
+            issue.type = "special"
+        elif _type == "ahead" and not data.get("items"):
+            """
+            Caso não haja nenhum artigo no bundle de ahead, ele é definido como
+            ``outdated_ahead``, para que não apareça na grade de fascículos
+            """
+            issue.type = "outdated_ahead"
+        else:
+            issue.type = _type
 
     issue.created = issue.created or isoformat_to_datetime(data.get("created"))
     issue.updated = isoformat_to_datetime(data.get("updated"))
