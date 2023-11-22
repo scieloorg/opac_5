@@ -80,28 +80,7 @@
             <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}" class="btn scielo__btn-with-icon--left"><span class="material-icons-outlined">show_chart</span> {% trans %}Métricas{% endtrans %}</a>
           {% endif %}
 
-          <div class="btn-group" role="group">
-            <a id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false" style="
-            padding-left: 1.8rem;
-            padding-right: 1.8rem !important;
-            border-top-right-radius: 0.25rem;
-            border-bottom-right-radius: 0.25rem;
-            ">
-              <span class="material-icons-outlined">share</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
-              <li><a href="javascript:window.print();" class="dropdown-item">{% trans %}Imprimir{% endtrans %}</a></li>
-              <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item" target="_blank">RSS</a></li>
-              <li><a href="javascript:;" class="dropdown-item share_modal_id">E-mail</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item shareFacebook" href="#">Facebook</a></li>
-              <li><a class="dropdown-item shareTwitter" href="#">X</a></li>
-              <li><a class="dropdown-item shareLinkedIn" href="#">LinkedIn</a></li>
-              <li><a class="dropdown-item shareReddit" href="#">Reddit</a></li>
-              <li><a class="dropdown-item shareCiteULike" href="#">CiteULike</a></li>
-              <li><a class="dropdown-item shareMendeley" href="#">Mendeley</a></li>
-            </ul>
-          </div>
+          
         </div>
 
       </div>
@@ -110,7 +89,7 @@
   <!-- exibe apenas lg -->
 
   <!-- exibe apenas sm, md -->
-  <div class="container d-xl-none" style="outline: 0px solid blue;">
+  <div class="container d-xl-none">
 
     <style>
       .btn-group .btn{
