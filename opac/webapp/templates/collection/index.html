@@ -6,8 +6,6 @@
     {% include "collection/includes/levelMenu_search.html" %}
 {% endblock %}
 
-
-
 {% block main_content %}
   <section class="collection mb-5">
     <div class="container">
@@ -60,7 +58,7 @@
       <div class="row">
         <div class="col">
           
-          <h2 class="h4  text-center text-md-start">{% trans %}Lista de periódicos{% endtrans %}</h2>
+          <h2 class="h4 text-center text-md-start">{% trans %}Lista de periódicos{% endtrans %}</h2>
           
           <div class="scielo__levelMenu">
             <div class="container">
@@ -73,10 +71,11 @@
                   </div>
                   <div class="col">
                      <!-- Form search periódicos -->
+                     <label for="tst" class="visually-hidden">{% trans %}Busca por periódicos{% endtrans %}</label>
                      <div class="typeahead__container">
                         <div class="typeahead__field">
                            <div class="typeahead__query">
-                              <span class="typeahead__cancel-button">×</span><input placeholder="Busca por periódicos" type="search" class="form-control" autocomplete="off" name="tst" id="tst">
+                              <span class="typeahead__cancel-button">×</span><input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control" autocomplete="off" name="tst" id="tst">
                            </div>
                         </div>
                      </div>

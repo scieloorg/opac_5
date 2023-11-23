@@ -1,13 +1,7 @@
-<style type="text/css">
-  .page-updated-at {
-    float:right;
-    font-size: .75em;
-    color: #7f7a71;
-  }
-</style>
 
 {% if page_updated_at %}
-  <span class="page-updated-at">
+  <p class="page-updated-at">
+    <small>
     {% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')) %}
       {% if html_lang == 'pt_BR' %}
         (Atualizado: {{ page_updated_at.strftime('%d/%m/%Y') }})
@@ -17,5 +11,6 @@
         (Actualizado: {{ page_updated_at.strftime('%d/%m/%Y') }})
       {% endif %}
     {% endwith %}
-  </span>
+    </small>
+  </p>
 {% endif %}

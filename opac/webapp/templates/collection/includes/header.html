@@ -32,6 +32,9 @@
   .collection-news .card{
     min-height: 470px;
   }
+  .collection-press-release .card{
+    min-height: 400px;
+  }
 
   .card {
     position: relative;
@@ -88,9 +91,9 @@
       </div>
       <div class="row">
         <div class="col text-center">
-          <a href="/">
+          <a href="/" alt="{{ coll_macro.get_collection_name() }}">
           <div class="scielo__logo-scielo-caption mt-1">
-            <small>Brasil</small>
+            <small>{{ coll_macro.get_collection_name() }}</small>
           </div>
           </a>
         </div>

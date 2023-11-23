@@ -1,15 +1,21 @@
 <div class="card">
 
+  {% if press_release.image_url %}
+
+    <img src="{{ press_release.image_url }}" class="card-img-top" alt="{{ press_release.title|striptags }}">
+
+  {% else %}
+ 
+    <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top" alt="{{ press_release.title|striptags }}">
+ 
+  {% endif %}
+ 
   <div class="card-body">
 
     <h6 class="card-subtitle mb-1">{{ press_release.publication_date|datetimefilter }}</h6>
     
-    <!--
-    <h5 class="card-title"></h5>
-    -->
-    
     <strong class="card-title">
-      {{ press_release.title|striptags|truncate(90) }}
+      {{ press_release.title|striptags }}
     </strong>
 
     <a href="{{ press_release.url }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>

@@ -7,20 +7,104 @@
 
   {% block main_content %}
 
+
+  <style>
+    ul.scielo__menu-contexto,
+    ul.scielo__menu-contexto ul{
+      list-style: none;
+    }
+    ul.scielo__menu-contexto ul{
+      margin-bottom: 1rem;
+    }
+    ul.scielo__menu-contexto .nav-link{
+      padding:0;
+      color: gray;
+    }
+    ul.scielo__menu-contexto .nav-link.active{
+      color:#3867ce;
+    }
+    .sticky-top{
+      top: 80px;
+    }
+
+    .bd-example h5,
+    .bd-example h4{
+      margin-top: 3rem;
+    }
+    .bd-example hr{
+      margin-top: 3rem;
+    }
+    .bd-example ul{
+      margin-bottom: 3rem;
+    }
+    a{
+      word-wrap: break-word;
+    }
+  </style>
+
+    <!-- Only on mobile -->
+    <section class="d-flex d-sm-none breadcrumb mt-3 mb-5 py-0 py-1">
+      <div class="container px-0">
+        <div class="row">
+          <div class="col">
+
+            <ol class=" breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}"><span class="material-icons-outlined">navigate_before</span> {{ journal.title }}</a></li>
+            </ol>
+
+          </div>
+          <div class="col-3 pt-3">
+        
+            <!-- share --> 
+            {% include "includes/share.html" %}
+          
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Only on Desktop -->
+    <section class="d-none d-md-flex breadcrumb mt-3 mb-5 py-0 py-1">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+
+            <ol class="breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Periódicos{% endtrans %}</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">{{ journal.title }}</a></li>
+              <li class="breadcrumb-item">{% trans %}Sobre o periódico{% endtrans %}</li>
+            </ol>
+            
+          </div>
+          <div class="col-3 pt-3">
+        
+            <!-- share --> 
+            {% include "includes/share.html" %}
+          
+          </div>
+        </div>
+      </div>
+    </section>
   
     <section class="journalContent">
         <div class="container">
           <div class="row">
             <div class="col-md-12 content journalSecundary">
-                {% include "includes/page_updated_at_info.html" %}
+                
                 <div class="row">
-                    <div class="{% if journal.social_networks %}col-md-8 col-sm-8{% else %}col-md-12 col-sm-12{%endif%}">
+                    <div class="{% if journal.social_networks %}col-md-8 col-sm-8{% else %}col-12{%endif%}">
+                      {#
                         {% if content %}
                           {{ content|safe }}
                         {% else %}
                           {% trans %}Conteúdo não cadastrado{% endtrans %}
                         {% endif %}
+                      #}
+ 
                     </div>
+                    
+
 
                     {% if journal.social_networks or journal.logo_url %}
                       <div class="col-md-4 col-sm-4">
@@ -60,6 +144,11 @@
                         {% endif %}
                       </div>
                     {% endif %}
+                </div>
+                <div class="row">
+                  <div class="col">
+                    {% include "includes/page_updated_at_info.html" %}
+                  </div>
                 </div>
             </div>
           

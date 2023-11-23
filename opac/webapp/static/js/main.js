@@ -59,6 +59,7 @@ var Portal = {
 				});
 			}
 
+			/* chamada para o menu antigo */
 			$(".mainNav .menu").on("click",function(e) {
 				e.preventDefault();
 
@@ -80,6 +81,91 @@ var Portal = {
 					});
 				}
 			});
+
+
+			/* 2023 -  chamada do novo menu global */
+			$(".scielo__menu").on("click",function(e) {
+
+				var icoMenu = document.querySelector('.scielo-ico-menu');
+      			var icoMenuOpened = document.querySelector('.scielo-ico-menu-opened');
+				var el = document.querySelector('.scielo__mainMenu');
+
+				if(this.classList.contains('opened')){
+
+					this.classList.remove('opened');
+					icoMenu.style.display = "inline-block";
+					icoMenuOpened.style.display = "none";
+
+					el.animate([
+						// keyframes
+						{ top: '0px' },
+						{ top: '-1000px' }
+						], {
+						// timing options
+						duration: 600,
+						iterations: 1
+					});
+
+					el.style.top = "-1000px";
+					Portal.MenuOpened = false;
+
+
+				}else{
+
+					this.classList.add('opened');
+        			icoMenu.style.display = "none";
+        			icoMenuOpened.style.display = "inline-block";
+
+					el.animate([
+						// keyframes
+						{ top: '-500px' },
+						{ top: '0px' }
+						], {
+						// timing options
+						duration: 100,
+						iterations: 1
+					});
+
+					el.style.top = "0px";
+					Portal.MenuOpened = true;
+
+				}
+			});
+
+			/* 2023 - instancia o slick slider - cards home */
+			$('.scielo-slider').slick({
+           
+				'slidesToShow': 3.5,
+					'infinite': false,
+					'centerPadding': '0',
+					'arrows': true,
+					'dots': true,
+					'slidesToScroll': 3,
+					'responsive': [
+					  {
+						'breakpoint': 767,
+						'settings': {
+						  'dots': true,
+						  'slidesToShow': 1.2,
+						  'slidesToScroll': 1,
+						  'centerMode': false,
+						  'arrows': false,
+						}
+					  },
+					  {
+						'breakpoint': 992,
+						'settings': {
+						  'dots': true,
+						  'slidesToShow': 2.2,
+						  'slidesToScroll': 2,
+						  'centerMode': false,
+						  'arrows': false,
+						}
+					  }
+					]
+	
+			});
+
 
 			$(".shareFacebook,.shareTwitter,.shareDelicious,.shareGooglePlus,.shareLinkedIn,.shareReddit,.shareStambleUpon,.shareCiteULike,.shareMendeley").on("click",function(e) {
 				e.preventDefault();
@@ -181,14 +267,16 @@ var Portal = {
 					});
 				}
 			}).on("keydown",function(e) {
-				if(e.keyCode == 27 && $("a.menu").is(".opened"))
-					$("a.menu").trigger("click");
+				if(e.keyCode == 27 && $("a.scielo__menu").is(".opened"))
+					$("a.scielo__menu").trigger("click");
+					
 			});
 
+			/*
 			$("body").on("click",function (e) {
 				var dest = e.target;
 
-				if(!$(dest).is(".menu") && Portal.MenuOpened == true) {
+				if(!$(dest).is(".scielo__menu") && Portal.MenuOpened == true) {
 					var t = $("a.menu"),
 						d = ".mainMenu";
 
@@ -196,6 +284,34 @@ var Portal = {
 					$(d).slideUp("fast",function() {
 						Portal.MenuOpened = false;
 					});
+				}
+			});
+			*/
+
+			$(document).on('click', function(e) {
+				var container = $(".scielo__menu");
+				if (!$(e.target).closest(container).length) {
+					
+				  if(document.querySelector('.scielo__menu').classList.contains('opened')){
+	  
+					document.querySelector('.scielo__menu').classList.remove('opened');
+					document.querySelector('.scielo-ico-menu').style.display = "inline-block";
+					document.querySelector('.scielo-ico-menu-opened').style.display = "none";
+					document.querySelector('.scielo__mainMenu').animate([
+						// keyframes
+						{ top: '0px' },
+						{ top: '-1000px' }
+						], {
+						// timing options
+						duration: 600,
+						iterations: 1
+					});
+	  
+					document.querySelector('.scielo__mainMenu').style.top = "-1000px";
+					Portal.MenuOpened = false;
+	  
+				  }
+	  
 				}
 			});
 

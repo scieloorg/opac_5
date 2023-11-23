@@ -45,7 +45,7 @@
     {% block extra_css %}{% endblock %}
 
   </head>
-  <body class="{% block body_class %}{% endblock %}">
+  <body class="{% block body_class %}{% endblock %}" data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="0">
     <a name="top"></a>
 
     {% block content %}{% endblock %}
@@ -58,7 +58,7 @@
           <div class="modal-content">
               <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-                  <h4 class="modal-title">Mensagem</h4>
+                  <h4 class="modal-title">{% trans %}Mensagem{% endtrans %}</h4>
               </div>
               <div class="modal-body">
                   <div class="midGlyph">
@@ -79,7 +79,7 @@
           <div class="modal-content">
               <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-                  <h4 class="modal-title">Mensagem</h4>
+                  <h4 class="modal-title">{% trans %}Mensagem{% endtrans %}</h4>
               </div>
               <div class="modal-body">
                   <div class="midGlyph">
@@ -89,131 +89,35 @@
       </div>
     </div>
 
-    
-    <a class="floatingBtnError btn btn-danger" href="#" id="#floatingBtnError">Reportar erro</a>
+    <!-- Error modal -->
+    <a class="floatingBtnError btn btn-danger" href="#" id="#floatingBtnError">{% trans %}Reportar erro{% endtrans %}</a>
 
-    <!-- error modal -->
-   
     <!-- Scielo Bundle min -->
     <script src="{{ url_for('static', filename='js/scielo-bundle-min.js') }}"></script>
 
-    <!-- 
-    Slick 
-    -->
-    <script src="{{ url_for('static', filename='js/slick.min.js') }}"></script>
     <script>
 
       $(document).ready(function() {
 
-          $('.scielo-slider').slick({
-           
-            'slidesToShow': 3.5,
-                'infinite': false,
-                'centerPadding': '0',
-                'arrows': true,
-                'dots': true,
-                'slidesToScroll': 3,
-                'responsive': [
-                  {
-                    'breakpoint': 767,
-                    'settings': {
-                      'dots': true,
-                      'slidesToShow': 1.2,
-                      'slidesToScroll': 1,
-                      'centerMode': false,
-                      'arrows': false,
-                    }
-                  },
-                  {
-                    'breakpoint': 992,
-                    'settings': {
-                      'dots': true,
-                      'slidesToShow': 2.2,
-                      'slidesToScroll': 2,
-                      'centerMode': false,
-                      'arrows': false,
-                    }
-                  }
-                ]
+        // Add rows article search
+        let addRowBtn = $('.addRowBtn');
+        let placeRow = $('.scielo__dinamic-row');
+        let newFormRow = '<div class="row"><div class="col-12"><hr></div><div class="col-2 col-lg-1 text-end"><button type="button" class="btn btn-danger scielo__btn-with-icon--only"><i class="material-icons-outlined">clear</i></button></div><div class="col-10 col-lg-11"><div class="input-group"><div class="input-group-preppend"><select class="form-select" name="bool[]"><option selected>AND</option><option>OR</option><option>AND NOT</option></select></div><textarea name="q[]" class="form-control" aria-label="With textarea" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}"></textarea><div class="input-group-append"><select class="form-select"><option selected value="todos">{% trans %}Todos os índices{% endtrans %}</option><option value="ano">{% trans %}Ano{% endtrans %}</option><option value="autor">{% trans %}Autor{% endtrans %}</option><option value="financiador">{% trans %}Financiador{% endtrans %}</option><option value="periodico">{% trans %}Periódico{% endtrans %}</option><option value="resumo">{% trans %}Resumo{% endtrans %}</option><option value="titulo">{% trans %}Título{% endtrans %}</option></select></div></div></div></div>';
 
-          });
-          
-          /* abrir menu global*/
-      var trigger = document.querySelector('.scielo__menu');
-      var triggerOpened = document.querySelector('.opened');
-      var el = document.querySelector('.scielo__mainMenu');
+        let btnRemoveRow = $('.btn-danger');
 
-      var icoMenu = document.querySelector('.scielo-ico-menu');
-      var icoMenuOpened = document.querySelector('.scielo-ico-menu-opened');
+        addRowBtn.on( "click", function() {
+            placeRow.append( newFormRow );
+        })
 
-      trigger.addEventListener('click', function () {
-        
-        if(this.classList.contains('opened')){
+        // Remove as linhas inseridas dinamicamente e as que já estavam lá.
+        placeRow.on( "click", ".btn-danger", function() {
+            $(this).parent().parent().animate({'opacity':0},300).hide(1);
+        })
 
-          console.log('menu off');
-          
-          this.classList.remove('opened');
-          
-          icoMenu.style.display = "inline-block";
-          icoMenuOpened.style.display = "none";
-
-          el.animate([
-          // keyframes
-            { top: '0px' },
-            { top: '-1000px' }
-          ], {
-          // timing options
-            duration: 600,
-            iterations: 1
-          });
-
-          el.style.top = "-1000px";
-
-        }else{
-
-          console.log('menu on');
-          
-          this.classList.add('opened');
-          icoMenu.style.display = "none";
-          icoMenuOpened.style.display = "inline-block";
-
-          el.animate([
-          // keyframes
-            { top: '-500px' },
-            { top: '0px' }
-          ], {
-          // timing options
-            duration: 100,
-            iterations: 1
-          });
-
-          //el.style.display = "block";
-          el.style.top = "0px";
-        
-        }
-      
       });
-          
 
-      // add rows article search
-      let addRowBtn = $('.addRowBtn');
-            let placeRow = $('.scielo__dinamic-row');
-            let newFormRow = '<div class="row"><div class="col-12"><hr></div><div class="col-2 col-lg-1 text-end"><button type="button" class="btn btn-danger scielo__btn-with-icon--only"><i class="material-icons-outlined">clear</i></button></div><div class="col-10 col-lg-11"><div class="input-group"><div class="input-group-preppend"><select class="form-select" name="bool[]"><option selected>AND</option><option>OR</option><option>AND NOT</option></select></div><textarea name="q[]" class="form-control" aria-label="With textarea" placeholder="Entre uma ou mais palavras"></textarea><div class="input-group-append"><select class="form-select"><option selected value="todos">Todos os índices</option><option value="ano">Ano</option><option value="autor">Autor</option><option value="financiador">Financiador</option><option value="periodico">Periódico</option><option value="resumo">Resumo</option><option value="titulo">Título</option></select></div></div></div></div>';
-
-            let btnRemoveRow = $('.btn-danger');
-
-            addRowBtn.on( "click", function() {
-                placeRow.append( newFormRow );
-                console.log('linha adicionada');
-            })
-
-            // remove as linhas inseridas dinamicamente e as que já estavam lá.
-            placeRow.on( "click", ".btn-danger", function() {
-                $(this).parent().parent().animate({'opacity':0},300).hide(1);
-            })
-      });
     </script>
-
 
     {% if config.COOKIE_POLICY_ENABLED %}
       <script src="{{ config.COOKIE_POLICY_URL }}"></script>
@@ -268,12 +172,29 @@
           border-color: #ac2925;
         }
 
+        .floatingBtnError {
+          position: fixed;
+          padding: 12px;
+          writing-mode: vertical-rl;
+          right: 8px;
+          top: 45%;
+          transform: rotate(-180deg);
+          line-height: 1rem;
+          height: 160px;
+          transition: none !important;
+          display:none;
+
+          @media (min-width: 1024px){ 
+            display: block;
+          }
+        }
+
       </style>
 
       <div class="bugherd" style="display:none;">
         <div class="bugherd=container">
           <div class="btn-group" role="group" aria-label="...">
-            <a href="//github.com/scieloorg/opac/issues/new" target="_blank" class="btn btn-danger">Reportar erro</a>
+            <a href="//github.com/scieloorg/opac/issues/new" target="_blank" class="btn btn-danger">{% trans %}Reportar erro{% endtrans %}</a>
           </div>
         </div>
       </div>

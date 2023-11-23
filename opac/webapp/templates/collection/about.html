@@ -6,40 +6,59 @@
 
 <section class="collection collectionAbout">
     <div class="container">
-        {% if page %}
-            {% with page_updated_at=page.updated_at  %}
-                {% include "includes/page_updated_at_info.html" %}
-            {% endwith %}
-        {% endif %}
-
+       
         {% if pages %}
 
-            <div class="about">
-                <ul class="networkList">
+            <div class="row">
+                <div class="col">
 
-                    {% for page in pages %}
-                        <a href="/about/{{ page.slug_name }}">
-                            <li>
-                                {% trans %} {{ page }} {% endtrans %}
-                            </li>
-                        </a>
-                    {% endfor %}
-
-                </ul>
+                    <h1 class="h4 pt-1 mb-4"> {% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</h1>
+                    
+                    <div class="about">
+                        <ul class="networkList">
+        
+                            {% for page in pages %}
+                                <a href="/about/{{ page.slug_name }}">
+                                    <li>
+                                        {% trans %} {{ page }} {% endtrans %}
+                                    </li>
+                                </a>
+                            {% endfor %}
+        
+                        </ul>
+                    </div>
+                </div>
             </div>
 
         {% endif %}
 
         {% if page %}
-            <div class="col-md-10 col-md-offset-1 col-sm-10 col-sm-offset-1">
-                {%- if page.content -%}
-                    {{ page.content|safe }}
-                {%- else -%}
-                    {% trans %} Conteúdo não cadastrado {% endtrans %}
-                {%- endif -%}
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="h4">{{ page }}</h1>
+    
+                    {%- if page.content -%}
+                        {{ page.content|safe }}
+                    {%- else -%}
+                        {% trans %} Conteúdo não cadastrado {% endtrans %}
+                    {%- endif -%}
+                </div>
             </div>
-        {% endif %}
 
+            {% with page_updated_at=page.updated_at  %}
+            <div class="row">
+                <div class="col">
+                    {% include "includes/page_updated_at_info.html" %}
+                </div>
+            </div>
+            {% endwith %}
+
+        {% endif %}
+    
+        {% if page %}
+        
+    {% endif %}
+        
     </div>
 </section>
 

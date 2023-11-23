@@ -74,7 +74,9 @@ let target_src = {
             path.join(paths['scielo_design_system_bootstrap_js'], 'bootstrap.bundle.js'),   // foi setado para carregar separadamente
             path.join(paths['jquery-typeahead_js'], 'jquery.typeahead.min.js'),
             path.join(paths['static_js'], 'plugins.js'),
+            path.join(paths['static_js'], 'slick.min.js'),
             path.join(paths['static_js'], 'main.js'),
+            path.join(paths['static_js'], 'cookieMsg.js'),
            
             // instruções JS (equipe scielo)
             path.join(paths['static_js'], 'common.js'),

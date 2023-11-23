@@ -12,7 +12,7 @@
 <div class="scielo__mainMenu" id="mainMenu">
     <div class="row">
         <div class="col text-center">
-          <a href="/">
+          <a href="/" alt="{{ coll_macro.get_collection_name() }}">
             <div class="scielo__logo-scielo--small mt-3"></div>
           </a>
         </div>
@@ -47,7 +47,7 @@
                 </li>
                 <li>
                   <a href="{{ url_for('.about_collection') }}">
-                    {% trans %}Sobre: {% endtrans %}{{ coll_macro.get_collection_name() }}
+                    {% trans %}Sobre o{% endtrans %} SciELO {{ coll_macro.get_collection_name() }}
                   </a>
                 </li>
                 <li>
@@ -55,6 +55,28 @@
                     {% trans %}Contatos{% endtrans %}
                   </a>
                 </li>
+                <li>
+                  <a href="#" id="#floatingBtnError">
+                    {% trans %}Reportar erro{% endtrans %}
+                  </a>
+                </li>
+
+                {% if config.get('PREVIOUS_WEBSITE_URI') %}
+                  {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
+                  <li>
+                    <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+                      {% trans %}Acessar versão anterior{% endtrans %}
+                    </a>
+                  </li>  
+                  {% else %}
+                  <li>
+                    <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+                      {% trans %}Acessar versão anterior{% endtrans %}
+                    </a>
+                  </li>  
+                  {% endif %}
+                {% endif %}
+
             </ul>
           </li>
           <li>
