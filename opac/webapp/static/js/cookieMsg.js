@@ -51,7 +51,9 @@ var alertMessage = {
     }else{
 
       // hide alert-message
-      alertMessage.msgContainer.style.display = 'none';
+      if (typeof msgContainer === 'object' && msgContainer !== null) {
+        alertMessage.msgContainer.style.display = 'none';
+      }
 
     }
   },
@@ -62,8 +64,13 @@ var alertMessage = {
   showAlertMessage: function (){
 
       //checks if there is the alert-message element
-      var el = alertMessage.msgContainer,
-          btnClose = el.querySelector('button.close');
+      if (typeof msgContainer === 'object' && msgContainer !== null) {
+        var el = alertMessage.msgContainer,
+            btnClose = el.querySelector('button.close');
+      }else{
+        var el = null,
+            btnClose = null;
+      }
 
       if (el !== null && btnClose !== null) {
 
@@ -75,7 +82,7 @@ var alertMessage = {
 
       }else{
         
-        console.error('The alert-message element does not exist'); 
+        //console.error('The alert-message element does not exist'); 
 
       }
       
