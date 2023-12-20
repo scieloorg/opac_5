@@ -1,7 +1,61 @@
 {% import 'macros/menu.html' as mmenu %}
 {% import 'macros/collection.html' as coll_macro %}
 
-<section class="breadcrumb mt-3 mb-5 py-0 py-1">
+<!-- Only Mobile -->
+<section class="d-flex d-sm-none breadcrumb mt-3 mb-5 py-0 py-1">
+  <div class="container px-0">
+    <div class="row">
+      <div class="col-9 ps-1">
+
+        {% if page %}
+  
+          <ol class="breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</a></li>
+              <li class="breadcrumb-item">{{ page }}</li>
+          </ol>
+  
+        {% else %}
+  
+          {% if pages %}
+           
+            <ol class="breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item">
+                <a href="{{ url_for('.index') }}"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></a>
+              </li>
+              <li class="breadcrumb-item">
+                {% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}
+              </li>
+            </ol>
+          
+           {% else %}
+          
+            <ol class="breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item">
+                <a href="{{ url_for('.index') }}"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></a>
+              </li>
+              <li class="breadcrumb-item">
+                {% trans %}Periódicos{% endtrans %}
+              </li>
+            </ol>
+          
+          {% endif %}
+          
+        {% endif %}
+  
+      </div>
+      <div class="col-3 pt-3">
+        
+          <!-- share --> 
+          {% include "includes/share.html" %}
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Only Desk -->
+<section class="d-none d-md-flex breadcrumb mt-3 mb-5 py-0 py-1">
   <div class="container">
     <div class="row">
       <div class="col-9">

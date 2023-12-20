@@ -15,7 +15,7 @@
 
         <ul class="nav nav-tabs">
             <!--
-                Removido da interface
+            Removido da interface
             <li class="nav-item">
                 <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">
                 <span class="material-icons-outlined">home</span> {% trans %}Home{% endtrans %}
@@ -29,25 +29,6 @@
                 <a class="nav-link active thematic-tab" href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
             </li>
         </ul>
-
-        <!--
-        <ul class="nav nav-pills">
-            <li class="home-tab">
-                <a href="{{ url_for('main.index') }}">
-                    <span class="glyphBtn home" style="height: 20px;"></span> {% trans %}Home{% endtrans %}
-                </a>
-            </li>
-            <li role="presentation" {% if 'alpha' in request.url_rule.rule %}class="active" {% endif %}>
-                <a href="{{ url_for('.collection_list') }}?status=current">
-                    {% trans %}Alfabética{% endtrans %}
-                </a>
-            </li>
-            <li role="presentation" {% if 'thematic' in request.url_rule.rule %}class="active" {% endif %}>
-                <a
-                    href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
-            </li>
-        </ul>
-        -->
 
         <div class="row collectionListSearch">
             <div class="col col-md-6">
