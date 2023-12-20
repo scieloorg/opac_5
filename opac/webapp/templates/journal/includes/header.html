@@ -62,6 +62,10 @@
   }
   */
 
+  .fixed-top .dropdown-item{
+    color:#3867ce;
+  }
+
 </style>
 
 
@@ -130,7 +134,7 @@
                 <li>
                   <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="dropdown-item">
                     {% if journal.logo_url %}
-                      <img src="{{ cimages.proxy_ssm_resource_url(journal.logo_url) }}" class="image" alt="Logomarca do periódico: {{ journal.title }}" />
+                      <img src="{{ cimages.proxy_ssm_resource_url(journal.logo_url) }}" class="image" alt="Logomarca do periódico: {{ journal.title }}" style="max-width:100%;" />
                     {% endif %}
                   </a>
                 </li>

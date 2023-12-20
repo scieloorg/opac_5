@@ -4,16 +4,51 @@
 
 {% block main_content %}
 
-  <section class="breadcrumb">
+<!-- Only on mobile -->
+ <section class="d-flex d-sm-none breadcrumb mt-3 mb-5 py-0 py-1">
+  <div class="container px-0">
+    <div class="row">
+      <div class="col ps-0">
+
+        <ol class="breadcrumb mb-0 ps-0">
+          <li class="breadcrumb-item"><a href="{{ url_for('.collection_list') }}?status=current"><span class="material-icons-outlined">navigate_before</span> {% trans %}Periódicos{% endtrans %}</a></li>
+        </ol>
+
+      </div>
+      <div class="col-3 pt-3">
+    
+        <!-- share --> 
+        {% include "includes/share.html" %}
+      
+      </div>
+    </div>
+  </div>
+</section>
+
+  <section class="d-none d-md-flex breadcrumb mt-3 mb-5 py-0 py-1">
     <div class="container">
       <div class="row">
         <div class="col">
-          <h1 class="h4 pt-1 mb-0">{% trans %}Sumário{% endtrans %}</h1>
-          <strong class="h6 fw-bold">{{ issue_bibliographic_strip|default('--', True) }}</strong>
+
+          <ol class="breadcrumb mb-0 ps-0">
+            <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Periódicos{% endtrans %}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">{{ journal.title }}</a></li>
+            <li class="breadcrumb-item">{% trans %}Sumário{% endtrans %}</li>
+          </ol>
+          
+        </div>
+        <div class="col-3 pt-3">
+      
+          <!-- share --> 
+          {% include "includes/share.html" %}
+        
         </div>
       </div>
     </div>
   </section>
+
+  
 
   <section class="journalContent">
       <div class="container">
@@ -52,8 +87,13 @@
 
           {# Por hora iremos garantir que a interface não fique com conteúdo fixo #}
           <div class="col content issueIndex" id="issueIndex">
+
+            <h1 class="h4 pt-1 mb-0">{% trans %}Sumário{% endtrans %}</h1>
+            <strong class="h6 fw-bold">{{ issue_bibliographic_strip|default('--', True) }}</strong>
+
+
               {% if issue.editorial_board %}
-                <a href="" class="expandCollapseContent showTooltip" title="{% trans %}Expandir/recolher conteúdo{% endtrans %}"><span class="glyphBtn opened"></span>AAA</a>
+                <a href="" class="expandCollapseContent showTooltip" title="{% trans %}Expandir/recolher conteúdo{% endtrans %}"><span class="glyphBtn opened"></span></a>
               {% endif %}
               
               <div class="block summary collapseContent">
@@ -72,7 +112,7 @@
                       </div>
 
                       {% if issue.type == 'volume_issue' %}
-                        <div class="col-sm-6 col-md-6">
+                        <div class="col-sm-6 col-md-6 d-none">
                           <div class="box-filtro pull-right">
                             {% trans %}Ordenar publicações por{% endtrans %}
                             <div class="selectBox inline">
