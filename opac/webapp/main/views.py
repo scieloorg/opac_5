@@ -640,8 +640,8 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
-
+    section_journal_content = controllers.fetch_and_extract_section(journal.acronym, language)
+    
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -651,10 +651,8 @@ def about_journal(url_seg):
         ],
     }
 
-    if page:
-        context["content"] = page.content
-        if page.updated_at:
-            context["page_updated_at"] = page.updated_at
+    if section_journal_content:
+        context["content"] = section_journal_content
 
     return render_template("journal/about.html", **context)
 
