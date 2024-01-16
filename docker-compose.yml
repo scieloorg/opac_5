@@ -67,6 +67,15 @@ services:
             - OPAC_APM_ENVIRONMENT=production
             - OPAC_APM_SECRET_TOKEN=
 
+    nginx:
+        image: nginx:latest
+        container_name: opac_nginx
+        volumes:
+            - ./nginx/conf.d:/etc/nginx/conf.d
+            - ./nginx/logs:/var/log/nginx/
+        ports:
+            - "80:80"
+
     opac-rq-worker-1:
         image: scieloorg/opac
         container_name: opac_rq_worker_prod
