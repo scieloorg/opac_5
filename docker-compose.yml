@@ -8,19 +8,19 @@ services:
         user: redis
         restart: always
         volumes:
-          - ./data/redis-cache-data-dev:/data
-          - /etc/localtime:/etc/localtime:ro
+            - ./data/redis-cache-data-dev:/data
+            - /etc/localtime:/etc/localtime:ro
 
     opac_mongo:
         image: mongo:4.2
-        container_name: opac_mailhog_prod
+        container_name: opac_mongo_prod
         restart: always
         user: mongodb
         hostname: opac-mongo
         ports:
-          - "27017:27017"
+            - "27017:27017"
         volumes:
-            - /etc/localtime:/etc/localtime:ro
+            - ./data/db:/data/db:rw
 
     opac_webapp:
         image: scieloorg/opac
@@ -38,16 +38,17 @@ services:
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
+            - minio:opac-minio
         ports:
             - "8000:8000"
         environment:
             - OPAC_DEBUG_MODE=True
             - OPAC_LOG_LEVEL=WARNING
             - OPAC_MINIFY_PAGE=False
-            - OPAC_MONGODB_NAME=opac_mongo
+            - OPAC_MONGODB_NAME=opac
             - OPAC_DATABASE_DIR=/app/data
             - OPAC_SECRET_KEY=s3kr3tk3y
-            - OPAC_MONGODB_HOST=opac-mongo
+            - OPAC_MONGODB_HOST=opac_mongo
             - OPAC_CACHE_ENABLED=True
             - OPAC_CACHE_DEFAULT_TIMEOUT=3600
             - OPAC_CACHE_REDIS_HOST=redis-cache
@@ -66,6 +67,23 @@ services:
             - OPAC_APM_SERVICE_NAME=Website
             - OPAC_APM_ENVIRONMENT=production
             - OPAC_APM_SECRET_TOKEN=
+            - OPAC_SSM_SCHEME=http
+            - OPAC_SSM_DOMAIN=minio
+            - OPAC_SSM_PORT=9000
+
+
+    minio:
+        image: 'bitnami/minio:latest'
+        container_name: opac_minio_prod
+        hostname: opac-minio
+        ports:
+            - '9000:9000'
+            - '9001:9001'
+        environment:
+            - MINIO_ROOT_USER=minio
+            - MINIO_ROOT_PASSWORD=minio123
+        volumes:
+            - './data/minio:/bitnami/minio/data'
 
     opac-rq-worker-1:
         image: scieloorg/opac
@@ -84,7 +102,7 @@ services:
             - redis-cache:redis-cache
         environment:
             - OPAC_DEBUG_MODE=True
-            - OPAC_MONGODB_NAME=opac_mongo
+            - OPAC_MONGODB_NAME=opac
             - OPAC_DATABASE_DIR=/app/data
             - OPAC_SECRET_KEY=s3kr3tk3y
             - OPAC_MONGODB_HOST=opac-mongo
@@ -114,7 +132,7 @@ services:
             - redis-cache:redis-cache
         environment:
             - OPAC_DEBUG_MODE=True
-            - OPAC_MONGODB_NAME=opac_mongo
+            - OPAC_MONGODB_NAME=opac
             - OPAC_DATABASE_DIR=/app/data
             - OPAC_SECRET_KEY=s3kr3tk3y
             - OPAC_MONGODB_HOST=opac-mongo
