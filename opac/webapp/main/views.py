@@ -640,7 +640,7 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    section_journal_content = controllers.fetch_and_extract_section(journal.acronym, language)
+    section_journal_content = fetch_and_extract_section(journal.acronym, language)
     
     context = {
         "journal": journal,
@@ -2145,7 +2145,29 @@ def article(*args):
         return jsonify({"failed": False, "id": article.id}), 200
 
 
+def normalize_lang_portuguese(language):
+    if language == "pt_BR":
+        return "pt-br"
+    else:
+        return language
 
+def extract_section(html_content, class_name):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    section = soup.find('section', class_=class_name)
+    if section:
+        return str(section) 
+    else:
+        return None
+
+def fetch_and_extract_section(journal_acronym, language):
+    """
+     Busca e extrai seção "journalContent" localizada no core.scielo.org
+    """
+    class_name = "journalContent"
+    lang = normalize_lang_portuguese(language)
+    url = f"http://core.scielo.org/{lang}/journal/{journal_acronym}/"
+    content = fetch_data(url=url)
+    return extract_section(content, class_name)
 
 
 

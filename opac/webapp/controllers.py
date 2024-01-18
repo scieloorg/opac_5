@@ -1849,39 +1849,3 @@ def add_article(
     )
     
     return article.save()
-
-class SectionJournalContentNotFound(Exception):
-    ...
-
-def normalize_lang_portuguese(language):
-    if language == "pt_BR":
-        return "pt-br"
-    else:
-        return language
-
-def extract_section(html_content, class_name):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    section = soup.find('section', class_=class_name)
-    if section:
-        return str(section) 
-    else:
-        raise SectionJournalContentNotFound()
-
-def fetch_and_extract_section(journal_acronym, language):
-    """
-     Busca e extrai seção "journalContent" localizada no core.scielo.org
-    """
-    class_name = "journalContent"
-    lang = normalize_lang_portuguese(language)
-    url = f"http://core.scielo.org/{lang}/journal/{journal_acronym}/"
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status() 
-        return extract_section(response.content, class_name)
-    except requests.ConnectionError as e:
-        return "Connection error occurred"
-    except requests.HTTPError as e:
-        return "HTTP error occurred"
-    except SectionJournalContentNotFound:
-        return "Section not found"
