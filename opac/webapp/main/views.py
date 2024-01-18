@@ -616,7 +616,7 @@ def journal_feed(url_seg):
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
     language = session.get("lang", get_locale())
-
+    collection_acronym = controllers.get_current_collection()
     journal = controllers.get_journal_by_url_seg(url_seg)
 
     if not journal:
@@ -640,7 +640,7 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    section_journal_content = fetch_and_extract_section(journal.acronym, language)
+    section_journal_content = fetch_and_extract_section(collection_acronym, journal.acronym, language)
     
     context = {
         "journal": journal,
@@ -2159,13 +2159,13 @@ def extract_section(html_content, class_name):
     else:
         return None
 
-def fetch_and_extract_section(journal_acronym, language):
+def fetch_and_extract_section(collection_acronym, journal_acronym, language):
     """
      Busca e extrai seção "journalContent" localizada no core.scielo.org
     """
     class_name = "journalContent"
     lang = normalize_lang_portuguese(language)
-    url = f"http://core.scielo.org/{lang}/journal/{journal_acronym}/"
+    url = f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
     content = fetch_data(url=url)
     return extract_section(content, class_name)
 
