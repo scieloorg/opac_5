@@ -23,7 +23,7 @@ services:
             - ./data/db:/data/db:rw
 
     opac_webapp:
-        image: scieloorg/opac
+        image: infrascielo/opac_5
         container_name: opac_webapp_prod
         user: nobody
         restart: always
@@ -38,9 +38,8 @@ services:
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
-            - minio:opac-minio
-        ports:
-            - "8000:8000"
+        expose:
+            - "8000"
         environment:
             - OPAC_DEBUG_MODE=True
             - OPAC_LOG_LEVEL=WARNING
@@ -71,20 +70,6 @@ services:
             - OPAC_SSM_DOMAIN=minio
             - OPAC_SSM_PORT=9000
 
-
-    minio:
-        image: 'bitnami/minio:latest'
-        container_name: opac_minio_prod
-        hostname: opac-minio
-        ports:
-            - '9000:9000'
-            - '9001:9001'
-        environment:
-            - MINIO_ROOT_USER=minio
-            - MINIO_ROOT_PASSWORD=minio123
-        volumes:
-            - './data/minio:/bitnami/minio/data'
-
     nginx:
         image: nginx:latest
         container_name: opac_nginx
@@ -95,7 +80,7 @@ services:
             - "80:80"
 
     opac-rq-worker-1:
-        image: scieloorg/opac
+        image: infrascielo/opac_5
         container_name: opac_rq_worker_prod
         command: /app/start_worker.sh
         user: nobody
@@ -125,7 +110,7 @@ services:
             - OPAC_RQ_REDIS_PORT=6379
 
     opac-rq-scheduler:
-        image: scieloorg/opac
+        image: infrascielo/opac_5
         container_name: opac_rq_scheduler_prod
         command: /app/start_scheduler.sh
         user: nobody
