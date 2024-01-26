@@ -71,7 +71,7 @@
 
             <ol class="breadcrumb mb-0 ps-0">
               <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
-              <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Periódicos{% endtrans %}</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Periódicos{% endtrans %}</a></li>
               <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">{{ journal.title }}</a></li>
               <li class="breadcrumb-item">{% trans %}Sobre o periódico{% endtrans %}</li>
             </ol>
