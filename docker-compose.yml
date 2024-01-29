@@ -73,6 +73,8 @@ services:
     nginx:
         image: nginx:latest
         container_name: opac_nginx
+        depends_on:
+            - opac_webapp
         volumes:
             - ./nginx/conf.d:/etc/nginx/conf.d
             - ./nginx/logs:/var/log/nginx/
