@@ -20,7 +20,7 @@
           {# Anterior #}
           {% if not issue and not last_issue %}
             <a title="{% trans %}número anterior{% endtrans %}" href="#" class="btn disabled">
-            &laquo; {% trans %}Número anterior{% endtrans %}
+              &laquo; {% trans %}Número anterior{% endtrans %}
             </a>
           {% elif issue %}
             {# página do sumário #}
@@ -64,7 +64,7 @@
           {% elif last_issue %}
             {# página do periódico #}
             <a title="{% trans %}número seguinte{% endtrans %}" href="#" class="btn disabled">
-              {% trans %}Número seguinte{% endtrans %} &raquo;
+             C {% trans %}Número seguinte{% endtrans %} &raquo;
             </a>
           {% endif %}
   
@@ -80,9 +80,7 @@
             <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}" class="btn scielo__btn-with-icon--left"><span class="material-icons-outlined">show_chart</span> {% trans %}Métricas{% endtrans %}</a>
           {% endif %}
 
-          
         </div>
-
       </div>
     </div>
   </div>
