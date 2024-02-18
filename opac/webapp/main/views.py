@@ -32,6 +32,7 @@ from packtools import HTMLGenerator
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.config.lang_names import display_original_lang_name
+from webapp.main.errors import page_not_found, internal_server_error
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 
@@ -2166,7 +2167,14 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
     class_name = "journalContent"
     lang = normalize_lang_portuguese(language)
     url = f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
-    content = fetch_data(url=url)
+    
+    try:
+        content = fetch_data(url=url)
+    except NonRetryableError as e:
+        page_not_found(e)
+    except RetryableError as e:
+        internal_server_error(e)
+
     return extract_section(content, class_name)
 
 
