@@ -1,0 +1,49 @@
+@media print {
+
+    .scielo__logo-scielo-caption,
+    .scielo__logo-scielo--small,
+    .scielo__logo-scielo-collection,
+    .scielo__search-articles,
+    .scielo__levelMenu,
+    .breadcrumb,
+    .badge,
+    .navbar.sticky-top{
+        -webkit-print-color-adjust: exact !important;
+    }
+    #flDebugToolbarHandle{
+        display: none !important;
+    }
+
+    /* home do periódico */
+    body.journal{
+        padding:0 !important;
+    }
+    .fixed-top{
+        position: static !important;
+    }
+
+    .collection-news,
+    .journalContent,
+    .table-journal-list tr{
+        break-inside: avoid !important;
+    }
+    .scielo__shadow-2{
+        box-shadow: none !important;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .bd-example{
+        .row{
+            .col-sm-9{
+                flex: 0 0 auto;
+                width: 100%;
+            }
+        }
+    }
+
+    
+
+}
+
+
+

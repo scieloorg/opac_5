@@ -43,7 +43,7 @@
         {% endif %}
 
         
-        <div class="d-block mt-2">
+        <div class="d-block mt-2 d-print-none">
           <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.detail }}" title="{% trans %}Homepage{% endtrans %}"><span class="material-icons-outlined">home</span></a>
           {% if journal.is_active  %}
             <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.submission }}" title="{% trans %}Submissão de manuscritos{% endtrans %}" target="_blank"><span class="material-icons-outlined">launch</span></a>
