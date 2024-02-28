@@ -905,6 +905,8 @@ def issue_toc_legacy(url_seg, url_seg_issue):
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def issue_toc(url_seg, url_seg_issue):
     section_filter = None
+    filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
+
     goto = request.args.get("goto", None, type=str)
     if goto not in ("previous", "next"):
         goto = None
@@ -991,6 +993,7 @@ def issue_toc(url_seg, url_seg_issue):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
         "last_issue": journal.last_issue,
+        "filter_section_enable": filter_section_enable,
     }
     return render_template("issue/toc.html", **context)
 
