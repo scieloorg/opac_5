@@ -944,6 +944,11 @@ def issue_toc(url_seg, url_seg_issue):
     if goto_url:
         return redirect(goto_url, code=301)
 
+    if current_app.config["FILTER_SECTION_ENABLE"] and current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]:
+        filter_section_enable = (
+            len(journal.study_areas or []) >= current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]
+        )
+
     # obtém os documentos
     articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
     if articles:
