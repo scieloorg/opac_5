@@ -38,6 +38,7 @@ from tenacity import (
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.config.lang_names import display_original_lang_name
+from webapp.main.errors import page_not_found, internal_server_error
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 
@@ -650,7 +651,7 @@ def journal_feed(url_seg):
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
     language = session.get("lang", get_locale())
-
+    collection_acronym = controllers.get_current_collection()
     journal = controllers.get_journal_by_url_seg(url_seg)
 
     if not journal:
@@ -674,8 +675,8 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
-
+    section_journal_content = fetch_and_extract_section(collection_acronym, journal.acronym, language)
+    
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -685,10 +686,8 @@ def about_journal(url_seg):
         ],
     }
 
-    if page:
-        context["content"] = page.content
-        if page.updated_at:
-            context["page_updated_at"] = page.updated_at
+    if section_journal_content:
+        context["content"] = section_journal_content
 
     return render_template("journal/about.html", **context)
 
@@ -2181,7 +2180,36 @@ def article(*args):
         return jsonify({"failed": False, "id": article.id}), 200
 
 
+def normalize_lang_portuguese(language):
+    if language == "pt_BR":
+        return "pt-br"
+    else:
+        return language
 
+def extract_section(html_content, class_name):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    section = soup.find('section', class_=class_name)
+    if section:
+        return str(section) 
+    else:
+        return None
+
+def fetch_and_extract_section(collection_acronym, journal_acronym, language):
+    """
+     Busca e extrai seção "journalContent" localizada no core.scielo.org
+    """
+    class_name = "journalContent"
+    lang = normalize_lang_portuguese(language)
+    url = f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
+    
+    try:
+        content = fetch_data(url=url)
+    except NonRetryableError as e:
+        page_not_found(e)
+    except RetryableError as e:
+        internal_server_error(e)
+
+    return extract_section(content, class_name)
 
 
 
