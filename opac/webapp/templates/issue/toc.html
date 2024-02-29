@@ -152,13 +152,16 @@
                         {% for section in sections %}
                           {% if section %}
                             <li>
-                              <a href="{{this_page_url}}?section={{ section|upper }}">
+                              <form method="post" action="{{this_page_url}}" class="inline">
+                                <input type="hidden" name="section" value="{{ section|upper }}"/>
+                                <button type="submit" name="submit_param" value="submit_value" class="link-button">
                                 {% if section_filter|upper == section|upper %}
                                   {{ section }} <span style="color: #6789d3;">&laquo;</span>
                                 {% else %}
                                   {{ section }}
                                 {% endif %}
-                              </a>
+                                </button>
+                              </form>
                             </li>
                           {% endif %}
                         {% endfor %}
