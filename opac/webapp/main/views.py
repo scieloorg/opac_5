@@ -901,10 +901,9 @@ def issue_toc_legacy(url_seg, url_seg_issue):
     )
 
 
-@main.route("/j/<string:url_seg>/i/<string:url_seg_issue>/")
+@main.route("/j/<string:url_seg>/i/<string:url_seg_issue>/", methods=["POST", "GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def issue_toc(url_seg, url_seg_issue):
-    section_filter = None
     filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
 
     goto = request.args.get("goto", None, type=str)
@@ -917,10 +916,6 @@ def issue_toc(url_seg, url_seg_issue):
 
     # idioma da sessão
     language = session.get("lang", get_locale())
-
-    if current_app.config["FILTER_SECTION_ENABLE"]:
-        # seção dos documentos, se selecionada
-        section_filter = request.args.get("section", "", type=str).upper()
 
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -959,8 +954,12 @@ def issue_toc(url_seg, url_seg_issue):
     })
 
     # obtém os documentos da seção selecionada
-    if section_filter:
-        articles = articles.filter(section__iexact=section_filter)
+    try:
+        section_filter = request.form["section"].upper()
+        if section_filter:
+            articles = articles.filter(section__iexact=section_filter)
+    except (KeyError, AttributeError):
+        section_filter = ""
 
     # obtém PDF e TEXT de cada documento
     has_math_content = False
