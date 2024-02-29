@@ -754,6 +754,55 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
     }
 
 
+def get_issue_nav_bar_data(journal_id=None, issue_id=None):
+    """
+    Retorna quanto à navegação os itens anterior e posterior,
+    a um dado issue, e o último issue regular de um periódico.
+    Caso issue_id não é informado, considera-se que o issue em questão
+    é o último issue regular odendo ter como item posterior
+    um suplemento, um número especial, um ahead ou nenhum item
+    """
+    if issue_id:
+        issue = get_issue_by_iid(issue_id)
+        last_issue = get_issue_by_iid(issue.journal.last_issue.iid)
+
+    elif journal_id:
+        journal = get_journal_by_jid(journal_id)
+        issue = get_issue_by_iid(journal.last_issue.iid)
+        last_issue = issue
+
+    if issue.type == "ahead" or issue.number == "ahead":
+        previous = last_issue
+        next_ = None
+    else:
+        previous = Issue.objects(
+            journal=issue.journal.jid,
+            year__lte=issue.year,
+            order__lte=issue.order,
+            number__ne="ahead",
+        ).order_by("-year", "-volume", "-order").first()
+
+        next_ = Issue.objects(
+            journal=issue.journal.jid,
+            year__gte=issue.year,
+            order__gte=issue.order,
+            number__ne="ahead",
+        ).order_by("year", "volume", "order").first()
+
+        if not next_:
+            next_ = Issue.objects(
+                journal=issue.journal.jid,
+                number="ahead",
+            ).order_by("-year", "-volume", "-order").first()
+
+    return {
+        "previous_item": previous,
+        "current_item": issue,
+        "next_item": next_,
+        "last_issue": last_issue,
+    }
+
+
 def set_last_issue_and_issue_count(jid):
     """
     O último issue tem que ser um issue regular, não pode ser aop, nem suppl, nem especial

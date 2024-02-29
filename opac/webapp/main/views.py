@@ -593,7 +593,7 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-
+    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
     return render_template("journal/detail.html", **context)
 
 
@@ -886,7 +886,7 @@ def issue_grid(url_seg):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-
+    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
     return render_template("issue/grid.html", **context)
 
 
@@ -992,6 +992,9 @@ def issue_toc(url_seg, url_seg_issue):
         ],
         "last_issue": journal.last_issue,
     }
+    context.update(
+        controllers.get_issue_nav_bar_data(
+            journal_id=journal.jid, issue_id=issue.iid))
     return render_template("issue/toc.html", **context)
 
 
@@ -1087,6 +1090,9 @@ def aop_toc(url_seg):
         # o primeiro item da lista é o último número.
         "last_issue": journal.last_issue,
     }
+    context.update(
+        controllers.get_issue_nav_bar_data(
+            journal_id=journal.jid, issue_id=aop_issues[0].iid))
 
     return render_template("issue/toc.html", **context)
 
