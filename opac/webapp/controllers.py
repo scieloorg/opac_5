@@ -758,15 +758,21 @@ def set_last_issue_and_issue_count(jid):
     """
     O último issue tem que ser um issue regular, não pode ser aop, nem suppl, nem especial
     """
+    j = None
     try:
         order_by = ["-year", "-order"]
-        j = get_journal_by_jid(jid)
         issues = Issue.objects(
             journal=jid,
             type__in=["regular", "volume_issue"],
             is_public=True,
         )
+        j = get_journal_by_jid(jid)
         j.issue_count = issues.count()
+        j.save()
+    except Exception as e:
+        logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
+
+    try:
         last_issue = issues.order_by(*order_by).first()
 
         j.last_issue = LastIssue(
@@ -778,15 +784,26 @@ def set_last_issue_and_issue_count(jid):
             suppl_text=last_issue.suppl_text,
             start_month=last_issue.start_month,
             end_month=last_issue.end_month,
-            # sections=EmbeddedDocumentListField('TranslatedSection'),
-            # cover_url=last_issue.xxxx,
             iid=last_issue.iid,
             url_segment=last_issue.url_segment,
+            sections=last_issue.sections,
         )
-
         j.save()
     except Exception as e:
         logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
+    return j
+
+
+def journal_last_issues():
+    for j in Journal.objects.filter(last_issue=None):
+        j = set_last_issue_and_issue_count(j.jid)
+        if j.last_issue and j.last_issue.url_segment:
+            yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
+
+    for j in Journal.objects.filter(last_issue__type__nin=["regular", "volume_issue"]):
+        j = set_last_issue_and_issue_count(j.jid)
+        if j.last_issue and j.last_issue.url_segment:
+            yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
 
 def get_issue_by_iid(iid, **kwargs):

@@ -2212,4 +2212,7 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
     return extract_section(content, class_name)
 
 
-
+@restapi.route("/journal_last_issues", methods=["POST", "PUT"])
+@helper.token_required
+def journal_last_issues(*args):
+    return list(controllers.journal_last_issues() or [])
