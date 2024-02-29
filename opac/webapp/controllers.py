@@ -6,6 +6,7 @@
     ou outras camadas superiores, evitando assim que as camadas superiores
     acessem diretamente a camada inferior de modelos.
 """
+import logging
 import io
 import re
 import requests
@@ -33,6 +34,7 @@ from opac_schema.v1.models import (
     Pages,
     PressRelease,
     Sponsor,
+    LastIssue,
 )
 from scieloh5m5 import h5m5
 from slugify import slugify
@@ -750,6 +752,41 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
         "previous_issue": previous_issue,
         "last_issue": last_issue,
     }
+
+
+def set_last_issue_and_issue_count(jid):
+    """
+    O último issue tem que ser um issue regular, não pode ser aop, nem suppl, nem especial
+    """
+    try:
+        order_by = ["-year", "-order"]
+        j = get_journal_by_jid(jid)
+        issues = Issue.objects(
+            journal=jid,
+            type__in=["regular", "volume_issue"],
+            is_public=True,
+        )
+        j.issue_count = issues.count()
+        last_issue = issues.order_by(*order_by).first()
+
+        j.last_issue = LastIssue(
+            volume=last_issue.volume,
+            number=last_issue.number,
+            year=last_issue.year,
+            label=last_issue.label,
+            type=last_issue.type,
+            suppl_text=last_issue.suppl_text,
+            start_month=last_issue.start_month,
+            end_month=last_issue.end_month,
+            # sections=EmbeddedDocumentListField('TranslatedSection'),
+            # cover_url=last_issue.xxxx,
+            iid=last_issue.iid,
+            url_segment=last_issue.url_segment,
+        )
+
+        j.save()
+    except Exception as e:
+        logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
 
 
 def get_issue_by_iid(iid, **kwargs):
@@ -1832,8 +1869,10 @@ def add_issue(data, journal_id, issue_order=None, _type="regular"):
 
     """
     issue = IssueFactory(data, journal_id, issue_order=issue_order, _type=_type)
+    saved = issue.save()
 
-    return issue.save()
+    set_last_issue_and_issue_count(journal_id)
+    return saved
 
 
 def add_article(
