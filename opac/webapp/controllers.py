@@ -743,7 +743,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
 
     # o primiero item da lista é o último número.
     # condicional para verificar se issues contém itens
-    last_issue = issues[0] if issues else None
+    last_issue = issues[0].journal.last_issue
 
     return {
         "ahead": issue_ahead,  # ahead of print

@@ -342,12 +342,17 @@ def collection_list_feed():
         feed.add("Nenhum periódico encontrado", url=request.url, updated=datetime.now())
 
     for journal in journals.items:
-        issues = controllers.get_issues_by_jid(journal.jid, is_public=True)
-        last_issue = issues[0] if issues else None
 
-        articles = []
+        if not journal.last_issue:
+            controllers.set_last_issue_and_issue_count(journal.jid)
+            journal = controllers.get_journal_by_url_seg(url_seg)
+
+        last_issue = journal.last_issue
+
         if last_issue:
             articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+        else:
+            articles = []
 
         result_dict = OrderedDict()
         for article in articles:
@@ -608,9 +613,16 @@ def journal_feed(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    issues = controllers.get_issues_by_jid(journal.jid, is_public=True)
-    last_issue = issues[0] if issues else None
-    articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+    if not journal.last_issue:
+        controllers.set_last_issue_and_issue_count(journal.jid)
+        journal = controllers.get_journal_by_url_seg(url_seg)
+
+    last_issue = journal.last_issue
+
+    if last_issue:
+        articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+    else:
+        articles = []
 
     feed = AtomFeed(
         journal.title,
@@ -660,7 +672,11 @@ def about_journal(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    latest_issue = utils.fix_journal_last_issue(journal)
+    if not journal.last_issue:
+        controllers.set_last_issue_and_issue_count(journal.jid)
+        journal = controllers.get_journal_by_url_seg(url_seg)
+
+    last_issue = journal.last_issue
 
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
@@ -676,7 +692,7 @@ def about_journal(url_seg):
         latest_issue_legend = None
 
     section_journal_content = fetch_and_extract_section(collection_acronym, journal.acronym, language)
-    
+
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -861,7 +877,12 @@ def issue_grid(url_seg):
 
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
-    latest_issue = issues_data["last_issue"]
+
+    if not journal.last_issue:
+        controllers.set_last_issue_and_issue_count(journal.jid)
+        journal = controllers.get_journal_by_url_seg(url_seg)
+
+    last_issue = journal.last_issue
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
             title=journal.title,
@@ -877,7 +898,7 @@ def issue_grid(url_seg):
 
     context = {
         "journal": journal,
-        "last_issue": issues_data["last_issue"],
+        "last_issue": last_issue,
         "latest_issue_legend": latest_issue_legend,
         "volume_issue": issues_data["volume_issue"],
         "ahead": issues_data["ahead"],
