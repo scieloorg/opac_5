@@ -344,8 +344,7 @@ def collection_list_feed():
     for journal in journals.items:
 
         if not journal.last_issue:
-            controllers.set_last_issue_and_issue_count(journal.jid)
-            journal = controllers.get_journal_by_url_seg(url_seg)
+            controllers.set_last_issue_and_issue_count(journal)
 
         last_issue = journal.last_issue
 
@@ -614,8 +613,7 @@ def journal_feed(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     if not journal.last_issue:
-        controllers.set_last_issue_and_issue_count(journal.jid)
-        journal = controllers.get_journal_by_url_seg(url_seg)
+        controllers.set_last_issue_and_issue_count(journal)
 
     last_issue = journal.last_issue
 
@@ -673,8 +671,7 @@ def about_journal(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     if not journal.last_issue:
-        controllers.set_last_issue_and_issue_count(journal.jid)
-        journal = controllers.get_journal_by_url_seg(url_seg)
+        controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
 
@@ -880,8 +877,7 @@ def issue_grid(url_seg):
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
 
     if not journal.last_issue:
-        controllers.set_last_issue_and_issue_count(journal.jid)
-        journal = controllers.get_journal_by_url_seg(url_seg)
+        controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
     if latest_issue:
