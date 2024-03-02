@@ -773,6 +773,7 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
 
         if not journal.last_issue:
             set_last_issue_and_issue_count(journal.jid)
+            journal = get_journal_by_jid(journal_id)
 
         last_issue = get_issue_by_iid(journal.last_issue.iid)
 
