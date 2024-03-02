@@ -775,19 +775,25 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
         previous = last_issue
         next_ = None
     else:
-        previous = Issue.objects(
-            journal=issue.journal.jid,
-            year__lte=issue.year,
-            order__lte=issue.order,
-            number__ne="ahead",
-        ).order_by("-year", "-volume", "-order").first()
+        try:
+            previous = Issue.objects(
+                journal=issue.journal.jid,
+                year__lte=issue.year,
+                order__lte=issue.order,
+                number__ne="ahead",
+            ).order_by("-year", "-volume", "-order")[1]
+        except IndexError:
+            previous = None
 
-        next_ = Issue.objects(
-            journal=issue.journal.jid,
-            year__gte=issue.year,
-            order__gte=issue.order,
-            number__ne="ahead",
-        ).order_by("year", "volume", "order").first()
+        try:
+            next_ = Issue.objects(
+                journal=issue.journal.jid,
+                year__gte=issue.year,
+                order__gte=issue.order,
+                number__ne="ahead",
+            ).order_by("year", "volume", "order")[1]
+        except IndexError:
+            next_ = None
 
         if not next_:
             next_ = Issue.objects(

@@ -705,6 +705,7 @@ def about_journal(url_seg):
     if section_journal_content:
         context["content"] = section_journal_content
 
+    context.update(controllers.get_issue_nav_bar_data(journal.jid))
     return render_template("journal/about.html", **context)
 
 
@@ -882,7 +883,7 @@ def issue_grid(url_seg):
         controllers.set_last_issue_and_issue_count(journal.jid)
         journal = controllers.get_journal_by_url_seg(url_seg)
 
-    last_issue = journal.last_issue
+    latest_issue = journal.last_issue
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
             title=journal.title,
@@ -898,7 +899,7 @@ def issue_grid(url_seg):
 
     context = {
         "journal": journal,
-        "last_issue": last_issue,
+        "last_issue": latest_issue,
         "latest_issue_legend": latest_issue_legend,
         "volume_issue": issues_data["volume_issue"],
         "ahead": issues_data["ahead"],
@@ -1114,7 +1115,6 @@ def aop_toc(url_seg):
     context.update(
         controllers.get_issue_nav_bar_data(
             journal_id=journal.jid, issue_id=aop_issues[0].iid))
-
     return render_template("issue/toc.html", **context)
 
 
