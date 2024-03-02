@@ -764,47 +764,55 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
     """
     if issue_id:
         issue = get_issue_by_iid(issue_id)
-        last_issue = get_issue_by_iid(issue.journal.last_issue.iid)
+        journal = issue.journal
+        last_issue = None
 
     elif journal_id:
+        issue = None
         journal = get_journal_by_jid(journal_id)
-        issue = get_issue_by_iid(journal.last_issue.iid)
-        last_issue = issue
 
-    if issue.type == "ahead" or issue.number == "ahead":
-        previous = last_issue
+        if not journal.last_issue:
+            set_last_issue_and_issue_count(journal.jid)
+
+        last_issue = get_issue_by_iid(journal.last_issue.iid)
+
+    item = issue or last_issue
+
+    if item.type == "ahead" or item.number == "ahead":
+        previous = Issue.objects(
+            journal=journal,
+            number__ne="ahead",
+        ).order_by("-year", "-order").first()
         next_ = None
     else:
         try:
             previous = Issue.objects(
-                journal=issue.journal.jid,
-                year__lte=issue.year,
-                order__lte=issue.order,
+                journal=journal,
+                year__lte=item.year,
+                order__lte=item.order,
                 number__ne="ahead",
-            ).order_by("-year", "-volume", "-order")[1]
+            ).order_by("-year", "-order")[1]
         except IndexError:
             previous = None
 
         try:
             next_ = Issue.objects(
-                journal=issue.journal.jid,
-                year__gte=issue.year,
-                order__gte=issue.order,
+                journal=journal,
+                year__gte=item.year,
+                order__gte=item.order,
                 number__ne="ahead",
-            ).order_by("year", "volume", "order")[1]
+            ).order_by("year", "order")[1]
         except IndexError:
-            next_ = None
-
-        if not next_:
+            # aop
             next_ = Issue.objects(
-                journal=issue.journal.jid,
+                journal=journal,
                 number="ahead",
-            ).order_by("-year", "-volume", "-order").first()
+            ).order_by("-year", "-order").first()
 
     return {
         "previous_item": previous,
-        "current_item": issue,
         "next_item": next_,
+        "issue": issue,
         "last_issue": last_issue,
     }
 
