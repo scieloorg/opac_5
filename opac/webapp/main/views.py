@@ -676,7 +676,7 @@ def about_journal(url_seg):
         controllers.set_last_issue_and_issue_count(journal.jid)
         journal = controllers.get_journal_by_url_seg(url_seg)
 
-    last_issue = journal.last_issue
+    latest_issue = journal.last_issue
 
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
