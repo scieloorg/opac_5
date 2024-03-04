@@ -6,8 +6,11 @@
     ou outras camadas superiores, evitando assim que as camadas superiores
     acessem diretamente a camada inferior de modelos.
 """
+import logging
 import io
 import re
+import requests
+from bs4 import BeautifulSoup
 from collections import OrderedDict
 from datetime import datetime
 from uuid import uuid4
@@ -31,6 +34,7 @@ from opac_schema.v1.models import (
     Pages,
     PressRelease,
     Sponsor,
+    LastIssue,
 )
 from scieloh5m5 import h5m5
 from slugify import slugify
@@ -38,6 +42,7 @@ from webapp import dbsql
 
 from .choices import INDEX_NAME, JOURNAL_STATUS, STUDY_AREAS
 from .models import User
+from .factory import JournalFactory, IssueFactory, ArticleFactory
 from .utils import utils
 
 HIGHLIGHTED_TYPES = (
@@ -48,6 +53,25 @@ HIGHLIGHTED_TYPES = (
     "research-article",
     "review-article",
 )
+
+
+_PIDS_FIXES = (
+    ("0102-7638", "1678-9741"),
+    ("1807-0302", "0101-8205"),
+    ("1806-1117", "0102-4744"),
+    ("1678-4510", "0100-879X"),
+    ("1678-9741", "0102-7638"),
+    ("0101-8205", "1807-0302"),
+    ("0102-4744", "1806-1117"),
+    ("0100-879X", "1678-4510"),
+)
+
+
+def _fix_pid(pid):
+    for found, replace in _PIDS_FIXES:
+        if found in pid:
+            return pid.replace(found, replace)
+    return pid
 
 
 class ArticleAbstractNotFoundError(Exception):
@@ -557,7 +581,7 @@ def get_journal_by_url_seg(url_seg, **kwargs):
 
     if not url_seg:
         raise ValueError(__("Obrigatório um url_seg."))
-
+    
     return Journal.objects(url_segment=url_seg, **kwargs).first()
 
 
@@ -683,6 +707,12 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
             **kwargs,
         ).order_by(*order_by)
         issue_ahead = issues.filter(type="ahead").first()
+
+        if issue_ahead:
+            # Verifica que contém artigos no issue de ahead
+            if not get_articles_by_iid(issue_ahead.id, is_public=True):
+                issue_ahead = None
+
         issues_without_ahead = issues.filter(type__ne="ahead")
 
     volume_issue = {}
@@ -696,7 +726,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
             volume_issue.setdefault(issue.volume, {})
             volume_issue[issue.volume]["issue"] = issue
             volume_issue[issue.volume]["art_count"] = len(
-                get_articles_by_iid(issue.iid)
+                get_articles_by_iid(issue.iid, is_public=True)
             )
 
         key_volume = issue.volume
@@ -713,7 +743,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
 
     # o primiero item da lista é o último número.
     # condicional para verificar se issues contém itens
-    last_issue = issues[0] if issues else None
+    last_issue = issues[0].journal.last_issue
 
     return {
         "ahead": issue_ahead,  # ahead of print
@@ -722,6 +752,119 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
         "previous_issue": previous_issue,
         "last_issue": last_issue,
     }
+
+
+def get_issue_nav_bar_data(journal_id=None, issue_id=None):
+    """
+    Retorna quanto à navegação os itens anterior e posterior,
+    a um dado issue, e o último issue regular de um periódico.
+    Caso issue_id não é informado, considera-se que o issue em questão
+    é o último issue regular odendo ter como item posterior
+    um suplemento, um número especial, um ahead ou nenhum item
+    """
+    if issue_id:
+        issue = get_issue_by_iid(issue_id)
+        journal = issue.journal
+        last_issue = None
+
+    elif journal_id:
+        issue = None
+        journal = get_journal_by_jid(journal_id)
+
+        if not journal.last_issue or journal.last_issue.type not in ("volume_issue", "regular"):
+            set_last_issue_and_issue_count(journal)
+
+        last_issue = get_issue_by_iid(journal.last_issue.iid)
+
+    item = issue or last_issue
+
+    if item.type == "ahead" or item.number == "ahead":
+        previous = Issue.objects(
+            journal=journal,
+            number__ne="ahead",
+        ).order_by("-year", "-order").first()
+        next_ = None
+    else:
+        try:
+            previous = Issue.objects(
+                journal=journal,
+                year__lte=item.year,
+                order__lte=item.order,
+                number__ne="ahead",
+            ).order_by("-year", "-order")[1]
+        except IndexError:
+            previous = None
+
+        try:
+            next_ = Issue.objects(
+                journal=journal,
+                year__gte=item.year,
+                order__gte=item.order,
+                number__ne="ahead",
+            ).order_by("year", "order")[1]
+        except IndexError:
+            # aop
+            next_ = Issue.objects(
+                journal=journal,
+                number="ahead",
+            ).order_by("-year", "-order").first()
+
+    return {
+        "previous_item": previous,
+        "next_item": next_,
+        "issue": issue,
+        "last_issue": last_issue,
+    }
+
+
+def set_last_issue_and_issue_count(journal):
+    """
+    O último issue tem que ser um issue regular, não pode ser aop, nem suppl, nem especial
+    """
+    try:
+        order_by = ["-year", "-order"]
+        issues = Issue.objects(
+            journal=journal,
+            type__in=["regular", "volume_issue"],
+            is_public=True,
+        )
+        journal.issue_count = issues.count()
+        journal.save()
+    except Exception as e:
+        logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
+
+    try:
+        last_issue = issues.order_by(*order_by).first()
+
+        journal.last_issue = LastIssue(
+            volume=last_issue.volume,
+            number=last_issue.number,
+            year=last_issue.year,
+            label=last_issue.label,
+            type=last_issue.type,
+            suppl_text=last_issue.suppl_text,
+            start_month=last_issue.start_month,
+            end_month=last_issue.end_month,
+            iid=last_issue.iid,
+            url_segment=last_issue.url_segment,
+            sections=last_issue.sections,
+        )
+        journal.save()
+    except Exception as e:
+        logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
+    return j
+
+
+def journal_last_issues():
+    for j in Journal.objects.filter(last_issue=None):
+        set_last_issue_and_issue_count(j)
+        if j.last_issue and j.last_issue.url_segment:
+            yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
+
+    for j in Journal.objects.filter(last_issue__type__nin=["regular", "volume_issue"]):
+        set_last_issue_and_issue_count(j)
+        if j.last_issue and j.last_issue.url_segment:
+            yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
 
 def get_issue_by_iid(iid, **kwargs):
@@ -840,7 +983,7 @@ def get_issue_by_url_seg(url_seg, url_seg_issue):
 
     if not url_seg and url_seg_issue:
         raise ValueError(__("Obrigatório um url_seg e url_seg_issue."))
-
+    
     return Issue.objects.filter(
         journal=journal, url_segment=url_seg_issue, type__ne="pressrelease"
     ).first()
@@ -896,9 +1039,9 @@ def get_article_by_aid(
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    articles = Article.objects(pk=aid, is_public=True, **kwargs)
-    if not articles:
-        articles = Article.objects(scielo_pids__other=aid, is_public=True, **kwargs)
+    articles = Article.objects(
+        Q(pk=aid) | Q(scielo_pids__other=aid), is_public=True, **kwargs
+    )
 
     if articles:
         article = articles[0]
@@ -1168,7 +1311,7 @@ def get_articles_by_iid(iid, **kwargs):
     # poderia ser chamado uma única vez
     # No entanto, há um issue relacionado: #1435
     articles = Article.objects(issue=iid, **kwargs).order_by("order")
-    if is_aop_issue(articles) or is_open_issue(articles):
+    if is_aop_issue(articles):
         return articles.order_by("-publication_date")
     return articles
 
@@ -1224,7 +1367,7 @@ def get_article_by_pid(pid, **kwargs):
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    return Article.objects(pid=pid, **kwargs).first()
+    return Article.objects(Q(pid=pid) | Q(pid=_fix_pid(pid)), **kwargs).first()
 
 
 def get_article_by_oap_pid(aop_pid, **kwargs):
@@ -1240,7 +1383,9 @@ def get_article_by_oap_pid(aop_pid, **kwargs):
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    return Article.objects(aop_pid=aop_pid, **kwargs).first()
+    return Article.objects(
+        Q(aop_pid=aop_pid) | Q(aop_pid=_fix_pid(aop_pid)), **kwargs
+    ).first()
 
 
 def get_article_by_scielo_pid(scielo_pid, **kwargs):
@@ -1282,18 +1427,13 @@ def get_article_by_pid_v2(v2, **kwargs):
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    articles = Article.objects(pid=v2, is_public=True, **kwargs)
+    fixed = _fix_pid(v2)
+    q = Q(pid=v2) | Q(aop_pid=v2) | Q(scielo_pids__other=v2)
+    if fixed != v2:
+        q = Q(pid=fixed) | Q(aop_pid=fixed) | Q(scielo_pids__other=fixed) | q
+    articles = Article.objects(q, is_public=True, **kwargs)
     if articles:
         return articles[0]
-
-    articles = Article.objects(aop_pid=v2, is_public=True, **kwargs)
-    if articles:
-        return articles[0]
-
-    articles = Article.objects(scielo_pids__other=v2, is_public=True, **kwargs)
-    if articles:
-        return articles[0]
-
     return None
 
 
@@ -1577,6 +1717,8 @@ def send_email_error(
         _type = __("aplicação")
     elif error_type == "content":
         _type = __("conteúdo")
+    elif error_type == "acessibility":
+        _type = __("acessibilidade")
 
     msg = __(
         "O usuário <b>%s</b> com e-mail: <b>%s</b>,"
@@ -1709,3 +1851,118 @@ def get_journal_metrics(journal):
         "h5_metric_year": int(scielo_metrics.get("year", 0)) if scielo_metrics else 0,
     }
     return metrics
+
+
+def add_journal(data):
+    """
+    This function has the responsability to create a journal using a data as dictionary.
+
+    The param data is something like this:
+
+        {
+            "id": "1678-4464",
+            "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg",
+            "mission": [
+                {
+                "language": "pt",
+                "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras."
+                },
+                {
+                "language": "es",
+                "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras."
+                },
+                {
+                "language": "en",
+                "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others."
+                }
+            ],
+            "title": "Cadernos de Saúde Pública",
+            "title_iso": "Cad. saúde pública",
+            "short_title": "Cad. Saúde Pública",
+            "acronym": "csp",
+            "scielo_issn": "0102-311X",
+            "print_issn": "0102-311X",
+            "electronic_issn": "1678-4464",
+            "status_history": [
+                {
+                "status": "current",
+                "date": "1999-07-02T00:00:00.000000Z",
+                "reason": ""
+                }
+            ],
+            "subject_areas": [
+                "HEALTH SCIENCES"
+            ],
+            "sponsors": [
+                {
+                "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico "
+                }
+            ],
+            "subject_categories": [
+                "Health Policy & Services"
+            ],
+            "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php",
+            "contact": {
+                "email": "cadernos@ensp.fiocruz.br",
+                "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508"
+            },
+            "created": "1999-07-02T00:00:00.000000Z",
+            "updated": "2019-07-19T20:33:17.102106Z"
+        }
+
+    The mininal fields necessary to create a journal is:
+
+        {'title': "teste", "acronym":"te", "id": "0000-0000", "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
+
+    """
+    journal = JournalFactory(data)
+
+    return journal.save()
+
+
+def add_issue(data, journal_id, issue_order=None, _type="regular"):
+    """
+    This function has the responsability to create a journal using a data as dictionary.
+
+    The param data is something like this:
+
+    {
+        "publication_year": "1998",
+        "volume": "29",
+        "number": "3",
+        "publication_months": {
+            "range": [
+                9,
+                9
+            ]
+        },
+        "pid": "1678-446419980003",
+        "id": "1678-4464-1998-v29-n3",
+        "created": "1998-09-01T00:00:00.000000Z",
+        "updated": "2020-04-28T20:16:24.459467Z"
+    }
+
+    The mininal fields necessary to create a journal is:
+
+
+    """
+    issue = IssueFactory(data, journal_id, issue_order=issue_order, _type=_type)
+    saved = issue.save()
+
+    set_last_issue_and_issue_count(issue.journal)
+    return saved
+
+
+def add_article(
+    document_id,
+    data,
+    issue_id,
+    document_order,
+    document_xml_url,
+    repeated_doc_pids=None,
+):
+    article = ArticleFactory(
+        document_id, data, issue_id, document_order, document_xml_url, repeated_doc_pids
+    )
+    
+    return article.save()

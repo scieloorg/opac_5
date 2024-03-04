@@ -1,5 +1,4 @@
 # coding: utf-8
-import io
 import json
 import logging
 import mimetypes
@@ -21,7 +20,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    send_file,
     send_from_directory,
     session,
     url_for,
@@ -31,13 +29,22 @@ from legendarium.formatter import descriptive_short_format
 from lxml import etree
 from opac_schema.v1.models import Article, Collection, Issue, Journal
 from packtools import HTMLGenerator
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.config.lang_names import display_original_lang_name
+from webapp.main.errors import page_not_found, internal_server_error
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 
-from . import main
+from . import helper
+
+from . import main, restapi
 
 logger = logging.getLogger(__name__)
 
@@ -70,25 +77,53 @@ class NonRetryableError(Exception):
     """
 
 
-def fetch_data(url: str, timeout: float = 2) -> bytes:
-    try:
-        response = requests.get(url, timeout=timeout)
-    except (requests.ConnectionError, requests.Timeout) as exc:
-        raise RetryableError(exc) from exc
-    except (requests.InvalidSchema, requests.MissingSchema, requests.InvalidURL) as exc:
-        raise NonRetryableError(exc) from exc
-    else:
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
-            if 400 <= exc.response.status_code < 500:
-                raise NonRetryableError(exc) from exc
-            elif 500 <= exc.response.status_code < 600:
-                raise RetryableError(exc) from exc
-            else:
-                raise
+@retry(
+    retry=retry_if_exception_type(RetryableError),
+    wait=wait_exponential(multiplier=1, min=1, max=5),
+    stop=stop_after_attempt(5),
+)
+def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
+    """
+    Get the resource with HTTP
+    Retry: Wait 2^x * 1 second between each retry starting with 4 seconds,
+           then up to 10 seconds, then 10 seconds afterwards
+    Args:
+        url: URL address
+        headers: HTTP headers
+        json: True|False
+        verify: Verify the SSL.
+    Returns:
+        Return a requests.response object.
+    Except:
+        Raise a RetryableError to retry.
+    """
 
-    return response.content
+    try:
+        logger.info("Fetching the URL: %s" % url)
+        response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
+        logger.error("Erro fetching the content: %s, retry..., erro: %s" % (url, exc))
+        raise RetryableError(exc) from exc
+    except (
+        requests.exceptions.InvalidSchema,
+        requests.exceptions.MissingSchema,
+        requests.exceptions.InvalidURL,
+    ) as exc:
+        raise NonRetryableError(exc) from exc
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        if 400 <= exc.response.status_code < 500:
+            raise NonRetryableError(exc) from exc
+        elif 500 <= exc.response.status_code < 600:
+            logger.error(
+                "Erro fetching the content: %s, retry..., erro: %s" % (url, exc)
+            )
+            raise RetryableError(exc) from exc
+        else:
+            raise
+
+    return response.content if not json else response.json()
 
 
 @main.before_app_request
@@ -307,12 +342,16 @@ def collection_list_feed():
         feed.add("Nenhum periódico encontrado", url=request.url, updated=datetime.now())
 
     for journal in journals.items:
-        issues = controllers.get_issues_by_jid(journal.jid, is_public=True)
-        last_issue = issues[0] if issues else None
 
-        articles = []
+        if not journal.last_issue:
+            controllers.set_last_issue_and_issue_count(journal)
+
+        last_issue = journal.last_issue
+
         if last_issue:
             articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+        else:
+            articles = []
 
         result_dict = OrderedDict()
         for article in articles:
@@ -558,7 +597,7 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-
+    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
     return render_template("journal/detail.html", **context)
 
 
@@ -573,9 +612,15 @@ def journal_feed(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    issues = controllers.get_issues_by_jid(journal.jid, is_public=True)
-    last_issue = issues[0] if issues else None
-    articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+    if not journal.last_issue:
+        controllers.set_last_issue_and_issue_count(journal)
+
+    last_issue = journal.last_issue
+
+    if last_issue:
+        articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+    else:
+        articles = []
 
     feed = AtomFeed(
         journal.title,
@@ -616,7 +661,7 @@ def journal_feed(url_seg):
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
     language = session.get("lang", get_locale())
-
+    collection_acronym = controllers.get_current_collection()
     journal = controllers.get_journal_by_url_seg(url_seg)
 
     if not journal:
@@ -625,7 +670,10 @@ def about_journal(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    latest_issue = utils.fix_journal_last_issue(journal)
+    if not journal.last_issue:
+        controllers.set_last_issue_and_issue_count(journal)
+
+    latest_issue = journal.last_issue
 
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
@@ -640,7 +688,7 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
+    section_journal_content = fetch_and_extract_section(collection_acronym, journal.acronym, language)
 
     context = {
         "journal": journal,
@@ -651,11 +699,10 @@ def about_journal(url_seg):
         ],
     }
 
-    if page:
-        context["content"] = page.content
-        if page.updated_at:
-            context["page_updated_at"] = page.updated_at
+    if section_journal_content:
+        context["content"] = section_journal_content
 
+    context.update(controllers.get_issue_nav_bar_data(journal.jid))
     return render_template("journal/about.html", **context)
 
 
@@ -828,7 +875,11 @@ def issue_grid(url_seg):
 
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
-    latest_issue = issues_data["last_issue"]
+
+    if not journal.last_issue:
+        controllers.set_last_issue_and_issue_count(journal)
+
+    latest_issue = journal.last_issue
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
             title=journal.title,
@@ -844,7 +895,7 @@ def issue_grid(url_seg):
 
     context = {
         "journal": journal,
-        "last_issue": issues_data["last_issue"],
+        "last_issue": latest_issue,
         "latest_issue_legend": latest_issue_legend,
         "volume_issue": issues_data["volume_issue"],
         "ahead": issues_data["ahead"],
@@ -853,7 +904,7 @@ def issue_grid(url_seg):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-
+    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
     return render_template("issue/grid.html", **context)
 
 
@@ -925,8 +976,8 @@ def issue_toc(url_seg, url_seg_issue):
     # obtém PDF e TEXT de cada documento
     has_math_content = False
     for article in articles:
-        article_text_languages = [doc["lang"] for doc in article.htmls]
-        article_pdf_languages = [(doc["lang"], doc["url"]) for doc in article.pdfs]
+        article_text_languages = set([doc["lang"] for doc in article.htmls])
+        article_pdf_languages = set([(doc["lang"], doc["url"]) for doc in article.pdfs])
         setattr(article, "article_text_languages", article_text_languages)
         setattr(article, "article_pdf_languages", article_pdf_languages)
         if "mml:" in article.title:
@@ -959,6 +1010,9 @@ def issue_toc(url_seg, url_seg_issue):
         ],
         "last_issue": journal.last_issue,
     }
+    context.update(
+        controllers.get_issue_nav_bar_data(
+            journal_id=journal.jid, issue_id=issue.iid))
     return render_template("issue/toc.html", **context)
 
 
@@ -1034,8 +1088,8 @@ def aop_toc(url_seg):
         articles = [a for a in articles if a.section.upper() == section_filter]
 
     for article in articles:
-        article_text_languages = [doc["lang"] for doc in article.htmls]
-        article_pdf_languages = [(doc["lang"], doc["url"]) for doc in article.pdfs]
+        article_text_languages = set([doc["lang"] for doc in article.htmls])
+        article_pdf_languages = set([(doc["lang"], doc["url"]) for doc in article.pdfs])
 
         setattr(article, "article_text_languages", article_text_languages)
         setattr(article, "article_pdf_languages", article_pdf_languages)
@@ -1054,7 +1108,9 @@ def aop_toc(url_seg):
         # o primeiro item da lista é o último número.
         "last_issue": journal.last_issue,
     }
-
+    context.update(
+        controllers.get_issue_nav_bar_data(
+            journal_id=journal.jid, issue_id=aop_issues[0].iid))
     return render_template("issue/toc.html", **context)
 
 
@@ -1148,7 +1204,10 @@ def render_html_from_xml(article, lang, gs_abstract=False):
     xml = etree.parse(BytesIO(result))
 
     generator = HTMLGenerator.parse(
-        xml, valid_only=False, gs_abstract=gs_abstract, output_style="website",
+        xml,
+        valid_only=False,
+        gs_abstract=gs_abstract,
+        output_style="website",
         xslt=xslt,
     )
 
@@ -1895,47 +1954,6 @@ def router_legacy_info_pages(journal_seg, page):
     )
 
 
-@main.route("/api/v1/counter_dict", methods=["GET"])
-def router_counter_dicts():
-    """
-    Essa view function retorna um dicionário, em formato JSON, que mapeia PIDs a insumos
-    necessários para o funcionamento das aplicações Matomo & COUNTER & SUSHI.
-    """
-    end_date = request.args.get("end_date", "", type=str)
-    try:
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    except ValueError:
-        end_date = datetime.now()
-    begin_date = end_date - timedelta(days=30)
-
-    page = request.args.get("page", type=int)
-    if not page:
-        page = 1
-
-    limit = request.args.get("limit", type=int)
-    if not limit or limit > 100 or limit < 0:
-        limit = 100
-
-    results = {
-        "dictionary_date": end_date,
-        "end_date": end_date.strftime("%Y-%m-%d %H-%M-%S"),
-        "begin_date": begin_date.strftime("%Y-%m-%d %H-%M-%S"),
-        "documents": {},
-        "collection": current_app.config["OPAC_COLLECTION"],
-    }
-
-    articles = controllers.get_articles_by_date_range(begin_date, end_date, page, limit)
-    for a in articles.items:
-        results["documents"].update(get_article_counter_data(a))
-
-    results["total"] = articles.total
-    results["pages"] = articles.pages
-    results["limit"] = articles.per_page
-    results["page"] = articles.page
-
-    return jsonify(results)
-
-
 def get_article_counter_data(article):
     return {
         article.aid: {
@@ -2026,3 +2044,198 @@ def scimago_ir():
         return html.find("a").get("href")
     else:
         return ""
+
+
+# ###############################RestAPI########################################
+
+
+@restapi.route("/auth", methods=["POST"])
+def authenticate():
+    return helper.auth()
+
+@restapi.route("/counter_dict", methods=["GET"])
+def router_counter_dicts():
+    """
+    Essa view function retorna um dicionário, em formato JSON, que mapeia PIDs a insumos
+    necessários para o funcionamento das aplicações Matomo & COUNTER & SUSHI.
+    """
+    end_date = request.args.get("end_date", "", type=str)
+    try:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        end_date = datetime.now()
+
+    begin_date = request.args.get("begin_date", "", type=str)
+    try:
+        begin_date = datetime.strptime(begin_date, "%Y-%m-%d")
+    except ValueError:
+        begin_date = end_date - timedelta(days=30)
+
+    page = request.args.get("page", type=int)
+    if not page:
+        page = 1
+
+    limit = request.args.get("limit", type=int)
+    if not limit or limit > 100 or limit < 0:
+        limit = 100
+
+    results = {
+        "dictionary_date": end_date,
+        "end_date": end_date.strftime("%Y-%m-%d %H-%M-%S"),
+        "begin_date": begin_date.strftime("%Y-%m-%d %H-%M-%S"),
+        "documents": {},
+        "collection": current_app.config["OPAC_COLLECTION"],
+    }
+
+    articles = controllers.get_articles_by_date_range(begin_date, end_date, page, limit)
+    for a in articles.items:
+        results["documents"].update(get_article_counter_data(a))
+
+    results["total"] = articles.total
+    results["pages"] = articles.pages
+    results["limit"] = articles.per_page
+    results["page"] = articles.page
+
+    return jsonify(results)
+
+
+@restapi.route("/journal", methods=["POST", "PUT"])
+@helper.token_required
+def journal(*args):
+    """
+    This endpoint responds for PUT and POST. 
+
+    if in the payload exists the ``id`` field the function ``controllers.add_journal``
+    will update or create. 
+
+    A payload example: 
+
+    { "id": "1678-4464", "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg", "mission": [ { "language": "pt", "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras." }, { "language": "es", "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras." }, { "language": "en", "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others." } ], "title": "Cadernos de Saúde Pública", "title_iso": "Cad. saúde pública", "short_title": "Cad. Saúde Pública", "acronym": "csp", "scielo_issn": "0102-311X", "print_issn": "0102-311X", "electronic_issn": "1678-4464", "status_history": [ { "status": "current", "date": "1999-07-02T00:00:00.000000Z", "reason": "" } ], "subject_areas": [ "HEALTH SCIENCES" ], "sponsors": [ { "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico " } ], "subject_categories": [ "Health Policy & Services" ], "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php", "contact": { "email": "cadernos@ensp.fiocruz.br", "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508" }, "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
+    """
+    
+    payload = request.get_json()
+
+    try:
+        journal = controllers.add_journal(payload)
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "id": journal.id}), 200
+
+
+@restapi.route("/issue", methods=["POST", "PUT"])
+@helper.token_required
+def issue(*args):
+    """
+    This endpoint responds for PUT and POST. 
+
+    if in the payload exists the ``id`` field the function ``controllers.add_issue``
+    will update or create. 
+
+    A payload example:
+
+    { "publication_year": "1998", "volume": "29", "number": "3", "publication_months": { "range": [ 9, 9 ] }, "pid": "1678-446419980003", "id": "1678-4464-1998-v29-n3", "created": "1998-09-01T00:00:00.000000Z", "updated": "2020-04-28T20:16:24.459467Z" }
+
+    """
+    payload = request.get_json()
+    params = request.args.to_dict()
+
+    if not params.get("journal_id") and not request.json.get("journal_id"):
+        return jsonify({"failed": True, "error": "missing param journal_id"}), 400 
+    else:
+        journal_id = params.get("journal_id") or request.json.get("journal_id")
+
+    issue_order = params.get("issue_order", None) or request.json.get("issue_order")
+
+    _type = params.get("type") or request.json.get("type") if params.get("type", None) or request.json.get("type") else "regular"
+
+    try:
+        issue = controllers.add_issue(payload, journal_id, issue_order, _type)
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "id": issue.id}), 200
+
+
+@restapi.route("/article", methods=["POST", "PUT"])
+@helper.token_required
+def article(*args):
+    """
+    This endpoint responds for PUT and POST. 
+
+    if in the payload exists the ``id`` field the function ``controllers.add_issue``
+    will update or create. 
+
+    A payload example:
+
+        { "article": [ { "type": [ "research-article" ], "lang": [ "en" ] } ], "article_meta": [ { "article_doi": [ "10.11606/S1518-8787.2019053000621" ], "article_publisher_id": [ "S1518-87872019053000621", "67TH7T7CyPPmgtVrGXhWXVs", "S1518-87872019005000621" ], "scielo_pid_v1": [ "S1518-8787(19)03000621" ], "scielo_pid_v2": [ "S1518-87872019053000621" ], "scielo_pid_v3": [ "67TH7T7CyPPmgtVrGXhWXVs" ], "article_title": [ "Validation of an anxiety scale for prenatal diagnostic procedures" ], "article_title_lang": [], "abstract": [ "ABSTRACT OBJECTIVE: To perform a cross-cultural adaptation of the Prenatal Diagnostic Procedures Anxiety Scale questionnaire for application in the Brazilian cultural context. METHODS: The translation and back translation processes followed internationally accepted criteria. A committee of experts evaluated the semantic, idiomatic, experimental and conceptual equivalence, proposing a pre-final version that was applied in 10.0% of the final sample. Afterwards, the final version was approved for the psychometric analysis. At that stage, 55 pregnant women participated which responded to the proposed Brazilian version before taking an ultrasound examination at a public hospital in Santa Catarina, in the year of 2017. The Edinburgh Postnatal Depression Scale was used as an external reliability parameter. The internal consistency of the instrument was obtained by Cronbach's alpha. Validation was performed by exploratory factorial analysis with extraction of principal components by the Kaiser-Guttman method and Varimax rotation. RESULTS: The Cronbach's alpha value of the total instrument was 0.886, and only the percentage of variance from item 2 (0.183) was not significant. The Kaiser-Guttman criterion defined three factors responsible for explaining 78.5% of the variance, as well as the Scree plot. Extraction of the main components by the Varimax method presented values from 0.713 to 0.926, with only item 2 being allocated in the third component. CONCLUSIONS: The Brazilian version is reliable and valid for use in the diagnosis of anxiety related to the performance of ultrasound procedures in prenatal care. Due to the lack of correlation with the rest of the construct, it is suggested that item 2 be removed from the final version." ], "abstract_title": [ "ABSTRACT", "OBJECTIVE:", "METHODS:", "RESULTS:", "CONCLUSIONS:" ], "abstract_p": [ "To perform a cross-cultural adaptation of the Prenatal Diagnostic Procedures Anxiety Scale questionnaire for application in the Brazilian cultural context.", "The translation and back translation processes followed internationally accepted criteria. A committee of experts evaluated the semantic, idiomatic, experimental and conceptual equivalence, proposing a pre-final version that was applied in 10.0% of the final sample. Afterwards, the final version was approved for the psychometric analysis. At that stage, 55 pregnant women participated which responded to the proposed Brazilian version before taking an ultrasound examination at a public hospital in Santa Catarina, in the year of 2017. The Edinburgh Postnatal Depression Scale was used as an external reliability parameter. The internal consistency of the instrument was obtained by Cronbach's alpha. Validation was performed by exploratory factorial analysis with extraction of principal components by the Kaiser-Guttman method and Varimax rotation.", "The Cronbach's alpha value of the total instrument was 0.886, and only the percentage of variance from item 2 (0.183) was not significant. The Kaiser-Guttman criterion defined three factors responsible for explaining 78.5% of the variance, as well as the Scree plot. Extraction of the main components by the Varimax method presented values from 0.713 to 0.926, with only item 2 being allocated in the third component.", "The Brazilian version is reliable and valid for use in the diagnosis of anxiety related to the performance of ultrasound procedures in prenatal care. Due to the lack of correlation with the rest of the construct, it is suggested that item 2 be removed from the final version." ], "abstract_seq": [ "OBJECTIVE: To perform a cross-cultural adaptation of the Prenatal Diagnostic Procedures Anxiety Scale questionnaire for application in the Brazilian cultural context.", "METHODS: The translation and back translation processes followed internationally accepted criteria. A committee of experts evaluated the semantic, idiomatic, experimental and conceptual equivalence, proposing a pre-final version that was applied in 10.0% of the final sample. Afterwards, the final version was approved for the psychometric analysis. At that stage, 55 pregnant women participated which responded to the proposed Brazilian version before taking an ultrasound examination at a public hospital in Santa Catarina, in the year of 2017. The Edinburgh Postnatal Depression Scale was used as an external reliability parameter. The internal consistency of the instrument was obtained by Cronbach's alpha. Validation was performed by exploratory factorial analysis with extraction of principal components by the Kaiser-Guttman method and Varimax rotation.", "RESULTS: The Cronbach's alpha value of the total instrument was 0.886, and only the percentage of variance from item 2 (0.183) was not significant. The Kaiser-Guttman criterion defined three factors responsible for explaining 78.5% of the variance, as well as the Scree plot. Extraction of the main components by the Varimax method presented values from 0.713 to 0.926, with only item 2 being allocated in the third component.", "CONCLUSIONS: The Brazilian version is reliable and valid for use in the diagnosis of anxiety related to the performance of ultrasound procedures in prenatal care. Due to the lack of correlation with the rest of the construct, it is suggested that item 2 be removed from the final version." ], "pub_elocation": [], "pub_fpage": [], "pub_fpage_seq": [], "pub_lpage": [], "pub_subject": [ "Original Article" ], "pub_volume": [ "53" ], "pub_issue": [] } ], "journal_meta": [ { "issn_epub": [ "1518-8787" ], "issn_ppub": [ "0034-8910" ], "journal_nlm_ta": [ "Rev Saude Publica" ], "journal_publisher_id": [ "rsp" ], "journal_title": [ "Revista de Saúde Pública" ], "publisher_name": [ "Faculdade de Saúde Pública da Universidade de São Paulo" ] } ], "contrib": [ { "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Kindermann Lucas" ], "contrib_given_names": [ "Lucas" ], "contrib_orcid": [ "0000-0002-9789-501X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Kindermann" ], "contrib_type": [ "author" ], "xref_corresp": [ "c1" ], "xref_corresp_text": [ "" ], "xref_aff": [ "aff1" ], "xref_aff_text": [ "I" ] }, { "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Traebert Jefferson" ], "contrib_given_names": [ "Jefferson" ], "contrib_orcid": [ "0000-0002-7389-985X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Traebert" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff1", "aff2" ], "xref_aff_text": [ "I", "II" ] }, { "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Nunes Rodrigo Dias" ], "contrib_given_names": [ "Rodrigo Dias" ], "contrib_orcid": [ "0000-0002-2261-8253" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Nunes" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff1", "aff2" ], "xref_aff_text": [ "I", "II" ] } ], "aff": [ { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff1" ], "aff_text": [ "I Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Faculdade de Medicina Palhoça SC Brasil Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Faculdade de Medicina" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "I" ], "phone": [] }, { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff2" ], "aff_text": [ "II Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Programa de Pós-Graduação em Ciências da Saúde Palhoça SC Brasil Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Programa de Pós-Graduação em Ciências da Saúde" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "II" ], "phone": [] } ], "pub_date": [ { "text": [ "31 01 2019" ], "pub_type": [ "epub" ], "pub_format": [], "date_type": [], "day": [ "31" ], "month": [ "01" ], "year": [ "2019" ], "season": [] } ], "history_date": [ { "date_type": [ "received" ], "day": [ "14" ], "month": [ "12" ], "year": [ "2017" ] }, { "date_type": [ "accepted" ], "day": [ "10" ], "month": [ "04" ], "year": [ "2018" ] } ], "kwd_group": [ { "lang": [ "en" ], "title": [ "DESCRIPTORS:" ], "kwd": [ "Ultrasonography Prenatal, psychology", "Test Anxiety Scale", "Surveys and Questionnaires, utilization", "Translations", "Validation Studies" ] } ], "trans_abstract": [], "sub_article": [ { "article": [ { "type": [ "translation" ], "lang": [ "pt" ] } ], "article_meta": [ { "article_doi": [], "article_publisher_id": [], "article_title": [ "Validação de uma escala de ansiedade para procedimentos diagnósticos prénatais" ], "article_title_lang": [], "abstract": [ "RESUMO OBJETIVO: Proceder à adaptação transcultural do questionário Prenatal Diagnostic Procedures Anxiety Scale para aplicação no contexto cultural brasileiro. MÉTODOS: Os processos de tradução e retrotradução seguiram critérios aceitos internacionalmente. Um comitê de especialistas avaliou as equivalências semântica, idiomática, experimental e conceitual, propondo uma versão pré-final que foi aplicada em 10,0% da amostra final. Em seguida, foi aprovada a versão final para a análise psicométrica. Nessa etapa participaram 55 gestantes que responderam à versão brasileira proposta antes de realizarem um exame ultrassonográfico em um hospital público de Santa Catarina, no ano de 2017. A Edinburgh Postnatal Depression Scale foi utilizada como parâmetro de confiabilidade externa. A consistência interna do instrumento foi obtida pelo alfa de Cronbach. A validação foi realizada por análise fatorial exploratória com extração de componentes principais pelo método de Kaiser-Guttman e rotação Varimax. RESULTADOS: O alfa de Cronbach do instrumento total foi 0,886, e apenas o percentual de variância do item 2 (0,183) não foi significativo. O critério de Kaiser-Guttman definiu três fatores responsáveis por explicar 78,5% da variância, assim como o gráfico de Escarpa. A extração dos componentes principais pelo método Varimax apresentou valores de 0,713 a 0,926, sendo apenas o item 2 alocado no terceiro componente. CONCLUSÕES: A versão brasileira é confiável e válida para uso no diagnóstico de ansiedade relacionada à realização de procedimentos ultrassonográficos no pré-natal. Devido à falta de correlação com o restante do construto, sugere-se a retirada do item 2 da versão final." ], "abstract_title": [ "RESUMO", "OBJETIVO:", "MÉTODOS:", "RESULTADOS:", "CONCLUSÕES:" ], "abstract_p": [ "Proceder à adaptação transcultural do questionário Prenatal Diagnostic Procedures Anxiety Scale para aplicação no contexto cultural brasileiro.", "Os processos de tradução e retrotradução seguiram critérios aceitos internacionalmente. Um comitê de especialistas avaliou as equivalências semântica, idiomática, experimental e conceitual, propondo uma versão pré-final que foi aplicada em 10,0% da amostra final. Em seguida, foi aprovada a versão final para a análise psicométrica. Nessa etapa participaram 55 gestantes que responderam à versão brasileira proposta antes de realizarem um exame ultrassonográfico em um hospital público de Santa Catarina, no ano de 2017. A Edinburgh Postnatal Depression Scale foi utilizada como parâmetro de confiabilidade externa. A consistência interna do instrumento foi obtida pelo alfa de Cronbach. A validação foi realizada por análise fatorial exploratória com extração de componentes principais pelo método de Kaiser-Guttman e rotação Varimax.", "O alfa de Cronbach do instrumento total foi 0,886, e apenas o percentual de variância do item 2 (0,183) não foi significativo. O critério de Kaiser-Guttman definiu três fatores responsáveis por explicar 78,5% da variância, assim como o gráfico de Escarpa. A extração dos componentes principais pelo método Varimax apresentou valores de 0,713 a 0,926, sendo apenas o item 2 alocado no terceiro componente.", "A versão brasileira é confiável e válida para uso no diagnóstico de ansiedade relacionada à realização de procedimentos ultrassonográficos no pré-natal. Devido à falta de correlação com o restante do construto, sugere-se a retirada do item 2 da versão final." ], "abstract_seq": [ "OBJETIVO: Proceder à adaptação transcultural do questionário Prenatal Diagnostic Procedures Anxiety Scale para aplicação no contexto cultural brasileiro.", "MÉTODOS: Os processos de tradução e retrotradução seguiram critérios aceitos internacionalmente. Um comitê de especialistas avaliou as equivalências semântica, idiomática, experimental e conceitual, propondo uma versão pré-final que foi aplicada em 10,0% da amostra final. Em seguida, foi aprovada a versão final para a análise psicométrica. Nessa etapa participaram 55 gestantes que responderam à versão brasileira proposta antes de realizarem um exame ultrassonográfico em um hospital público de Santa Catarina, no ano de 2017. A Edinburgh Postnatal Depression Scale foi utilizada como parâmetro de confiabilidade externa. A consistência interna do instrumento foi obtida pelo alfa de Cronbach. A validação foi realizada por análise fatorial exploratória com extração de componentes principais pelo método de Kaiser-Guttman e rotação Varimax.", "RESULTADOS: O alfa de Cronbach do instrumento total foi 0,886, e apenas o percentual de variância do item 2 (0,183) não foi significativo. O critério de Kaiser-Guttman definiu três fatores responsáveis por explicar 78,5% da variância, assim como o gráfico de Escarpa. A extração dos componentes principais pelo método Varimax apresentou valores de 0,713 a 0,926, sendo apenas o item 2 alocado no terceiro componente.", "CONCLUSÕES: A versão brasileira é confiável e válida para uso no diagnóstico de ansiedade relacionada à realização de procedimentos ultrassonográficos no pré-natal. Devido à falta de correlação com o restante do construto, sugere-se a retirada do item 2 da versão final." ], "pub_elocation": [], "pub_fpage": [], "pub_fpage_seq": [], "pub_lpage": [], "pub_subject": [ "Artigo Original" ], "pub_volume": [], "pub_issue": [] } ], "journal_meta": [ { "issn_epub": [], "issn_ppub": [], "journal_nlm_ta": [], "journal_publisher_id": [], "journal_title": [], "publisher_name": [] } ], "contrib": [ { "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Kindermann Lucas" ], "contrib_given_names": [ "Lucas" ], "contrib_orcid": [ "0000-0002-9789-501X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Kindermann" ], "contrib_type": [ "author" ], "xref_corresp": [ "c2" ], "xref_corresp_text": [ "" ], "xref_aff": [ "aff3" ], "xref_aff_text": [ "I" ] }, { "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Traebert Jefferson" ], "contrib_given_names": [ "Jefferson" ], "contrib_orcid": [ "0000-0002-7389-985X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Traebert" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff3", "aff4" ], "xref_aff_text": [ "I", "II" ] }, { "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Nunes Rodrigo Dias" ], "contrib_given_names": [ "Rodrigo Dias" ], "contrib_orcid": [ "0000-0002-2261-8253" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Nunes" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff3", "aff4" ], "xref_aff_text": [ "I", "II" ] } ], "aff": [ { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff3" ], "aff_text": [ "I Palhoça SC Brasil Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "institution_orgdiv1": [], "institution_orgdiv2": [], "institution_orgname": [], "institution_orgname_rewritten": [], "label": [ "I" ], "phone": [] }, { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff4" ], "aff_text": [ "II Palhoça SC Brasil Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "institution_orgdiv1": [], "institution_orgdiv2": [], "institution_orgname": [], "institution_orgname_rewritten": [], "label": [ "II" ], "phone": [] } ], "pub_date": [], "history_date": [], "kwd_group": [ { "lang": [ "pt" ], "title": [ "DESCRITORES:" ], "kwd": [ "Ultrassonografia Pré-Natal, psicologia", "Escala de Ansiedade Frente a Teste", "Inquéritos e Questionários, utilização", "Traduções", "Estudos de Validação" ] } ], "trans_abstract": [], "sub_article": [] } ], "aff_contrib_full": [ { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff1" ], "aff_text": [ "I Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Faculdade de Medicina Palhoça SC Brasil Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Faculdade de Medicina" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "I" ], "phone": [], "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Kindermann Lucas" ], "contrib_given_names": [ "Lucas" ], "contrib_orcid": [ "0000-0002-9789-501X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Kindermann" ], "contrib_type": [ "author" ], "xref_corresp": [ "c1" ], "xref_corresp_text": [ "" ], "xref_aff": [ "aff1" ], "xref_aff_text": [ "I" ] }, { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff1" ], "aff_text": [ "I Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Faculdade de Medicina Palhoça SC Brasil Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Faculdade de Medicina" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "I" ], "phone": [], "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Traebert Jefferson" ], "contrib_given_names": [ "Jefferson" ], "contrib_orcid": [ "0000-0002-7389-985X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Traebert" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff1", "aff2" ], "xref_aff_text": [ "I", "II" ] }, { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff1" ], "aff_text": [ "I Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Faculdade de Medicina Palhoça SC Brasil Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Faculdade de Medicina. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Faculdade de Medicina" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "I" ], "phone": [], "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Nunes Rodrigo Dias" ], "contrib_given_names": [ "Rodrigo Dias" ], "contrib_orcid": [ "0000-0002-2261-8253" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Nunes" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff1", "aff2" ], "xref_aff_text": [ "I", "II" ] }, { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff2" ], "aff_text": [ "II Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Programa de Pós-Graduação em Ciências da Saúde Palhoça SC Brasil Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Programa de Pós-Graduação em Ciências da Saúde" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "II" ], "phone": [], "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Traebert Jefferson" ], "contrib_given_names": [ "Jefferson" ], "contrib_orcid": [ "0000-0002-7389-985X" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Traebert" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff1", "aff2" ], "xref_aff_text": [ "I", "II" ] }, { "addr_city": [ "Palhoça" ], "addr_country": [ "Brasil" ], "addr_country_code": [ "BR" ], "addr_postal_code": [], "addr_state": [ "SC" ], "aff_id": [ "aff2" ], "aff_text": [ "II Universidade do Sul de Santa Catarina Universidade do Sul de Santa Catarina Programa de Pós-Graduação em Ciências da Saúde Palhoça SC Brasil Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "aff_email": [], "institution_original": [ "Universidade do Sul de Santa Catarina. Programa de Pós-Graduação em Ciências da Saúde. Palhoça, SC, Brasil" ], "institution_orgdiv1": [ "Programa de Pós-Graduação em Ciências da Saúde" ], "institution_orgdiv2": [], "institution_orgname": [ "Universidade do Sul de Santa Catarina" ], "institution_orgname_rewritten": [ "Universidade do Sul de Santa Catarina" ], "label": [ "II" ], "phone": [], "contrib_bio": [], "contrib_degrees": [], "contrib_email": [], "contrib_name": [ "Nunes Rodrigo Dias" ], "contrib_given_names": [ "Rodrigo Dias" ], "contrib_orcid": [ "0000-0002-2261-8253" ], "contrib_prefix": [], "contrib_role": [], "contrib_suffix": [], "contrib_surname": [ "Nunes" ], "contrib_type": [ "author" ], "xref_corresp": [], "xref_corresp_text": [], "xref_aff": [ "aff1", "aff2" ], "xref_aff_text": [ "I", "II" ] } ] }
+
+
+    """
+    payload = request.get_json()
+    params = request.args.to_dict()
+
+    if not params.get("issue_id") and not request.json.get("issue_id"):
+        return jsonify({"failed": True, "error": "missing param issue_id"}), 400 
+    else:
+        issue_id = params.get("issue_id") or request.json.get("issue_id")
+
+    if not params.get("article_id") and not request.json.get("article_id"):
+        return jsonify({"failed": True, "error": "missing param article_id"}), 400 
+    else:
+        article_id = params.get("article_id")  or request.json.get("article_id")
+
+    if not params.get("order") and not request.json.get("order"):
+        return jsonify({"failed": True, "error": "missing param order"}), 400 
+    else:
+        order = params.get("order")  or request.json.get("order")
+
+    if not params.get("article_url") and not request.json.get("article_url"):
+        return jsonify({"failed": True, "error": "missing param article_url"}), 400 
+    else:
+        article_url = params.get("article_url")  or request.json.get("article_id")
+
+    try:
+        article = controllers.add_article(article_id, payload, issue_id, order, article_url)
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "id": article.id}), 200
+
+
+def normalize_lang_portuguese(language):
+    if language == "pt_BR":
+        return "pt-br"
+    else:
+        return language
+
+def extract_section(html_content, class_name):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    section = soup.find('section', class_=class_name)
+    if section:
+        return str(section) 
+    else:
+        return None
+
+def fetch_and_extract_section(collection_acronym, journal_acronym, language):
+    """
+     Busca e extrai seção "journalContent" localizada no core.scielo.org
+    """
+    class_name = "journalContent"
+    lang = normalize_lang_portuguese(language)
+    url = f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
+    
+    try:
+        content = fetch_data(url=url)
+    except NonRetryableError as e:
+        page_not_found(e)
+    except RetryableError as e:
+        internal_server_error(e)
+
+    return extract_section(content, class_name)
+
+
+@restapi.route("/journal_last_issues", methods=["POST", "PUT"])
+@helper.token_required
+def journal_last_issues(*args):
+    return list(controllers.journal_last_issues() or [])
