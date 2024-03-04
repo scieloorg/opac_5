@@ -1,4 +1,5 @@
 # coding: utf-8
+import re
 import json
 import logging
 import mimetypes
@@ -449,7 +450,7 @@ def router_legacy():
                 abort(404, JOURNAL_UNPUBLISH + _(issue.journal.unpublish_reason))
 
             if issue.url_segment and "ahead" in issue.url_segment:
-                return redirect(url_for("main.aop_toc", url_seg=url_seg), code=301)
+                return redirect(url_for("main.aop_toc", url_seg=issue.url_segment), code=301)
 
             return redirect(
                 url_for(
@@ -2202,6 +2203,15 @@ def article(*args):
     else:
         return jsonify({"failed": False, "id": article.id}), 200
 
+def replace_link(section):
+    regex = r"^(.*?)(#.*)"
+    links = section.find_all('a', href=True)
+    for link in links:
+        href = re.match(regex, link['href'])
+
+        link['href'] = href.group(2)
+    return section
+
 
 def normalize_lang_portuguese(language):
     if language == "pt_BR":
@@ -2212,6 +2222,7 @@ def normalize_lang_portuguese(language):
 def extract_section(html_content, class_name):
     soup = BeautifulSoup(html_content, 'html.parser')
     section = soup.find('section', class_=class_name)
+    section = replace_link(section=section)
     if section:
         return str(section) 
     else:

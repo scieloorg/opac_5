@@ -831,7 +831,7 @@ def set_last_issue_and_issue_count(journal):
         journal.issue_count = issues.count()
         journal.save()
     except Exception as e:
-        logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
+        logging.exception(f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}")
 
     try:
         last_issue = issues.order_by(*order_by).first()
@@ -847,12 +847,11 @@ def set_last_issue_and_issue_count(journal):
             end_month=last_issue.end_month,
             iid=last_issue.iid,
             url_segment=last_issue.url_segment,
-            sections=last_issue.sections,
         )
         journal.save()
     except Exception as e:
-        logging.exception(f"Unable to set_last_issue_and_issue_count for {jid}: {e} {type(e)}")
-    return j
+        logging.exception(f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}")
+    return journal
 
 
 def journal_last_issues():

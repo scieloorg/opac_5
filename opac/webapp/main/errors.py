@@ -36,10 +36,10 @@ def page_not_found(e):
         request.accept_mimetypes.accept_json
         and not request.accept_mimetypes.accept_html
     ):
-        response = jsonify({"error": e.get_description()})
+        response = jsonify({"error": e})
         response.status_code = 404
         return response
-    context = {"message": e.get_description()}
+    context = {"message": e}
     return render_template("errors/404.html", **context), 404
 
 
