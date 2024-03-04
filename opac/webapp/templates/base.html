@@ -16,12 +16,11 @@
     {% block extra_meta %}{% endblock %}
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
-    <!--
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-bundle.css') }}?v={{ config.VCS_REF }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-bundle-print.css') }}?v={{ config.VCS_REF }}" media="print">
-    -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}?v={{ config.VCS_REF }}">
     
+    <link href="https://ds.scielo.org/static/css/bootstrap.css" rel="preload" as="style" onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://ds.scielo.org/static/css/bootstrap.css">
+    </noscript>
     
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->

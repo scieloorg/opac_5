@@ -2,7 +2,7 @@
 {% import 'macros/collection.html' as coll_macro %}
 
 
-<section class="d-none d-lg-block">
+<section class="d-none d-lg-block d-print-block">
   <div class="container">
     <div class="row">
 
@@ -83,7 +83,7 @@
          <!-- Fim - Se houver um outro título antigo-->
       </div>
       <div class="col-3 pt-5">
-        <div class="list-group">
+        <div class="list-group d-print-none">
           {% if journal.online_submission_url and journal.current_status == 'current' %}
             <a class="list-group-item" href="{{ journal.online_submission_url|default('', true) }}" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
           {% endif %}
