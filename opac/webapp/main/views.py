@@ -598,7 +598,7 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
+    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("journal/detail.html", **context)
 
 
@@ -703,7 +703,7 @@ def about_journal(url_seg):
     if section_journal_content:
         context["content"] = section_journal_content
 
-    context.update(controllers.get_issue_nav_bar_data(journal.jid))
+    context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
 
@@ -905,7 +905,7 @@ def issue_grid(url_seg):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
+    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("issue/grid.html", **context)
 
 
@@ -1011,9 +1011,7 @@ def issue_toc(url_seg, url_seg_issue):
         ],
         "last_issue": journal.last_issue,
     }
-    context.update(
-        controllers.get_issue_nav_bar_data(
-            journal_id=journal.jid, issue_id=issue.iid))
+    context.update(controllers.get_issue_nav_bar_data(issue=issue))
     return render_template("issue/toc.html", **context)
 
 
@@ -1110,8 +1108,7 @@ def aop_toc(url_seg):
         "last_issue": journal.last_issue,
     }
     context.update(
-        controllers.get_issue_nav_bar_data(
-            journal_id=journal.jid, issue_id=aop_issues[0].iid))
+        controllers.get_issue_nav_bar_data(issue=aop_issues[0]))
     return render_template("issue/toc.html", **context)
 
 

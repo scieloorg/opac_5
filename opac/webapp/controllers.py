@@ -754,7 +754,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
     }
 
 
-def get_issue_nav_bar_data(journal_id=None, issue_id=None):
+def get_issue_nav_bar_data(journal=None, issue=None):
     """
     Retorna quanto à navegação os itens anterior e posterior,
     a um dado issue, e o último issue regular de um periódico.
@@ -762,15 +762,12 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
     é o último issue regular odendo ter como item posterior
     um suplemento, um número especial, um ahead ou nenhum item
     """
-    if issue_id:
-        issue = get_issue_by_iid(issue_id)
+    if issue:
         journal = issue.journal
         last_issue = None
 
-    elif journal_id:
+    elif journal:
         issue = None
-        journal = get_journal_by_jid(journal_id)
-
         if not journal.last_issue or journal.last_issue.type not in ("volume_issue", "regular"):
             set_last_issue_and_issue_count(journal)
 
