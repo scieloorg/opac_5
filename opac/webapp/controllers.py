@@ -581,7 +581,7 @@ def get_journal_by_url_seg(url_seg, **kwargs):
 
     if not url_seg:
         raise ValueError(__("Obrigatório um url_seg."))
-    
+
     return Journal.objects(url_segment=url_seg, **kwargs).first()
 
 
@@ -754,7 +754,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
     }
 
 
-def get_issue_nav_bar_data(journal_id=None, issue_id=None):
+def get_issue_nav_bar_data(journal=None, issue=None):
     """
     Retorna quanto à navegação os itens anterior e posterior,
     a um dado issue, e o último issue regular de um periódico.
@@ -762,16 +762,21 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
     é o último issue regular odendo ter como item posterior
     um suplemento, um número especial, um ahead ou nenhum item
     """
-    if issue_id:
-        issue = get_issue_by_iid(issue_id)
+    if issue:
         journal = issue.journal
         last_issue = None
 
-    elif journal_id:
+    elif journal:
         issue = None
-        journal = get_journal_by_jid(journal_id)
-
-        if not journal.last_issue or journal.last_issue.type not in ("volume_issue", "regular"):
+        if (
+            not journal.last_issue
+            or journal.last_issue.type
+            not in (
+                "volume_issue",
+                "regular",
+            )
+            or not journal.last_issue.url_segment
+        ):
             set_last_issue_and_issue_count(journal)
 
         last_issue = get_issue_by_iid(journal.last_issue.iid)
@@ -779,10 +784,14 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
     item = issue or last_issue
 
     if item.type == "ahead" or item.number == "ahead":
-        previous = Issue.objects(
-            journal=journal,
-            number__ne="ahead",
-        ).order_by("-year", "-order").first()
+        previous = (
+            Issue.objects(
+                journal=journal,
+                number__ne="ahead",
+            )
+            .order_by("-year", "-order")
+            .first()
+        )
         next_ = None
     else:
         try:
@@ -804,10 +813,14 @@ def get_issue_nav_bar_data(journal_id=None, issue_id=None):
             ).order_by("year", "order")[1]
         except IndexError:
             # aop
-            next_ = Issue.objects(
-                journal=journal,
-                number="ahead",
-            ).order_by("-year", "-order").first()
+            next_ = (
+                Issue.objects(
+                    journal=journal,
+                    number="ahead",
+                )
+                .order_by("-year", "-order")
+                .first()
+            )
 
     return {
         "previous_item": previous,
@@ -831,7 +844,9 @@ def set_last_issue_and_issue_count(journal):
         journal.issue_count = issues.count()
         journal.save()
     except Exception as e:
-        logging.exception(f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}")
+        logging.exception(
+            f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
+        )
 
     try:
         last_issue = issues.order_by(*order_by).first()
@@ -850,7 +865,9 @@ def set_last_issue_and_issue_count(journal):
         )
         journal.save()
     except Exception as e:
-        logging.exception(f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}")
+        logging.exception(
+            f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
+        )
     return journal
 
 
@@ -982,7 +999,7 @@ def get_issue_by_url_seg(url_seg, url_seg_issue):
 
     if not url_seg and url_seg_issue:
         raise ValueError(__("Obrigatório um url_seg e url_seg_issue."))
-    
+
     return Issue.objects.filter(
         journal=journal, url_segment=url_seg_issue, type__ne="pressrelease"
     ).first()
@@ -1963,5 +1980,5 @@ def add_article(
     article = ArticleFactory(
         document_id, data, issue_id, document_order, document_xml_url, repeated_doc_pids
     )
-    
+
     return article.save()
