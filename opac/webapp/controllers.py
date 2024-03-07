@@ -768,9 +768,14 @@ def get_issue_nav_bar_data(journal=None, issue=None):
 
     elif journal:
         issue = None
-        if not journal.last_issue or journal.last_issue.type not in (
-            "volume_issue",
-            "regular",
+        if (
+            not journal.last_issue
+            or journal.last_issue.type
+            not in (
+                "volume_issue",
+                "regular",
+            )
+            or not journal.last_issue.url_segment
         ):
             set_last_issue_and_issue_count(journal)
 

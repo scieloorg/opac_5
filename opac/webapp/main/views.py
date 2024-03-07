@@ -344,7 +344,11 @@ def collection_list_feed():
 
     for journal in journals.items:
 
-        if not journal.last_issue:
+        if (
+            not journal.last_issue
+            or journal.last_issue.type not in ("volume_issue", "regular")
+            or not journal.last_issue.url_segment
+        ):
             controllers.set_last_issue_and_issue_count(journal)
 
         last_issue = journal.last_issue
@@ -542,8 +546,6 @@ def journal_detail(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    utils.fix_journal_last_issue(journal)
-
     # todo: ajustar para que seja só noticias relacionadas ao periódico
     language = session.get("lang", get_locale())
     news = controllers.get_latest_news_by_lang(language)
@@ -615,7 +617,11 @@ def journal_feed(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    if not journal.last_issue:
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
         controllers.set_last_issue_and_issue_count(journal)
 
     last_issue = journal.last_issue
@@ -673,7 +679,11 @@ def about_journal(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    if not journal.last_issue:
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
         controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
@@ -881,7 +891,11 @@ def issue_grid(url_seg):
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
 
-    if not journal.last_issue:
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
         controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
@@ -954,9 +968,6 @@ def issue_toc(url_seg, url_seg_issue):
     journal = issue.journal
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-
-    # completa url_segment do last_issue
-    utils.fix_journal_last_issue(journal)
 
     # goto_next_or_previous_issue (redireciona)
     goto_url = goto_next_or_previous_issue(
@@ -1075,8 +1086,6 @@ def aop_toc(url_seg):
     journal = aop_issues[0].journal
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-
-    utils.fix_journal_last_issue(journal)
 
     articles = []
     for aop_issue in aop_issues:
