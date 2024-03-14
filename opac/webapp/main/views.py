@@ -2208,8 +2208,8 @@ def replace_link(section):
     links = section.find_all('a', href=True)
     for link in links:
         href = re.match(regex, link['href'])
-
-        link['href'] = href.group(2)
+        if href:
+            link['href'] = href.group(2)
     return section
 
 
