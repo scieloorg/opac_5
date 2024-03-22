@@ -920,10 +920,11 @@ def issue_toc_legacy(url_seg, url_seg_issue):
     )
 
 
-@main.route("/j/<string:url_seg>/i/<string:url_seg_issue>/")
+@main.route("/j/<string:url_seg>/i/<string:url_seg_issue>/", methods=["POST", "GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def issue_toc(url_seg, url_seg_issue):
-    section_filter = None
+    filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
+
     goto = request.args.get("goto", None, type=str)
     if goto not in ("previous", "next"):
         goto = None
@@ -934,10 +935,6 @@ def issue_toc(url_seg, url_seg_issue):
 
     # idioma da sessão
     language = session.get("lang", get_locale())
-
-    if current_app.config["FILTER_SECTION_ENABLE"]:
-        # seção dos documentos, se selecionada
-        section_filter = request.args.get("section", "", type=str).upper()
 
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -961,18 +958,27 @@ def issue_toc(url_seg, url_seg_issue):
     if goto_url:
         return redirect(goto_url, code=301)
 
-    # obtém os documentos
-    articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
-    if articles:
-        # obtém TODAS as seções dos documentos deste sumário
-        sections = sorted({a.section.upper() for a in articles if a.section})
-    else:
-        # obtém as seções dos documentos deste sumário
-        sections = []
+    if current_app.config["FILTER_SECTION_ENABLE"] and current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]:
+        filter_section_enable = (
+            len(journal.study_areas or []) >= current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]
+        )
 
-    if current_app.config["FILTER_SECTION_ENABLE"] and section_filter != "":
-        # obtém somente os documentos da seção selecionada
-        articles = [a for a in articles if a.section.upper() == section_filter]
+    # obtém todos os documentos
+    articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
+
+    # obtém todas as seções
+    sections = sorted({
+        s.upper()
+        for s in articles.item_frequencies("section", normalize=True).keys()
+    })
+
+    # obtém os documentos da seção selecionada
+    try:
+        section_filter = request.form["section"].upper()
+        if section_filter:
+            articles = articles.filter(section__iexact=section_filter)
+    except (KeyError, AttributeError):
+        section_filter = ""
 
     # obtém PDF e TEXT de cada documento
     has_math_content = False
@@ -1010,6 +1016,7 @@ def issue_toc(url_seg, url_seg_issue):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
         "last_issue": journal.last_issue,
+        "filter_section_enable": filter_section_enable,
     }
     context.update(
         controllers.get_issue_nav_bar_data(
