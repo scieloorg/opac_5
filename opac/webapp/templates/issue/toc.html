@@ -91,7 +91,6 @@
             <h1 class="h4 pt-1 mb-0">{% trans %}Sumário{% endtrans %}</h1>
             <strong class="h6 fw-bold d-block mb-3">{{ issue_bibliographic_strip|default('--', True) }}</strong>
 
-
               {% if issue.editorial_board %}
                 <a href="" class="expandCollapseContent showTooltip" title="{% trans %}Expandir/recolher conteúdo{% endtrans %}"><span class="glyphBtn opened"></span></a>
               {% endif %}
@@ -185,7 +184,11 @@
                 <table class="table table-hover table-journal-list mb-5">
                   <thead>
                     <tr>
-                      <th>{% trans %}Artigos{% endtrans %}</th>
+                      <th>
+                        <!--
+                        {% trans %}Artigos{% endtrans %}
+                        -->
+                      </th>
                     </tr>
                   </thead>
                 
