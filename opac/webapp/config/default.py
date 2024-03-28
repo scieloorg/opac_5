@@ -640,8 +640,10 @@ ALERT_MSG = bool(ALERT_MSG_PT or ALERT_MSG_EN or ALERT_MSG_ES)
 # Google Meta tags
 FORCE_USE_HTTPS_GOOGLE_TAGS = os.environ.get("OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS", True)
 
-# Filtro por seção no TOC
+# Filtros por seção no TOC
 FILTER_SECTION_ENABLE = os.environ.get("OPAC_FILTER_SECTION_ENABLE", False)
+# para uso combinado com FILTER_SECTION_ENABLE
+FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS = int(os.environ.get("OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS", 5))
 
 # Linguagens suportados
 ACCESSIBILITY_BY_LANGUAGE = {
