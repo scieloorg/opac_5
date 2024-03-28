@@ -281,7 +281,7 @@ def collection_list():
 
     return render_template(
         "collection/list_journal.html",
-        **{"journals_list": journals_list, "query_filter": query_filter}
+        **{"journals_list": journals_list, "query_filter": query_filter},
     )
 
 
@@ -315,7 +315,7 @@ def collection_list_thematic():
 
     return render_template(
         "collection/list_thematic.html",
-        **{"objects": objects, "query_filter": query_filter, "filter": thematic_filter}
+        **{"objects": objects, "query_filter": query_filter, "filter": thematic_filter},
     )
 
 
@@ -344,7 +344,11 @@ def collection_list_feed():
 
     for journal in journals.items:
 
-        if not journal.last_issue:
+        if (
+            not journal.last_issue
+            or journal.last_issue.type not in ("volume_issue", "regular")
+            or not journal.last_issue.url_segment
+        ):
             controllers.set_last_issue_and_issue_count(journal)
 
         last_issue = journal.last_issue
@@ -450,7 +454,9 @@ def router_legacy():
                 abort(404, JOURNAL_UNPUBLISH + _(issue.journal.unpublish_reason))
 
             if issue.url_segment and "ahead" in issue.url_segment:
-                return redirect(url_for("main.aop_toc", url_seg=issue.url_segment), code=301)
+                return redirect(
+                    url_for("main.aop_toc", url_seg=issue.url_segment), code=301
+                )
 
             return redirect(
                 url_for(
@@ -540,8 +546,6 @@ def journal_detail(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    utils.fix_journal_last_issue(journal)
-
     # todo: ajustar para que seja só noticias relacionadas ao periódico
     language = session.get("lang", get_locale())
     news = controllers.get_latest_news_by_lang(language)
@@ -598,7 +602,7 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
+    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("journal/detail.html", **context)
 
 
@@ -613,7 +617,11 @@ def journal_feed(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    if not journal.last_issue:
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
         controllers.set_last_issue_and_issue_count(journal)
 
     last_issue = journal.last_issue
@@ -671,7 +679,11 @@ def about_journal(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    if not journal.last_issue:
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
         controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
@@ -689,7 +701,9 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    section_journal_content = fetch_and_extract_section(collection_acronym, journal.acronym, language)
+    section_journal_content = fetch_and_extract_section(
+        collection_acronym, journal.acronym, language
+    )
 
     context = {
         "journal": journal,
@@ -703,7 +717,7 @@ def about_journal(url_seg):
     if section_journal_content:
         context["content"] = section_journal_content
 
-    context.update(controllers.get_issue_nav_bar_data(journal.jid))
+    context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
 
@@ -877,7 +891,11 @@ def issue_grid(url_seg):
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
 
-    if not journal.last_issue:
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
         controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
@@ -905,7 +923,7 @@ def issue_grid(url_seg):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-    context.update(controllers.get_issue_nav_bar_data(journal_id=journal.jid))
+    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("issue/grid.html", **context)
 
 
@@ -947,9 +965,6 @@ def issue_toc(url_seg, url_seg_issue):
     journal = issue.journal
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-
-    # completa url_segment do last_issue
-    utils.fix_journal_last_issue(journal)
 
     # goto_next_or_previous_issue (redireciona)
     goto_url = goto_next_or_previous_issue(
@@ -1018,9 +1033,7 @@ def issue_toc(url_seg, url_seg_issue):
         "last_issue": journal.last_issue,
         "filter_section_enable": filter_section_enable,
     }
-    context.update(
-        controllers.get_issue_nav_bar_data(
-            journal_id=journal.jid, issue_id=issue.iid))
+    context.update(controllers.get_issue_nav_bar_data(issue=issue))
     return render_template("issue/toc.html", **context)
 
 
@@ -1081,8 +1094,6 @@ def aop_toc(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    utils.fix_journal_last_issue(journal)
-
     articles = []
     for aop_issue in aop_issues:
         _articles = controllers.get_articles_by_iid(aop_issue.iid, is_public=True)
@@ -1116,9 +1127,7 @@ def aop_toc(url_seg):
         # o primeiro item da lista é o último número.
         "last_issue": journal.last_issue,
     }
-    context.update(
-        controllers.get_issue_nav_bar_data(
-            journal_id=journal.jid, issue_id=aop_issues[0].iid))
+    context.update(controllers.get_issue_nav_bar_data(issue=aop_issues[0]))
     return render_template("issue/toc.html", **context)
 
 
@@ -2061,6 +2070,7 @@ def scimago_ir():
 def authenticate():
     return helper.auth()
 
+
 @restapi.route("/counter_dict", methods=["GET"])
 def router_counter_dicts():
     """
@@ -2111,16 +2121,16 @@ def router_counter_dicts():
 @helper.token_required
 def journal(*args):
     """
-    This endpoint responds for PUT and POST. 
+    This endpoint responds for PUT and POST.
 
     if in the payload exists the ``id`` field the function ``controllers.add_journal``
-    will update or create. 
+    will update or create.
 
-    A payload example: 
+    A payload example:
 
     { "id": "1678-4464", "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg", "mission": [ { "language": "pt", "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras." }, { "language": "es", "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras." }, { "language": "en", "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others." } ], "title": "Cadernos de Saúde Pública", "title_iso": "Cad. saúde pública", "short_title": "Cad. Saúde Pública", "acronym": "csp", "scielo_issn": "0102-311X", "print_issn": "0102-311X", "electronic_issn": "1678-4464", "status_history": [ { "status": "current", "date": "1999-07-02T00:00:00.000000Z", "reason": "" } ], "subject_areas": [ "HEALTH SCIENCES" ], "sponsors": [ { "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico " } ], "subject_categories": [ "Health Policy & Services" ], "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php", "contact": { "email": "cadernos@ensp.fiocruz.br", "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508" }, "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
     """
-    
+
     payload = request.get_json()
 
     try:
@@ -2135,10 +2145,10 @@ def journal(*args):
 @helper.token_required
 def issue(*args):
     """
-    This endpoint responds for PUT and POST. 
+    This endpoint responds for PUT and POST.
 
     if in the payload exists the ``id`` field the function ``controllers.add_issue``
-    will update or create. 
+    will update or create.
 
     A payload example:
 
@@ -2149,13 +2159,17 @@ def issue(*args):
     params = request.args.to_dict()
 
     if not params.get("journal_id") and not request.json.get("journal_id"):
-        return jsonify({"failed": True, "error": "missing param journal_id"}), 400 
+        return jsonify({"failed": True, "error": "missing param journal_id"}), 400
     else:
         journal_id = params.get("journal_id") or request.json.get("journal_id")
 
     issue_order = params.get("issue_order", None) or request.json.get("issue_order")
 
-    _type = params.get("type") or request.json.get("type") if params.get("type", None) or request.json.get("type") else "regular"
+    _type = (
+        params.get("type") or request.json.get("type")
+        if params.get("type", None) or request.json.get("type")
+        else "regular"
+    )
 
     try:
         issue = controllers.add_issue(payload, journal_id, issue_order, _type)
@@ -2169,10 +2183,10 @@ def issue(*args):
 @helper.token_required
 def article(*args):
     """
-    This endpoint responds for PUT and POST. 
+    This endpoint responds for PUT and POST.
 
     if in the payload exists the ``id`` field the function ``controllers.add_issue``
-    will update or create. 
+    will update or create.
 
     A payload example:
 
@@ -2184,35 +2198,38 @@ def article(*args):
     params = request.args.to_dict()
 
     if not params.get("issue_id") and not request.json.get("issue_id"):
-        return jsonify({"failed": True, "error": "missing param issue_id"}), 400 
+        return jsonify({"failed": True, "error": "missing param issue_id"}), 400
     else:
         issue_id = params.get("issue_id") or request.json.get("issue_id")
 
     if not params.get("article_id") and not request.json.get("article_id"):
-        return jsonify({"failed": True, "error": "missing param article_id"}), 400 
+        return jsonify({"failed": True, "error": "missing param article_id"}), 400
     else:
-        article_id = params.get("article_id")  or request.json.get("article_id")
+        article_id = params.get("article_id") or request.json.get("article_id")
 
     if not params.get("order") and not request.json.get("order"):
-        return jsonify({"failed": True, "error": "missing param order"}), 400 
+        return jsonify({"failed": True, "error": "missing param order"}), 400
     else:
-        order = params.get("order")  or request.json.get("order")
+        order = params.get("order") or request.json.get("order")
 
     if not params.get("article_url") and not request.json.get("article_url"):
-        return jsonify({"failed": True, "error": "missing param article_url"}), 400 
+        return jsonify({"failed": True, "error": "missing param article_url"}), 400
     else:
-        article_url = params.get("article_url")  or request.json.get("article_id")
+        article_url = params.get("article_url") or request.json.get("article_id")
 
     try:
-        article = controllers.add_article(article_id, payload, issue_id, order, article_url)
+        article = controllers.add_article(
+            article_id, payload, issue_id, order, article_url
+        )
     except Exception as ex:
         return jsonify({"failed": True, "error": str(ex)}), 500
     else:
         return jsonify({"failed": False, "id": article.id}), 200
 
+
 def replace_link(section):
     regex = r"^(.*?)(#.*)"
-    links = section.find_all('a', href=True)
+    links = section.find_all("a", href=True)
     for link in links:
         href = re.match(regex, link['href'])
         if href:
@@ -2226,23 +2243,27 @@ def normalize_lang_portuguese(language):
     else:
         return language
 
+
 def extract_section(html_content, class_name):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    section = soup.find('section', class_=class_name)
+    soup = BeautifulSoup(html_content, "html.parser")
+    section = soup.find("section", class_=class_name)
     section = replace_link(section=section)
     if section:
-        return str(section) 
+        return str(section)
     else:
         return None
 
+
 def fetch_and_extract_section(collection_acronym, journal_acronym, language):
     """
-     Busca e extrai seção "journalContent" localizada no core.scielo.org
+    Busca e extrai seção "journalContent" localizada no core.scielo.org
     """
     class_name = "journalContent"
     lang = normalize_lang_portuguese(language)
-    url = f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
-    
+    url = (
+        f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
+    )
+
     try:
         content = fetch_data(url=url)
     except NonRetryableError as e:
