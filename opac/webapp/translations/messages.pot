@@ -2015,7 +2015,7 @@ msgstr ""
 msgid ""
 "Erro interno do servidor. Tente novamente mais tarde. Nossos engenheiros "
 "foram notificados."
-msgstr ""
+msgstr "Erro interno do servidor. Tente novamente mais tarde."
 
 #: opac/webapp/templates/errors/500.html:9
 msgid "Id. do erro"
