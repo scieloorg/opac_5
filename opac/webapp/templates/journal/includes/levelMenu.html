@@ -1,6 +1,6 @@
 {% import 'macros/menu.html' as mmenu %}
 
-<section class="levelMenu mt-4 mb-3">
+<section class="levelMenu mb-3">
 
   <!-- exibe apenas lg -->
   <div class="container d-none d-xl-block">
@@ -35,7 +35,7 @@
               {% trans %}Número atual{% endtrans %}
             </a>
           {% elif last_issue %}
-            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn active">
+            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
               {% trans %}Número atual{% endtrans %}
             </a>
           {% endif %}
