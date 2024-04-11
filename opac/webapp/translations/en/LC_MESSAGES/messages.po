@@ -183,7 +183,7 @@ msgstr "News"
 #: opac/webapp/templates/collection/list_thematic
 #: opac/webapp/templates/collection/list_thematic.html:74
 msgid "Ativos"
-msgstr "Static files"
+msgstr "Current"
 
 #: opac/webapp/__init__.py:229
 msgid "Páginas"
@@ -290,7 +290,7 @@ msgstr "current"
 
 #: opac/webapp/choices.py:38
 msgid "terminado"
-msgstr "deceased"
+msgstr "ceased"
 
 #: opac/webapp/choices.py:39
 msgid "indexação interrompida"

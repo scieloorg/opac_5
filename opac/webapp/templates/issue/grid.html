@@ -26,14 +26,14 @@
   </div>
 </section>
 
-  <section class="d-none d-md-flex breadcrumb mt-3 mb-5 py-0 py-1">
+  <section class="d-none d-sm-flex breadcrumb mt-3 mb-5 py-0 py-1">
     <div class="container">
       <div class="row">
         <div class="col">
 
           <ol class="breadcrumb mb-0 ps-0">
             <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Periódicos{% endtrans %}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Periódicos{% endtrans %}</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">{{ journal.title }}</a></li>
             <li class="breadcrumb-item">{% trans %}Todos os números{% endtrans %}</li>
           </ol>

@@ -16,13 +16,8 @@
     {% block extra_meta %}{% endblock %}
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
-    <!--
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-bundle.css') }}?v={{ config.VCS_REF }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/scielo-bundle-print.css') }}?v={{ config.VCS_REF }}" media="print">
-    -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}?v={{ config.VCS_REF }}">
     
-    
+    <link href="https://ds.scielo.org/static/css/bootstrap.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -90,7 +85,7 @@
     </div>
 
     <!-- Error modal -->
-    <a class="floatingBtnError btn btn-danger" href="#" id="#floatingBtnError">{% trans %}Reportar erro{% endtrans %}</a>
+    <a class="floatingBtnError btn btn-danger" href="#" id="#floatingBtnError">{% trans %}Acessibilidade / Reportar erro{% endtrans %}</a>
 
     <!-- Scielo Bundle min -->
     <script src="{{ url_for('static', filename='js/scielo-bundle-min.js') }}"></script>
@@ -171,24 +166,7 @@
           background-color: #c9302c;
           border-color: #ac2925;
         }
-
-        .floatingBtnError {
-          position: fixed;
-          padding: 12px;
-          writing-mode: vertical-rl;
-          right: 8px;
-          top: 45%;
-          transform: rotate(-180deg);
-          line-height: 1rem;
-          height: 160px;
-          transition: none !important;
-          display:none;
-
-          @media (min-width: 1024px){ 
-            display: block;
-          }
-        }
-
+        
       </style>
 
       <div class="bugherd" style="display:none;">

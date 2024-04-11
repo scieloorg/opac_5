@@ -1,78 +1,10 @@
 {% import 'macros/images.html' as cimages %}
 {% import 'macros/collection.html' as coll_macro %}
 
-<style>
-  body{
-    padding-top: 115px;    
-  }
-
-  @media (min-width: 768px){ 
-    body{
-      padding-top: 74px; 
-    }
-  }
-  header {
-    background: #fff;
-  }
-
-  /*
-  Ajustes para serem feitos no Design System:
-  
-
-  .scielo__menu{
-    position: relative;
-    margin-left: 8px;
-  }
-  
-  .scielo__list-links{
-    list-style: none;
-    padding: 0;
-    margin: 0;
-
-  }
-  .scielo__list-links a{
-    display: block;
-    white-space: nowrap;
-  }
-  */
-
-  @media (min-width: 768px){
-      
-      .scielo__truncate{
-        display: block;
-        max-width: 285px;
-      }
-
-    }
-
-  .journalContent .card{
-    min-height: 220px;
-  }
- 
-  .card {
-    position: relative;
-  }
-  .card .card-body .btn{
-    position: absolute;
-    bottom: 16px;
-  }
-  /*
-  strong.card-title{
-    color: #333;
-  }
-  */
-
-  .fixed-top .dropdown-item{
-    color:#3867ce;
-  }
-
-</style>
-
-
 <header class="fixed-top scielo__shadow-2">
   <div class="container">
       <div class="row">
-          <div class="col-2 col-sm-1">
+          <div class="col-2 col-sm-1 d-print-none">
               {% include "collection/includes/nav.html" %}
           </div>
           <div class="col col-sm-3">
@@ -82,7 +14,7 @@
                   </div>
               </a>
           </div>
-          <div class="d-none d-sm-block d-lg-none col">
+          <div class="d-none d-sm-block d-lg-none col d-print-none">
               <div class="dropdown mt-3">
                   <button class="btn btn-link dropdown-toggle mb-0" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="text-truncate scielo__truncate">{{ journal.title }} </span>

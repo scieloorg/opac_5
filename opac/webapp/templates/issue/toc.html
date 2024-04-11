@@ -25,14 +25,14 @@
   </div>
 </section>
 
-  <section class="d-none d-md-flex breadcrumb mt-3 mb-5 py-0 py-1">
+  <section class="d-none d-sm-flex breadcrumb mt-3 mb-5 py-0 py-1">
     <div class="container">
       <div class="row">
         <div class="col">
 
           <ol class="breadcrumb mb-0 ps-0">
             <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Periódicos{% endtrans %}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Periódicos{% endtrans %}</a></li>
             <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">{{ journal.title }}</a></li>
             <li class="breadcrumb-item">{% trans %}Sumário{% endtrans %}</li>
           </ol>
@@ -89,8 +89,7 @@
           <div class="col content issueIndex" id="issueIndex">
 
             <h1 class="h4 pt-1 mb-0">{% trans %}Sumário{% endtrans %}</h1>
-            <strong class="h6 fw-bold">{{ issue_bibliographic_strip|default('--', True) }}</strong>
-
+            <strong class="h6 fw-bold d-block mb-3">{{ issue_bibliographic_strip|default('--', True) }}</strong>
 
               {% if issue.editorial_board %}
                 <a href="" class="expandCollapseContent showTooltip" title="{% trans %}Expandir/recolher conteúdo{% endtrans %}"><span class="glyphBtn opened"></span></a>
@@ -134,31 +133,40 @@
                       {{ issue_bibliographic_strip|default('--', True) }}
                     </h2>
                     <!-- Cabeçalho do Issue Toc -->
-                    <ul>
-                      {% if config['FILTER_SECTION_ENABLE'] %}
+                    <ul class="nav nav-pills mb-4">
+                      {% if filter_section_enable %}
 
                         {% if sections %}
-                          <li>
-                            <a href="{{this_page_url}}">
+                          <li class="nav-item" role="presentation">
                               {% if section_filter|length == 0 %}
-                                {% trans %}Todas as seções{% endtrans %} <span style="color: #6789d3;">&laquo;</span>
+                                <a href="{{this_page_url}}" class="mb-1 me-1 btn btn-sm btn-secondary active">
+                                  {% trans %}Todas as seções{% endtrans %}
+                                </a>
                               {% else %}
-                                {% trans %}Todas as seções{% endtrans %}
+                                <a href="{{this_page_url}}" class="mb-1 me-1 btn btn-sm btn-secondary">
+                                  {% trans %}Todas as seções{% endtrans %}
+                                </a>
                               {% endif %}
-                            </a>
                           </li>
                         {% endif %}
 
                         {% for section in sections %}
                           {% if section %}
-                            <li>
-                              <a href="{{this_page_url}}?section={{ section|upper }}">
+                            <li class="nav-item" role="presentation">
+                              <form method="post" action="{{this_page_url}}" class="inline">
+                                <input type="hidden" name="section" value="{{ section|upper }}"/>
+
                                 {% if section_filter|upper == section|upper %}
-                                  {{ section }} <span style="color: #6789d3;">&laquo;</span>
+                                  <button type="submit" name="submit_param" value="submit_value" class="me-1 mb-1 btn btn-sm btn-secondary active">
+                                    {{ section|lower }}
+                                  </button>
                                 {% else %}
-                                  {{ section }}
+                                  <button type="submit" name="submit_param" value="submit_value" class="me-1 mb-1 btn btn-sm btn-secondary">
+                                    {{ section|lower }}
+                                  </button>
                                 {% endif %}
-                              </a>
+
+                              </form>
                             </li>
                           {% endif %}
                         {% endfor %}
@@ -176,7 +184,11 @@
                 <table class="table table-hover table-journal-list mb-5">
                   <thead>
                     <tr>
-                      <th>{% trans %}Artigos{% endtrans %}</th>
+                      <th>
+                        <!--
+                        {% trans %}Artigos{% endtrans %}
+                        -->
+                      </th>
                     </tr>
                   </thead>
                 

@@ -1,4 +1,5 @@
 # coding: utf-8
+import re
 import json
 import logging
 import mimetypes
@@ -29,9 +30,16 @@ from legendarium.formatter import descriptive_short_format
 from lxml import etree
 from opac_schema.v1.models import Article, Collection, Issue, Journal
 from packtools import HTMLGenerator
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.config.lang_names import display_original_lang_name
+from webapp.main.errors import page_not_found, internal_server_error
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 
@@ -70,25 +78,53 @@ class NonRetryableError(Exception):
     """
 
 
-def fetch_data(url: str, timeout: float = 2) -> bytes:
-    try:
-        response = requests.get(url, timeout=timeout)
-    except (requests.ConnectionError, requests.Timeout) as exc:
-        raise RetryableError(exc) from exc
-    except (requests.InvalidSchema, requests.MissingSchema, requests.InvalidURL) as exc:
-        raise NonRetryableError(exc) from exc
-    else:
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as exc:
-            if 400 <= exc.response.status_code < 500:
-                raise NonRetryableError(exc) from exc
-            elif 500 <= exc.response.status_code < 600:
-                raise RetryableError(exc) from exc
-            else:
-                raise
+@retry(
+    retry=retry_if_exception_type(RetryableError),
+    wait=wait_exponential(multiplier=1, min=1, max=5),
+    stop=stop_after_attempt(5),
+)
+def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
+    """
+    Get the resource with HTTP
+    Retry: Wait 2^x * 1 second between each retry starting with 4 seconds,
+           then up to 10 seconds, then 10 seconds afterwards
+    Args:
+        url: URL address
+        headers: HTTP headers
+        json: True|False
+        verify: Verify the SSL.
+    Returns:
+        Return a requests.response object.
+    Except:
+        Raise a RetryableError to retry.
+    """
 
-    return response.content
+    try:
+        logger.info("Fetching the URL: %s" % url)
+        response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
+        logger.error("Erro fetching the content: %s, retry..., erro: %s" % (url, exc))
+        raise RetryableError(exc) from exc
+    except (
+        requests.exceptions.InvalidSchema,
+        requests.exceptions.MissingSchema,
+        requests.exceptions.InvalidURL,
+    ) as exc:
+        raise NonRetryableError(exc) from exc
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        if 400 <= exc.response.status_code < 500:
+            raise NonRetryableError(exc) from exc
+        elif 500 <= exc.response.status_code < 600:
+            logger.error(
+                "Erro fetching the content: %s, retry..., erro: %s" % (url, exc)
+            )
+            raise RetryableError(exc) from exc
+        else:
+            raise
+
+    return response.content if not json else response.json()
 
 
 @main.before_app_request
@@ -245,7 +281,7 @@ def collection_list():
 
     return render_template(
         "collection/list_journal.html",
-        **{"journals_list": journals_list, "query_filter": query_filter}
+        **{"journals_list": journals_list, "query_filter": query_filter},
     )
 
 
@@ -279,7 +315,7 @@ def collection_list_thematic():
 
     return render_template(
         "collection/list_thematic.html",
-        **{"objects": objects, "query_filter": query_filter, "filter": thematic_filter}
+        **{"objects": objects, "query_filter": query_filter, "filter": thematic_filter},
     )
 
 
@@ -307,12 +343,20 @@ def collection_list_feed():
         feed.add("Nenhum periódico encontrado", url=request.url, updated=datetime.now())
 
     for journal in journals.items:
-        issues = controllers.get_issues_by_jid(journal.jid, is_public=True)
-        last_issue = issues[0] if issues else None
 
-        articles = []
+        if (
+            not journal.last_issue
+            or journal.last_issue.type not in ("volume_issue", "regular")
+            or not journal.last_issue.url_segment
+        ):
+            controllers.set_last_issue_and_issue_count(journal)
+
+        last_issue = journal.last_issue
+
         if last_issue:
             articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+        else:
+            articles = []
 
         result_dict = OrderedDict()
         for article in articles:
@@ -410,7 +454,9 @@ def router_legacy():
                 abort(404, JOURNAL_UNPUBLISH + _(issue.journal.unpublish_reason))
 
             if issue.url_segment and "ahead" in issue.url_segment:
-                return redirect(url_for("main.aop_toc", url_seg=url_seg), code=301)
+                return redirect(
+                    url_for("main.aop_toc", url_seg=issue.url_segment), code=301
+                )
 
             return redirect(
                 url_for(
@@ -500,8 +546,6 @@ def journal_detail(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    utils.fix_journal_last_issue(journal)
-
     # todo: ajustar para que seja só noticias relacionadas ao periódico
     language = session.get("lang", get_locale())
     news = controllers.get_latest_news_by_lang(language)
@@ -558,7 +602,7 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-
+    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("journal/detail.html", **context)
 
 
@@ -573,9 +617,19 @@ def journal_feed(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    issues = controllers.get_issues_by_jid(journal.jid, is_public=True)
-    last_issue = issues[0] if issues else None
-    articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
+        controllers.set_last_issue_and_issue_count(journal)
+
+    last_issue = journal.last_issue
+
+    if last_issue:
+        articles = controllers.get_articles_by_iid(last_issue.iid, is_public=True)
+    else:
+        articles = []
 
     feed = AtomFeed(
         journal.title,
@@ -616,7 +670,7 @@ def journal_feed(url_seg):
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
     language = session.get("lang", get_locale())
-
+    collection_acronym = controllers.get_current_collection()
     journal = controllers.get_journal_by_url_seg(url_seg)
 
     if not journal:
@@ -625,7 +679,14 @@ def about_journal(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    latest_issue = utils.fix_journal_last_issue(journal)
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
+        controllers.set_last_issue_and_issue_count(journal)
+
+    latest_issue = journal.last_issue
 
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
@@ -640,7 +701,9 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
+    section_journal_content = fetch_and_extract_section(
+        collection_acronym, journal.acronym, language
+    )
 
     context = {
         "journal": journal,
@@ -651,11 +714,10 @@ def about_journal(url_seg):
         ],
     }
 
-    if page:
-        context["content"] = page.content
-        if page.updated_at:
-            context["page_updated_at"] = page.updated_at
+    if section_journal_content:
+        context["content"] = section_journal_content
 
+    context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
 
@@ -828,7 +890,15 @@ def issue_grid(url_seg):
 
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
-    latest_issue = issues_data["last_issue"]
+
+    if (
+        not journal.last_issue
+        or journal.last_issue.type not in ("volume_issue", "regular")
+        or not journal.last_issue.url_segment
+    ):
+        controllers.set_last_issue_and_issue_count(journal)
+
+    latest_issue = journal.last_issue
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
             title=journal.title,
@@ -844,7 +914,7 @@ def issue_grid(url_seg):
 
     context = {
         "journal": journal,
-        "last_issue": issues_data["last_issue"],
+        "last_issue": latest_issue,
         "latest_issue_legend": latest_issue_legend,
         "volume_issue": issues_data["volume_issue"],
         "ahead": issues_data["ahead"],
@@ -853,7 +923,7 @@ def issue_grid(url_seg):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-
+    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("issue/grid.html", **context)
 
 
@@ -868,10 +938,11 @@ def issue_toc_legacy(url_seg, url_seg_issue):
     )
 
 
-@main.route("/j/<string:url_seg>/i/<string:url_seg_issue>/")
+@main.route("/j/<string:url_seg>/i/<string:url_seg_issue>/", methods=["POST", "GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def issue_toc(url_seg, url_seg_issue):
-    section_filter = None
+    filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
+
     goto = request.args.get("goto", None, type=str)
     if goto not in ("previous", "next"):
         goto = None
@@ -882,10 +953,6 @@ def issue_toc(url_seg, url_seg_issue):
 
     # idioma da sessão
     language = session.get("lang", get_locale())
-
-    if current_app.config["FILTER_SECTION_ENABLE"]:
-        # seção dos documentos, se selecionada
-        section_filter = request.args.get("section", "", type=str).upper()
 
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -899,9 +966,6 @@ def issue_toc(url_seg, url_seg_issue):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    # completa url_segment do last_issue
-    utils.fix_journal_last_issue(journal)
-
     # goto_next_or_previous_issue (redireciona)
     goto_url = goto_next_or_previous_issue(
         issue, request.args.get("goto", None, type=str)
@@ -909,18 +973,27 @@ def issue_toc(url_seg, url_seg_issue):
     if goto_url:
         return redirect(goto_url, code=301)
 
-    # obtém os documentos
-    articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
-    if articles:
-        # obtém TODAS as seções dos documentos deste sumário
-        sections = sorted({a.section.upper() for a in articles if a.section})
-    else:
-        # obtém as seções dos documentos deste sumário
-        sections = []
+    if current_app.config["FILTER_SECTION_ENABLE"] and current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]:
+        filter_section_enable = (
+            len(journal.study_areas or []) >= current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]
+        )
 
-    if current_app.config["FILTER_SECTION_ENABLE"] and section_filter != "":
-        # obtém somente os documentos da seção selecionada
-        articles = [a for a in articles if a.section.upper() == section_filter]
+    # obtém todos os documentos
+    articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
+
+    # obtém todas as seções
+    sections = sorted({
+        s.upper()
+        for s in articles.item_frequencies("section", normalize=True).keys()
+    })
+
+    # obtém os documentos da seção selecionada
+    try:
+        section_filter = request.form["section"].upper()
+        if section_filter:
+            articles = articles.filter(section__iexact=section_filter)
+    except (KeyError, AttributeError):
+        section_filter = ""
 
     # obtém PDF e TEXT de cada documento
     has_math_content = False
@@ -958,7 +1031,9 @@ def issue_toc(url_seg, url_seg_issue):
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
         "last_issue": journal.last_issue,
+        "filter_section_enable": filter_section_enable,
     }
+    context.update(controllers.get_issue_nav_bar_data(issue=issue))
     return render_template("issue/toc.html", **context)
 
 
@@ -1019,8 +1094,6 @@ def aop_toc(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    utils.fix_journal_last_issue(journal)
-
     articles = []
     for aop_issue in aop_issues:
         _articles = controllers.get_articles_by_iid(aop_issue.iid, is_public=True)
@@ -1054,7 +1127,7 @@ def aop_toc(url_seg):
         # o primeiro item da lista é o último número.
         "last_issue": journal.last_issue,
     }
-
+    context.update(controllers.get_issue_nav_bar_data(issue=aop_issues[0]))
     return render_template("issue/toc.html", **context)
 
 
@@ -1997,6 +2070,7 @@ def scimago_ir():
 def authenticate():
     return helper.auth()
 
+
 @restapi.route("/counter_dict", methods=["GET"])
 def router_counter_dicts():
     """
@@ -2047,16 +2121,16 @@ def router_counter_dicts():
 @helper.token_required
 def journal(*args):
     """
-    This endpoint responds for PUT and POST. 
+    This endpoint responds for PUT and POST.
 
     if in the payload exists the ``id`` field the function ``controllers.add_journal``
-    will update or create. 
+    will update or create.
 
-    A payload example: 
+    A payload example:
 
     { "id": "1678-4464", "logo_url": "http://cadernos.ensp.fiocruz.br/csp/logo.jpeg", "mission": [ { "language": "pt", "value": "Publicar artigos originais que contribuam para o estudo da saúde pública em geral e disciplinas afins, como epidemiologia, nutrição, parasitologia, ecologia e controles de vetores, saúde ambiental, políticas públicas e planejamento em saúde, ciências sociais aplicadas à saúde, dentre outras." }, { "language": "es", "value": "Publicar artículos originales que contribuyan al estudio de la salud pública en general y de disciplinas afines como epidemiología, nutrición, parasitología, ecología y control de vectores, salud ambiental, políticas públicas y planificación en el ámbito de la salud, ciencias sociales aplicadas a la salud, entre otras." }, { "language": "en", "value": "To publish original articles that contribute to the study of public health in general and to related disciplines such as epidemiology, nutrition, parasitology,vector ecology and control, environmental health, public polices and health planning, social sciences applied to health, and others." } ], "title": "Cadernos de Saúde Pública", "title_iso": "Cad. saúde pública", "short_title": "Cad. Saúde Pública", "acronym": "csp", "scielo_issn": "0102-311X", "print_issn": "0102-311X", "electronic_issn": "1678-4464", "status_history": [ { "status": "current", "date": "1999-07-02T00:00:00.000000Z", "reason": "" } ], "subject_areas": [ "HEALTH SCIENCES" ], "sponsors": [ { "name": "CNPq - Conselho Nacional de Desenvolvimento Científico e Tecnológico " } ], "subject_categories": [ "Health Policy & Services" ], "online_submission_url": "http://cadernos.ensp.fiocruz.br/csp/index.php", "contact": { "email": "cadernos@ensp.fiocruz.br", "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508" }, "created": "1999-07-02T00:00:00.000000Z", "updated": "2019-07-19T20:33:17.102106Z"}
     """
-    
+
     payload = request.get_json()
 
     try:
@@ -2071,10 +2145,10 @@ def journal(*args):
 @helper.token_required
 def issue(*args):
     """
-    This endpoint responds for PUT and POST. 
+    This endpoint responds for PUT and POST.
 
     if in the payload exists the ``id`` field the function ``controllers.add_issue``
-    will update or create. 
+    will update or create.
 
     A payload example:
 
@@ -2085,13 +2159,17 @@ def issue(*args):
     params = request.args.to_dict()
 
     if not params.get("journal_id") and not request.json.get("journal_id"):
-        return jsonify({"failed": True, "error": "missing param journal_id"}), 400 
+        return jsonify({"failed": True, "error": "missing param journal_id"}), 400
     else:
         journal_id = params.get("journal_id") or request.json.get("journal_id")
 
     issue_order = params.get("issue_order", None) or request.json.get("issue_order")
 
-    _type = params.get("type") or request.json.get("type") if params.get("type", None) or request.json.get("type") else "regular"
+    _type = (
+        params.get("type") or request.json.get("type")
+        if params.get("type", None) or request.json.get("type")
+        else "regular"
+    )
 
     try:
         issue = controllers.add_issue(payload, journal_id, issue_order, _type)
@@ -2105,10 +2183,10 @@ def issue(*args):
 @helper.token_required
 def article(*args):
     """
-    This endpoint responds for PUT and POST. 
+    This endpoint responds for PUT and POST.
 
     if in the payload exists the ``id`` field the function ``controllers.add_issue``
-    will update or create. 
+    will update or create.
 
     A payload example:
 
@@ -2120,34 +2198,83 @@ def article(*args):
     params = request.args.to_dict()
 
     if not params.get("issue_id") and not request.json.get("issue_id"):
-        return jsonify({"failed": True, "error": "missing param issue_id"}), 400 
+        return jsonify({"failed": True, "error": "missing param issue_id"}), 400
     else:
         issue_id = params.get("issue_id") or request.json.get("issue_id")
 
     if not params.get("article_id") and not request.json.get("article_id"):
-        return jsonify({"failed": True, "error": "missing param article_id"}), 400 
+        return jsonify({"failed": True, "error": "missing param article_id"}), 400
     else:
-        article_id = params.get("article_id")  or request.json.get("article_id")
+        article_id = params.get("article_id") or request.json.get("article_id")
 
     if not params.get("order") and not request.json.get("order"):
-        return jsonify({"failed": True, "error": "missing param order"}), 400 
+        return jsonify({"failed": True, "error": "missing param order"}), 400
     else:
-        order = params.get("order")  or request.json.get("order")
+        order = params.get("order") or request.json.get("order")
 
     if not params.get("article_url") and not request.json.get("article_url"):
-        return jsonify({"failed": True, "error": "missing param article_url"}), 400 
+        return jsonify({"failed": True, "error": "missing param article_url"}), 400
     else:
-        article_url = params.get("article_url")  or request.json.get("article_id")
+        article_url = params.get("article_url") or request.json.get("article_id")
 
     try:
-        article = controllers.add_article(article_id, payload, issue_id, order, article_url)
+        article = controllers.add_article(
+            article_id, payload, issue_id, order, article_url
+        )
     except Exception as ex:
         return jsonify({"failed": True, "error": str(ex)}), 500
     else:
         return jsonify({"failed": False, "id": article.id}), 200
 
 
+def replace_link(section):
+    regex = r"^(.*?)(#.*)"
+    links = section.find_all("a", href=True)
+    for link in links:
+        href = re.match(regex, link['href'])
+        if href:
+            link['href'] = href.group(2)
+    return section
 
 
+def normalize_lang_portuguese(language):
+    if language == "pt_BR":
+        return "pt-br"
+    else:
+        return language
 
 
+def extract_section(html_content, class_name):
+    soup = BeautifulSoup(html_content, "html.parser")
+    section = soup.find("section", class_=class_name)
+    section = replace_link(section=section)
+    if section:
+        return str(section)
+    else:
+        return None
+
+
+def fetch_and_extract_section(collection_acronym, journal_acronym, language):
+    """
+    Busca e extrai seção "journalContent" localizada no core.scielo.org
+    """
+    class_name = "journalContent"
+    lang = normalize_lang_portuguese(language)
+    url = (
+        f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
+    )
+
+    try:
+        content = fetch_data(url=url)
+    except NonRetryableError as e:
+        page_not_found(e)
+    except RetryableError as e:
+        internal_server_error(e)
+
+    return extract_section(content, class_name)
+
+
+@restapi.route("/journal_last_issues", methods=["POST", "PUT"])
+@helper.token_required
+def journal_last_issues(*args):
+    return list(controllers.journal_last_issues() or [])

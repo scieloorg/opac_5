@@ -1,6 +1,6 @@
 {% import 'macros/menu.html' as mmenu %}
 
-<section class="levelMenu mt-4 mb-3">
+<section class="levelMenu mb-3">
 
   <!-- exibe apenas lg -->
   <div class="container d-none d-xl-block">
@@ -18,53 +18,38 @@
           </a>
   
           {# Anterior #}
-          {% if not issue and not last_issue %}
-            <a title="{% trans %}número anterior{% endtrans %}" href="#" class="btn disabled">
-            &laquo; {% trans %}Número anterior{% endtrans %}
-            </a>
-          {% elif issue %}
+          {% if previous_item %}
             {# página do sumário #}
-            <a title="{% trans %}número anterior{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='previous') }}" class="btn">
+            <a title="{% trans %}número anterior{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=previous_item.url_segment) }}" class="btn">
               &laquo; {% trans %}Número anterior{% endtrans %}
             </a>
-          {% elif last_issue %}
-            {# página inicial do periódico ou grid #}
-            <a title="{% trans %}número anterior{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment, goto='previous') }}" class="btn">
+          {% else %}
+            <a title="{% trans %}número anterior{% endtrans %}" href="#" class="btn disabled">
               &laquo; {% trans %}Número anterior{% endtrans %}
-            </a>
+            </a>          
           {% endif %}
   
           {# Atual #}
-          {% if not last_issue %}
+          {% if issue %}
             <a title="{% trans %}número atual{% endtrans %}" href="#" class="btn disabled">
               {% trans %}Número atual{% endtrans %}
             </a>
-          {% elif issue and last_issue.url_segment == issue.url_segment %}
-            {# página do sumário #}
-            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn active">
-              {% trans %}Número atual{% endtrans %}
-            </a>
-          {% else %}
-            {# página do periódico #}
+          {% elif last_issue %}
             <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
               {% trans %}Número atual{% endtrans %}
             </a>
           {% endif %}
   
           {# Próximo #}
-          {% if not issue and not last_issue %}
-            <a title="{% trans %}número seguinte{% endtrans %}" href="#" class="btn disabled">
-              {% trans %}Número seguinte{% endtrans %} &raquo;
-            </a>
-          {% elif issue and last_issue.url_segment != issue.url_segment %}
+          {% if next_item %}
             {# página do sumário #}
-            <a title="{% trans %}número seguinte{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='next') }}" class="btn">
+            <a title="{% trans %}número seguinte{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=next_item.url_segment) }}" class="btn">
               {% trans %}Número seguinte{% endtrans %} &raquo;
             </a>
-          {% elif last_issue %}
+          {% else %}
             {# página do periódico #}
             <a title="{% trans %}número seguinte{% endtrans %}" href="#" class="btn disabled">
-              {% trans %}Número seguinte{% endtrans %} &raquo;
+               {% trans %}Número seguinte{% endtrans %} &raquo;
             </a>
           {% endif %}
   
@@ -80,9 +65,7 @@
             <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}" class="btn scielo__btn-with-icon--left"><span class="material-icons-outlined">show_chart</span> {% trans %}Métricas{% endtrans %}</a>
           {% endif %}
 
-          
         </div>
-
       </div>
     </div>
   </div>

@@ -7,10 +7,7 @@
       {% if not journal.is_active %} 
         <span class="material-icons" style="color: #c63800; vertical-align:sub;font-size:20px;">fiber_manual_record</span>
       {% endif %}
-      <a title="{% trans %}Título do periódico{% endtrans %}"
-         class="collectionLink {% if not journal.is_active %} disabled {% endif %}" href="{{ journal.links.detail }}">
-        <strong class="journalTitle">{{ journal.title }}</strong>,
-      </a>
+      <a title="{% trans %}Título do periódico{% endtrans %}" class="collectionLink {% if not journal.is_active %} disabled {% endif %}" href="{{ journal.links.detail }}"><strong class="journalTitle">{{ journal.title }}</strong></a>,
       <br class="d-block d-lg-none">
       <a title="{% trans %}Grade de número{% endtrans %}"
          href="{{ journal.links.issue_grid }}">
@@ -43,7 +40,7 @@
         {% endif %}
 
         
-        <div class="d-block mt-2">
+        <div class="d-block mt-2 d-print-none">
           <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.detail }}" title="{% trans %}Homepage{% endtrans %}"><span class="material-icons-outlined">home</span></a>
           {% if journal.is_active  %}
             <a class="btn btn-secondary scielo__btn-with-icon--only" data-toggle="tooltip" href="{{ journal.links.submission }}" title="{% trans %}Submissão de manuscritos{% endtrans %}" target="_blank"><span class="material-icons-outlined">launch</span></a>
