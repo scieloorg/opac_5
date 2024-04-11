@@ -1845,7 +1845,7 @@ def error_form():
 # ###############################Others########################################
 
 
-@main.route("/media/<path:filename>/", methods=["GET"])
+@main.route("/media/<path:filename>", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang)
 def download_file_by_filename(filename):
     media_root = current_app.config["MEDIA_ROOT"]
