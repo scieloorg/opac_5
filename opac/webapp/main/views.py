@@ -38,6 +38,7 @@ from tenacity import (
 )
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
+from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.main.errors import page_not_found, internal_server_error
 from webapp.utils import utils
@@ -2225,6 +2226,50 @@ def article(*args):
         return jsonify({"failed": True, "error": str(ex)}), 500
     else:
         return jsonify({"failed": False, "id": article.id}), 200
+
+
+@restapi.route("/pressrelease", methods=["POST", "PUT"])
+@helper.token_required
+def pressrelease(*args):
+    """
+    payload:
+        {
+            "journal_id": "1234-1234",
+            "title": "Title of Press Release",
+            "language": "en",
+            "doi": "10.1234/press.release.1234",
+            "content": "Content of the press release",
+            "url": "http://example.com/press/release",
+            "media_content": "http://example.com/media/content.jpg",
+            "publication_date": "2024-01-01"
+        }
+    """
+
+    payload = request.get_json()
+    params = request.args.to_dict()
+
+    if not payload.get("journal_id"):
+        return jsonify({"failed": True, "id": 1}), 200
+    else:
+        pid = payload.get("journal_id")
+        journal = controllers.get_journal_by_issn(issn=pid)
+    data = {
+        "journal": journal,
+        "title": payload.get("title"),
+        "language": payload.get("language"),
+        "doi": payload.get("doi"),
+        "content": payload.get("content"),
+        "url": payload.get("url"),
+        "image_url": payload.get("media_content"),
+        "publication_date": payload.get("publication_date"),
+    }
+
+    try:
+        create_press_release_record(pr_model_data=data)
+    except Exception as e:
+        return jsonify({"failed": True, "error": str(e)}), 500    
+    else:
+        return jsonify({"failed": False}), 200
 
 
 def replace_link(section):
