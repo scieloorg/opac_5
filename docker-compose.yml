@@ -69,6 +69,8 @@ services:
             - OPAC_SSM_SCHEME=http
             - OPAC_SSM_DOMAIN=minio
             - OPAC_SSM_PORT=9000
+            - OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS=5
+            - OPAC_FILTER_SECTION_ENABLE=True
 
     nginx:
         image: nginx:latest
