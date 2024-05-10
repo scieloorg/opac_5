@@ -32,32 +32,35 @@ var Article = {
 		var RefToolTip = {
 
 			open: function(t) {
-
+	
 				var s = $(".xref",t),
-					d = s.next("span:eq(0)"),
+					d = s.next("span:eq(0)")
 					p = t.position(),
 					supHeight = s.outerHeight(),
 					supPositionLeft = p.left,
-					li = t.closest("li");
-
+					li = t.closest("li"),
+					refTxt = s.parent().find("a").data("ref");
+					s.parent().append("<span class='refCtt closed'><span>" + refTxt + "</span></span>");
+	
+					console.log('cliquei');
+	
 				if(li.length > 0)
 					li.addClass("zindexFix");
-
-				d.removeClass("closed").addClass("opened").css({
+					s.parent().find(".refCtt").removeClass("closed").addClass("opened").css({
 					"left": (supPositionLeft > 300) ? (-supPositionLeft/3) : 0
 				}).fadeIn("fast");
-
+	
 			},
 			close: function(t) {
-
+	
 				var s = $(".xref",t),
 					d = s.next("span:eq(0)"),
 					li = t.closest("li");
-
+	
 				if(li.length > 0)
 					li.removeClass("zindexFix");
-
-				d.removeClass("opened").addClass("closed");
+					s.parent().find(".refCtt").removeClass("opened").addClass("closed");
+					s.parent().find(".refCtt").remove();
 			}
 		};
 
@@ -234,30 +237,30 @@ var Article = {
 		},200);
 
 		if(hbodyText < 750){
-			$(".floatingMenu, .floatingMenuItem, .floatingMenuMobile").css({
+			$(".scielo__floatingMenu, .scielo__floatingMenuItem, .scielo__floatingMenuMobile").css({
 				"bottom": "auto",
 				"top": Article.IsTablet ? vbodyTextMobile : vbodyText
 			});
 		}
 		window.setTimeout(function() {
-			$(".floatingMenu, .floatingMenuItem, .floatingMenuMobile").css({
+			$(".scielo__floatingMenu, .scielo__floatingMenuItem, .scielo__floatingMenuMobile").css({
 				"opacity": "1"
 			});
 		},200);
 
 		$(window).scroll(function() {
-			var t = $(window).scrollTop();
+			var t = $(window).scrollTop(),
+				$floatingMenuCtt = '.scielo__floatingMenuCtt';
+			
+			if(Article.isScrolledIntoView($floatingMenuCtt)){
 
-			if(Article.isScrolledIntoView('.floatingMenuCtt')){
-
-				$('.floatingMenuItem').css({position: 'absolute'});
-				$('.floatingMenu').css({position: 'absolute'});
-
+				$($floatingMenuCtt).hide();
+				
 			}else{
 
-				$('.floatingMenuItem').css({position: 'fixed'});
-				$('.floatingMenu').css({position: 'fixed'});
+				$($floatingMenuCtt).show();
 			}
+			
 
 			if(t > articleTextP.top) {
 
@@ -406,12 +409,14 @@ var Article = {
 	},
 
 	isScrolledIntoView: function(elem){
-	    var docViewTop = $(window).scrollTop();
-	    var docViewBottom = docViewTop + $(window).height();
-	    var elemTop = $(elem).offset().top;
-	    var elemBottom = elemTop + $(elem).height();
-	    return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+	   var docViewTop = $(window).scrollTop();
+	   var docViewBottom = docViewTop + $(window).height();
+	   var articleTop = $("#standalonearticle").offset().top;
+	   var articleBottom = articleTop + $("#standalonearticle").height();
+   
+	   return articleBottom <= docViewBottom;
 	},
+
 
 	ArticleStructureBuilder: function() {
 		var structure = $(".articleMenu"),
