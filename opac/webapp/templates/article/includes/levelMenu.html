@@ -7,7 +7,7 @@
           <div class="col">
 
             <div class="btn-group mt-1">
-              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0 active"><span class="material-icons-outlined">home</span></a>
+              <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0"><span class="material-icons-outlined">home</span></a>
               
               {# Sumário #}
               <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn mb-0">
@@ -266,7 +266,7 @@
         <div class="col">
           <div class="btn-group w-100 --btn-group-nav-mobile" role="group">
             
-            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0 active"><span class="material-icons-outlined">home</span></a>
+            <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn scielo__btn-with-icon--only mb-0"><span class="material-icons-outlined">home</span></a>
             <a href="{{ url_for('.issue_toc', url_seg=article.journal.url_segment, url_seg_issue=issue.url_segment) }}" class="btn mb-0">
               {% trans %}Sumário{% endtrans %}
             </a>
