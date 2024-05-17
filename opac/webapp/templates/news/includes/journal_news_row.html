@@ -1,26 +1,3 @@
-	<!--
-<div class="slide-item release">
-	
-
-	<div class="col-md-12">
-		<a href="{{ item.url }}" target="_blank">
-			<span>{{ item.publication_date }}</span>
-			{% if item.image_url %}
-				<img src="{{ item.image_url }}">
-			{% else %}
-				<img src="../../static/img/img-post-blog-scielo-exemplo.jpg">
-			{% endif %}
-			<h3 class="ellipsis">{{ item.title }}</h3>
-			<div class="ellipsis">
-				{{ item.description|striptags|replace('Read More →', '') }}
-			</div>
-			<strong>{% trans%}Continue lendo{% endtrans %} &raquo;</strong>
-		</a>
-	</div>
-	-->
-
-
-
 	<div class="card">
 		{% if item.image_url %}
 			<img src="{{ item.image_url }}" class="card-img-top">
@@ -28,16 +5,9 @@
 			<img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
 		{% endif %}
 		<div class="card-body">
-			<h6 class="card-subtitle">{{ item.publication_date }}</h6>
-			<!--
-			<h5 class="card-title">{{ item.title }}</h5>
-			-->
+			<div class="h6 card-subtitle">{{ item.publication_date }}</div>
 			<strong class="card-title">{{ item.title }}</strong>
 			<p class="card-text">{{ item.description|striptags|replace('Read More →', '')|truncate(100) }}</p>
 			<a href="{{ item.url }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
 		</div>
 	</div>
-
-	<!--
-</div>
--->
