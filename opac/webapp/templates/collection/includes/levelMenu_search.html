@@ -2,10 +2,11 @@
 
 <section class="scielo__search-articles mb-5">
   <div class="container">
-    <form method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
+    <form class="visually-hidden" method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
       <input type="hidden" name="q" id="q" value="">
       <input type="hidden" name="lang" id="lang" value="{% if session.lang %}{{ session.lang[:2] }}{% endif %}">
       <input type="hidden" name="filter[in][]" value="{{ config.OPAC_COLLECTION }}">
+      <button type="submit">Enviar</button>
     </form>
     <form name="searchFormBuilder" action="{{ config.URL_SEARCH }}" method="get" class="searchForm searchFormBuilder">
       <div class="row">
@@ -71,7 +72,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">{% trans %}Sem resultados{% endtrans %}</h4>
+        <h1 class="h4 modal-title">{% trans %}Sem resultados{% endtrans %}</h1>
       </div>
       <div class="modal-body">
         <div class="midGlyph alert">

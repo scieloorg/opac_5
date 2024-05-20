@@ -134,35 +134,37 @@ var Portal = {
 
 			/* 2023 - instancia o slick slider - cards home */
 			$('.scielo-slider').slick({
-           
+				'focusOnChange': false,
 				'slidesToShow': 3.5,
-					'infinite': false,
-					'centerPadding': '0',
-					'arrows': true,
-					'dots': true,
-					'slidesToScroll': 3,
-					'responsive': [
-					  {
-						'breakpoint': 767,
-						'settings': {
-						  'dots': true,
-						  'slidesToShow': 1.2,
-						  'slidesToScroll': 1,
-						  'centerMode': false,
-						  'arrows': false,
-						}
-					  },
-					  {
-						'breakpoint': 992,
-						'settings': {
-						  'dots': true,
-						  'slidesToShow': 2.2,
-						  'slidesToScroll': 2,
-						  'centerMode': false,
-						  'arrows': false,
-						}
-					  }
-					]
+				'infinite': false,
+				'centerPadding': '0',
+				'arrows': true,
+				'dots': true,
+				'slidesToScroll': 3,
+				'responsive': [
+					{
+					'breakpoint': 767,
+					'settings': {
+						'dots': true,
+						'slidesToShow': 1.2,
+						'slidesToScroll': 1,
+						'centerMode': false,
+						'arrows': false,
+						'focusOnChange': false,
+					}
+					},
+					{
+					'breakpoint': 992,
+					'settings': {
+						'dots': true,
+						'slidesToShow': 2.2,
+						'slidesToScroll': 2,
+						'centerMode': false,
+						'arrows': false,
+						'focusOnChange': false,
+					}
+					}
+				]
 	
 			});
 
@@ -225,8 +227,9 @@ var Portal = {
 				});
 			});
 
-			$(".floatingBtnError").on("click", function(e) {
+			$(".floatingBtnError, .floatingBtnErrorHamburguerMenu").on("click", function(e) {
 				e.preventDefault();
+				console.log('cliquei para abrir o modal de reportar erro');
 				var url = $(location).attr('href');
 				$.get("/error_mail/", {"url": url}, function(html) {
 					$("#error_modal_id").html(html);
