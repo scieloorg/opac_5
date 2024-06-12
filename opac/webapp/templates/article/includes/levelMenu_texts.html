@@ -2,7 +2,7 @@
 
 
     <div class="btn-group">
-      <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+      <button id="btnGroupDropTextLanguage" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
         {% trans %}Texto{% endtrans %}
         {% for lang, text_lang, uri in text_versions  %}
           {% if not gs_abstract and lang == article_lang %}        
@@ -18,7 +18,7 @@
           {% endif %}
         {% endfor %}
       </button>
-      <ul class="dropdown-menu">
+      <ul class="dropdown-menu" aria-labelledby="btnGroupDropTextLanguage">
         {% for lang, text_lang, uri in text_versions  %}
         <li>
           {% if not gs_abstract and lang == article_lang %}

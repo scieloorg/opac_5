@@ -5,14 +5,14 @@
   <span class="material-icons-outlined scielo-ico-menu-opened">menu_open</span>
 </a>
 
-<h2 class="logo-svg">
+<div class="logo-svg">
     <a href="/" title="Ir para a homepage da coleção: {{ coll_macro.get_collection_name() }}"></a>
-</h2>
+</div>
 
 <div class="scielo__mainMenu" id="mainMenu">
     <div class="row">
         <div class="col text-center">
-          <a href="/" alt="{{ coll_macro.get_collection_name() }}">
+          <a href="/" alt="{{ coll_macro.get_collection_name() }}" alt="{% trans %}Acessar site coleção Brasil{% endtrans %}">
             <span class="sr-only sr-only-focusable">Logo SciELO</span>
             <div class="scielo__logo-scielo--small mt-3"></div>
           </a>
@@ -22,7 +22,7 @@
     <nav>
         <ul>
           <li>
-            <a href="{{ url_for('.index') }}">
+            <a href="{{ url_for('.index') }}" alt="{% trans %}Acessar site coleção Brasil{% endtrans %}" aria-label="{% trans %}Acesse o SciELO{% endtrans %}">
               <strong>{{ coll_macro.get_collection_name() }}</strong>
             </a>
             <ul>

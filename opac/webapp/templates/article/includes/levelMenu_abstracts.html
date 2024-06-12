@@ -1,7 +1,7 @@
 {% if article and article.abstracts|length > 1 %}
 
 <div class="btn-group">
-  <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+  <button id="btnGroupDropLanguage" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
     {% trans %}Resumo{% endtrans %}
     {% for abstract in article.abstracts  %}
       {% if gs_abstract and article_lang == abstract['language'] %}  
@@ -17,7 +17,7 @@
       {% endif %}
     {% endfor %}
   </button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1" style="">
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropLanguage">
     {% for abstract in article.abstracts  %}
       <li>
           {% if gs_abstract and article_lang == abstract['language'] %}

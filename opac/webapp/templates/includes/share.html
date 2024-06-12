@@ -1,9 +1,9 @@
  <!-- share -->
  <div class="dropdown">
-  <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
+  <button id="btnGroupDropShare" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end" data-bs-toggle="dropdown" aria-expanded="false">
     <span class="material-icons-outlined">share</span>
   </button>
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropShare">
     <li><a href="javascript:window.print();" class="dropdown-item">{% trans %}Imprimir{% endtrans %}</a></li>
     <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item" target="_blank">RSS</a></li>
     <li><a href="javascript:;" class="dropdown-item share_modal_id">E-mail</a></li>
