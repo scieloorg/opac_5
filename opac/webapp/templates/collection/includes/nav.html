@@ -6,13 +6,13 @@
 </a>
 
 <div class="logo-svg">
-    <a href="/" title="Ir para a homepage da coleção: {{ coll_macro.get_collection_name() }}"></a>
+    <a href="/" title="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"></a>
 </div>
 
 <div class="scielo__mainMenu" id="mainMenu">
     <div class="row">
         <div class="col text-center">
-          <a href="/" alt="{{ coll_macro.get_collection_name() }}" alt="{% trans %}Acessar site coleção Brasil{% endtrans %}">
+          <a href="/" alt="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}">
             <span class="sr-only sr-only-focusable">Logo SciELO</span>
             <div class="scielo__logo-scielo--small mt-3"></div>
           </a>
