@@ -54,9 +54,10 @@
       <div class="row">
         
         <div class="col content issueList" id="issueList">
-          <h1 class="scielo__text-title--4">{% trans %}Todos os números{% endtrans %}</h1>
+          <h2 class="scielo__text-title--4">{% trans %}Todos os números{% endtrans %}</h2>
           {% if result_dict or ahead %}
             <table class="table table-hover mb-5">
+              <caption class="sr-only">Fasciculos</caption>
               <thead>
                 <tr>
                   <th class="col-1">{% trans %}Ano{% endtrans %}</th>

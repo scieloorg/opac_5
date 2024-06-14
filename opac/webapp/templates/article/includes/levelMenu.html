@@ -238,10 +238,10 @@
 
             <!-- share -->
             <div class="dropdown float-end mt-1">
-              <button id="btnGroupDrop1" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+              <button id="btnGroupDropLevelMenuShare" type="button" class="btn btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="material-icons-outlined">share</span>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1" style="">
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropLevelMenuShare">
                 <li><a class="dropdown-item" href="#">Facebook</a></li>
                 <li><a class="dropdown-item" href="#">X</a></li>
                 <li><a class="dropdown-item" href="#">Google+</a></li>
@@ -298,7 +298,7 @@
           {% if article and article.abstracts|length > 1 %}
 
           <div class="dropdown mt-1">
-          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          <button id="btnGroupDropAbstractLanguage" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
           {% trans %}Resumo{% endtrans %}
           {% for abstract in article.abstracts  %}
           {% if gs_abstract and article_lang == abstract['language'] %}  
@@ -314,7 +314,7 @@
           {% endif %}
           {% endfor %}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropAbstractLanguage">
           {% for abstract in article.abstracts  %}
           <li>
           {% if gs_abstract and article_lang == abstract['language'] %}
@@ -356,7 +356,7 @@
 
           {% if article and text_versions %}
           <div class="dropdown mt-1">
-          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          <button id="btnGroupDropArticleTextLanguage" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
           {% trans %}Texto{% endtrans %}
           {% for lang, text_lang, uri in text_versions  %}
           {% if not gs_abstract and lang == article_lang %}        
@@ -372,7 +372,7 @@
           {% endif %}
           {% endfor %}
           </button>
-          <ul class="dropdown-menu">
+          <ul class="dropdown-menu" aria-labelledby="btnGroupDropArticleTextLanguage">
           {% for lang, text_lang, uri in text_versions  %}
           <li>
           {% if not gs_abstract and lang == article_lang %}
@@ -414,10 +414,10 @@
           {% if article and article.pdfs|length == 1 %}
 
           <div class="dropdown float-end mt-1">
-          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+          <button id="btnGroupDropArticlePDF" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
           PDF
           </button>
-          <ul class="dropdown-menu dropdown-menu-end">
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropArticlePDF">
           {% for pdf in article.pdfs  %}
           <li>
           <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
@@ -449,10 +449,10 @@
 
           {# PDF #}
           <div class="dropdown float-end mt-1">
-          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+          <button id="btnGroupDropArticlePDFMobile" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
           PDF
           </button>
-          <ul class="dropdown-menu dropdown-menu-end">
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropArticlePDFMobile">
           {% for pdf in article.pdfs  %}
           <li>
           <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
@@ -475,10 +475,10 @@
           {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
 
           <div class="dropdown float-end mt-1">
-          <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
+          <button id="btnGroupDropArticleEPDFMobile" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
           <span class="material-icons-outlined">share</span>
           </button>
-          <ul class="dropdown-menu">
+          <ul class="dropdown-menu" aria-labelledby="btnGroupDropArticleEPDFMobile">
           {% for pdf in article.pdfs  %}
           <li>
           <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">

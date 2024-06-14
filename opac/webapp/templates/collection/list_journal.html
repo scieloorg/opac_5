@@ -11,17 +11,9 @@
   <section class="collection collectionList">
     <div class="container">
 
-      <h1 class="h4 mb-3"> {% trans %}Periódicos{% endtrans %}</h1>
+      <h3 class="h4 mb-3"> {% trans %}Periódicos{% endtrans %}</h3>
 
       <ul class="nav nav-tabs">
-        <!--
-          Removido da interface
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">
-            <span class="material-icons-outlined">home</span> {% trans %}Home{% endtrans %}
-          </a>
-        </li>
-        -->
         <li class="nav-item">
           <a class="nav-link active alpha-tab" href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
         </li>
@@ -63,25 +55,22 @@
                   </div>
                 </div>
 
-
-
-
                 <div class="collectionListTable mt-2">
                   <table class="table table-hover table-journal-list">
+                    <caption class="sr-only">{% trans %}Journal list{% endtrans %}</caption>
                     <thead>
-                      <tr>
-                        
+                      <tr>      
                         <th>
                           {% trans %}Títulos{% endtrans %} <small class="collectionListTotalInfo"></small>
                         </th>
                         <th class="pe-0">
-                          <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end d-print-none" data-bs-toggle="dropdown" aria-expanded="false">
+                          <button id="btnGroupDropDownload" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end d-print-none" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="material-icons-outlined">download</span>
                           </button>
-                          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
+                          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropDownload">
                             <li>
                               <a class="dropdown-item downloadXLS" href="#">
-                                XLS
+                                XLS 
                               </a>
                             </li>
                             <li>
