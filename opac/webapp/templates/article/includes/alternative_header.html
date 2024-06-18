@@ -221,10 +221,10 @@
         -->
       
         <div class="dropdown mt-3">
-          <button class="btn btn-link dropdown-toggle mb-0" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-link dropdown-toggle mb-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="truncate">{{ journal.title }} </span>
           </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+          <ul class="dropdown-menu">
             <li>
               <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="dropdown-item">
                 {% if journal.logo_url %}
@@ -262,10 +262,10 @@
     <div class="row d-block d-sm-none">
       <div class="col">
         <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle mb-2 w-100" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-secondary dropdown-toggle mb-2 w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="truncate">{{ journal.title }} </span>
           </button>
-          <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton1">
+          <ul class="dropdown-menu w-100">
             <li>
               <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="dropdown-item">
                 {% if journal.logo_url %}

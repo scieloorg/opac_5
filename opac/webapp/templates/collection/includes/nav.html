@@ -22,7 +22,7 @@
     <nav>
         <ul>
           <li>
-            <a href="{{ url_for('.index') }}" alt="{% trans %}Acessar site coleção Brasil{% endtrans %}" aria-label="{% trans %}Acesse o SciELO{% endtrans %}">
+            <a href="{{ url_for('.index') }}" alt="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}">
               <strong>{{ coll_macro.get_collection_name() }}</strong>
             </a>
             <ul>
