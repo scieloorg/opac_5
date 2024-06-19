@@ -132,51 +132,21 @@ var Portal = {
 				}
 			});
 
-			/* 2023 - instancia o slick slider - cards home */
-			function updateAccessibility(slick, currentSlide) {
-                // Remover tabindex e aria-hidden de todos os slides
-                slick.$slides.each(function(index, element){
-                    $(element).attr('tabindex', '-1').attr('aria-hidden', 'true');
-                });
-
-                // Calcular quais slides são completamente visíveis
-                var visibleSlides = [];
-                slick.$slides.each(function(index, element){
-                    var $element = $(element);
-                    var elementLeft = $element.offset().left;
-                    var elementRight = elementLeft + $element.outerWidth();
-                    var sliderLeft = slick.$slider.offset().left;
-                    var sliderRight = sliderLeft + slick.$slider.outerWidth();
-
-                    // Checar se o slide está completamente visível
-                    if (elementLeft >= sliderLeft && elementRight <= sliderRight) {
-                        visibleSlides.push($element);
-                    }
-                });
-
-                // Ajustar os atributos de acessibilidade dos slides visíveis
-                $(visibleSlides).each(function(index, element){
-                    $(element).attr('tabindex', '0').attr('aria-hidden', 'false');
-                });
-            }
-
-            $('.scielo-slider').on('init reInit afterChange', function(event, slick, currentSlide){
-                updateAccessibility(slick, currentSlide);
-            });
+			
 			$('.scielo-slider').slick({
 				'focusOnChange': false,
-				'slidesToShow': 3.5,
+				'slidesToShow': 4,
 				'infinite': false,
 				'centerPadding': '0',
 				'arrows': true,
 				'dots': true,
-				'slidesToScroll': 3,
+				'slidesToScroll': 4,
 				'responsive': [
 					{
 					'breakpoint': 767,
 					'settings': {
 						'dots': true,
-						'slidesToShow': 1.2,
+						'slidesToShow': 1,
 						'slidesToScroll': 1,
 						'centerMode': false,
 						'arrows': false,
@@ -187,7 +157,7 @@ var Portal = {
 					'breakpoint': 992,
 					'settings': {
 						'dots': true,
-						'slidesToShow': 2.2,
+						'slidesToShow': 2,
 						'slidesToScroll': 2,
 						'centerMode': false,
 						'arrows': false,
