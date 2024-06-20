@@ -54,7 +54,7 @@ packaging==23.0
 passlib==1.7.4
 pbr==5.11.1
 picles.plumber==0.11
-Pillow==9.4.0
+Pillow==10.3.0
 platformdirs==2.6.2
 pluggy==1.0.0
 pymongo==4.3.3
