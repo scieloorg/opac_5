@@ -701,7 +701,9 @@ def about_journal(url_seg):
         )
     else:
         latest_issue_legend = None
-
+    
+    page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
+    
     section_journal_content = fetch_and_extract_section(
         collection_acronym, journal.acronym, language
     )
@@ -717,6 +719,11 @@ def about_journal(url_seg):
 
     if section_journal_content:
         context["content"] = section_journal_content
+    elif page:
+        context["content"] = page.content
+        if page.updated_at:
+            context["page_updated_at"] = page.updated_at
+
 
     context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
@@ -2311,6 +2318,12 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
 
     try:
         content = fetch_data(url=url)
+        try:
+            content_json = json.loads(content)
+            if isinstance(content_json, dict) and content_json.get('error') == 'PageNotVisibleError':
+                return None
+        except json.JSONDecodeError:
+            pass
     except NonRetryableError as e:
         page_not_found(e)
     except RetryableError as e:
