@@ -257,3 +257,18 @@ release_docker_push:
 	@echo "[Pushing] pushing image: $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)"
 	@docker push $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION)
 	@echo "[Pushing] push $(REPO_SLUG)/$(PROJECT_NAME):$(OPAC_WEBAPP_VERSION) done!"
+
+
+#################
+##image update##
+#################
+
+exclude_opac_production:  ## Exclude all productions containers
+	@if [ -n "$$(docker images --filter=reference='infrascielo/opac_5' -q)" ]; then \
+		docker rmi -f $$(docker images --filter=reference='infrascielo/opac_5' -q ); \
+		echo "Exclude all opac production containers" \
+	else \
+		echo "No images found for '*_prod'"; \
+	fi
+
+update: stop rm exclude_opac_production up
