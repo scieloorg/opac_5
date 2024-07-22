@@ -5,7 +5,7 @@
 MAKEFLAGS += --no-print-directory
 
 # Variables
-COMPOSE_DEV = docker-compose-dev.yml
+compose = docker-compose-dev.yml
 REPO_SLUG = infrascielo
 PROJECT_NAME = opac_5
 
@@ -183,47 +183,47 @@ build_bundles:
 # help: build                          - build the containers
 .PHONY: build
 build:
-	@docker-compose -f $(COMPOSE_DEV) build
+	@docker-compose -f $(compose) build
 
 # help: up           	               - start the containers
 .PHONY: up
 up:
-	@docker-compose -f $(COMPOSE_DEV) up -d
+	@docker-compose -f $(compose) up -d
 
 # help: logs           	               - show the containers logs
 .PHONY: logs
 logs:
-	@docker-compose -f $(COMPOSE_DEV) logs -f 
+	@docker-compose -f $(compose) logs -f 
 
 # help: logs_tail           	       - show the containers logs 50 latest lines
 .PHONY: logs_tail
 logs_tail:
-	@docker-compose -f $(COMPOSE_DEV) logs -f --tail=50
+	@docker-compose -f $(compose) logs -f --tail=50
 
 # help: stop           	               - stop the containers
 .PHONY: stop
 stop:
-	@docker-compose -f $(COMPOSE_DEV) stop
+	@docker-compose -f $(compose) stop
 
 # help: ps           	               - show the containers Process Status
 .PHONY: ps
 ps:
-	@docker-compose -f $(COMPOSE_DEV) ps
+	@docker-compose -f $(compose) ps
 
-# help: rm           	               - remove all containers from $(COMPOSE_DEV)
+# help: rm           	               - remove all containers from $(compose)
 .PHONY: rm
 rm:
-	@docker-compose -f $(COMPOSE_DEV) rm -f
+	@docker-compose -f $(compose) rm -f
 
 # help: shell                          - open a shell from containers
 .PHONY: shell
 shell: up
-	@docker-compose -f $(COMPOSE_DEV) exec opac_webapp sh
+	@docker-compose -f $(compose) exec opac_webapp sh
 
 # help: docker_test           	       - run the tests from containers
 .PHONY: docker_test
 docker_test: up
-	@docker-compose -f $(COMPOSE_DEV) exec opac_webapp make test
+	@docker-compose -f $(compose) exec opac_webapp make test
 
 #################
 ##docker release#
