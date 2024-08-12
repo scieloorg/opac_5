@@ -412,9 +412,9 @@ class OpacBaseAdminView(mongoengine.ModelView):
 
 
 class NewsAdminView(OpacBaseAdminView):
-    can_create = True
-    can_edit = True
-    can_delete = True
+    can_create = False
+    can_edit = False
+    can_delete = False
     page_size = 30
 
     def _url_formatter(self, context, model, name):
@@ -428,11 +428,6 @@ class NewsAdminView(OpacBaseAdminView):
 
     def _preview_date_format(self, context, model, name):
         return custom_filters.datetimefilter(model.publication_date)
-
-    def on_model_change(self, form, model, is_created):
-        # é necessario definir um valor para o campo ``_id`` na criação.
-        if is_created:
-            model._id = str(uuid4().hex)
 
     column_formatters = {
         "url": _url_formatter,
