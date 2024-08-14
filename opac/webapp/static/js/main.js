@@ -1241,7 +1241,7 @@ var Portal = {
 			}
 		
 			// Exibe a data calculada no console para depuração
-			console.log('Data ' + lastDays + ' dias atrás:', dataMenosXDias.toString());
+			//console.log('Data ' + lastDays + ' dias atrás:', dataMenosXDias.toString());
 		
 			// Verifica cada card com o atributo data-publication-date
 			var algumRecente = false;
