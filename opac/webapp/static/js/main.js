@@ -1215,6 +1215,57 @@ var Portal = {
 				$(".namePlublisher").attr( "data-toggle", "tooltip" );
 				$(".namePlublisher").attr( "title", nome );
 			}
+		},
+		checkPressReleases: function() {
+			// Obtém o valor de data-lastdays, que é o numero de dias que serão 
+			// reduzidos da data atual para verificar se existem press-releases recentes
+			var lastDays = parseInt($('#pressReleasesList').attr('data-lastdays')); // Substitua '#data-attributes' pelo seletor correto do seu elemento
+	
+			// Obtém a data atual
+			var dataAtual = new Date();
+			
+			// Verifica se lastDays é um número válido
+			if (isNaN(lastDays) || lastDays <= 0) {
+				console.error('O valor de lastDays deve ser um número positivo.');
+				return; // Interrompe a execução se lastDays não for válido
+			}
+		
+			// Cria uma nova data que representa 60 dias atrás
+			var dataMenosXDias = new Date();
+			dataMenosXDias.setDate(dataAtual.getDate() - lastDays);
+		
+			// Verifica se dataMenosXDias é uma data válida
+			if (isNaN(dataMenosXDias.getTime())) {
+				console.error('Data inválida ao calcular a data de ' + lastDays + ' dias atrás.');
+				return; // Interrompe a execução se a data não for válida
+			}
+		
+			// Exibe a data calculada no console para depuração
+			console.log('Data ' + lastDays + ' dias atrás:', dataMenosXDias.toString());
+		
+			// Verifica cada card com o atributo data-publication-date
+			var algumRecente = false;
+			$('#pressReleasesList .card').each(function() {
+				var dataPublicacaoStr = $(this).attr('data-publication-date');
+				var dataPublicacao = new Date(dataPublicacaoStr);
+		
+				// Verifica se dataPublicacao é uma data válida
+				if (isNaN(dataPublicacao.getTime())) {
+					console.error('Data inválida encontrada em data-publication-date:', dataPublicacaoStr);
+					return;
+				}
+		
+				if (dataPublicacao >= dataMenosXDias) {
+					algumRecente = true;
+					return false; // Para a iteração assim que encontrar um card recente
+				}
+			});
+		
+			// Exibe ou mantém oculta a lista de press-releases baseado na verificação anterior
+			if (algumRecente) {
+				$('#pressReleasesList').removeClass('d-none'); // Exibe a lista de press-releases
+			} 
+			
 		}
 	};
 
@@ -1281,6 +1332,7 @@ $(function() {
 
 	if($("body.journal").length)
 		Journal.Init();
+		Journal.checkPressReleases();
 
 	if($("body.collection, body.portal").length)
 		Collection.Init();
