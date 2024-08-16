@@ -83,7 +83,7 @@
          <!-- Fim - Se houver um outro título antigo-->
       </div>
       <div class="col-3 pt-5">
-        <div class="list-group d-print-none">
+        <div class="list-group d-print-none mb-5">
           {% if journal.online_submission_url and journal.current_status == 'current' %}
             <a class="list-group-item" href="{{ journal.online_submission_url|default('', true) }}" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
           {% endif %}

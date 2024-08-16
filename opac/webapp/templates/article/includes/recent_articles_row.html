@@ -5,13 +5,19 @@
 
         {% if session.lang %}
 
+          <!--
           <strong class="card-title">
             {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|truncate(80)|capitalize }}
+          </strong>
+          -->
+
+          <strong class="card-title">
+            {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|capitalize }}
           </strong>
 
         {% endif %}
 
-        <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
+        <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}" target="_blank" class="btn btn-secondary d-block mb-0 mt-4">{% trans%}Continue lendo{% endtrans %}</a>
     </div>
     
   </div>

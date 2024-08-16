@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card" data-publication-date="{{ press_release.publication_date }}">
 
   {% if press_release.image_url %}
 
@@ -18,7 +18,7 @@
       {{ press_release.title|striptags }}
     </strong>
 
-    <a href="{{ press_release.url }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
+    <a href="{{ press_release.url }}" target="_blank" class="btn btn-secondary d-block mb-0 mt-4">{% trans%}Continue lendo{% endtrans %}</a>
   
   </div>
 
