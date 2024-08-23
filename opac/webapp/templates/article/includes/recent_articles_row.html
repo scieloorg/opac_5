@@ -2,14 +2,9 @@
   <div class="card">
     
     <div class="card-body">
+        <div class="h6 card-subtitle mb-1">{% trans%}Volume{% endtrans %}: {{ article.issue.volume }} - {% trans%}Publicado em{% endtrans %}: {{ article.publication_date }}</div>
 
         {% if session.lang %}
-
-          <!--
-          <strong class="card-title">
-            {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|truncate(80)|capitalize }}
-          </strong>
-          -->
 
           <strong class="card-title">
             {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|capitalize }}
