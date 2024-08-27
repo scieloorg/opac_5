@@ -264,8 +264,8 @@ release_docker_push:
 
 exclude_opac_production:  ## Exclude all production images
 	@if [ -n "$$(docker images --filter=reference='infrascielo/opac_5' -q)" ]; then \
+		echo "Deleting containers $$(docker images --filter=reference='infrascielo/opac_5' -q --format '{{.Repository}}:{{.Tag}}')" \	
 		docker rmi -f $$(docker images --filter=reference='infrascielo/opac_5' -q); \
-		echo "Excluded all 'infrascielo/opac_5' production images"; \
 	else \
 		echo "No images found for 'infrascielo/opac_5'"; \
 	fi
