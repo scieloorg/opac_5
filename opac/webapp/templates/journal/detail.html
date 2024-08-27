@@ -100,7 +100,7 @@
   <!-- press releases --->
   {# press_releases #}
   {% if press_releases %}
-  <section id="pressReleasesList" class="journalContent mb-5 press-releases-cards d-none" data-lastdays="909">
+  <section id="pressReleasesList" class="journalContent mb-5 press-releases-cards d-none" data-lastdays="60">
     <div class="container">
       <div class="row">
         <div class="col">
@@ -150,7 +150,7 @@
            
             <h2 class="scielo__text-title--4">{% trans %}Artigos mais recentes{% endtrans %}</h2>
             
-            <div class="scielo-slider">
+            <div class="scielo-slider" data-autoheight="true">
               {% for article in recent_articles  %}
                 {% include "article/includes/recent_articles_row.html" %}
               {% endfor %}
@@ -174,7 +174,7 @@
               
             <h2 class="scielo__text-title--4">{% trans %}Notícias{% endtrans %}</h2>
 
-            <div class="scielo-slider">
+            <div class="scielo-slider" data-autoheight="true">
               
               {% for item in news  %}
 
