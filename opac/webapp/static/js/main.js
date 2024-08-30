@@ -168,6 +168,13 @@ var Portal = {
 	
 			});
 
+			// Verifica se tem o atributo data-autoheight="true"
+			$('.scielo-slider').each(function() {
+				if ($(this).data('autoheight')) {
+					Portal.AdjustCardHeight($(this));
+				}
+			});
+
 
 			$(".shareFacebook,.shareTwitter,.shareDelicious,.shareGooglePlus,.shareLinkedIn,.shareReddit,.shareStambleUpon,.shareCiteULike,.shareMendeley").on("click",function(e) {
 				e.preventDefault();
@@ -514,6 +521,24 @@ var Portal = {
 				});
 			}
 			
+		},
+		/*
+		Se tiver o atributo autoheight="true" redimensiona
+		os cards para a altura do maior card
+		*/ 
+		AdjustCardHeight(slider){
+			var cards = slider.find('.card');
+                let maxHeight = 0;
+
+                cards.each(function() {
+                    var cardHeight = $(this).outerHeight();
+                    var cardPBottom = parseFloat($(this).css('padding-bottom'));
+                    if (cardHeight > maxHeight) {
+                        maxHeight = cardHeight - cardPBottom;
+                    }
+                });
+
+                cards.height(maxHeight);
 		},
 		Slider: function() {
 			var id = $(this).attr("id"),

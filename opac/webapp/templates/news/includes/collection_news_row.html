@@ -19,7 +19,10 @@
         {{ item.description|striptags|replace('Read More →', '')|truncate(70) }}
       </p>
 
-      <a href="{{ item.url }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
+      
+  </div>
+  <div class="card-footer">
+    <a href="{{ item.url }}" target="_blank" class="btn btn-secondary d-block mx-0 my-0">{% trans%}Continue lendo{% endtrans %}</a>
   </div>
   
 </div>
