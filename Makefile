@@ -5,7 +5,6 @@
 MAKEFLAGS += --no-print-directory
 
 # Variables
-compose = docker-compose-dev.yml
 REPO_SLUG = infrascielo
 PROJECT_NAME = opac_5
 
@@ -263,12 +262,12 @@ release_docker_push:
 ##image update##
 #################
 
-exclude_opac_production:  ## Exclude all productions containers
+exclude_opac_production:  ## Exclude all production images
 	@if [ -n "$$(docker images --filter=reference='infrascielo/opac_5' -q)" ]; then \
-		docker rmi -f $$(docker images --filter=reference='infrascielo/opac_5' -q ); \
-		echo "Exclude all opac production containers" \
+		echo "Deleting containers $$(docker images --filter=reference='infrascielo/opac_5' -q --format '{{.Repository}}:{{.Tag}}')" \	
+		docker rmi -f $$(docker images --filter=reference='infrascielo/opac_5' -q); \
 	else \
-		echo "No images found for '*_prod'"; \
+		echo "No images found for 'infrascielo/opac_5'"; \
 	fi
 
-update: stop rm exclude_opac_production up
+update: stop exclude_opac_production up
