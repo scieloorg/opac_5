@@ -2387,7 +2387,7 @@ msgstr "número siguiente"
 #: opac/webapp/templates/journal/includes/levelMenu.html:62
 #: opac/webapp/templates/journal/includes/levelMenu.html:67
 msgid "Número seguinte"
-msgstr "número siguiente"
+msgstr "Número siguiente"
 
 #: opac/webapp/templates/journal/includes/levelMenu.html:261
 #: opac/webapp/templates/journal/includes/levelMenu.html:263
