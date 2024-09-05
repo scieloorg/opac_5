@@ -483,9 +483,11 @@ class SponsorAdminView(OpacBaseAdminView):
 
 
 class CollectionAdminView(OpacBaseAdminView):
+    can_create = True
     can_edit = True
     edit_modal = True
-    form_excluded_columns = ("acronym", "metrics")
+    can_delete = True
+    form_excluded_columns = ("metrics")
     column_exclude_list = [
         "_id",
         "about",
@@ -521,6 +523,11 @@ class CollectionAdminView(OpacBaseAdminView):
     )
 
     inline_models = (InlineFormAdmin(Sponsor),)
+
+    def on_model_change(self, form, model, is_created):
+        # é necessario definir um valor para o campo ``_id`` na criação.
+        if is_created:
+            model._id = str(uuid4().hex)
 
 
 class JournalAdminView(OpacBaseAdminView):
