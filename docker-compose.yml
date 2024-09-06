@@ -40,37 +40,11 @@ services:
             - redis-cache:redis-cache
         expose:
             - "8000"
-        environment:
-            - OPAC_DEBUG_MODE=False
-            - OPAC_LOG_LEVEL=WARNING
-            - OPAC_MINIFY_PAGE=False
-            - OPAC_MONGODB_NAME=opac
-            - OPAC_DATABASE_DIR=/app/data
-            - OPAC_SECRET_KEY=s3kr3tk3y
-            - OPAC_MONGODB_HOST=opac_mongo
-            - OPAC_CACHE_ENABLED=True
-            - OPAC_CACHE_DEFAULT_TIMEOUT=3600
-            - OPAC_CACHE_REDIS_HOST=redis-cache
-            - OPAC_USE_METRICS=True
-            - OPAC_METRICS_URL=http://analytics.scielo.org
-            - OPAC_USE_DIMENSIONS=True
-            - OPAC_DIMENSIONS_URL=https://badge.dimensions.ai/details/doi
-            - OPAC_USE_PLUMX=True
-            - OPAC_PLUMX_METRICS_URL=https://plu.mx/scielo/a
-            - OPAC_USE_ALTMETRIC=True
-            - OPAC_ALTMETRIC_METRICS_URL=https://www.altmetric.com/details.php
-            - OPAC_JOURNAL_PAGES_SOURCE_PATH=/app/data/pages
-            - OPAC_JOURNAL_IMAGES_SOURCE_PATH=/app/data/img
-            - OPAC_APM_ENABLED=False
-            - OPAC_APM_SERVER_URL=
-            - OPAC_APM_SERVICE_NAME=Website
-            - OPAC_APM_ENVIRONMENT=production
-            - OPAC_APM_SECRET_TOKEN=
-            - OPAC_SSM_SCHEME=http
-            - OPAC_SSM_DOMAIN=minio
-            - OPAC_SSM_PORT=9000
-            - OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS=5
-            - OPAC_FILTER_SECTION_ENABLE=True
+        env_file:
+            - ./.envs/.production/.flask
+            - ./.envs/.production/.redis
+            - ./.envs/.production/.monitoring-apm
+            - ./.envs/.production/.metrics   
 
     nginx:
         image: nginx:latest
@@ -98,20 +72,24 @@ services:
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
-        environment:
-            - OPAC_DEBUG_MODE=False
-            - OPAC_MONGODB_NAME=opac
-            - OPAC_DATABASE_DIR=/app/data
-            - OPAC_SECRET_KEY=s3kr3tk3y
-            - OPAC_MONGODB_HOST=opac-mongo
-            - OPAC_CACHE_ENABLED=True
-            - OPAC_CACHE_DEFAULT_TIMEOUT=3600
-            - OPAC_CACHE_REDIS_HOST=redis-cache
-            - OPAC_SERVER_NAME=opac.scielo.org
-            - OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=True
-            - OPAC_AUDIT_LOG_NOTIFICATION_RECIPIENTS=foo@scielo.org,bar@scielo.org
-            - OPAC_RQ_REDIS_HOST=redis-cache
-            - OPAC_RQ_REDIS_PORT=6379
+        # environment:
+        #     - OPAC_DEBUG_MODE=False
+        #     - OPAC_MONGODB_NAME=opac
+        #     - OPAC_DATABASE_DIR=/app/data
+        #     - OPAC_SECRET_KEY=s3kr3tk3y
+        #     - OPAC_MONGODB_HOST=opac-mongo
+        #     - OPAC_CACHE_ENABLED=True
+        #     - OPAC_CACHE_DEFAULT_TIMEOUT=3600
+        #     - OPAC_CACHE_REDIS_HOST=redis-cache
+        #     - OPAC_SERVER_NAME=opac.scielo.org
+        #     - OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=True
+        #     - OPAC_AUDIT_LOG_NOTIFICATION_RECIPIENTS=foo@scielo.org,bar@scielo.org
+        #     - OPAC_RQ_REDIS_HOST=redis-cache
+        #     - OPAC_RQ_REDIS_PORT=6379
+        env_file:
+            - ./.envs/.production/.flask
+            - ./.envs/.production/.redis
+            - ./.envs/.production/.server
 
     opac-rq-scheduler:
         image: infrascielo/opac_5
@@ -128,20 +106,10 @@ services:
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
-        environment:
-            - OPAC_DEBUG_MODE=False
-            - OPAC_MONGODB_NAME=opac
-            - OPAC_DATABASE_DIR=/app/data
-            - OPAC_SECRET_KEY=s3kr3tk3y
-            - OPAC_MONGODB_HOST=opac-mongo
-            - OPAC_CACHE_ENABLED=True
-            - OPAC_CACHE_DEFAULT_TIMEOUT=3600
-            - OPAC_CACHE_REDIS_HOST=redis-cache
-            - OPAC_SERVER_NAME=opac.scielo.org
-            - OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=True
-            - OPAC_AUDIT_LOG_NOTIFICATION_RECIPIENTS=foo@scielo.org,bar@scielo.org
-            - OPAC_RQ_REDIS_HOST=redis-cache
-            - OPAC_RQ_REDIS_PORT=6379
+        env_file:
+            - ./.envs/.production/.flask
+            - ./.envs/.production/.redis
+            - ./.envs/.production/.server
 
     minio:
         image: 'minio/minio:RELEASE.2024-06-29T01-20-47Z'
@@ -150,9 +118,8 @@ services:
         ports:
             - '9000:9000'
             - '9001:9001'
-        environment:
-            - MINIO_ROOT_USER=
-            - MINIO_ROOT_PASSWORD=
+        env_file:
+            - ./.envs/.production/.minio
         volumes:
             - '../minio/data:/data'
         command: server --console-address ":9001" /data
