@@ -1,0 +1,22 @@
+# ------------------------- Metrics --------------------------
+# ------------------------------------------------------------
+
+# Enable metrics usage
+# Possible values: True or False
+OPAC_USE_METRICS=
+OPAC_METRICS_URL=
+
+# Enable Dimensions usage
+# Possible values: True or False
+OPAC_USE_DIMENSIONS=
+OPAC_DIMENSIONS_URL=
+
+# Enable PlumX metrics
+# Possible values: True or False
+OPAC_USE_PLUMX=
+OPAC_PLUMX_METRICS_URL=
+
+# Enable Altmetric metrics
+# Possible values: True or False
+OPAC_USE_ALTMETRIC=
+OPAC_ALTMETRIC_METRICS_URL=

@@ -1,0 +1,3 @@
+# MinIO configuration
+MINIO_ROOT_USER=
+MINIO_ROOT_PASSWORD=
