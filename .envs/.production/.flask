@@ -1,0 +1,47 @@
+# -------------- OPAC Application configuration --------------
+# ------------------------------------------------------------
+# Possible values: True or False
+OPAC_DEBUG_MODE=False
+
+# Possible values: WARNING, INFO, ERROR, CRITICAL AND DEBUG
+OPAC_LOG_LEVEL=WARNING
+
+# Possible values: True or False
+OPAC_MINIFY_PAGE=False
+
+# Name for MongoDB. Ex: opac
+OPAC_MONGODB_NAME=opac
+
+# Path to directory app. Ex: /app/data
+OPAC_DATABASE_DIR=/app/data
+
+# Value for key. Ex: nmN73pR6
+OPAC_SECRET_KEY=
+
+# Name for MongoDB host
+OPAC_MONGODB_HOST=opac_mongo
+
+# -------------------- Journal path -------------------
+# ------------------------------------------------------------
+
+# Journal pages source paths. Ex: /app/data/pages
+OPAC_JOURNAL_PAGES_SOURCE_PATH=/app/data/pages
+
+# Journal images source paths. Ex: /app/data/img
+OPAC_JOURNAL_IMAGES_SOURCE_PATH=/app/data/img
+
+
+# --------- SSM (Simple Storage Manager) settings ------------
+# ------------------------------------------------------------
+
+OPAC_SSM_SCHEME=http
+OPAC_SSM_DOMAIN=minio
+OPAC_SSM_PORT=9000
+
+# ----------------- Filter settings ---------------------
+# ------------------------------------------------------------
+
+# (in minutes). Ex: 5
+OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS=5
+# Possible values: True or False
+OPAC_FILTER_SECTION_ENABLE=True
