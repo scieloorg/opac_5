@@ -1,0 +1,7 @@
+# ----------------- Server Configuration ---------------------
+# ------------------------------------------------------------
+
+OPAC_SERVER_NAME=
+# Possible values: True or False
+OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=
+OPAC_AUDIT_LOG_NOTIFICATION_RECIPIENTS=

@@ -1,0 +1,21 @@
+# --------------------- Redis configuration ------------------
+# ------------------------------------------------------------
+
+# Redis host for cache. Ex: redis-cache
+OPAC_RQ_REDIS_HOST=redis-cache
+
+# Redis port for cache. Ex: 6379
+OPAC_RQ_REDIS_PORT=6379
+
+# --------------------- Cache configuration ------------------
+# ------------------------------------------------------------
+
+# True or False
+OPAC_CACHE_ENABLED=True
+
+# Cache timeout (in seconds). Ex: 3600
+OPAC_CACHE_DEFAULT_TIMEOUT=3600
+
+# Redis host for cache. Ex: redis-cache
+OPAC_CACHE_REDIS_HOST=redis-cache
+
