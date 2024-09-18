@@ -16,10 +16,14 @@ OPAC_MONGODB_NAME=opac
 OPAC_DATABASE_DIR=/app/data
 
 # Value for key. Ex: nmN73pR6
-OPAC_SECRET_KEY=
+OPAC_SECRET_KEY=NWhWFn_ScpW6YR9yJKDLxg
 
 # Name for MongoDB host
 OPAC_MONGODB_HOST=opac_mongo
+
+# Activate/Desactivate the cache of redis (default: True)
+OPAC_CACHE_ENABLED=False
+
 
 # -------------------- Journal path -------------------
 # ------------------------------------------------------------
@@ -38,10 +42,13 @@ OPAC_SSM_SCHEME=http
 OPAC_SSM_DOMAIN=minio
 OPAC_SSM_PORT=9000
 
-# ----------------- Filter settings ---------------------
+# ----------------- Table of contents sections ---------------------
 # ------------------------------------------------------------
 
-# (in minutes). Ex: 5
-OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS=5
+# This variable active/desactivate the sections on table of contents 
 # Possible values: True or False
 OPAC_FILTER_SECTION_ENABLE=True
+
+# This variable define a mininal count of study ares on the head of journal page
+OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS=5
+

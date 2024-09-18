@@ -3,20 +3,20 @@
 
 # Enable metrics usage
 # Possible values: True or False
-OPAC_USE_METRICS=
-OPAC_METRICS_URL=
+OPAC_USE_METRICS=True
+OPAC_METRICS_URL=http://analytics.scielo.org
 
 # Enable Dimensions usage
 # Possible values: True or False
-OPAC_USE_DIMENSIONS=
-OPAC_DIMENSIONS_URL=
+OPAC_USE_DIMENSIONS=True
+OPAC_DIMENSIONS_URL=https://badge.dimensions.ai/details/doi
 
 # Enable PlumX metrics
 # Possible values: True or False
-OPAC_USE_PLUMX=
-OPAC_PLUMX_METRICS_URL=
+OPAC_USE_PLUMX=True
+OPAC_PLUMX_METRICS_URL=https://plu.mx/scielo/a
 
 # Enable Altmetric metrics
 # Possible values: True or False
-OPAC_USE_ALTMETRIC=
-OPAC_ALTMETRIC_METRICS_URL=
+OPAC_USE_ALTMETRIC=True
+OPAC_ALTMETRIC_METRICS_URL=https://www.altmetric.com/details.php
