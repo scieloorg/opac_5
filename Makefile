@@ -13,6 +13,13 @@ export OPAC_WEBAPP_VERSION=$(strip $(shell cat VERSION))
 export OPAC_BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 export COMMIT=$(strip $(shell git rev-parse --short HEAD))
 
+# This check if docker compose version
+ifneq ($(shell docker compose version 2>/dev/null),)
+  DOCKER_COMPOSE=docker compose
+else
+  DOCKER_COMPOSE=docker-compose
+endif
+
 # Do not remove this block. It is used by the 'help' rule when
 # constructing the help output.
 # help:
@@ -182,47 +189,47 @@ build_bundles:
 # help: build                          - build the containers
 .PHONY: build
 build:
-	@docker-compose -f $(compose) build
+	$(DOCKER_COMPOSE) -f $(compose) build
 
 # help: up           	               - start the containers
 .PHONY: up
 up:
-	@docker-compose -f $(compose) up -d
+	$(DOCKER_COMPOSE) -f $(compose) up -d
 
 # help: logs           	               - show the containers logs
 .PHONY: logs
 logs:
-	@docker-compose -f $(compose) logs -f 
+	$(DOCKER_COMPOSE) -f $(compose) logs -f 
 
 # help: logs_tail           	       - show the containers logs 50 latest lines
 .PHONY: logs_tail
 logs_tail:
-	@docker-compose -f $(compose) logs -f --tail=50
+	$(DOCKER_COMPOSE) -f $(compose) logs -f --tail=50
 
 # help: stop           	               - stop the containers
 .PHONY: stop
 stop:
-	@docker-compose -f $(compose) stop
+	$(DOCKER_COMPOSE) -f $(compose) stop
 
 # help: ps           	               - show the containers Process Status
 .PHONY: ps
 ps:
-	@docker-compose -f $(compose) ps
+	$(DOCKER_COMPOSE) -f $(compose) ps
 
 # help: rm           	               - remove all containers from $(compose)
 .PHONY: rm
 rm:
-	@docker-compose -f $(compose) rm -f
+	$(DOCKER_COMPOSE) -f $(compose) rm -f
 
 # help: shell                          - open a shell from containers
 .PHONY: shell
 shell: up
-	@docker-compose -f $(compose) exec opac_webapp sh
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_webapp sh
 
 # help: docker_test           	       - run the tests from containers
 .PHONY: docker_test
 docker_test: up
-	@docker-compose -f $(compose) exec opac_webapp make test
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_webapp make test
 
 #################
 ##docker release#

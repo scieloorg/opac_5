@@ -1,7 +1,9 @@
 # ----------------- Server Configuration ---------------------
 # ------------------------------------------------------------
 
-OPAC_SERVER_NAME=
+# This set the IP that the app will bind to run, default: 0.0.0.0
+OPAC_SERVER_NAME=0.0.0.0
+
 # Possible values: True or False
-OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=
+OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=False
 OPAC_AUDIT_LOG_NOTIFICATION_RECIPIENTS=
