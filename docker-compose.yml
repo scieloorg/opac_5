@@ -8,7 +8,7 @@ services:
         user: redis
         restart: always
         volumes:
-            - ./data/redis-cache-data-dev:/data
+            - redis-data:/data
             - /etc/localtime:/etc/localtime:ro
 
     opac_mongo:
@@ -20,12 +20,12 @@ services:
         ports:
             - "27017:27017"
         volumes:
-            - ./data/db:/data/db:rw
+            - mongodb-data:/data/db:rw
 
     opac_webapp:
         image: infrascielo/opac_5
         container_name: opac_webapp_prod
-        user: nobody
+        user: opac
         restart: always
         hostname: opac_webapp
         depends_on:
@@ -33,8 +33,7 @@ services:
             - redis-cache
         volumes:
             - /etc/localtime:/etc/localtime:ro
-            - ./data:/app/data
-            - ./data/img:/app/data/img
+            - opac_webapp-data:/app
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
@@ -87,14 +86,14 @@ services:
         image: infrascielo/opac_5
         container_name: opac_rq_worker_prod
         command: /app/start_worker.sh
-        user: nobody
+        user: opac
         restart: always
         depends_on:
             - opac_mongo
             - redis-cache
         volumes:
             - /etc/localtime:/etc/localtime:ro
-            - ./data:/app/data
+            - opac_webapp-data:/app
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
@@ -117,14 +116,14 @@ services:
         image: infrascielo/opac_5
         container_name: opac_rq_scheduler_prod
         command: /app/start_scheduler.sh
-        user: nobody
+        user: opac
         restart: always
         depends_on:
             - opac_mongo
             - redis-cache
         volumes:
             - /etc/localtime:/etc/localtime:ro
-            - ./data:/app/data
+            - opac_webapp-data:/app
         links:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
@@ -156,3 +155,11 @@ services:
         volumes:
             - '../minio/data:/data'
         command: server --console-address ":9001" /data
+
+volumes:
+  redis-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  opac_webapp-data:
+    driver: local
