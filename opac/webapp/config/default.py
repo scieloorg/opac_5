@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+import ast
 
 """
   Na Configuração padrão, definimos estas configurações para deixar a app rodando em modo "produção".
@@ -186,7 +187,10 @@ import os
         - OPAC_FILTER_SECTION_ENABLE: ativa/desativa o filtro por seção na página do issue.
 
       - Common Style List
-        - OAPC_COMMON_STYLE_LIST: Caminho para um arquivo .json com as CSL.
+        - OPAC_COMMON_STYLE_LIST: Caminho para um arquivo .json com as CSL.
+
+      - Interface languages
+        - OPAC_LANGUAGES: os idiomas com seus respectivos labels, exemplo: {'pt_BR': 'Português','en': 'English','es': 'Español'}
 """
 
 PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -292,14 +296,13 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 TOKEN_MAX_AGE = 86400
 
 
-# Linguagens suportados
-LANGUAGES = {
-    "pt_BR": "Português",
-    "en": "English",
-    "es": "Español",
-    # 'es_ES': 'Español (España)',
-    # 'es_MX': 'Español (México)',
-}
+# Linguagens suportados pela interface
+LANGUAGES = ast.literal_eval(
+    os.environ.get(
+        "OPAC_LANGUAGES",
+        "{'pt_BR': 'Português','en': 'English','es': 'Español'}",
+    )
+)
 
 # linguagem padrão:
 BABEL_DEFAULT_LOCALE = "pt_BR"
@@ -484,7 +487,7 @@ SSM_MEDIA_PATH = os.environ.get("OPAC_SSM_MEDIA_PATH", "/media/assets/")
 SSM_XML_URL_REWRITE = os.environ.get("OPAC_SSM_XML_URL_REWRITE", "True") == "True"
 SSM_ARTICLE_ASSETS_OR_RENDITIONS_URL_REWRITE = SSM_XML_URL_REWRITE
 
-HTML_GENERATOR_VERSION = os.environ.get('HTML_GENERATOR_VERSION', '3.0')
+HTML_GENERATOR_VERSION = os.environ.get("HTML_GENERATOR_VERSION", "3.0")
 
 # SSM_BASE_URI ex: 'https://homolog.ssm.scielo.org:80/'
 SSM_BASE_URI = "{scheme}://{domain}:{port}".format(
@@ -643,7 +646,9 @@ FORCE_USE_HTTPS_GOOGLE_TAGS = os.environ.get("OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS",
 # Filtros por seção no TOC
 FILTER_SECTION_ENABLE = os.environ.get("OPAC_FILTER_SECTION_ENABLE", False)
 # para uso combinado com FILTER_SECTION_ENABLE
-FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS = int(os.environ.get("OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS", 5))
+FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS = int(
+    os.environ.get("OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS", 5)
+)
 
 # Linguagens suportados
 ACCESSIBILITY_BY_LANGUAGE = {
