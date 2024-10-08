@@ -11,13 +11,9 @@ from uuid import uuid4
 import pytz
 import requests
 import webapp
-from citeproc import (
-    Citation,
-    CitationItem,
-    CitationStylesBibliography,
-    CitationStylesStyle,
-    formatter,
-)
+from bs4 import BeautifulSoup
+from citeproc import (Citation, CitationItem, CitationStylesBibliography,
+                      CitationStylesStyle, formatter)
 from citeproc.source.json import CiteProcJSON
 from citeproc_styles import get_style_filepath
 from flask import current_app, render_template
@@ -25,8 +21,11 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from legendarium.urlegendarium import URLegendarium
 from opac_schema.v1.models import AuditLogEntry, Pages
+from tenacity import (retry, retry_if_exception_type, stop_after_attempt,
+                      wait_exponential)
 from webapp import models
 from webapp.admin.forms import EmailForm
+from webapp.main.errors import internal_server_error, page_not_found
 from webapp.utils.page_migration import MigratedPage, PageMigration
 from werkzeug.utils import secure_filename
 
@@ -42,6 +41,19 @@ REGEX_EMAIL = re.compile(
     re.IGNORECASE,
 )  # RFC 2822 (simplified)
 logger = logging.getLogger(__name__)
+
+
+class RetryableError(Exception):
+    """Erro recuperável sem que seja necessário modificar o estado dos dados
+    na parte cliente, e.g., time
+    etc.
+    """
+
+
+class NonRetryableError(Exception):
+    """Erro do qual não pode ser recuperado sem modificar o estado dos dados
+    na parte cliente, e.g., recurso solicitado não exite, URI inválida etc.
+    """
 
 
 def namegen_filename(obj, file_data=None):
@@ -686,3 +698,100 @@ def render_citation(csl_json, style="apa", formatter=formatter.html, validate=Fa
     bibliography.cite(citation, warn)
 
     return [str(item) for item in bibliography.bibliography()]
+
+
+@retry(
+    retry=retry_if_exception_type(RetryableError),
+    wait=wait_exponential(multiplier=1, min=1, max=5),
+    stop=stop_after_attempt(5),
+)
+def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
+    """
+    Get the resource with HTTP
+    Retry: Wait 2^x * 1 second between each retry starting with 4 seconds,
+           then up to 10 seconds, then 10 seconds afterwards
+    Args:
+        url: URL address
+        headers: HTTP headers
+        json: True|False
+        verify: Verify the SSL.
+    Returns:
+        Return a requests.response object.
+    Except:
+        Raise a RetryableError to retry.
+    """
+
+    try:
+        logger.info("Fetching the URL: %s" % url)
+        response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
+        logger.error("Erro fetching the content: %s, retry..., erro: %s" % (url, exc))
+        raise RetryableError(exc) from exc
+    except (
+        requests.exceptions.InvalidSchema,
+        requests.exceptions.MissingSchema,
+        requests.exceptions.InvalidURL,
+    ) as exc:
+        raise NonRetryableError(exc) from exc
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        if 400 <= exc.response.status_code < 500:
+            raise NonRetryableError(exc) from exc
+        elif 500 <= exc.response.status_code < 600:
+            logger.error(
+                "Erro fetching the content: %s, retry..., erro: %s" % (url, exc)
+            )
+            raise RetryableError(exc) from exc
+        else:
+            raise
+
+    return response.content if not json else response.json()
+
+
+def replace_link(section):
+    regex = r"^(.*?)(#.*)"
+    links = section.find_all("a", href=True)
+    for link in links:
+        href = re.match(regex, link['href'])
+        if href:
+            link['href'] = href.group(2)
+    return section
+
+
+def normalize_lang_portuguese(language):
+    if language == "pt_BR":
+        return "pt-br"
+    else:
+        return language
+
+
+def extract_section(html_content, class_name):
+    soup = BeautifulSoup(html_content, "html.parser")
+    section = soup.find("section", class_=class_name)
+    section = replace_link(section=section)
+    if section:
+        return str(section)
+    else:
+        return None
+
+
+def fetch_and_extract_section(collection_acronym, journal_acronym, language):
+    """
+    Busca e extrai seção "journalContent" localizada no core.scielo.org
+    """
+    class_name = "journalContent"
+    lang = normalize_lang_portuguese(language)
+    url = (
+        f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
+    )
+
+    try:
+        content = fetch_data(url=url)
+    except NonRetryableError as e:
+        page_not_found(e)
+    except RetryableError as e:
+        internal_server_error(e)
+
+    return extract_section(content, class_name)
+
