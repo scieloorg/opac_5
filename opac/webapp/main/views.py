@@ -30,17 +30,10 @@ from legendarium.formatter import descriptive_short_format
 from lxml import etree
 from opac_schema.v1.models import Article, Collection, Issue, Journal
 from packtools import HTMLGenerator
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
-from webapp.main.errors import page_not_found, internal_server_error
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 
@@ -66,68 +59,6 @@ def url_external(endpoint, **kwargs):
     return urljoin(request.url_root, url)
 
 
-class RetryableError(Exception):
-    """Erro recuperável sem que seja necessário modificar o estado dos dados
-    na parte cliente, e.g., time
-    etc.
-    """
-
-
-class NonRetryableError(Exception):
-    """Erro do qual não pode ser recuperado sem modificar o estado dos dados
-    na parte cliente, e.g., recurso solicitado não exite, URI inválida etc.
-    """
-
-
-@retry(
-    retry=retry_if_exception_type(RetryableError),
-    wait=wait_exponential(multiplier=1, min=1, max=5),
-    stop=stop_after_attempt(5),
-)
-def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
-    """
-    Get the resource with HTTP
-    Retry: Wait 2^x * 1 second between each retry starting with 4 seconds,
-           then up to 10 seconds, then 10 seconds afterwards
-    Args:
-        url: URL address
-        headers: HTTP headers
-        json: True|False
-        verify: Verify the SSL.
-    Returns:
-        Return a requests.response object.
-    Except:
-        Raise a RetryableError to retry.
-    """
-
-    try:
-        logger.info("Fetching the URL: %s" % url)
-        response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
-    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
-        logger.error("Erro fetching the content: %s, retry..., erro: %s" % (url, exc))
-        raise RetryableError(exc) from exc
-    except (
-        requests.exceptions.InvalidSchema,
-        requests.exceptions.MissingSchema,
-        requests.exceptions.InvalidURL,
-    ) as exc:
-        raise NonRetryableError(exc) from exc
-    try:
-        response.raise_for_status()
-    except requests.HTTPError as exc:
-        if 400 <= exc.response.status_code < 500:
-            raise NonRetryableError(exc) from exc
-        elif 500 <= exc.response.status_code < 600:
-            logger.error(
-                "Erro fetching the content: %s, retry..., erro: %s" % (url, exc)
-            )
-            raise RetryableError(exc) from exc
-        else:
-            raise
-
-    return response.content if not json else response.json()
-
-
 @main.before_app_request
 def add_collection_to_g():
     if not hasattr(g, "collection"):
@@ -137,6 +68,11 @@ def add_collection_to_g():
         except Exception:
             # discutir o que fazer aqui
             setattr(g, "collection", {})
+
+
+@main.before_app_request
+def add_langs():
+    session["langs"] = current_app.config.get("LANGUAGES")
 
 
 @main.after_request
@@ -166,7 +102,8 @@ def add_forms_to_g():
 def add_scielo_org_config_to_g():
     language = session.get("lang", get_locale())
     scielo_org_links = {
-        key: url[language]
+        # if language doesnt exists set the 'en' to SciELO ORG links.
+        key: url.get(language, "en")
         for key, url in current_app.config.get("SCIELO_ORG_URIS", {}).items()
     }
     setattr(g, "scielo_org", scielo_org_links)
@@ -679,7 +616,7 @@ def about_journal(url_seg):
 
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-
+    
     if (
         not journal.last_issue
         or journal.last_issue.type not in ("volume_issue", "regular")
@@ -702,7 +639,7 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    section_journal_content = fetch_and_extract_section(
+    section_journal_content = utils.fetch_and_extract_section(
         collection_acronym, journal.acronym, language
     )
 
@@ -1210,9 +1147,9 @@ def render_html_from_xml(article, lang, gs_abstract=False):
     logger.debug("Get XML: %s", article.xml)
 
     if current_app.config["SSM_XML_URL_REWRITE"]:
-        result = fetch_data(use_ssm_url(article.xml))
+        result = utils.fetch_data(use_ssm_url(article.xml))
     else:
-        result = fetch_data(article.xml)
+        result = utils.fetch_data(article.xml)
 
     try:
         xslt = current_app.config["HTML_GENERATOR_VERSION"]
@@ -1240,7 +1177,7 @@ def render_html_from_html(article, lang):
     except IndexError:
         raise ValueError("Artigo não encontrado") from None
 
-    result = fetch_data(use_ssm_url(html_url))
+    result = utils.fetch_data(use_ssm_url(html_url))
 
     html = result.decode("utf8")
 
@@ -1474,9 +1411,9 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
 
     def _handle_xml():
         if current_app.config["SSM_XML_URL_REWRITE"]:
-            result = fetch_data(use_ssm_url(article.xml))
+            result = utils.fetch_data(use_ssm_url(article.xml))
         else:
-            result = fetch_data(article.xml)
+            result = utils.fetch_data(article.xml)
         response = make_response(result)
         response.headers["Content-Type"] = "application/xml"
         return response
@@ -1525,10 +1462,10 @@ def get_pdf_content(url):
     if current_app.config["SSM_ARTICLE_ASSETS_OR_RENDITIONS_URL_REWRITE"]:
         url = use_ssm_url(url)
     try:
-        response = fetch_data(url)
-    except NonRetryableError:
+        response = utils.fetch_data(url)
+    except utils.NonRetryableError:
         abort(404, _("PDF não encontrado"))
-    except RetryableError:
+    except utils.RetryableError:
         abort(500, _("Erro inesperado"))
     else:
         mimetype, __ = mimetypes.guess_type(url)
@@ -1543,10 +1480,10 @@ def get_content_from_ssm(resource_ssm_media_path):
     mimetype, __ = mimetypes.guess_type(url)
 
     try:
-        ssm_response = fetch_data(url)
-    except NonRetryableError:
+        ssm_response = utils.fetch_data(url)
+    except utils.NonRetryableError:
         abort(404, _("Recurso não encontrado"))
-    except RetryableError:
+    except utils.RetryableError:
         abort(500, _("Erro inesperado"))
     else:
         return Response(ssm_response, mimetype=mimetype)
@@ -2270,53 +2207,6 @@ def pressrelease(*args):
         return jsonify({"failed": True, "error": str(e)}), 500    
     else:
         return jsonify({"failed": False}), 200
-
-
-def replace_link(section):
-    regex = r"^(.*?)(#.*)"
-    links = section.find_all("a", href=True)
-    for link in links:
-        href = re.match(regex, link['href'])
-        if href:
-            link['href'] = href.group(2)
-    return section
-
-
-def normalize_lang_portuguese(language):
-    if language == "pt_BR":
-        return "pt-br"
-    else:
-        return language
-
-
-def extract_section(html_content, class_name):
-    soup = BeautifulSoup(html_content, "html.parser")
-    section = soup.find("section", class_=class_name)
-    section = replace_link(section=section)
-    if section:
-        return str(section)
-    else:
-        return None
-
-
-def fetch_and_extract_section(collection_acronym, journal_acronym, language):
-    """
-    Busca e extrai seção "journalContent" localizada no core.scielo.org
-    """
-    class_name = "journalContent"
-    lang = normalize_lang_portuguese(language)
-    url = (
-        f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
-    )
-
-    try:
-        content = fetch_data(url=url)
-    except NonRetryableError as e:
-        page_not_found(e)
-    except RetryableError as e:
-        internal_server_error(e)
-
-    return extract_section(content, class_name)
 
 
 @restapi.route("/journal_last_issues", methods=["POST", "PUT"])
