@@ -24,6 +24,9 @@ OPAC_MONGODB_HOST=opac_mongo
 # Activate/Desactivate the cache of redis (default: True)
 OPAC_CACHE_ENABLED=False
 
+# Interface languages 
+OPAC_LANGUAGES="{'pt_BR': 'Português','en': 'English','es': 'Español'}"
+
 
 # -------------------- Journal path -------------------
 # ------------------------------------------------------------
