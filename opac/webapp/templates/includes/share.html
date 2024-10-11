@@ -4,15 +4,23 @@
     <span class="material-icons-outlined">share</span>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><a href="javascript:window.print();" class="dropdown-item">{% trans %}Imprimir{% endtrans %}</a></li>
-    <li><a href="{{ url_for('main.collection_list_feed')}}" type="button" class="dropdown-item" target="_blank">RSS</a></li>
-    <li><a href="javascript:;" class="dropdown-item share_modal_id">E-mail</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item shareFacebook" href="#">Facebook</a></li>
-    <li><a class="dropdown-item shareTwitter" href="#">X</a></li>
-    <li><a class="dropdown-item shareLinkedIn" href="#">LinkedIn</a></li>
-    <li><a class="dropdown-item shareReddit" href="#">Reddit</a></li>
-    <li><a class="dropdown-item shareCiteULike" href="#">CiteULike</a></li>
-    <li><a class="dropdown-item shareMendeley" href="#">Mendeley</a></li>
+    <li>
+      <div class="a2a_kit a2a_kit_size_24"><a class="d-flex gap-2 dropdown-item a2a_button_whatsapp">Whatsapp</a></div>
+    </li>
+    <li>
+      <div class="a2a_kit a2a_kit_size_24"><a class="d-flex gap-2 dropdown-item a2a_button_bluesky">BlueSky</a></div> 
+    </li>
+    <li>
+      <div class="a2a_kit a2a_kit_size_24"><a class="d-flex gap-2 dropdown-item a2a_button_mastodon">Mastodon</a></div> 
+    </li>
+    <li>
+      <div class="a2a_kit a2a_kit_size_24"><a class="d-flex gap-2 dropdown-item a2a_button_facebook">Facebook</a></div> 
+    </li>
+    <li>
+      <div class="a2a_kit a2a_kit_size_24"><a class="d-flex gap-2 dropdown-item a2a_dd" href="https://www.addtoany.com/share">{% trans %}Mais{% endtrans %}</a></div>
+    </li>
   </ul>
 </div>
+
+<!-- AddToAny -->
+<script async src="https://static.addtoany.com/menu/page.js"></script>
