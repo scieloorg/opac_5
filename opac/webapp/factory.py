@@ -84,7 +84,7 @@ def JournalFactory(data):
     journal.online_submission_url = metadata.get("online_submission_url", "")
     if journal.logo_url is None or len(journal.logo_url) == 0:
         journal.logo_url = metadata.get("logo_url", "")
-    journal.current_status = metadata.get("status_history", [{}])[-1].get("status")
+    journal.current_status = metadata.get("current_status")
 
     timelines = []
     for timeline in metadata.get("status_history", []):
@@ -108,6 +108,7 @@ def JournalFactory(data):
 
     journal.created = journal.created or isoformat_to_datetime(data.get("created"))
     journal.updated = isoformat_to_datetime(data.get("updated"))
+    journal.is_public = metadata["is_public"]
 
     return journal
 
@@ -415,7 +416,7 @@ class AuxiliarArticleFactory:
         _mat_suppl_item.filename = filename
         self.doc.mat_suppl_items.append(_mat_suppl_item)
 
-    def publish_document(self, created, updated):
+    def publish_document(self, created, updated, is_public):
         """
         Publishes doc data
 
@@ -436,12 +437,22 @@ class AuxiliarArticleFactory:
                 self.doc.aop_url_segs = models.AOPUrlSegments(**url_segs)
 
             # atualiza status
-            self.doc.issue.is_public = True
-            self.doc.is_public = True
+            self.doc.is_public = is_public
             self.doc.created = self.doc.created or isoformat_to_datetime(created)
             self.doc.updated = isoformat_to_datetime(updated)
-
             self.doc.save()
+
+            # publica ou despublica o issue à condição de haver ou não artigos publicados
+            for item in models.Article.objects.filter(issue=self.doc.issue, is_public=True):
+                issue_is_public = True
+                break
+            else:
+                issue_is_public = False
+
+            if issue_is_public != self.doc.issue.is_public:
+                self.doc.issue.is_public = issue_is_public
+                self.doc.issue.save()
+
         except Exception as e:
             raise PublishDocumentError(e)
         return self.doc
@@ -557,7 +568,7 @@ def ArticleFactory(
     # TODO
     # add_doi_with_lang(self, language, doi)
     # add_related_article(self, doi, ref_id, related_type)
-    factory.publish_document(data.get("created"), data.get("updated"))
+    factory.publish_document(data.get("created"), data.get("updated"), data.get("is_public"))
 
     return article
 
