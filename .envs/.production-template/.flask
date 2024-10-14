@@ -21,12 +21,24 @@ OPAC_SECRET_KEY=NWhWFn_ScpW6YR9yJKDLxg
 # Name for MongoDB host
 OPAC_MONGODB_HOST=opac_mongo
 
-# Activate/Desactivate the cache of redis (default: True)
+# Activate/Desactivate the cache of redis (default: False)
 OPAC_CACHE_ENABLED=False
 
 # Interface languages 
 OPAC_LANGUAGES="{'pt_BR': 'Português','en': 'English','es': 'Español'}"
 
+# Acronym Collection. Consult:  https://articlemeta.scielo.org/api/v1/collection/identifiers/
+OPAC_COLLECTION=
+
+# Application version. Ex: v0.1.0
+OPAC_WEBAPP_VERSION=
+
+# LOCALZONE
+# Default 'America/Sao_Paulo'. Consult: https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
+LOCAL_ZONE=
+
+# ORCID URL. default: http://orcid.org/
+OPAC_ORCID_URL=http://orcid.org/
 
 # -------------------- Journal path -------------------
 # ------------------------------------------------------------
@@ -44,6 +56,7 @@ OPAC_JOURNAL_IMAGES_SOURCE_PATH=/app/data/img
 OPAC_SSM_SCHEME=http
 OPAC_SSM_DOMAIN=minio
 OPAC_SSM_PORT=9000
+OPAC_SSM_MEDIA_PATH=/media/assets/
 
 # ----------------- Table of contents sections ---------------------
 # ------------------------------------------------------------
