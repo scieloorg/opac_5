@@ -41,9 +41,12 @@ RUN sed -i 's/\r//' start_worker.sh \
     && chown nobody start_scheduler.sh
 
 RUN make compile_messages
-RUN chown -R nobody:nogroup /app
+RUN addgroup -S scielo
+RUN adduser -S opac -G scielo
+RUN chown -R opac:scielo /app
+
 VOLUME /app/data
-USER nobody
+USER opac
 EXPOSE 8000
 
 HEALTHCHECK --interval=5m --timeout=3s \
