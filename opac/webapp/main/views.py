@@ -36,6 +36,7 @@ from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
+from webapp.main.errors import page_not_found, internal_server_error
 
 from . import helper
 
@@ -639,10 +640,15 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
 
-    section_journal_content = utils.fetch_and_extract_section(
-        collection_acronym, journal.acronym, language
-    )
-
+    try:
+        section_journal_content = utils.fetch_and_extract_section(
+            collection_acronym, journal.acronym, language
+        )
+    except utils.NonRetryableError as e:
+        return page_not_found(e)
+    except utils.RetryableError as e:
+        return internal_server_error(e)
+    
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -1345,9 +1351,9 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             citation_pdf_url = "{}{}".format(website, citation_pdf_url)
         try:
             html, text_languages = render_html(article, qs_lang, gs_abstract)
-        except (ValueError, NonRetryableError):
+        except (ValueError, utils.NonRetryableError):
             abort(404, _("HTML do Artigo não encontrado ou indisponível"))
-        except RetryableError:
+        except utils.RetryableError:
             abort(500, _("Erro inesperado"))
 
         text_versions = sorted(
