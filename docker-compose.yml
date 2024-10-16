@@ -43,7 +43,7 @@ services:
         env_file:
             - ./.envs/.production/.flask
             - ./.envs/.production/.redis
-            - ./.envs/.production/.monitoring-apm
+            - ./.envs/.production/.monitoring
             - ./.envs/.production/.metrics   
 
     nginx:

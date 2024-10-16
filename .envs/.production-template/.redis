@@ -10,7 +10,7 @@ OPAC_RQ_REDIS_PORT=6379
 # --------------------- Cache configuration ------------------
 # ------------------------------------------------------------
 
-# True or False
+# Activate/Desactivate the cache of redis (default: False)
 OPAC_CACHE_ENABLED=True
 
 # Cache timeout (in seconds). Ex: 3600
