@@ -638,11 +638,16 @@ def about_journal(url_seg):
         )
     else:
         latest_issue_legend = None
-
-    section_journal_content = utils.fetch_and_extract_section(
-        collection_acronym, journal.acronym, language
-    )
-
+    
+    if journal.old_information_page:
+        page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
+        content = page.content
+    else:
+        section_journal_content = utils.fetch_and_extract_section(
+            collection_acronym, journal.acronym, language
+        )
+        content = section_journal_content
+    
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -652,9 +657,7 @@ def about_journal(url_seg):
         ],
     }
 
-    if section_journal_content:
-        context["content"] = section_journal_content
-
+    context['content'] = content
     context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
