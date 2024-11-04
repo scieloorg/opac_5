@@ -127,11 +127,15 @@ def add_filter_without_embargo(kwargs={}):
 def get_current_collection():
     """
     Retorna o objeto coleção filtrando pela coleção cadastrada no arquivo de
-    configuração ``OPAC_COLLECTION``.
+    configuração ``OPAC_COLLECTION``. Se não encontrar a configuração, tenta
+    retornar a primeira coleção disponível.
     """
-    current_collection_acronym = current_app.config["OPAC_COLLECTION"]
-    collection = Collection.objects.get(acronym=current_collection_acronym)
-    return collection
+    try:
+        current_acronym_collection = Collection.objects.get(acronym=current_app.config["OPAC_COLLECTION"])
+    except (KeyError, Collection.DoesNotExist):
+        current_acronym_collection = Collection.objects.first()
+    
+    return current_acronym_collection
 
 
 def get_collection_tweets():

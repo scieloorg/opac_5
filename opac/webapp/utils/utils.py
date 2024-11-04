@@ -786,12 +786,7 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
         f"http://core.scielo.org/{lang}/journal/{collection_acronym}/{journal_acronym}/"
     )
 
-    try:
-        content = fetch_data(url=url)
-    except NonRetryableError as e:
-        page_not_found(e)
-    except RetryableError as e:
-        internal_server_error(e)
+    content = fetch_data(url=url)
 
     return extract_section(content, class_name)
 
