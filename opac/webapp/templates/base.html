@@ -24,6 +24,8 @@
       <script src="{{ url_for('static', filename='js/vendor/html5-3.6-respond-1.1.0.min.js') }}"></script>
     <![endif]-->
 
+    {% include "includes/clockss.html" %}
+
     {% if not config.DEBUG and config.GA_TRACKING_CODE %}
     <!-- Google Analytics -->
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.GA_TRACKING_CODE }}"></script>

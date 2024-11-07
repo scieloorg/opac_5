@@ -36,6 +36,7 @@ from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
+from webapp.main.errors import page_not_found, internal_server_error
 
 from . import helper
 
@@ -638,11 +639,16 @@ def about_journal(url_seg):
         )
     else:
         latest_issue_legend = None
-
-    section_journal_content = utils.fetch_and_extract_section(
-        collection_acronym, journal.acronym, language
-    )
-
+    
+    if journal.old_information_page:
+        page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
+        content = page.content
+    else:
+        section_journal_content = utils.fetch_and_extract_section(
+            collection_acronym, journal.acronym, language
+        )
+        content = section_journal_content
+    
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -652,9 +658,7 @@ def about_journal(url_seg):
         ],
     }
 
-    if section_journal_content:
-        context["content"] = section_journal_content
-
+    context['content'] = content
     context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
@@ -1345,9 +1349,9 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             citation_pdf_url = "{}{}".format(website, citation_pdf_url)
         try:
             html, text_languages = render_html(article, qs_lang, gs_abstract)
-        except (ValueError, NonRetryableError):
+        except (ValueError, utils.NonRetryableError):
             abort(404, _("HTML do Artigo não encontrado ou indisponível"))
-        except RetryableError:
+        except utils.RetryableError:
             abort(500, _("Erro inesperado"))
 
         text_versions = sorted(

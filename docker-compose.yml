@@ -41,10 +41,10 @@ services:
         expose:
             - "8000"
         env_file:
-            - ./.envs/.production/.flask
-            - ./.envs/.production/.redis
-            - ./.envs/.production/.monitoring
-            - ./.envs/.production/.metrics   
+            - ./.envs/.production-template/.flask
+            - ./.envs/.production-template/.redis
+            - ./.envs/.production-template/.monitoring-apm
+            - ./.envs/.production-template/.metrics
 
     nginx:
         image: nginx:latest
@@ -73,9 +73,9 @@ services:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
         env_file:
-            - ./.envs/.production/.flask
-            - ./.envs/.production/.redis
-            - ./.envs/.production/.server
+            - ./.envs/.production-template/.flask
+            - ./.envs/.production-template/.redis
+            - ./.envs/.production-template/.server
 
     opac-rq-scheduler:
         image: infrascielo/opac_5
@@ -93,9 +93,9 @@ services:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
         env_file:
-            - ./.envs/.production/.flask
-            - ./.envs/.production/.redis
-            - ./.envs/.production/.server
+            - ./.envs/.production-template/.flask
+            - ./.envs/.production-template/.redis
+            - ./.envs/.production-template/.server
 
     minio:
         image: 'minio/minio:RELEASE.2024-06-29T01-20-47Z'
@@ -105,7 +105,7 @@ services:
             - '9000:9000'
             - '9001:9001'
         env_file:
-            - ./.envs/.production/.minio
+            - ./.envs/.production-template/.minio
         volumes:
             - '../minio/data:/data'
         command: server --console-address ":9001" /data
