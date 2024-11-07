@@ -589,6 +589,7 @@ class JournalAdminView(OpacBaseAdminView):
         "eletronic_issn",
         "unpublish_reason",
         "url_segment",
+        "old_information_page",
     ]
 
     column_formatters = dict(
@@ -634,6 +635,7 @@ class JournalAdminView(OpacBaseAdminView):
         is_public=__("Publicado?"),
         unpublish_reason=__("Motivo de despublicação"),
         url_segment=__("Segmento de URL"),
+        old_information_page=__("Manter página informativa legado"),
     )
 
     @action("publish", _("Publicar"), ACTION_PUBLISH_CONFIRMATION_MSG)
