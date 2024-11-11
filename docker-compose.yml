@@ -43,8 +43,9 @@ services:
         env_file:
             - ./.envs/.production-template/.flask
             - ./.envs/.production-template/.redis
-            - ./.envs/.production-template/.monitoring-apm
+            - ./.envs/.production-template/.monitoring
             - ./.envs/.production-template/.metrics
+            - ./.envs/.production-template/.mongo
 
     nginx:
         image: nginx:latest
@@ -76,6 +77,7 @@ services:
             - ./.envs/.production-template/.flask
             - ./.envs/.production-template/.redis
             - ./.envs/.production-template/.server
+            - ./.envs/.production-template/.mongo
 
     opac-rq-scheduler:
         image: infrascielo/opac_5
@@ -96,6 +98,7 @@ services:
             - ./.envs/.production-template/.flask
             - ./.envs/.production-template/.redis
             - ./.envs/.production-template/.server
+            - ./.envs/.production-template/.mongo
 
     minio:
         image: 'minio/minio:RELEASE.2024-06-29T01-20-47Z'
