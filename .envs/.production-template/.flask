@@ -30,6 +30,19 @@ OPAC_LANGUAGES="{'pt_BR': 'Português','en': 'English','es': 'Español'}"
 # enables/disables the presentation of collection metrics data (default: False). Possible values: True or False
 OPAC_USE_HOME_METRICS=False
 
+# Acronym Collection. Consult:  https://articlemeta.scielo.org/api/v1/collection/identifiers/
+OPAC_COLLECTION=
+
+# Application version. Ex: v0.1.0
+OPAC_WEBAPP_VERSION=
+
+# LOCALZONE
+# Default 'America/Sao_Paulo'. Consult: https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
+LOCAL_ZONE=
+
+# ORCID URL. default: http://orcid.org/
+OPAC_ORCID_URL=http://orcid.org/
+
 # -------------------- Journal path -------------------
 # ------------------------------------------------------------
 
@@ -129,9 +142,3 @@ URL_SEARCH=//search.scielo.org/
 
 # URL for the SciELO in Perspective Blog Press releases. (default: '//pressreleases.scielo.org')
 URL_BLOG_PRESSRELEASE=//pressreleases.scielo.org
-
-# --------------------- Timezone -----------------------
-# ------------------------------------------------------
-
-# (default 'America/Sao_Paulo')
-LOCAL_ZONE=America/Sao_Paulo
