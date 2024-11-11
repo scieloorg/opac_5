@@ -20,7 +20,10 @@ OPAC_PLUMX_METRICS_URL=https://plu.mx/scielo/a
 # Enable Altmetric metrics
 # Possible values: True or False
 OPAC_USE_ALTMETRIC=True
+# Url PlumX
 OPAC_ALTMETRIC_METRICS_URL=https://www.altmetric.com/details.php
+# Url to JS PlumX. (default: //cdn.plu.mx/widget-popup.js)
+OPAC_PLUMX_METRICS_JS=//cdn.plu.mx/widget-popup.js
 
 # Enable SCITE
 OPAC_USE_SCITE=False

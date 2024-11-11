@@ -1,0 +1,17 @@
+# ------------------- MongoDB Database --------------------
+# -------------------------------------------------------
+
+# Name of Database(default: 'opac')
+OPAC_MONGODB_NAME=opac
+
+# Host of Database (default: 'localhost')
+OPAC_MONGODB_HOST=localhost
+
+# Port of Database(default: 27017)
+OPAC_MONGODB_PORT=27017
+
+# (Optional) user to access the bank (default: None) 
+OPAC_MONGODB_USER=None
+
+# (Optional) password to access the bank (default: None)
+OPAC_MONGODB_PASS=None
