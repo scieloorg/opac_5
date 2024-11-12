@@ -1926,6 +1926,7 @@ def add_journal(data):
                 "email": "cadernos@ensp.fiocruz.br",
                 "address": "Rua Leopoldo Bulhões, 1480 , Rio de Janeiro, Rio de Janeiro, BR, 21041-210 , 55 21 2598-2511, 55 21 2598-2508"
             },
+            "old_information_page": true,
             "created": "1999-07-02T00:00:00.000000Z",
             "updated": "2019-07-19T20:33:17.102106Z"
         }

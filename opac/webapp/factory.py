@@ -109,6 +109,7 @@ def JournalFactory(data):
     journal.created = journal.created or isoformat_to_datetime(data.get("created"))
     journal.updated = isoformat_to_datetime(data.get("updated"))
     journal.is_public = metadata["is_public"]
+    journal.old_information_page = metadata.get("old_information_page")
 
     return journal
 
