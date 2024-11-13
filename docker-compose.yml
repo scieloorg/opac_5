@@ -46,6 +46,8 @@ services:
             - ./.envs/.production/.monitoring
             - ./.envs/.production/.metrics
             - ./.envs/.production/.mongo
+            - ./.envs/.production/.db-sqlite
+            - ./.envs/.production/.social-media
 
     nginx:
         image: nginx:latest
@@ -78,6 +80,8 @@ services:
             - ./.envs/.production/.redis
             - ./.envs/.production/.server
             - ./.envs/.production/.mongo
+            - ./.envs/.production/.db-sqlite
+            - ./.envs/.production/.social-media
 
     opac-rq-scheduler:
         image: infrascielo/opac_5
@@ -99,6 +103,8 @@ services:
             - ./.envs/.production/.redis
             - ./.envs/.production/.server
             - ./.envs/.production/.mongo
+            - ./.envs/.production/.db-sqlite            
+            - ./.envs/.production/.social-media
 
     minio:
         image: 'minio/minio:RELEASE.2024-06-29T01-20-47Z'
