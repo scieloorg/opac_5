@@ -142,3 +142,50 @@ URL_SEARCH=//search.scielo.org/
 
 # URL for the SciELO in Perspective Blog Press releases. (default: '//pressreleases.scielo.org')
 URL_BLOG_PRESSRELEASE=//pressreleases.scielo.org
+
+# ----------------- Google Analytics -------------------
+# ------------------------------------------------------
+# google analytics code (go to https://goo.gl/HE77SO to redeem your code)
+GA_TRACKING_CODE=
+
+# ----------------- Upload Images -------------------
+# ---------------------------------------------------
+# Absolute path of the folder that will store the images uploaded by users through the admin.
+# (default: /[repo dir]/opac/opac/webapp/media/)
+OPAC_MEDIA_ROOT=
+
+# URL to serve images. (default: '/media')
+OPAC_MEDIA_URL=/media
+
+# ------------------ Extensions ---------------------
+# ---------------------------------------------------
+# Extension of files allowed for upload
+FILES_ALLOWED_EXTENSIONS=
+
+# Extension images allowed to upload
+IMAGES_ALLOWED_EXTENSIONS=  
+
+# Thumbnail height (default: 100)
+THUMBNAIL_HEIGHT=
+
+# Thumbnail width (default: 100)
+THUMBNAIL_WIDTH=
+
+# -------------- Common Style List ---------------------
+# ------------------------------------------------------
+# Path to a .json file with the CSL.
+OPAC_COMMON_STYLE_LIST=
+
+
+# ------------------- Site License ---------------------
+# ------------------------------------------------------
+# Enables/disables the display of the creative commons logo in the website footer
+OPAC_SITE_LICENSE_ENABLE=
+
+# License Name (default: "Creative Common - by 4.0")
+OPAC_SITE_LICENSE_NAME=
+# License Url (default: https://creativecommons.org/licenses/by-nc/4.0/)
+OPAC_SITE_LICENSE_URL=
+
+# License Image (default: https://licensebuttons.net/l/by/4.0/88x31.png)
+OPAC_SITE_LICENSE_IMG_URL=
