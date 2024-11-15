@@ -1,22 +1,20 @@
 # coding: utf-8
 
 from flask_admin.contrib import sqla
-from flask_admin.contrib.mongoengine.filters import (
-    FilterConverter,
-    FilterEmpty,
+from flask_admin.contrib.pymongo.filters import (
+    BasePyMongoFilter,
     FilterEqual,
-    FilterInList,
     FilterLike,
     FilterNotEqual,
-    FilterNotInList,
     FilterNotLike,
 )
-from flask_admin.contrib.mongoengine.tools import parse_like_term
+from flask_admin.contrib.pymongo.tools import parse_like_term
 from flask_admin.model import filters
 from mongoengine import EmbeddedDocumentField, ListField, ReferenceField, StringField
 from mongoengine.queryset import Q
 from opac_schema.v1.models import Issue, Journal
 from webapp import models
+from flask_admin.babel import lazy_gettext
 
 
 def get_flt(column=None, value=None, term=""):
@@ -102,61 +100,75 @@ class CustomFilterNotLike(FilterNotLike):
         return query.filter(flt)
 
 
-class CustomFilterEmpty(FilterEmpty):
+class CustomFilterEmpty(BasePyMongoFilter):
     def apply(self, query, value):
         if value == "1":
             flt = get_flt(self.column, None)
         else:
             flt = get_flt(self.column, None, "ne")
         return query.filter(flt)
+    
+    def operation(self):
+        return lazy_gettext('empty')
 
 
-class CustomFilterInList(FilterInList):
+class CustomFilterInList(BasePyMongoFilter):
+    def __init__(self, column, name, options=None, data_type=None):
+        super(CustomFilterInList, self).__init__(column, name, options, data_type='select2-tags')
+    
     def apply(self, query, value):
         flt = get_flt(self.column, value, "in")
         return query.filter(flt)
 
+    def clean(self, value):
+        return [v.strip() for v in value.split(',') if v.strip()]    
+    def operation(self):
+        return lazy_gettext('in list')
 
-class CustomFilterNotInList(FilterNotInList):
+class CustomFilterNotInList(BasePyMongoFilter):
     def apply(self, query, value):
         flt = get_flt(self.column, value, "nin")
         return query.filter(flt)
+    
+    def operation(self):
+        return lazy_gettext('not in list')
 
 
-class CustomFilterConverter(FilterConverter):
-    # Campos dentro filtros ReferenceField, EmbeddedDocumentField, ListField
-    # deve ser do tipo StringField
+# FIXME
+# class CustomFilterConverter(FilterConverter):
+#     # Campos dentro filtros ReferenceField, EmbeddedDocumentField, ListField
+#     # deve ser do tipo StringField
 
-    reference_filters = (
-        CustomFilterLike,
-        CustomFilterNotLike,
-        CustomFilterEqual,
-        CustomFilterNotEqual,
-        CustomFilterInList,
-        CustomFilterNotInList,
-    )
-    embedded_filters = (
-        CustomFilterLike,
-        CustomFilterNotLike,
-        CustomFilterEqual,
-        CustomFilterNotEqual,
-        CustomFilterEmpty,
-        CustomFilterInList,
-        CustomFilterNotInList,
-    )
-    list_filters = (CustomFilterLike, CustomFilterNotLike, CustomFilterEmpty)
+#     reference_filters = (
+#         CustomFilterLike,
+#         CustomFilterNotLike,
+#         CustomFilterEqual,
+#         CustomFilterNotEqual,
+#         CustomFilterInList,
+#         CustomFilterNotInList,
+#     )
+#     embedded_filters = (
+#         CustomFilterLike,
+#         CustomFilterNotLike,
+#         CustomFilterEqual,
+#         CustomFilterNotEqual,
+#         CustomFilterEmpty,
+#         CustomFilterInList,
+#         CustomFilterNotInList,
+#     )
+#     list_filters = (CustomFilterLike, CustomFilterNotLike, CustomFilterEmpty)
 
-    @filters.convert("ReferenceField")
-    def conv_reference(self, column, name):
-        return [f(column, name) for f in self.reference_filters]
+#     @filters.convert("ReferenceField")
+#     def conv_reference(self, column, name):
+#         return [f(column, name) for f in self.reference_filters]
 
-    @filters.convert("EmbeddedDocumentField")
-    def conv_embedded(self, column, name):
-        return [f(column, name) for f in self.embedded_filters]
+#     @filters.convert("EmbeddedDocumentField")
+#     def conv_embedded(self, column, name):
+#         return [f(column, name) for f in self.embedded_filters]
 
-    @filters.convert("ListField")
-    def conv_list(self, column, name):
-        return [f(column, name) for f in self.list_filters]
+#     @filters.convert("ListField")
+#     def conv_list(self, column, name):
+#         return [f(column, name) for f in self.list_filters]
 
 
 class CustomFilterConverterSqla(sqla.filters.FilterConverter):
