@@ -4,15 +4,15 @@ import logging
 
 import flask_admin
 import rq_dashboard
-import rq_scheduler_dashboard
+# import rq_scheduler_dashboard
 from elasticapm.contrib.flask import ElasticAPM
 from flask import Flask, flash, redirect, request, url_for
-from flask_babelex import Babel, lazy_gettext
+from flask_babel import Babel, lazy_gettext
 from flask_caching import Cache
 from flask_htmlmin import HTMLMIN
 from flask_login import LoginManager, current_user
 from flask_mail import Mail
-from flask_mongoengine import MongoEngine
+from flask_mongoengine2 import MongoEngine
 from flask_sqlalchemy import SQLAlchemy
 from opac_schema.v1.models import (
     Article,
@@ -28,6 +28,7 @@ from opac_schema.v1.models import (
 from raven.contrib.flask import Sentry
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.routing import BaseConverter
+# from webapp.main.views import get_locale
 
 login_manager = LoginManager()
 dbmongo = MongoEngine()
@@ -125,7 +126,7 @@ def create_app():
 
     # Configurações
     app.config.from_object(rq_dashboard.default_settings)
-    app.config.from_object(rq_scheduler_dashboard.default_settings)
+    # app.config.from_object(rq_scheduler_dashboard.default_settings)
     app.config.from_object("webapp.config.default")  # Configuração basica
     app.config.from_envvar("OPAC_CONFIG", silent=True)  # configuração do ambiente
     app.logger.root.setLevel(app.config.get("LOG_LEVEL"))
@@ -150,9 +151,9 @@ def create_app():
     # Registrando os filtros
     app.jinja_env.filters["trans_alpha2"] = custom_filters.trans_alpha2
     app.jinja_env.filters["datetimefilter"] = custom_filters.datetimefilter
-
+    from webapp.main.views import get_locale
     # i18n
-    babel.init_app(app)
+    babel.init_app(app, locale_selector=get_locale)
     # Debug Toolbar
     if app.config["DEBUG"]:
         # Toolbar
@@ -183,7 +184,6 @@ def create_app():
         app,
         "OPAC admin",
         index_view=views.AdminIndexView(),
-        template_mode="bootstrap3",
         base_template="admin/opac_base.html",
     )
 
@@ -261,9 +261,9 @@ def create_app():
 
     # Use `with app.app_context()` within the `create_app` definition.
     with app.app_context():
-        app.register_blueprint(
-            rq_scheduler_dashboard.blueprint, url_prefix="/admin/scheduler"
-        )
+        # app.register_blueprint(
+        #     rq_scheduler_dashboard.blueprint, url_prefix="/admin/scheduler"
+        # )
         app.register_blueprint(rq_dashboard.blueprint, url_prefix="/admin/workers")
     # FIM do setup RQ Dashboard e Scheduler: - mover para um modulo proprio
 

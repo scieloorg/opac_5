@@ -25,18 +25,17 @@ from flask import (
     session,
     url_for,
 )
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
 from legendarium.formatter import descriptive_short_format
 from lxml import etree
 from opac_schema.v1.models import Article, Collection, Issue, Journal
 from packtools import HTMLGenerator
-from webapp import babel, cache, controllers, forms
+from webapp import cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
-from webapp.main.errors import page_not_found, internal_server_error
 
 from . import helper
 
@@ -110,7 +109,6 @@ def add_scielo_org_config_to_g():
     setattr(g, "scielo_org", scielo_org_links)
 
 
-@babel.localeselector
 def get_locale():
     langs = current_app.config.get("LANGUAGES")
     lang_from_headers = request.accept_languages.best_match(list(langs.keys()))

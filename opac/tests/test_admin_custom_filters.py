@@ -2,8 +2,8 @@
 import unittest
 from uuid import uuid4
 
-from flask_admin.contrib.mongoengine.tools import parse_like_term
-from flask_babelex import lazy_gettext as __
+from flask_admin.contrib.pymongo.tools import parse_like_term
+from flask_babel import lazy_gettext as __
 from mongoengine.queryset import Q
 from opac_schema.v1.models import Article, Issue, Journal
 from tests.utils import makeOneArticle, makeOneIssue, makeOneJournal

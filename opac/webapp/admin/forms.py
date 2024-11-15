@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
 from webapp import controllers
 from wtforms import fields, form, validators
 
