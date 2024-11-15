@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from flask_babelex import gettext as _
-from flask_babelex import lazy_gettext as __
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as __
 
 UNPUBLISH_REASONS = [
     _("Conteúdo temporariamente indisponível"),

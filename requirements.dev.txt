@@ -1,4 +1,4 @@
-Flask-DebugToolbar==0.13.1
+Flask-DebugToolbar==0.14.1
 Flask-Testing==0.8.1
 mock==5.0.1
 coverage==7.0.5

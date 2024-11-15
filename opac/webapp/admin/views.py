@@ -17,13 +17,13 @@ from flask import (
     url_for,
 )
 from flask_admin.actions import action
-from flask_admin.contrib import mongoengine, sqla
-from flask_admin.contrib.mongoengine.tools import parse_like_term
+from flask_admin.contrib import pymongo, sqla
+from flask_admin.contrib.pymongo.tools import parse_like_term
 from flask_admin.form import Select2Field
 from flask_admin.model.form import InlineFormAdmin
-from flask_babelex import gettext as _
-from flask_babelex import lazy_gettext as __
-from jinja2 import Markup
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as __
+from markupsafe import Markup 
 from legendarium.formatter import descriptive_short_format
 from mongoengine import (
     EmailField,
@@ -38,7 +38,7 @@ from webapp import choices, controllers, custom_filters, models
 from webapp.admin import custom_fields, forms
 from webapp.admin.ajax import CustomQueryAjaxModelLoader
 from webapp.admin.custom_filters import (
-    CustomFilterConverter,
+    # CustomFilterConverter,
     CustomFilterConverterSqla,
     get_flt,
 )
@@ -375,7 +375,7 @@ class ImageAdminView(AssetsMixin, sqla.ModelView):
             )
 
 
-class OpacBaseAdminView(mongoengine.ModelView):
+class OpacBaseAdminView(pymongo.ModelView):
     page_size = 20
     can_create = False
     can_edit = False
@@ -390,7 +390,7 @@ class OpacBaseAdminView(mongoengine.ModelView):
         EmbeddedDocumentField,
         ReferenceField,
     )
-    filter_converter = CustomFilterConverter()
+    # filter_converter = CustomFilterConverter()
     object_id_converter = str
 
     def _search(self, query, search_term):
@@ -1156,17 +1156,23 @@ class PressReleaseAdminView(OpacBaseAdminView):
     form_overrides = dict(language=Select2Field, content=CKEditorField)
 
     form_ajax_refs = {
-        "journal": CustomQueryAjaxModelLoader(
-            name="journal",
-            model=Journal,
-            fields=["title", "acronym", "scielo_issn", "print_issn", "eletronic_issn"],
-        ),
-        "issue": CustomQueryAjaxModelLoader(
-            name="issue", model=Issue, fields=["label", "pid", "journal"]
-        ),
-        "article": CustomQueryAjaxModelLoader(
-            name="article", model=Article, fields=["title", "doi", "pid"]
-        ),
+        "journal": {
+            "fields": ("title", "acronym", "scielo_issn", "print_issn", "eletronic_issn"),
+            "placeholder": "Please Select",
+            "page_size": 10,
+            "minimun_input_length": 0,
+        },
+        # "journal": CustomQueryAjaxModelLoader(
+        #     name="journal",
+        #     model=Journal,
+        #     fields=["title", "acronym", "scielo_issn", "print_issn", "eletronic_issn"],
+        # ),
+        # "issue": CustomQueryAjaxModelLoader(
+        #     name="issue", model=Issue, fields=["label", "pid", "journal"]
+        # ),
+        # "article": CustomQueryAjaxModelLoader(
+        #     name="article", model=Article, fields=["title", "doi", "pid"]
+        # ),
     }
 
     form_args = dict(
