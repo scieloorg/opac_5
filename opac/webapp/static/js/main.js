@@ -236,7 +236,7 @@ var Portal = {
 
 			$(".floatingBtnError, .floatingBtnErrorHamburguerMenu").on("click", function(e) {
 				e.preventDefault();
-				console.log('cliquei para abrir o modal de reportar erro');
+				//console.log('cliquei para abrir o modal de reportar erro');
 				var url = $(location).attr('href');
 				$.get("/error_mail/", {"url": url}, function(html) {
 					$("#error_modal_id").html(html);
@@ -1251,7 +1251,7 @@ var Portal = {
 			
 			// Verifica se lastDays é um número válido
 			if (isNaN(lastDays) || lastDays <= 0) {
-				console.error('O valor de lastDays deve ser um número positivo.');
+				//console.error('O valor de lastDays deve ser um número positivo.');
 				return; // Interrompe a execução se lastDays não for válido
 			}
 		

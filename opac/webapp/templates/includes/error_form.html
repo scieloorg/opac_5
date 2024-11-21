@@ -1,7 +1,7 @@
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h1 class="h4 modal-title">{% trans %} Reportar erro {% endtrans %}</h1>
+            <h1 class="h4 modal-title">{% trans %}Acessibilidade / Reportar Erro {% endtrans %}</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         
@@ -18,35 +18,35 @@
             <div class="modal-body">
 
                 <div class="mb-0">
-                    <label class="form-label">{% trans %}Seu Nome{% endtrans %}*</label>
+                    <label class="form-label">{% trans %}Seu Nome{% endtrans %} *</label>
                     {{ g.error.name(class="form-control valid", placeholder=_("Digite seu Nome")) }}
                     <label class="form-label" id="{{g.error.name.name}}_error"></label>
                 </div>
 
                 <div class="mb-0">
-                  <label class="form-label">{% trans %}Seu e-mail{% endtrans %}*</label>
+                  <label class="form-label">{% trans %}Seu e-mail{% endtrans %} *</label>
                     {{ g.error.your_email(class="form-control valid", placeholder="Digite seu e-mail") }}
                   <label class="form-label" id="{{g.error.your_email.name}}_error"></label>
                 </div>
 
                 <div class="mb-0">
-                    <label class="form-label">{% trans %}Erro referente{% endtrans %}:</label>
-
+                    <label class="form-label">{% trans %}Erro referente a{% endtrans %}:</label>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="error_type" id="error_type1" value="content" checked>
-                        <label class="form-check-label" for="error_type1">{% trans %}ao conteúdo{% endtrans %}</label>
+                        <input class="form-check-input" type="radio" name="error_type" id="error_type1" value="acessibility" checked>
+                        <label class="form-check-label" for="error_type1">{% trans %}acessibilidade</label>
+                        <span class="form-text d-block mb-3">(por favor, considere responder ao {% endtrans %} <a target="_blank" href="{{ config.get('ACCESSIBILITY_BY_LANGUAGE').get(session.get('lang', config.get('BABEL_DEFAULT_LOCALE')))}}">{% trans %}nosso questionário para mapear o perfil dos usuários do site SciELO - link externo{% endtrans %}</a>)</span>
                     </div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="error_type" id="error_type2" value="application">
-                        <label class="form-check-label" for="error_type2">{% trans %}à aplicação{% endtrans %}</label>
+                        <input class="form-check-input" type="radio" name="error_type" id="error_type2" value="other">
+                        <label class="form-check-label" for="error_type2">{% trans %}outro tipo de erro{% endtrans %} *</label>
+                        <span class="form-text d-block">* {% trans %}Caso o erro esteja no conteúdo de um documento e apresente-se também na versão em PDF do mesmo documento, por favor não utilize este formulário. Entre em contato com o periódico que publicou o documento e reporte o erro diretamente a ele.{% endtrans %}</span>
                     </div>
-
                     <label class="form-label" id="{{g.error.error_type.name}}_error"></label>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">{% trans %}Descrição do erro{% endtrans %} :</label>
+                    <label class="form-label">{% trans %}Descrição do erro{% endtrans %}:</label>
                     {{ g.error.message(class="form-control valid", placeholder=_("Digite sua mensagem"), rows="10") }}
                     <label class="form-label" id="{{g.error.message.name}}_error"></label>
                     <span class="form-text">{% trans %}Obs.: Link e título da página são enviados automaticamente{% endtrans %}.</span>
