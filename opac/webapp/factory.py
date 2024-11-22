@@ -237,6 +237,7 @@ class AuxiliarArticleFactory:
         self.doc.htmls = None
         self.doc.pdfs = None
         self.doc.mat_suppl_items = None
+        self.doc.collabs = None
 
     def add_identifiers(self, v2, aop_pid, other_pids=None):
         # Identificadores
@@ -458,6 +459,14 @@ class AuxiliarArticleFactory:
             raise PublishDocumentError(e)
         return self.doc
 
+    def add_collab(self, name):
+        # collabs = EmbeddedDocumentListField(Collab)
+        if self.doc.collabs is None:
+            self.doc.collabs = []
+        _collab = models.Collab()
+        _collab.name = name
+        self.doc.collabs.append(_collab)
+
 
 def ArticleFactory(
     document_id: str,
@@ -570,6 +579,11 @@ def ArticleFactory(
     # add_doi_with_lang(self, language, doi)
     # add_related_article(self, doi, ref_id, related_type)
     factory.publish_document(data.get("created"), data.get("updated"), data.get("is_public"))
+    
+    for item in data.get("collab") or []:
+        factory.add_collab(
+            name=item.get("name")
+        )
 
     return article
 
