@@ -363,7 +363,7 @@ class AuxiliarArticleFactory:
         _doi_with_lang_item.language = language
         self.doc.doi_with_lang.append(_doi_with_lang_item)
 
-    def add_related_article(self, doi, ref_id, related_type):
+    def add_related_article(self, doi, ref_id, related_type, href):
         # related_article = EmbeddedDocumentListField(RelatedArticle))
         if self.doc.related_articles is None:
             self.doc.related_articles = []
@@ -371,6 +371,7 @@ class AuxiliarArticleFactory:
         _related_article.doi = doi
         _related_article.ref_id = ref_id
         _related_article.related_type = related_type
+        _related_article.href = href
         self.doc.related_articles.append(_related_article)
 
     def add_xml(self, xml):
@@ -576,6 +577,7 @@ def ArticleFactory(
             doi=item.get("doi"), 
             ref_id=item.get("ref_id"), 
             related_type=item.get("related_type"),
+            href=item.get("href")
         )
 
     factory.publish_document(data.get("created"), data.get("updated"), data.get("is_public"))
