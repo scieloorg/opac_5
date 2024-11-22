@@ -565,9 +565,19 @@ def ArticleFactory(
 
     factory.add_xml(data.get("xml"))
 
-    # TODO
-    # add_doi_with_lang(self, language, doi)
-    # add_related_article(self, doi, ref_id, related_type)
+    for item in data.get("doi_with_lang"):
+        factory.add_doi_with_lang(
+            language=item.get("language"),
+            doi=item.get("doi")
+        )
+
+    for item in data.get("related_articles"):
+        factory.add_related_article(
+            doi=item.get("doi"), 
+            ref_id=item.get("ref_id"), 
+            related_type=item.get("related_type"),
+        )
+
     factory.publish_document(data.get("created"), data.get("updated"), data.get("is_public"))
 
     return article
