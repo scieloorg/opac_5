@@ -1,9 +1,8 @@
 import logging
 import re
 from datetime import datetime
-from typing import Generator, List
 
-from exceptions import InvalidOrderValueError, PublishDocumentError
+from exceptions import PublishDocumentError
 from opac_schema.v1 import models
 
 EMAIL_SPLIT_REGEX = re.compile("[;\\/]+")
@@ -260,16 +259,16 @@ class AuxiliarArticleFactory:
                 self.doc.scielo_pids["other"].append(other_pid)
 
     def add_journal(self, journal):
-        if isinstance(journal, Journal):
+        if isinstance(journal, models.Journal):
             self.doc.journal = journal
         else:
-            self.doc.journal = Journal.objects.get(_id=journal)
+            self.doc.journal = models.Journal.objects.get(_id=journal)
 
     def add_issue(self, issue):
-        if isinstance(issue, Issue):
+        if isinstance(issue, models.Issue):
             self.doc.issue = issue
         else:
-            self.doc.issue = Issue.objects.get(_id=issue)
+            self.doc.issue = models.Issue.objects.get(_id=issue)
 
     def add_main_metadata(self, title, section, abstract, lang, doi):
         # Dados principais (versão considerada principal)
