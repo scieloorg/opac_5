@@ -37,9 +37,4 @@ OPAC_CACHE_REDIS_DB=0
 # Password of the redis server that will be used in the cache. (default = '')
 OPAC_CACHE_REDIS_PASSWORD=
 
-# sets a default integer value for static files served by Werkzeug (in seconds). (default: 604800) 
-OPAC_SEND_FILE_MAX_AGE_DEFAULT=604800
-
-# sets the cache time for pages, response header Cache-Control: public, max-age={VALUE} (in seconds). (default: 604800)
-OPAC_CACHE_CONTROL_MAX_AGE_HEADER=604800
 
