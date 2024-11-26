@@ -5,7 +5,7 @@
 OPAC_SERVER_NAME=0.0.0.0
 
 # Domain for the session cookie (default: OPAC_SERVER_NAME)
-OPAC_SESSION_COOKIE_DOMAIN=OPAC_SERVER_NAME
+OPAC_SESSION_COOKIE_DOMAIN=0.0.0.0
 
 # Set flag: httponly of cookie. (defaults to True)
 OPAC_SESSION_COOKIE_HTTPONLY=True
