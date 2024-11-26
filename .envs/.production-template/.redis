@@ -43,5 +43,3 @@ OPAC_SEND_FILE_MAX_AGE_DEFAULT=604800
 # sets the cache time for pages, response header Cache-Control: public, max-age={VALUE} (in seconds). (default: 604800)
 OPAC_CACHE_CONTROL_MAX_AGE_HEADER=604800
 
-
-OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS
