@@ -189,3 +189,20 @@ OPAC_SITE_LICENSE_URL=
 
 # License Image (default: https://licensebuttons.net/l/by/4.0/88x31.png)
 OPAC_SITE_LICENSE_IMG_URL=
+
+
+# -------------------- Twitter ----------------------
+# ---------------------------------------------------
+# Twitter comuser key (default: 'consum3r-k3y')
+OPAC_TWITTER_CONSUMER_KEY=
+
+# Twitter comuser secret (default: 'consum3r-secr3t')
+OPAC_TWITTER_CONSUMER_SECRET=
+
+# Twitter access token (default: 'acc3ss-tok3n-secr3t')
+OPAC_TWITTER_ACCESS_TOKEN=
+# Twitter access token (default: 'acc3ss-tok3n-secr3t')
+OPAC_TWITTER_ACCESS_TOKEN_SECRET=
+
+# Twitter screen name (default: 'RedeSciELO')
+OPAC_TWITTER_SCREEN_NAME=

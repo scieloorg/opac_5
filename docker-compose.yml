@@ -47,8 +47,6 @@ services:
             - ./.envs/.production/.metrics
             - ./.envs/.production/.mongo
             - ./.envs/.production/.db-sqlite
-            - ./.envs/.production/.social-media
-
     nginx:
         image: nginx:latest
         container_name: opac_nginx
@@ -81,8 +79,6 @@ services:
             - ./.envs/.production/.server
             - ./.envs/.production/.mongo
             - ./.envs/.production/.db-sqlite
-            - ./.envs/.production/.social-media
-
     opac-rq-scheduler:
         image: infrascielo/opac_5
         container_name: opac_rq_scheduler_prod
@@ -103,8 +99,7 @@ services:
             - ./.envs/.production/.redis
             - ./.envs/.production/.server
             - ./.envs/.production/.mongo
-            - ./.envs/.production/.db-sqlite            
-            - ./.envs/.production/.social-media
+            - ./.envs/.production/.db-sqlite
 
     minio:
         image: 'minio/minio:RELEASE.2024-06-29T01-20-47Z'
