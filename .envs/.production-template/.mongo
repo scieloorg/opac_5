@@ -5,7 +5,7 @@
 OPAC_MONGODB_NAME=opac
 
 # Host of Database (default: 'localhost')
-OPAC_MONGODB_HOST=localhost
+OPAC_MONGODB_HOST=opac_mongo
 
 # Port of Database(default: 27017)
 OPAC_MONGODB_PORT=27017
