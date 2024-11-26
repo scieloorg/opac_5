@@ -10,8 +10,8 @@ OPAC_MONGODB_HOST=opac_mongo
 # Port of Database(default: 27017)
 OPAC_MONGODB_PORT=27017
 
-# (Optional) user to access the bank (default: None) 
-OPAC_MONGODB_USER=None
+# # (Optional) user to access the bank (default: None) 
+OPAC_MONGODB_USER=
 
-# (Optional) password to access the bank (default: None)
-OPAC_MONGODB_PASS=None
+# # (Optional) password to access the bank (default: None)
+OPAC_MONGODB_PASS=
