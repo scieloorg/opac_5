@@ -1,9 +1,8 @@
 import logging
 import re
 from datetime import datetime
-from typing import Generator, List
 
-from exceptions import InvalidOrderValueError, PublishDocumentError
+from exceptions import PublishDocumentError
 from opac_schema.v1 import models
 
 EMAIL_SPLIT_REGEX = re.compile("[;\\/]+")
@@ -261,16 +260,16 @@ class AuxiliarArticleFactory:
                 self.doc.scielo_pids["other"].append(other_pid)
 
     def add_journal(self, journal):
-        if isinstance(journal, Journal):
+        if isinstance(journal, models.Journal):
             self.doc.journal = journal
         else:
-            self.doc.journal = Journal.objects.get(_id=journal)
+            self.doc.journal = models.Journal.objects.get(_id=journal)
 
     def add_issue(self, issue):
-        if isinstance(issue, Issue):
+        if isinstance(issue, models.Issue):
             self.doc.issue = issue
         else:
-            self.doc.issue = Issue.objects.get(_id=issue)
+            self.doc.issue = models.Issue.objects.get(_id=issue)
 
     def add_main_metadata(self, title, section, abstract, lang, doi):
         # Dados principais (versão considerada principal)
@@ -365,7 +364,7 @@ class AuxiliarArticleFactory:
         _doi_with_lang_item.language = language
         self.doc.doi_with_lang.append(_doi_with_lang_item)
 
-    def add_related_article(self, doi, ref_id, related_type):
+    def add_related_article(self, doi, ref_id, related_type, href):
         # related_article = EmbeddedDocumentListField(RelatedArticle))
         if self.doc.related_articles is None:
             self.doc.related_articles = []
@@ -373,6 +372,7 @@ class AuxiliarArticleFactory:
         _related_article.doi = doi
         _related_article.ref_id = ref_id
         _related_article.related_type = related_type
+        _related_article.href = href
         self.doc.related_articles.append(_related_article)
 
     def add_xml(self, xml):
@@ -575,9 +575,20 @@ def ArticleFactory(
 
     factory.add_xml(data.get("xml"))
 
-    # TODO
-    # add_doi_with_lang(self, language, doi)
-    # add_related_article(self, doi, ref_id, related_type)
+    for item in data.get("doi_with_lang"):
+        factory.add_doi_with_lang(
+            language=item.get("language"),
+            doi=item.get("doi")
+        )
+
+    for item in data.get("related_articles"):
+        factory.add_related_article(
+            doi=item.get("doi"), 
+            ref_id=item.get("ref_id"), 
+            related_type=item.get("related_type"),
+            href=item.get("href")
+        )
+
     factory.publish_document(data.get("created"), data.get("updated"), data.get("is_public"))
     
     for item in data.get("collab") or []:
