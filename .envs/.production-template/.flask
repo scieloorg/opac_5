@@ -9,17 +9,12 @@ OPAC_LOG_LEVEL=WARNING
 # Possible values: True or False
 OPAC_MINIFY_PAGE=False
 
-# Name for MongoDB. Ex: opac
-OPAC_MONGODB_NAME=opac
-
 # Path to directory app. Ex: /app/data
 OPAC_DATABASE_DIR=/app/data
 
 # Value for key. Ex: nmN73pR6
 OPAC_SECRET_KEY=NWhWFn_ScpW6YR9yJKDLxg
 
-# Name for MongoDB host
-OPAC_MONGODB_HOST=opac_mongo
 
 # Activate/Desactivate the cache of redis (default: True)
 OPAC_CACHE_ENABLED=False
@@ -159,17 +154,11 @@ OPAC_MEDIA_URL=/media
 
 # ------------------ Extensions ---------------------
 # ---------------------------------------------------
-# Extension of files allowed for upload
-FILES_ALLOWED_EXTENSIONS=
-
-# Extension images allowed to upload
-IMAGES_ALLOWED_EXTENSIONS=  
-
 # Thumbnail height (default: 100)
-THUMBNAIL_HEIGHT=
+THUMBNAIL_HEIGHT=100
 
 # Thumbnail width (default: 100)
-THUMBNAIL_WIDTH=
+THUMBNAIL_WIDTH=100
 
 # -------------- Common Style List ---------------------
 # ------------------------------------------------------
@@ -180,15 +169,15 @@ OPAC_COMMON_STYLE_LIST=
 # ------------------- Site License ---------------------
 # ------------------------------------------------------
 # Enables/disables the display of the creative commons logo in the website footer
-OPAC_SITE_LICENSE_ENABLE=
+OPAC_SITE_LICENSE_ENABLE=True
 
 # License Name (default: "Creative Common - by 4.0")
-OPAC_SITE_LICENSE_NAME=
+OPAC_SITE_LICENSE_NAME=Creative Common - by 4.0
 # License Url (default: https://creativecommons.org/licenses/by-nc/4.0/)
-OPAC_SITE_LICENSE_URL=
+OPAC_SITE_LICENSE_URL=https://creativecommons.org/licenses/by-nc/4.0/
 
 # License Image (default: https://licensebuttons.net/l/by/4.0/88x31.png)
-OPAC_SITE_LICENSE_IMG_URL=
+OPAC_SITE_LICENSE_IMG_URL=https://licensebuttons.net/l/by/4.0/88x31.png
 
 
 # -------------------- Twitter ----------------------
