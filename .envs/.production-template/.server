@@ -2,10 +2,10 @@
 # ------------------------------------------------------------
 
 # This set the IP that the app will bind to run, default: 0.0.0.0
-OPAC_SERVER_NAME=0.0.0.0
+OPAC_SERVER_NAME=
 
 # Domain for the session cookie (default: OPAC_SERVER_NAME)
-OPAC_SESSION_COOKIE_DOMAIN=0.0.0.0
+OPAC_SESSION_COOKIE_DOMAIN=
 
 # Set flag: httponly of cookie. (defaults to True)
 OPAC_SESSION_COOKIE_HTTPONLY=True
