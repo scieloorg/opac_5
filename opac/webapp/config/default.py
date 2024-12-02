@@ -361,8 +361,8 @@ FILES_ALLOWED_EXTENSIONS = (
 )
 IMAGES_ALLOWED_EXTENSIONS = ("png", "jpg", "jpeg", "gif", "webp")
 IMAGES_ALLOWED_EXTENSIONS_RE = tuple("*." + ext for ext in IMAGES_ALLOWED_EXTENSIONS)
-THUMBNAIL_HEIGHT = 100
-THUMBNAIL_WIDTH = 100
+THUMBNAIL_HEIGHT = os.environ.get("THUMBNAIL_HEIGHT", 100)
+THUMBNAIL_WIDTH = os.environ.get("THUMBNAIL_WIDTH", 100)
 
 # scielo.org
 URL_SCIELO_ORG = os.environ.get("OPAC_URL_SCIELO_ORG", "//www.scielo.org")

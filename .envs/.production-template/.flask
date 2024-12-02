@@ -1,6 +1,6 @@
 # -------------- OPAC Application configuration --------------
 # ------------------------------------------------------------
-# Possible values: True or False
+# enables/disables the app's Debug mode. Possible values: True or False
 OPAC_DEBUG_MODE=False
 
 # Possible values: WARNING, INFO, ERROR, CRITICAL AND DEBUG
@@ -9,17 +9,12 @@ OPAC_LOG_LEVEL=WARNING
 # Possible values: True or False
 OPAC_MINIFY_PAGE=False
 
-# Name for MongoDB. Ex: opac
-OPAC_MONGODB_NAME=opac
-
 # Path to directory app. Ex: /app/data
 OPAC_DATABASE_DIR=/app/data
 
 # Value for key. Ex: nmN73pR6
 OPAC_SECRET_KEY=NWhWFn_ScpW6YR9yJKDLxg
 
-# Name for MongoDB host
-OPAC_MONGODB_HOST=opac_mongo
 
 # Activate/Desactivate the cache of redis (default: True)
 OPAC_CACHE_ENABLED=False
@@ -27,6 +22,21 @@ OPAC_CACHE_ENABLED=False
 # Interface languages 
 OPAC_LANGUAGES="{'pt_BR': 'Português','en': 'English','es': 'Español'}"
 
+# enables/disables the presentation of collection metrics data (default: False). Possible values: True or False
+OPAC_USE_HOME_METRICS=False
+
+# Acronym Collection. Consult:  https://articlemeta.scielo.org/api/v1/collection/identifiers/
+OPAC_COLLECTION=
+
+# Application version. Ex: v0.1.0
+OPAC_WEBAPP_VERSION=
+
+# LOCALZONE
+# Default 'America/Sao_Paulo'. Consult: https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
+LOCAL_ZONE=
+
+# ORCID URL. default: http://orcid.org/
+OPAC_ORCID_URL=http://orcid.org/
 
 # -------------------- Journal path -------------------
 # ------------------------------------------------------------
@@ -44,9 +54,11 @@ OPAC_JOURNAL_IMAGES_SOURCE_PATH=/app/data/img
 OPAC_SSM_SCHEME=http
 OPAC_SSM_DOMAIN=minio
 OPAC_SSM_PORT=9000
+OPAC_SSM_MEDIA_PATH=/media/assets/
+OPAC_SSM_XML_URL_REWRITE=False
 
-# ----------------- Table of contents sections ---------------------
-# ------------------------------------------------------------
+# -------------- Table of contents sections -----------------
+# -----------------------------------------------------------
 
 # This variable active/desactivate the sections on table of contents 
 # Possible values: True or False
@@ -55,3 +67,131 @@ OPAC_FILTER_SECTION_ENABLE=True
 # This variable define a mininal count of study ares on the head of journal page
 OPAC_FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS=5
 
+
+# ------------------- Sending emails --------------------
+# -------------------------------------------------------
+
+# Email account for sending messages from the website
+OPAC_DEFAULT_EMAIL=None
+
+# mail server host (default: localhost)
+OPAC_MAIL_SERVER=localhost
+
+# Serve port email
+OPAC_MAIL_PORT=1025
+
+# enable/disable sending email with TLS
+OPAC_MAIL_USE_TLS=False
+
+# enable/disable sending email with SSL
+OPAC_MAIL_USE_SSL=False
+
+
+# ------------------ Google reCAPTCHA ------------------
+# ------------------------------------------------------
+
+# Google reCAPTCHA secret key, used by the backend to validate tokens sent by the client. Ex: 6L***********G7k7************F
+OPAC_GOOGLE_RECAPTCHA_SECRET_KEY=
+
+# Google reCAPTCHA public key used by the frontend to generate and send the reCAPTCHA token to the backend. (Ex: 6L***********9Tk************K)
+OPAC_GOOGLE_VERIFY_RECAPTCHA_KEY=
+
+# Google reCAPTCHA JavaScript URL. (default: //www.google.com/recaptcha/api.js)
+OPAC_GOOGLE_RECAPTCHA_URL=//www.google.com/recaptcha/api.js
+
+# URL de verificação do google (default: https://www.google.com/recaptcha/api/siteverify)
+OPAC_GOOGLE_VERIFY_RECAPTCHA_URL=https://www.google.com/recaptcha/api/siteverify
+
+
+# ------------------ Error form ------------------------
+# ------------------------------------------------------
+
+# Email accounts to receive interface error messages.
+OPAC_EMAIL_ACCOUNTS_RECEIVE_ERRORS=
+
+# --------------------- CRSF ---------------------------
+# ------------------------------------------------------
+
+# enables/disables CSRF feature (default: True)
+OPAC_WTF_CSRF_ENABLED=True
+
+# key to security in WTF forms. (default: JGvNWiwBIq2Iig89LWbV)
+OPAC_WTF_CSRF_SECRET_KEY=JGvNWiwBIq2Iig89LWbV
+
+# Forces the use of https in URLs for the OPAC website in Google tags. (default: True)
+OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS=True
+
+# --------------------- Links SciELO -------------------
+# ------------------------------------------------------
+# URL for SciELO.org (default: '//www.scielo.org')
+URL_SCIELO_ORG=//www.scielo.org 
+
+# URIs in SciELO.org for specific sessions
+SCIELO_ORG_URIS=
+
+# URL for the SciELO in Perspective Blog. (default: '//blog.scielo.org')
+URL_BLOG_SCIELO=//blog.scielo.org
+
+# URL for Search SciELO. (default: '//search.scielo.org/')
+URL_SEARCH=//search.scielo.org/
+
+# URL for the SciELO in Perspective Blog Press releases. (default: '//pressreleases.scielo.org')
+URL_BLOG_PRESSRELEASE=//pressreleases.scielo.org
+
+# ----------------- Google Analytics -------------------
+# ------------------------------------------------------
+# google analytics code (go to https://goo.gl/HE77SO to redeem your code)
+GA_TRACKING_CODE=
+
+# ----------------- Upload Images -------------------
+# ---------------------------------------------------
+# Absolute path of the folder that will store the images uploaded by users through the admin.
+# (default: /[repo dir]/opac/opac/webapp/media/)
+OPAC_MEDIA_ROOT=
+
+# URL to serve images. (default: '/media')
+OPAC_MEDIA_URL=/media
+
+# ------------------ Extensions ---------------------
+# ---------------------------------------------------
+# Thumbnail height (default: 100)
+THUMBNAIL_HEIGHT=100
+
+# Thumbnail width (default: 100)
+THUMBNAIL_WIDTH=100
+
+# -------------- Common Style List ---------------------
+# ------------------------------------------------------
+# Path to a .json file with the CSL.
+OPAC_COMMON_STYLE_LIST=
+
+
+# ------------------- Site License ---------------------
+# ------------------------------------------------------
+# Enables/disables the display of the creative commons logo in the website footer
+OPAC_SITE_LICENSE_ENABLE=True
+
+# License Name (default: "Creative Common - by 4.0")
+OPAC_SITE_LICENSE_NAME=Creative Common - by 4.0
+# License Url (default: https://creativecommons.org/licenses/by-nc/4.0/)
+OPAC_SITE_LICENSE_URL=https://creativecommons.org/licenses/by-nc/4.0/
+
+# License Image (default: https://licensebuttons.net/l/by/4.0/88x31.png)
+OPAC_SITE_LICENSE_IMG_URL=https://licensebuttons.net/l/by/4.0/88x31.png
+
+
+# -------------------- Twitter ----------------------
+# ---------------------------------------------------
+# Twitter comuser key (default: 'consum3r-k3y')
+OPAC_TWITTER_CONSUMER_KEY=
+
+# Twitter comuser secret (default: 'consum3r-secr3t')
+OPAC_TWITTER_CONSUMER_SECRET=
+
+# Twitter access token (default: 'acc3ss-tok3n-secr3t')
+OPAC_TWITTER_ACCESS_TOKEN=
+# Twitter access token (default: 'acc3ss-tok3n-secr3t')
+OPAC_TWITTER_ACCESS_TOKEN_SECRET=
+
+# Twitter screen name (default: 'RedeSciELO')
+OPAC_TWITTER_SCREEN_NAME=
