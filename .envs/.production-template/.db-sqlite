@@ -1,0 +1,10 @@
+# ------------------------ Banco SQL ------------------------
+# ------------------------------------------------------------      
+# File name (sqlite) (default: 'opac.sqlite')
+OPAC_DATABASE_FILE=opac.sqlite
+
+# Folder where the database is located (sqlite) (default: '/tmp')
+OPAC_DATABASE_DIR=/tmp
+
+# [optional] SQL database URI (default: 'sqlite:////tmp/opac.sqlite')
+OPAC_DATABASE_URI=sqlite:////tmp/opac.sqlite
