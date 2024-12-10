@@ -1,8 +1,33 @@
 # ----------------- Server Configuration ---------------------
 # ------------------------------------------------------------
+OPAC_OPAC_SCHEME=https
 
 # This set the IP that the app will bind to run, default: 0.0.0.0
-OPAC_SERVER_NAME=0.0.0.0
+OPAC_SERVER_NAME=
+
+# Domain for the session cookie (default: OPAC_SERVER_NAME)
+OPAC_SESSION_COOKIE_DOMAIN=
+
+# Set flag: httponly of cookie. (defaults to True)
+OPAC_SESSION_COOKIE_HTTPONLY=True
+
+# session cookie name (default: 'opac_session')
+OPAC_SESSION_COOKIE_NAME=opac_session
+
+# path to session cookie: (default: None -> ou seja a raiz /)
+OPAC_SESSION_COOKIE_PATH=None
+
+# sets whether the session cookie should be marked as secure - (default: False)
+OPAC_SESSION_COOKIE_SECURE=False
+
+# enable/disable cookie policy javascript, if yes set to: 'True' otherwise 'False' (default: 'True')
+OPAC_COOKIE_POLICY_ENABLED=False
+
+# Cookie policy script URL (default: https://static.scielo.org/js/cookiePolicy.min.js)
+OPAC_COOKIE_POLICY_URL=https://static.scielo.org/js/cookiePolicy.min.js
+
+# Refresh the cookie on each request (Default: 'False')
+OPAC_SESSION_REFRESH_EACH_REQUEST=False
 
 # Possible values: True or False
 OPAC_AUDIT_LOG_NOTIFICATION_ENABLED=False
