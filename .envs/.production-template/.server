@@ -1,5 +1,6 @@
 # ----------------- Server Configuration ---------------------
 # ------------------------------------------------------------
+OPAC_OPAC_SCHEME=https
 
 # This set the IP that the app will bind to run, default: 0.0.0.0
 OPAC_SERVER_NAME=

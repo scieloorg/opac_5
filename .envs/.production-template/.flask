@@ -22,6 +22,14 @@ OPAC_CACHE_ENABLED=False
 # Interface languages 
 OPAC_LANGUAGES="{'pt_BR': 'Português','en': 'English','es': 'Español'}"
 
+ALERT_MSG_PT=
+ALERT_MSG_EN=
+ALERT_MSG_ES=
+
+ACCESSIBILITY_FORM_PT=https://forms.gle/2Vpt2z26uGqHA7yy5
+ACCESSIBILITY_FORM_EN=https://forms.gle/qHwovmddXdZRDxjm7
+ACCESSIBILITY_FORM_ES=https://forms.gle/XZuJurSVMBp4E64j6
+
 # enables/disables the presentation of collection metrics data (default: False). Possible values: True or False
 OPAC_USE_HOME_METRICS=False
 
@@ -38,6 +46,11 @@ LOCAL_ZONE=
 # ORCID URL. default: http://orcid.org/
 OPAC_ORCID_URL=http://orcid.org/
 
+PREVIOUS_WEBSITE_URI=
+
+HTML_GENERATOR_VERSION="3.0"
+
+OPAC_PINGDOM_VISITOR_INSIGHTS_JS_SRC=
 # -------------------- Journal path -------------------
 # ------------------------------------------------------------
 
@@ -102,6 +115,10 @@ OPAC_GOOGLE_RECAPTCHA_URL=//www.google.com/recaptcha/api.js
 # URL de verificação do google (default: https://www.google.com/recaptcha/api/siteverify)
 OPAC_GOOGLE_VERIFY_RECAPTCHA_URL=https://www.google.com/recaptcha/api/siteverify
 
+# ---------------------  Google ------------------------
+# ------------------------------------------------------
+OPAC_GOOGLE_SCHOLAR=https://scholar.google.com/scholar?q=
+OPAC_GOOGLE=https://www.google.com/search?q=
 
 # ------------------ Error form ------------------------
 # ------------------------------------------------------
@@ -120,7 +137,7 @@ OPAC_WTF_CSRF_SECRET_KEY=JGvNWiwBIq2Iig89LWbV
 
 # Forces the use of https in URLs for the OPAC website in Google tags. (default: True)
 OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS=True
-
+OPAC_READCUBE_ENABLED=False
 # --------------------- Links SciELO -------------------
 # ------------------------------------------------------
 # URL for SciELO.org (default: '//www.scielo.org')
@@ -172,7 +189,8 @@ OPAC_COMMON_STYLE_LIST=
 OPAC_SITE_LICENSE_ENABLE=True
 
 # License Name (default: "Creative Common - by 4.0")
-OPAC_SITE_LICENSE_NAME=Creative Common - by 4.0
+OPAC_SITE_LICENSE_NAME="Creative Common - by 4.0"
+
 # License Url (default: https://creativecommons.org/licenses/by-nc/4.0/)
 OPAC_SITE_LICENSE_URL=https://creativecommons.org/licenses/by-nc/4.0/
 
@@ -195,3 +213,17 @@ OPAC_TWITTER_ACCESS_TOKEN_SECRET=
 
 # Twitter screen name (default: 'RedeSciELO')
 OPAC_TWITTER_SCREEN_NAME=
+
+# -------------------- SCIMAGO ----------------------
+# ---------------------------------------------------
+SCIMAGO_URL=https://www.scimagojr.com/journalsearch.php?tip=sid&clean=0&q=
+
+SCIMAGO_ENABLED=True
+
+# SCImago Institutions Ranking(IR)
+SCIMAGO_URL_IR=https://www.scimagoir.com/
+
+# -------------------- MathJax ----------------------
+# ---------------------------------------------------
+# string with the default mathjax URL; ex: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"
+OPAC_MATHJAX_CDN_URL=https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML
