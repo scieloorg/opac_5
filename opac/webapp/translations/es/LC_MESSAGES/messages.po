@@ -1607,7 +1607,7 @@ msgstr "actual"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:47
 msgid "Seguinte"
-msgstr "número siguiente"
+msgstr "Siguiente"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:89
 #: opac/webapp/templates/article/includes/levelMenu.html:91
@@ -2742,7 +2742,7 @@ msgstr "Ver"
 #~ msgstr "tabla de contenido"
 
 #~ msgid "seguinte"
-#~ msgstr ""
+#~ msgstr "siguiente"
 
 #~ msgid "Fechar"
 #~ msgstr "Cerrar"
