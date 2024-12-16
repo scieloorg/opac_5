@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-27 12:09-0300\n"
+"POT-Creation-Date: 2024-12-12 18:02-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -461,6 +461,7 @@ msgid "conteúdo"
 msgstr ""
 
 #: opac/webapp/controllers.py:1741
+#: opac/webapp/templates/includes/error_form.html:36
 msgid "acessibilidade"
 msgstr ""
 
@@ -1851,12 +1852,12 @@ msgstr ""
 msgid "Lista em arquivo CSV"
 msgstr ""
 
-#: opac/webapp/templates/collection/includes/header.html:92
+#: opac/webapp/templates/collection/includes/header.html:82
 #: opac/webapp/templates/collection/includes/nav.html:51
 msgid "Sobre o"
 msgstr ""
 
-#: opac/webapp/templates/collection/includes/header.html:104
+#: opac/webapp/templates/collection/includes/header.html:94
 msgid "Acessar site coleção Brasil"
 msgstr ""
 
@@ -2092,15 +2093,16 @@ msgstr ""
 msgid "Digite seu Nome"
 msgstr ""
 
+#: opac/webapp/templates/includes/error_form.html:28
+msgid "Digite seu e-mail"
+msgstr ""
+
 #: opac/webapp/templates/includes/error_form.html:33
 msgid "Erro referente a"
 msgstr ""
 
-#: opac/webapp/templates/includes/error_form.html:36
-msgid ""
-"acessibilidade</label>\n"
-"                        <span class=\"form-text d-block mb-3\">(por "
-"favor, considere responder ao "
+#: opac/webapp/templates/includes/error_form.html:37
+msgid "(por favor, considere responder ao "
 msgstr ""
 
 #: opac/webapp/templates/includes/error_form.html:37

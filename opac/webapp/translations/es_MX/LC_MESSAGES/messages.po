@@ -1573,7 +1573,7 @@ msgstr ""
 
 #: opac/webapp/templates/article/includes/levelMenu.html:47
 msgid "Seguinte"
-msgstr ""
+msgstr "Siguiente"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:89
 #: opac/webapp/templates/article/includes/levelMenu.html:91
@@ -2439,12 +2439,12 @@ msgstr ""
 #: opac/webapp/templates/journal/includes/levelMenu.html:46
 #: opac/webapp/templates/journal/includes/levelMenu.html:51
 msgid "número seguinte"
-msgstr ""
+msgstr "número siguiente"
 
 #: opac/webapp/templates/journal/includes/levelMenu.html:47
 #: opac/webapp/templates/journal/includes/levelMenu.html:52
 msgid "Número seguinte"
-msgstr ""
+msgstr "Número siguiente"
 
 #: opac/webapp/templates/journal/includes/levelMenu.html:223
 #: opac/webapp/templates/journal/includes/levelMenu.html:225
@@ -2890,7 +2890,7 @@ msgstr ""
 #~ msgstr "tabla de contenido"
 
 #~ msgid "seguinte"
-#~ msgstr ""
+#~ msgstr "siguiente"
 
 #~ msgid "Fechar"
 #~ msgstr ""
@@ -2963,7 +2963,7 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "número seguinte"
-#~ msgstr ""
+#~ msgstr "número siguiente"
 
 #~ msgid "Sobre: SciELO "
 #~ msgstr ""

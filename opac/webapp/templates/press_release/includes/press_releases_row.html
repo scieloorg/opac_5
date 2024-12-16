@@ -1,4 +1,5 @@
 <div class="card" data-publication-date="{{ press_release.publication_date }}">
+  <a href="{{ press_release.url }}" target="_blank" class="stretched-link card-link">
 
   {% if press_release.image_url %}
 
@@ -14,13 +15,13 @@
 
     <div class="h6 card-subtitle mb-1">{{ press_release.publication_date|datetimefilter }}</div>
     
-    <strong class="card-title">
+    <strong class="card-title text-primary">
       {{ press_release.title|striptags }}
     </strong>
   
   </div>
   <div class="card-footer">
-    <a href="{{ press_release.url }}" target="_blank" class="btn btn-secondary d-block mx-0 my-0">{% trans%}Continue lendo{% endtrans %}</a>
+    <button class="btn btn-secondary d-block mx-0 my-0 w-100">{% trans%}Continue lendo{% endtrans %}</button>
   </div>
-
+  </a>
 </div>
