@@ -1,13 +1,15 @@
 	<div class="card">
-		{% if item.image_url %}
-			<img src="{{ item.image_url }}" class="card-img-top">
-		{% else %}
-			<img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
-		{% endif %}
-		<div class="card-body">
-			<div class="h6 card-subtitle">{{ item.publication_date }}</div>
-			<strong class="card-title">{{ item.title }}</strong>
-			<p class="card-text">{{ item.description|striptags|replace('Read More →', '')|truncate(100) }}</p>
-			<a href="{{ item.url }}" target="_blank" class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</a>
-		</div>
+		<a href="{{ item.url }}" target="_blank" class="stretched-link card-link">
+			{% if item.image_url %}
+				<img src="{{ item.image_url }}" class="card-img-top">
+			{% else %}
+				<img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top">
+			{% endif %}
+			<div class="card-body">
+				<div class="h6 card-subtitle">{{ item.publication_date }}</div>
+				<strong class="card-title text-primary">{{ item.title }}</strong>
+				<p class="card-text">{{ item.description|striptags|replace('Read More →', '')|truncate(100) }}</p>
+				<button class="btn btn-secondary d-block mb-0">{% trans%}Continue lendo{% endtrans %}</button>
+			</div>
+		</a>
 	</div>

@@ -1,28 +1,32 @@
+
+
 <div class="card">
-  
-  {% if item.image_url %}
-      
-      <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
-      
-  {% else %}
-      <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top" alt="{{ item.title }}">
-  {% endif %}
-  
-  <div class="card-body">
+  <a href="{{ item.url }}" target="_blank" class="stretched-link card-link">
 
-      <div class="h6 card-subtitle mb-1">{{ item.publication_date|datetimefilter }}</div>
-      
-      <strong class="card-title">
-        {{ item.title }}
-      </strong>
-      <p class="card-text mt-2">
-        {{ item.description|striptags|replace('Read More →', '')|truncate(70) }}
-      </p>
+    {% if item.image_url %}
+        
+        <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
+        
+    {% else %}
+        <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top" alt="{{ item.title }}">
+    {% endif %}
+    
+    <div class="card-body">
 
-      
-  </div>
-  <div class="card-footer">
-    <a href="{{ item.url }}" target="_blank" class="btn btn-secondary d-block mx-0 my-0">{% trans%}Continue lendo{% endtrans %}</a>
-  </div>
+        <div class="h6 card-subtitle mb-1">{{ item.publication_date|datetimefilter }}</div>
+        
+        <strong class="card-title text-primary">
+          {{ item.title }}
+        </strong>
+        <p class="card-text mt-2">
+          {{ item.description|striptags|replace('Read More →', '')|truncate(70) }}
+        </p>
+
+        
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-secondary d-block mx-0 my-0 w-100">{% trans%}Continue lendo{% endtrans %}</button>
+    </div>
+  </a>
   
 </div>

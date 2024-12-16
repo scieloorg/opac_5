@@ -1,21 +1,23 @@
 
   <div class="card">
+    <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}" target="_blank" class="stretched-link card-link">
     
-    <div class="card-body">
-        <div class="h6 card-subtitle mb-1">{% trans%}Volume{% endtrans %}: {{ article.issue.volume }} - {% trans%}Publicado em{% endtrans %}: {{ article.publication_date }}</div>
+      <div class="card-body">
+          <div class="h6 card-subtitle mb-1">{% trans%}Volume{% endtrans %}: {{ article.issue.volume }} - {% trans%}Publicado em{% endtrans %}: {{ article.publication_date }}</div>
 
-        {% if session.lang %}
+          {% if session.lang %}
 
-          <strong class="card-title">
-            {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|capitalize }}
-          </strong>
+            <strong class="card-title text-primary">
+              {{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true)|striptags|capitalize }}
+            </strong>
 
-        {% endif %}
+          {% endif %}
 
-        
-    </div>
-    <div class="card-footer">
-      <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}" target="_blank" class="btn btn-secondary d-block mx-0 my-0">{% trans%}Continue lendo{% endtrans %}</a>
-    </div>
+          
+      </div>
+      <div class="card-footer">
+        <button class="btn btn-secondary d-block mx-0 my-0 w-100">{% trans%}Continue lendo{% endtrans %}</button>
+      </div>
+    </a>
     
   </div>
