@@ -11,13 +11,13 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <title>SciELO - {% block title %}{{ coll_macro.get_collection_name() }}{% endblock %}</title>
+    <title>SciELO {% block title %}{{ coll_macro.get_collection_name() }}{% endblock %}</title>
 
     {% block extra_meta %}{% endblock %}
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
     
-    <link href="//ds.scielo.org/static/css/bootstrap.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}?v=1.1.11" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -54,7 +54,7 @@
       <div class="modal-dialog modal-sm">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="visually-hidden">Close</span></button>
                   <h1 class="h4 modal-title">{% trans %}Mensagem{% endtrans %}</h1>
               </div>
               <div class="modal-body">
@@ -75,7 +75,7 @@
       <div class="modal-dialog modal-sm">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="visually-hidden">Close</span></button>
                   <h1 class="h4 modal-title">{% trans %}Mensagem{% endtrans %}</h1>
               </div>
               <div class="modal-body">
@@ -87,7 +87,7 @@
     </div>
 
     <!-- Error modal -->
-    <a class="floatingBtnError btn btn-danger" href="#" id="#floatingBtnError">{% trans %}Acessibilidade / Reportar erro{% endtrans %}</a>
+    <a class="floatingBtnError btn btn-secondary" href="#" id="#floatingBtnError">{% trans %}Acessibilidade / Reportar erro{% endtrans %}</a>
 
     <!-- Scielo Bundle min -->
     <script src="{{ url_for('static', filename='js/scielo-bundle-min.js') }}"></script>

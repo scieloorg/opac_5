@@ -158,7 +158,7 @@
 
                                 {% if section_filter|upper == section|upper %}
                                   <button type="submit" name="submit_param" value="submit_value" class="me-1 mb-1 btn btn-sm btn-secondary active">
-                                    {{ section|lower }}
+                                    {{ section|lower }} 
                                   </button>
                                 {% else %}
                                   <button type="submit" name="submit_param" value="submit_value" class="me-1 mb-1 btn btn-sm btn-secondary">
@@ -182,7 +182,7 @@
               <div class="issueIndent">
                 <!-- Corpo com artigos -->
                 <table class="table table-hover table-journal-list mb-5">
-                  <caption class="sr-only">{% trans %}Document list{% endtrans %}</caption>
+                  <caption class="visually-hidden">{% trans %}Document list{% endtrans %}</caption>
                   <thead>
                     <tr>
                       <th>
@@ -198,7 +198,7 @@
                         <td class="pt-4 pb-4" data-date="{% if article.publication_date %}{{ article.publication_date.replace('-', "") }}{% endif %}">
   
                         {% if session.lang %}
-                          <span class="badge badge-info d-inline px-2 py-1 border-0">{{ article.section|default("", true) }}</span><br>
+                          <span class="badge badge-info d-inline px-2 py-1 border-0">{{ article.get_section_by_lang(session.lang[:2])|default("", true) }}</span><br>
                           <strong class="d-block mt-2">{{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true) | safe }}</strong>
                           <!-- publication_date: {{article.publication_date}} -->
                           <!-- PID: {{article.pid}} -->

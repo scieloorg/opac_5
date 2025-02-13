@@ -7,6 +7,12 @@ OPAC_RQ_REDIS_HOST=redis-cache
 # Redis port for cache. Ex: 6379
 OPAC_RQ_REDIS_PORT=6379
 
+# # default cron value for sending emails (default: "0 7 * * *")
+# OPAC_MAILING_CRON_STRING="0 7 * * *"
+
+# #timeout do screduler cron (dafault: 1000).
+# OPAC_DEFAULT_SCHEDULER_TIMEOUT=1000
+
 # --------------------- Cache configuration ------------------
 # ------------------------------------------------------------
 

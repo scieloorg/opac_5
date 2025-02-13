@@ -2,16 +2,6 @@
 
 <link rel="stylesheet" href="../../../static/css/jquery.typeahead.css">
 <style>
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
   .typeahead__container{
     margin: 0;
     min-width: auto;
@@ -102,7 +92,7 @@
       <div class="row">
         <div class="col text-center">
           <a href="/" alt="{{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Acessar site coleção Brasil{% endtrans %}">
-            <span class="d-none sr-only sr-only-focusable">Logo SciELO</span>
+            <span class="visually-hidden">Logo SciELO</span>
             <h2 class="scielo__logo-scielo-caption mt-1">
               <small>{{ coll_macro.get_collection_name() }}</small>
             </h2>
