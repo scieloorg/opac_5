@@ -86,7 +86,8 @@ let target_src = {
             path.join(paths['static_js'], 'modal_forms.js'),
         ],
         'scielo-article': [
-            path.join(paths['static_js'], 'scielo-article.js')
+            path.join(paths['static_js'], 'scielo-article.js'),
+            path.join(paths['static_js'], 'scielo-article-floating-menu.js')
 
         ],
         'scielo-article-standalone': [
@@ -424,4 +425,5 @@ exports.processImages = processDesignSystemImg;
 exports.articleSass = processScieloArticleSass;
 exports.bootstrapBundleJs = processBootstrapBundle;
 exports.scieloBundleJs = processScieloBundleJs;
+exports.scieloArticleJs = processScieloArticleJs;
 
