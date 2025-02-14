@@ -20,6 +20,20 @@ else
   DOCKER_COMPOSE=docker-compose
 endif
 
+COMPOSE_FILES := docker-compose.yml docker-compose-dev.yml
+
+ifeq ($(filter $(COMPOSE_FILES),$(compose)),)
+  @echo "Arquivo docker-compose inválido:" $(compose)
+else
+  DOCKER_COMPOSE_FILE := $(compose) 
+endif
+
+ifeq ($(compose),docker-compose.yml)
+  DATA_PATH = data_opac_prod
+else
+  DATA_PATH = data_opac_dev
+endif
+
 # Do not remove this block. It is used by the 'help' rule when
 # constructing the help output.
 # help:
@@ -231,6 +245,16 @@ shell: up
 docker_test: up
 	$(DOCKER_COMPOSE) -f $(compose) exec opac_webapp make test
 
+# help: mongodb_backup                 - run mongo_dump to backup mongo database 
+.PHONY: mongodb_backup
+mongodb_backup: up
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump --db opac --out ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"`
+
+# help: mongodb_restore                - run mongodb_restore to restore mongo database 
+.PHONY: mongodb_restore
+mongodb_restore: up
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"` --drop
+
 #################
 ##docker release#
 #################
@@ -279,4 +303,4 @@ exclude_opac_production:  ## Exclude all production images
 
 # help: update                         - stop, remove old images, and start the containers
 .PHONY: update
-update: stop exclude_opac_production up
+update: mongodb_backup stop exclude_opac_production up
