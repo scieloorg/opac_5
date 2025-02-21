@@ -9,6 +9,36 @@
 					<p><small><strong> SciELO - Scientific Electronic Library Online</strong></small></p>
 					<p><small>{{ g.collection.address1 or '' }}<br/>
 						{{ g.collection.address2 or '' }}</small></p>
+						<div>
+							<ul class="list-unstyled justify-content-center justify-content-sm-start d-flex mt-3 mb-0 scielo__social-network-links">
+								<li class="me-2">
+									<a href="https://www.youtube.com/c/SciELONetwork" target="_blank" aria-label="Youtube">
+										<i class="icon-youtube"></i>
+									</a>
+								</li>
+								<li class="me-2">
+									<a href="https://www.facebook.com/SciELONetwork/?locale=pt_BR" target="_blank" aria-label="Facebook">
+										<i class="icon-facebook"></i>
+									</a>
+								</li>
+								<li class="me-2">
+									<a href="https://www.linkedin.com/company/scielo---scientific-electronic-library-online/?originalSubdomain=br" target="_blank" aria-label="LinkedIn">
+										<i class="icon-linkedin"></i>
+									</a>
+								</li>
+								<li class="me-2">
+									<a href="https://mastodon.social/@scielobooks" target="_blank" aria-label="Mastodon">
+										<i class="icon-mastodon"></i>
+									</a>
+								</li>
+								<li>
+									<a href="https://web-cdn.bsky.app/profile/did:plc:3h7toqxc4uawbjyxutgyuldb" target="_blank" aria-label="BlueSky">
+										<i class="icon-bluesky"></i>
+									</a>
+								</li>
+								
+							</ul>
+						</div>
 				</div>
 				<div class="col col-12 col-sm-2 text-center">
 					{% if config.SITE_LICENSE_ENABLE %}
