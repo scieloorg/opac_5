@@ -617,12 +617,14 @@ def about_journal(url_seg):
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
-    collection_acronym = controllers.get_current_collection()
-
     if journal.old_information_page:
         page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
-        content = page.content if page else abort(404, _("Página não encontrada"))
+        try:
+            content = page.content
+        except AttributeError:
+            content = None
     else:
+        collection_acronym = controllers.get_current_collection()
         content = utils.fetch_and_extract_section(collection_acronym, journal.acronym, language)
 
     if (
