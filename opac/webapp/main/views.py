@@ -623,7 +623,8 @@ def about_journal(url_seg):
             content = page.content
         except AttributeError:
             content = None
-    else:
+    if not content:
+        # content = None se não achar nada no core.
         collection_acronym = controllers.get_current_collection()
         content = utils.fetch_and_extract_section(collection_acronym, journal.acronym, language)
 
