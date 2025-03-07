@@ -212,7 +212,7 @@ def get_journals(
     - ``title_query`` texto para filtrar (usando i_contains) pelo titulo do periódicos;
     - ``is_public``: filtra por público e não público de cada periódico;
     - ``query_filter``: string com possíveis valores:
-        - "" (vazio == sem filtro)
+        - "inprogress" (periódicos recém ingressados)
         - "current" (somente periódicos ativos)
         - "no-current" (somente periódicos não ativos)
     - ``order_by``: que corresponde ao nome de um atributo pelo qual
@@ -220,15 +220,15 @@ def get_journals(
     """
     filters = {}
 
-    if query_filter not in ["", "current", "no-current"]:
-        raise ValueError("Parámetro: 'query_filter' é inválido!")
-    elif query_filter == "current":
+    if query_filter not in ["inprogress", "current", "no-current"]:
+        raise ValueError("Parámetro: 'query_filter' é inválido!")    
+    elif query_filter == "current" or query_filter == "inprogress":
         filters = {
-            "current_status": "current",
+            "current_status": query_filter,
         }
     elif query_filter == "no-current":
         filters = {
-            "current_status__ne": "current",
+            "current_status__ne": query_filter,
         }
 
     if not title_query or title_query.strip() == "":
