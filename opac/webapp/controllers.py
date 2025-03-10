@@ -220,15 +220,15 @@ def get_journals(
     """
     filters = {}
 
-    if query_filter not in ["inprogress", "current", "no-current"]:
+    if query_filter not in ["current", "deceased", "suspended", "inprogress"]:
         raise ValueError("Parámetro: 'query_filter' é inválido!")    
-    elif query_filter == "current" or query_filter == "inprogress":
-        filters = {
-            "current_status": query_filter,
-        }
     elif query_filter == "no-current":
         filters = {
-            "current_status__ne": query_filter,
+            "current_status__in": ["deceased", "suspended"],
+        }
+    else:
+        filters = {
+            "current_status__in": ["current"],
         }
 
     if not title_query or title_query.strip() == "":
