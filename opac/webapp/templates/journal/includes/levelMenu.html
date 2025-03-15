@@ -29,16 +29,6 @@
             </a>          
           {% endif %}
   
-          {# Atual #}
-          {% if issue %}
-            <a title="{% trans %}número atual{% endtrans %}" href="#" class="btn disabled">
-              {% trans %}Número atual{% endtrans %}
-            </a>
-          {% elif last_issue %}
-            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
-              {% trans %}Número atual{% endtrans %}
-            </a>
-          {% endif %}
   
           {# Próximo #}
           {% if next_item %}
@@ -50,6 +40,18 @@
             {# página do periódico #}
             <a title="{% trans %}número seguinte{% endtrans %}" href="#" class="btn disabled">
                {% trans %}Número seguinte{% endtrans %} &raquo;
+            </a>
+          {% endif %}
+
+
+          {# Atual #}
+          {% if issue %}
+            <a title="{% trans %}número atual{% endtrans %}" href="#" class="btn disabled">
+              {% trans %}Número atual{% endtrans %}
+            </a>
+          {% elif last_issue %}
+            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
+              {% trans %}Número atual{% endtrans %}
             </a>
           {% endif %}
   
@@ -78,6 +80,12 @@
       .btn-group .btn{
         margin-bottom: 8px;
       }
+
+      @media ((min-width: 576px) and (max-width: 992px)) {
+          .journal .levelMenu {
+              margin-top: 95px;
+          }
+      }
     </style>
 
     <div class="row">
@@ -102,21 +110,34 @@
     <div class="row">
       <div class="col">
         <div class="btn-group" style="width: 100%;">
+          
           {# Anterior #}
-          {% if not last_issue and not issue %}
-            <a href="#" class="btn btn-secondary scielo__btn-with-icon--only disabled">
+          {% if previous_item %}
+            {# página do sumário #}
+            <a title="{% trans %}número anterior{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=previous_item.url_segment) }}" class="btn btn-secondary scielo__btn-with-icon--only">
               <span class="material-icons-outlined">navigate_before</span>
             </a>
-          {% elif issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='previous') }}" class="btn btn-secondary scielo__btn-with-icon--only">
+          {% else %}
+            <a title="{% trans %}número anterior{% endtrans %}" href="#" class="btn btn-secondary scielo__btn-with-icon--only disabled">
               <span class="material-icons-outlined">navigate_before</span>
-            </a>
-          {% elif last_issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment, goto='previous') }}" class="btn btn-secondary scielo__btn-with-icon--only">
-              <span class="material-icons-outlined">navigate_before</span>
-            </a>
+            </a>          
           {% endif %}
   
+
+          {# Próximo #}
+          {% if next_item %}
+            {# página do sumário #}
+            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='next') }}" class="btn btn-secondary scielo__btn-with-icon--only">
+              <span class="material-icons-outlined">navigate_next</span>
+            </a>
+          {% else %}
+            {# página do periódico #}
+            <a href="#" class="btn btn-secondary scielo__btn-with-icon--only disabled">
+              <span class="material-icons-outlined">navigate_next</span>
+            </a>
+          {% endif %}
+
+
           {# Atual #}
           {% if not last_issue and not issue %}
             <a href="#" class="btn btn-secondary disabled">
@@ -131,101 +152,11 @@
               {% trans %}Atual{% endtrans %}
             </a>
           {% endif %}
-  
-          {# Próximo #}
-          {% if not issue and not last_issue %}
-            <a href="#" class="btn btn-secondary scielo__btn-with-icon--only --disabled">
-              <span class="material-icons-outlined">navigate_next</span>
-            </a>
-          {% elif issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='next') }}" class="btn btn-secondary scielo__btn-with-icon--only">
-              <span class="material-icons-outlined">navigate_next</span>
-            </a>
-          {% elif last_issue %}
-            <a href="#" class="btn btn-secondary scielo__btn-with-icon--only --disabled">
-              <span class="material-icons-outlined">navigate_next</span>
-            </a>
-          {% endif %}
+
         </div>
       </div>
     </div>
 
-
-    <div class="row" style="display:none;">
-      <div class="col-md-1 col-sm-1">
-        <h2>&#160;</h2>
-        <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}" class="btn single {{ mmenu.endpoint_selected(view_name='main.journal_detail') }}"><span class="material-icons-outlined">home</span></a>
-      </div>
-      <div class="col-md-6 col-sm-6">
-        <h2>&#160;</h2>
-        <div class="btn-group">
-  
-          {# Todos #}
-          <a href="{{ url_for('.issue_grid', url_seg=journal.url_segment) }}" class="btn no-ico-util {{ mmenu.endpoint_selected(view_name='main.issue_grid') }}">
-            {% trans %}todos{% endtrans %}
-          </a>
-  
-          
-          {# Anterior #}
-          {% if not last_issue and not issue %}
-            <a href="#" class="btn disabled">
-            &laquo; {% trans %}número anterior{% endtrans %}
-            </a>
-          {% elif issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='previous') }}" class="btn">
-              &laquo; {% trans %}número anterior{% endtrans %}
-            </a>
-          {% elif last_issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment, goto='previous') }}" class="btn">
-              &laquo; {% trans %}número anterior{% endtrans %}
-            </a>
-          {% endif %}
-  
-          {# Atual #}
-          {% if not last_issue and not issue %}
-            <a href="#" class="btn disabled">
-             {% trans %}número atual{% endtrans %}
-            </a>
-          {% elif issue %}
-            <a href="#" class="btn disabled selected">
-             {% trans %}número atual{% endtrans %}
-            </a>
-          {% elif last_issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
-              {% trans %}número atual{% endtrans %}
-            </a>
-          {% endif %}
-  
-          {# Próximo #}
-          {% if not issue and not last_issue %}
-            <a href="#" class="btn single group disabled">
-              <span class="material-icons-outlined">navigate_next</span>
-            </a>
-          {% elif issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='next') }}" class="btn single group">
-              <span class="material-icons-outlined">navigate_next</span>
-            </a>
-          {% elif last_issue %}
-            <a href="#" class="btn single group disabled">
-              <span class="material-icons-outlined">navigate_next</span>
-            </a>
-          {% endif %}
-  
-        </div>
-      </div>
-      <div class="col-md-2 col-sm-2">
-        <h2>&#160;</h2>
-        <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[ta_cluster][]={% if journal.short_title %}{{ journal.short_title }}{% endif %}" class="btn single"><span class="material-icons-outlined">search</span> {% trans %}Buscar{% endtrans %}</a>
-      </div>
-      <div class="col-md-2 col-sm-2">
-        <h2>&#160;</h2>
-        {% if journal.scielo_issn or journal.eletronic_issn or journal.print_issn %}
-          <a target="_blank" href="{{ config.METRICS_URL }}/?journal={{ journal.scielo_issn or journal.eletronic_issn or journal.print_issn }}&collection={{ config.OPAC_COLLECTION }}" class="btn single"><span class="material-icons-outlined">show_chart</span> {% trans %}métricas{% endtrans %}</a>
-        {% else %}
-          <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}" class="btn single"><span class="material-icons-outlined">show_chart</span> {% trans %}métricas{% endtrans %}</a>
-        {% endif %}
-      </div>
-    </div>
   </div>
   <!-- exibe apenas sm, md -->
 
