@@ -250,7 +250,7 @@ var Article = {
 
 		$(window).scroll(function() {
 			var t = $(window).scrollTop(),
-				$floatingMenuCtt = '.scielo__floatingMenuCtt';
+				$floatingMenuCtt = '.scielo__floatingMenuCttJs3';
 			
 			if(Article.isScrolledIntoView($floatingMenuCtt)){
 
