@@ -253,7 +253,7 @@ mongodb_backup: up
 # help: mongodb_restore                - run mongodb_restore to restore mongo database 
 .PHONY: mongodb_restore
 mongodb_restore: up
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"` --drop
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/$(RESTORE_DATE) --drop
 
 #################
 ##docker release#
