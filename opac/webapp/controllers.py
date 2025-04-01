@@ -220,7 +220,7 @@ def get_journals(
     """
     filters = {}
 
-    if query_filter not in ["current", "deceased", "suspended", "inprogress"]:
+    if query_filter not in ["current", "no-current"]:
         raise ValueError("Parámetro: 'query_filter' é inválido!")    
     elif query_filter == "no-current":
         filters = {
