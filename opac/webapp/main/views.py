@@ -609,7 +609,6 @@ def journal_feed(url_seg):
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
     language = session.get("lang", get_locale())
-    collection_acronym = controllers.get_current_collection()
     journal = controllers.get_journal_by_url_seg(url_seg)
 
     if not journal:
@@ -617,7 +616,18 @@ def about_journal(url_seg):
 
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-    
+
+    if journal.old_information_page:
+        page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
+        try:
+            content = page.content
+        except AttributeError:
+            content = None
+    if not content:
+        # content = None se não achar nada no core.
+        collection_acronym = controllers.get_current_collection()
+        content = utils.fetch_and_extract_section(collection_acronym, journal.acronym, language)
+
     if (
         not journal.last_issue
         or journal.last_issue.type not in ("volume_issue", "regular")
@@ -640,15 +650,6 @@ def about_journal(url_seg):
     else:
         latest_issue_legend = None
     
-    if journal.old_information_page:
-        page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
-        content = page.content
-    else:
-        section_journal_content = utils.fetch_and_extract_section(
-            collection_acronym, journal.acronym, language
-        )
-        content = section_journal_content
-    
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -656,9 +657,9 @@ def about_journal(url_seg):
         "journal_study_areas": [
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
+        "content": content,
     }
 
-    context['content'] = content
     context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 

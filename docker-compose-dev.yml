@@ -1,4 +1,3 @@
-version: '2'
 
 services:
     redis-cache:
@@ -7,7 +6,7 @@ services:
         user: redis
         restart: always
         volumes:
-          - ./data/redis-cache-data-dev:/data
+          - ../data_opac_dev/redis-cache-data-dev:/data
 
     mailhog:
         image: mailhog/mailhog:latest
@@ -17,7 +16,7 @@ services:
             - "8025:8025"
 
     opac_mongo:
-        image: mongo:4.2
+        image: mongo:8.0
         container_name: opac_mongo_dev
         restart: always
         user: mongodb
@@ -191,5 +190,5 @@ services:
             - MINIO_ROOT_USER=minio
             - MINIO_ROOT_PASSWORD=minio123
         volumes:
-            - '../minio/data:/data'
+            - '../data_opac_dev/minio/data:/data'
         command: server --console-address ":9001" /data

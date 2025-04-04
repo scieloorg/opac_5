@@ -68,7 +68,7 @@ def JournalFactory(data):
     if metadata.get("institution_responsible_for"):
         institutions = [
             item
-            for item in metadata.get("institution_responsible_for", [{}])
+            for item in metadata.get("institution_responsible_for") or [{}]
             if item.get("name")
         ]
         if institutions:
@@ -545,10 +545,12 @@ def ArticleFactory(
             language=item["language"], name=item["name"],
         )
 
+    factory.abstract_languages = []
     for item in data.get("abstracts") or []:
         factory.add_abstract(
             language=item["language"], text=item["text"],
         )
+        factory.abstract_languages.append(item["language"])
 
     for item in data.get("keywords") or []:
         factory.add_keywords(
@@ -575,13 +577,13 @@ def ArticleFactory(
 
     factory.add_xml(data.get("xml"))
 
-    for item in data.get("doi_with_lang"):
+    for item in data.get("doi_with_lang") or []:
         factory.add_doi_with_lang(
             language=item.get("language"),
             doi=item.get("doi")
         )
 
-    for item in data.get("related_articles"):
+    for item in data.get("related_articles") or []:
         factory.add_related_article(
             doi=item.get("doi"), 
             ref_id=item.get("ref_id"), 
