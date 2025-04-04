@@ -681,6 +681,6 @@ COMMON_STYLE_LIST = os.environ.get(
 CITATION_EXPORT_FORMATS = {"bib": "BibTex", "ris": "Reference Manager"}
 
 SITE_LICENSE_ENABLE = os.environ.get("OPAC_SITE_LICENSE_ENABLE", "True") == "True"
-SITE_LICENSE_NAME = os.environ.get("OPAC_SITE_LICENSE_NAME", "Creative Common - by 4.0")
-SITE_LICENSE_URL = os.environ.get("OPAC_SITE_LICENSE_URL", "https://creativecommons.org/licenses/by-nc/4.0/")
-SITE_LICENSE_IMG_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_URL", "https://licensebuttons.net/l/by/4.0/88x31.png")
+SITE_LICENSE_NAME = os.environ.get("OPAC_SITE_LICENSE_NAME") or "Creative Common - by 4.0"
+SITE_LICENSE_URL = os.environ.get("OPAC_SITE_LICENSE_URL") or "https://creativecommons.org/licenses/by/4.0/"
+SITE_LICENSE_IMG_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_URL") or "https://licensebuttons.net/l/by/4.0/88x31.png"
