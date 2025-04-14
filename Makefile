@@ -250,10 +250,94 @@ docker_test: up
 mongodb_backup: up
 	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump --db opac --out ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"`
 
-# help: mongodb_restore                - run mongodb_restore to restore mongo database 
-.PHONY: mongodb_restore
-mongodb_restore: up
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/$(RESTORE_DATE) --drop
+# help: restore - Restaura o banco MongoDB e o SQLite
+.PHONY: restore
+restore: up
+	@echo "♻️  Restaurando MongoDB e SQLite..."
+	@BACKUP_DATE=$(RESTORE_DATE); \
+	if [ -z "$$BACKUP_DATE" ]; then \
+		echo "❌ Variável RESTORE_DATE não definida. Use: make restore RESTORE_DATE=YYYY-MM-DD"; \
+		exit 1; \
+	fi; \
+	echo "📦 Restaurando MongoDB de $$BACKUP_DATE..."; \
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/$$BACKUP_DATE --drop && \
+	echo "🗄  Restaurando opac.sqlite..."; \
+	if [ ! -f ../$(DATA_PATH)/backups/sqlite/opac.sqlite ]; then \
+		echo "❌ Arquivo ../$(DATA_PATH)/backups/sqlite/opac.sqlite não encontrado!"; \
+		exit 1; \
+	fi; \
+	cp ../$(DATA_PATH)/backups/sqlite/opac.sqlite ../$(DATA_PATH)/opac.sqlite && \
+	echo "✅ Restauração concluída!"
+
+# help: backup_sqlite - Faz backup do banco SQLite (opac.sqlite)
+.PHONY: backup_sqlite
+backup_sqlite:
+	@BACKUP_DIR=../$(DATA_PATH)/backups/sqlite; \
+	mkdir -p $$BACKUP_DIR && \
+	cp ../$(DATA_PATH)/opac.sqlite $$BACKUP_DIR/opac.sqlite && \
+	echo "✅ Backup do SQLite concluído: $$BACKUP_DIR/opac.sqlite"
+
+# help: backup - Faz backup completo (MongoDB + SQLite)
+.PHONY: backup
+backup: mongodb_backup backup_sqlite
+	@echo "✅ Backup completo (MongoDB + SQLite) finalizado!"
+
+
+# help: check_perms - run check_perms to folders
+.PHONY: check_perms
+check_perms:
+	@echo "🔍 Verificando permissões dos volumes..."
+
+	@echo "\n🔸 Redis"
+	@if [ -d ../data_opac_prod/redis-cache-data-dev ]; then \
+		ls -ld ../data_opac_prod/redis-cache-data-dev; \
+	else echo "🔴 Diretório inexistente"; fi
+
+	@echo "\n🔸 MongoDB"
+	@if [ -d ../data_opac_prod/db ]; then \
+		ls -ld ../data_opac_prod/db; \
+	else echo "🔴 Diretório inexistente"; fi
+	@if [ -d ../data_opac_prod/backups ]; then \
+		ls -ld ../data_opac_prod/backups; \
+	else echo "🔴 Diretório inexistente"; fi
+
+	@echo "\n🔸 WebApp / Worker / Scheduler"
+	@if [ -d ../data_opac_prod ]; then \
+		ls -ld ../data_opac_prod; \
+	else echo "🔴 Diretório inexistente"; fi
+	@if [ -d ../data_opac_prod/img ]; then \
+		ls -ld ../data_opac_prod/img; \
+	else echo "🔴 Diretório inexistente"; fi
+
+	@echo "\n🔸 MinIO"
+	@if [ -d ../data_opac_prod/minio/data ]; then \
+		ls -ld ../data_opac_prod/minio/data; \
+	else echo "🔴 Diretório inexistente"; fi
+
+	@echo "\n✅ Verificação finalizada. Se houver diretórios em vermelho, execute: make fix_perms"
+
+# help: fix_perms - run fix_perms to folders
+.PHONY: fix_perms
+fix_perms:
+	@echo "🔧 Ajustando permissões usando o usuário atual do host..."
+	@sh -c '\
+		HOST_UID=$$(id -u); \
+		HOST_GID=$$(id -g); \
+		echo "👤 Usando UID: $$HOST_UID | GID: $$HOST_GID"; \
+		sudo mkdir -p ../data_opac_prod/redis-cache-data-dev && \
+		sudo chown -R $$HOST_UID:$$HOST_GID ../data_opac_prod/redis-cache-data-dev && \
+		sudo chmod -R 775 ../data_opac_prod/redis-cache-data-dev && \
+		sudo mkdir -p ../data_opac_prod/db ../data_opac_prod/backups && \
+		sudo chown -R $$HOST_UID:$$HOST_GID ../data_opac_prod/db ../data_opac_prod/backups && \
+		sudo chmod -R 775 ../data_opac_prod/db ../data_opac_prod/backups && \
+		sudo mkdir -p ../data_opac_prod/img && \
+		sudo chown -R $$HOST_UID:$$HOST_GID ../data_opac_prod ../data_opac_prod/img && \
+		sudo chmod -R 775 ../data_opac_prod ../data_opac_prod/img && \
+		sudo mkdir -p ../data_opac_prod/minio/data && \
+		sudo chown -R $$HOST_UID:$$HOST_GID ../data_opac_prod/minio/data && \
+		sudo chmod -R 775 ../data_opac_prod/minio/data; \
+		echo "✅ Permissões aplicadas com sucesso!" \
+	'
 
 #################
 ##docker release#
@@ -303,4 +387,4 @@ exclude_opac_production:  ## Exclude all production images
 
 # help: update                         - stop, remove old images, and start the containers
 .PHONY: update
-update: mongodb_backup stop exclude_opac_production up
+update: backup stop exclude_opac_production up
