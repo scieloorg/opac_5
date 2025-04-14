@@ -23,10 +23,7 @@ services:
             - ../data_opac_prod/backups:/data_opac_prod/backups:rw
 
     opac_webapp:
-        # image: infrascielo/opac_5
-        build:
-            context: .
-            dockerfile: ./Dockerfile
+        image: infrascielo/opac_5
         container_name: opac_webapp_prod
         user: nobody
         restart: always
