@@ -252,12 +252,37 @@ def send_audit_log_emails():
     send_audit_log_daily_report()
 
 
+@app.cli.command("create_empty_sqlite")
+def create_empty_sqlite_db():
+    """
+    Cria um banco de dados SQLite vazio com todas as tabelas definidas.
+    Essa operação remove todas as tabelas existentes.
+    """
+
+    app = create_app()
+    db_path = app.config["DATABASE_PATH"]
+
+    print(f"⚠️  Isso irá remover TODAS as tabelas existentes no banco: {db_path}")
+    confirm = input("Tem certeza que deseja continuar? [y/N]: ").strip().lower()
+
+    if confirm not in ("y", "yes"):
+        print("❌ Operação cancelada pelo usuário.")
+        return
+
+    with app.app_context():
+        print(f"🛠 Criando banco vazio em: {db_path}")
+        dbsql.drop_all()
+        dbsql.create_all()
+        print("✅ Banco SQLite criado com sucesso!")
+
+
 app.cli.add_command(test)
 app.cli.add_command(create_tables_dbsql)
 app.cli.add_command(create_superuser)
 app.cli.add_command(reset_dbsql)
 app.cli.add_command(clear_scheduler_tasks)
 app.cli.add_command(send_audit_log_emails)
+app.cli.add_command(create_empty_sqlite_db)
 
 if __name__ == "__main__":
     print(app.config["SERVER_NAME"])
