@@ -684,3 +684,4 @@ SITE_LICENSE_ENABLE = os.environ.get("OPAC_SITE_LICENSE_ENABLE", "True") == "Tru
 SITE_LICENSE_NAME = os.environ.get("OPAC_SITE_LICENSE_NAME") or "Creative Common - by 4.0"
 SITE_LICENSE_URL = os.environ.get("OPAC_SITE_LICENSE_URL") or "https://creativecommons.org/licenses/by/4.0/"
 SITE_LICENSE_IMG_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_URL") or "https://licensebuttons.net/l/by/4.0/88x31.png"
+SITE_LICENSE_IMG_MINI_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_MINI_URL") or "https://licensebuttons.net/l/by/4.0/80x15.png"
