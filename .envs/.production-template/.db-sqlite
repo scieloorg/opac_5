@@ -4,7 +4,4 @@
 OPAC_DATABASE_FILE=opac.sqlite
 
 # Folder where the database is located (sqlite) (default: '/data')
-OPAC_DATABASE_DIR=/data
-
-# [optional] SQL database URI (default: 'sqlite:////data/opac.sqlite')
-OPAC_DATABASE_URI=sqlite:////data/opac.sqlite
+OPAC_DATABASE_DIR=/app/data
