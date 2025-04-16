@@ -39,7 +39,7 @@ services:
             - opac_mongo:opac-mongo
             - redis-cache:redis-cache
         expose:
-            - "9000"
+            - "8000"
         env_file:
             - ./.envs/.production/.flask
             - ./.envs/.production/.redis
