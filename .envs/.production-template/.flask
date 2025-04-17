@@ -197,6 +197,9 @@ OPAC_SITE_LICENSE_URL=https://creativecommons.org/licenses/by-nc/4.0/
 # License Image (default: https://licensebuttons.net/l/by/4.0/88x31.png)
 OPAC_SITE_LICENSE_IMG_URL=https://licensebuttons.net/l/by/4.0/88x31.png
 
+# License Image Mini (default: https://licensebuttons.net/l/by/4.0/80x15.png)
+OPAC_SITE_LICENSE_IMG_MINI_URL=https://licensebuttons.net/l/by/4.0/80x15.png
+
 
 # -------------------- Twitter ----------------------
 # ---------------------------------------------------
