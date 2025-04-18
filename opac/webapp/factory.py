@@ -230,6 +230,7 @@ class AuxiliarArticleFactory:
         self.doc.sections = None
         self.doc.abstract = None
         self.doc.abstracts = None
+        self.doc.abstract_languages = None
         self.doc.keywords = None
         self.doc.doi_with_lang = None
         self.doc.related_articles = None
@@ -341,10 +342,13 @@ class AuxiliarArticleFactory:
         # abstracts = EmbeddedDocumentListField(Abstract))
         if self.doc.abstracts is None:
             self.doc.abstracts = []
+        if self.doc.abstract_languages is None:
+            self.doc.abstract_languages = []
         _abstract = models.Abstract()
         _abstract.text = text
         _abstract.language = language
         self.doc.abstracts.append(_abstract)
+        self.doc.abstract_languages.append(language)
 
     def add_keywords(self, language, keywords):
         # kwd_groups = EmbeddedDocumentListField(ArticleKeyword))
@@ -545,12 +549,10 @@ def ArticleFactory(
             language=item["language"], name=item["name"],
         )
 
-    factory.abstract_languages = []
     for item in data.get("abstracts") or []:
         factory.add_abstract(
             language=item["language"], text=item["text"],
         )
-        factory.abstract_languages.append(item["language"])
 
     for item in data.get("keywords") or []:
         factory.add_keywords(
