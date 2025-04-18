@@ -941,6 +941,13 @@ def issue_toc(url_seg, url_seg_issue):
     # obtém PDF e TEXT de cada documento
     has_math_content = False
     for article in articles:
+        if article.abstracts and not article.abstract_languages:
+            article.abstract_languages = set([item.language for item in article.abstracts])
+            try:
+                article.save()
+            except Exception:
+                pass
+
         article_text_languages = set([doc["lang"] for doc in article.htmls])
         article_pdf_languages = set([(doc["lang"], doc["url"]) for doc in article.pdfs])
         setattr(article, "article_text_languages", article_text_languages)
