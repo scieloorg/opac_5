@@ -41,7 +41,7 @@ OPAC_WEBAPP_VERSION=
 
 # LOCALZONE
 # Default 'America/Sao_Paulo'. Consult: https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
-LOCAL_ZONE=
+LOCAL_ZONE='America/Sao_Paulo'
 
 # ORCID URL. default: http://orcid.org/
 OPAC_ORCID_URL=http://orcid.org/
