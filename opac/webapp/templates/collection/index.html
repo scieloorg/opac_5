@@ -10,12 +10,12 @@
   <section class="collection mb-5">
     <div class="container">
       
-      {% if config.USE_HOME_METRICS %}
+      {% if config.USE_HOME_METRICS and g.collection.metrics %}
         <div class="row">
           <div class="col-md-12 col-sm-12 metrics">
             <div class="row">
               <div class="col-md-6">
-                <h2>{{ coll_macro.get_collection_name() }} <span >{% trans %}em números | Métricas{% endtrans %}</span></h2>
+                <h2>{{ coll_macro.get_collection_name() }} <span >{% trans %}Em números | Métricas{% endtrans %}</span></h2>
               </div>
               <div class="col-md-6 right">
                 <div class="datetime"><span id="date"></span></div>
