@@ -296,7 +296,7 @@ var Portal = {
 					});
 				}
 			});
-			*/
+			
 
 			$(document).on('click', function(e) {
 				var container = $(".scielo__menu");
@@ -324,6 +324,7 @@ var Portal = {
 	  
 				}
 			});
+			*/
 
 			$(".expandCollapseContent").on("click",function(e) {
 				e.preventDefault();
