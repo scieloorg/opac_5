@@ -229,7 +229,7 @@ WEBMASTER_EMAIL = "webmaster@scielo.org"
 
 # ativa/desativa a apresentação dos dados de métricas da coleção (default: False),
 # o padrão é não apresentar
-USE_HOME_METRICS = os.environ.get("OPAC_USE_HOME_METRICS", False)
+USE_HOME_METRICS = os.environ.get("OPAC_USE_HOME_METRICS", "False") == "True"
 
 # Acrônimo da coleção OPAC: 'spa' ou 'esp' por exemplo.
 # -*- DEVE SER AJUSTADO NA INSTALAÇÃO -*-
@@ -249,8 +249,8 @@ EMAIL_ACCOUNTS_RECEIVE_ERRORS = (
 # -*- DEVE SER AJUSTADO NA INSTALAÇÃO -*-
 MAIL_SERVER = os.environ.get("OPAC_MAIL_SERVER", "localhost")
 MAIL_PORT = int(os.environ.get("OPAC_MAIL_PORT", 1025))
-MAIL_USE_TLS = bool(os.environ.get("OPAC_MAIL_USE_TLS", False))
-MAIL_USE_SSL = bool(os.environ.get("OPAC_MAIL_USE_SSL", False))
+MAIL_USE_TLS = os.environ.get("OPAC_MAIL_USE_TLS", "False") == "True"
+MAIL_USE_SSL = os.environ.get("OPAC_MAIL_USE_SSL", "False") == "True"
 MAIL_DEBUG = DEBUG
 MAIL_USERNAME = os.environ.get("OPAC_MAIL_USERNAME", None)
 MAIL_PASSWORD = os.environ.get("OPAC_MAIL_PASSWORD", None)
@@ -628,13 +628,13 @@ APM_HOSTNAME = os.environ.get("OPAC_APM_HOSTNAME")
 APM_COLLECT_LOCAL_VARIABLES = os.environ.get("OPAC_APM_COLLECT_LOCAL_VARIABLES")
 APM_LOCAL_VAR_MAX_LENGTH = os.environ.get("OPAC_APM_LOCAL_VAR_MAX_LENGTH")
 APM_CAPTURE_BODY = os.environ.get("OPAC_APM_CAPTURE_BODY")
-APM_CAPTURE_HEADERS = os.environ.get("OPAC_APM_CAPTURE_HEADERS", True)
+APM_CAPTURE_HEADERS = os.environ.get("OPAC_APM_CAPTURE_HEADERS", "True") == "True"
 APM_TRANSACTION_MAX_SPANS = os.environ.get("OPAC_APM_TRANSACTION_MAX_SPANS")
 APM_STACK_TRACE_LIMIT = os.environ.get("OPAC_APM_STACK_TRACE_LIMIT")
-APM_DEBUG = os.environ.get("OPAC_APM_DEBUG", False)
-APM_DISABLE_SEND = os.environ.get("OPAC_APM_DISABLE_SEND", False)
-APM_INSTRUMENT = os.environ.get("OPAC_APM_INSTRUMENT", True)
-APM_VERIFY_SERVER_CERT = os.environ.get("OPAC_APM_APM_VERIFY_SERVER_CERT", True)
+APM_DEBUG = os.environ.get("OPAC_APM_DEBUG", "False") == "True"
+APM_DISABLE_SEND = os.environ.get("OPAC_APM_DISABLE_SEND", "False") == "True"
+APM_INSTRUMENT = os.environ.get("OPAC_APM_INSTRUMENT", "True") == "True"
+APM_VERIFY_SERVER_CERT = os.environ.get("OPAC_APM_APM_VERIFY_SERVER_CERT", "True") == "True"
 
 # Caso queira apresentar na home do website que o atual tem versão anterior
 PREVIOUS_WEBSITE_URI = os.environ.get("PREVIOUS_WEBSITE_URI", "")
@@ -647,7 +647,7 @@ ALERT_MSG = bool(ALERT_MSG_PT or ALERT_MSG_EN or ALERT_MSG_ES)
 
 
 # Google Meta tags
-FORCE_USE_HTTPS_GOOGLE_TAGS = os.environ.get("OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS", True)
+FORCE_USE_HTTPS_GOOGLE_TAGS = os.environ.get("OPAC_FORCE_USE_HTTPS_GOOGLE_TAGS", "True") == "True"
 
 # Filtros por seção no TOC
 
