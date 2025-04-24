@@ -27,24 +27,18 @@
                   {% if g.collection.metrics.total_journal %}
                     {{ g.collection.metrics.total_journal }}
                     <span>{% trans %}períodicos{% endtrans %}</span>
-                  {% else %}
-                    <span>{% trans %}Não há dados de periódicos{% endtrans %}</span>
                   {% endif %}
                 </div>
                 <div class="col-md-3 col-sm-3">
                   {% if g.collection.metrics.total_article %}
                     {{ g.collection.metrics.total_article }}
                     <span>{% trans %}artigos{% endtrans %}</span>
-                  {% else %}
-                    <span>{% trans %}Não há dados de article{% endtrans %}</span>
                   {% endif %}
                 </div>
                 <div class="col-md-3 col-sm-3">
-                  {% if g.collection.metrics.total_issue %}
-                    {{ g.collection.metrics.total_issue }}
-                    <span>{% trans %}números{% endtrans %}</span>
-                  {% else %}
-                    <span>{% trans %}Não há dados de issue{% endtrans %}</span>
+                  {% if g.collection.metrics.total_citation %}
+                    {{ g.collection.metrics.total_citation }}
+                    <span>{% trans %}referências{% endtrans %}</span>
                   {% endif %}
                 </div>
               </div>
