@@ -1623,13 +1623,13 @@ msgstr "Text"
 #: opac/webapp/templates/article/includes/levelMenu.html:335
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:38
 msgid "Resumo "
-msgstr ""
+msgstr "Abstract"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:157
 #: opac/webapp/templates/article/includes/levelMenu.html:394
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:40
 msgid "Texto "
-msgstr ""
+msgstr "Text"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:179
 #: opac/webapp/templates/article/includes/levelMenu.html:199
