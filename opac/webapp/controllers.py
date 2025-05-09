@@ -6,11 +6,9 @@
     ou outras camadas superiores, evitando assim que as camadas superiores
     acessem diretamente a camada inferior de modelos.
 """
-import logging
 import io
+import logging
 import re
-import requests
-from bs4 import BeautifulSoup
 from collections import OrderedDict
 from datetime import datetime
 from uuid import uuid4
@@ -25,24 +23,18 @@ from flask_mongoengine import Pagination
 from legendarium.formatter import descriptive_very_short_format
 from mongoengine import Q
 from mongoengine.errors import InvalidQueryError
-from opac_schema.v1.models import (
-    Article,
-    Collection,
-    Issue,
-    Journal,
-    News,
-    Pages,
-    PressRelease,
-    Sponsor,
-    LastIssue,
-)
-from scieloh5m5 import h5m5
+from mongoengine.queryset.visitor import Q
+from opac_schema.v1.models import (Article, Collection, Issue, Journal,
+                                   LastIssue, News, Pages, PressRelease,
+                                   Sponsor)
 from slugify import slugify
 from webapp import dbsql
 
+from scieloh5m5 import h5m5
+
 from .choices import INDEX_NAME, JOURNAL_STATUS, STUDY_AREAS
+from .factory import ArticleFactory, IssueFactory, JournalFactory
 from .models import User
-from .factory import JournalFactory, IssueFactory, ArticleFactory
 from .utils import utils
 
 HIGHLIGHTED_TYPES = (
@@ -1974,6 +1966,7 @@ def add_issue(data, journal_id, issue_order=None, _type="regular"):
     return saved
 
 
+
 def add_article(
     document_id,
     data,
@@ -1982,8 +1975,86 @@ def add_article(
     document_xml_url,
     repeated_doc_pids=None,
 ):
-    article = ArticleFactory(
-        document_id, data, issue_id, document_order, document_xml_url, repeated_doc_pids
-    )
+    """
+    Cria ou atualiza um artigo na base de dados com base em identificadores SciELO (PID v2, PID v3).
+
+    A função verifica se já existe um artigo correspondente aos PIDs fornecidos. Caso exista, 
+    atualiza os dados mantendo os identificadores e metadados já registrados. Caso contrário, 
+    cria um novo artigo com os dados informados.
+
+    Atribui corretamente os PIDs (`v2`, `v3`, e `other`) no campo `scielo_pids`, garantindo 
+    rastreabilidade e consistência na identificação do documento.
+
+    Em caso de atualização o ID do artigo existente é mantido, e os metadados são atualizados
+    conforme os dados fornecidos. Se um novo artigo for criado, o ID é gerado automaticamente.
+    A função também garante que os PIDs sejam únicos e não se repitam entre os artigos.
+    A função retorna a instância do artigo, seja ela nova ou atualizada.
+
+    
+    Args:
+        document_id (str): Identificador PID v3 do artigo (geralmente `_id` no MongoDB).
+        data (dict): Dicionário com os metadados do artigo, incluindo `pid` (v2).
+        issue_id (str): Identificador da edição à qual o artigo pertence.
+        document_order (int): Posição/sequência do artigo na edição.
+        document_xml_url (str): URL do XML do artigo.
+        repeated_doc_pids (list, optional): Lista de PIDs repetidos ou ambíguos (se houver).
+
+    Returns:
+        Article: Instância do artigo salva (nova ou atualizada).
+    """
+    pid_v3 = document_id
+    pid_v2 = data.get("pid")
+
+    base_query = Q(_id=pid_v3) | Q(aid=pid_v3) | Q(pid=pid_v2) | Q(aid=pid_v2)
+    candidates = Article.objects(base_query)
+
+    # Verifica se há correspondência exata com os PIDs v2 ou v3, ou se esses PIDs estão listados como "other"
+    article_exists = None
+    for art in candidates:
+        scielo_pids = art.scielo_pids or {}
+        other = scielo_pids.get("other", [])
+        if (
+            scielo_pids.get("v2") == pid_v2
+            or scielo_pids.get("v3") == pid_v3
+            or pid_v2 in other
+            or pid_v3 in other
+        ):
+            article_exists = art
+            break
+
+    if article_exists:
+        article = ArticleFactory(
+            article_exists.id,
+            data,
+            issue_id,
+            document_order,
+            document_xml_url,
+            repeated_doc_pids,
+        )
+        article.id = article_exists.id
+
+        article.aid = article_exists.aid
+
+        article.scielo_pids = article_exists.scielo_pids or {}
+        article.scielo_pids["v3"] = article_exists.scielo_pids.get("v3", pid_v3)
+
+    else:
+        article = ArticleFactory(
+            pid_v3, data, issue_id, document_order, document_xml_url, repeated_doc_pids
+        )
+        article.aid = pid_v3
+        article.scielo_pids = {
+            "v2": pid_v2,
+            "v3": pid_v3,
+            "other": [],
+        }
+
+    article.pid = pid_v2
+    article.scielo_pids["v2"] = pid_v2
+
+    article.scielo_pids.setdefault("other", [])
+    for pid in [pid_v2, pid_v3]:
+        if pid and pid not in article.scielo_pids["other"]:
+            article.scielo_pids["other"].append(pid)
 
     return article.save()
