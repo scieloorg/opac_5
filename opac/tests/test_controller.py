@@ -1,6 +1,8 @@
 # coding: utf-8
+import os
+import sys
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from flask_babelex import lazy_gettext as __
 from webapp import controllers, dbsql
@@ -9,6 +11,8 @@ from werkzeug.security import check_password_hash
 
 from . import utils
 from .base import BaseTestCase
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
 class JournalControllerTestCase(BaseTestCase):
@@ -1969,3 +1973,78 @@ class AddFilterWithoutEmbargoTestCase(TestCase):
         expected = {"is_public": False, "publication_date__lte": "2021-01-01"}
         result = controllers.add_filter_without_embargo(kwargs)
         self.assertDictEqual(expected, result)
+
+
+class AddArticleTestCase(TestCase):
+    def setUp(self):
+        self.payload = {
+            "_id": "1234567890",
+            "pid": "S1518-87872019053000622",
+            "scielo_pids": {},
+            "scielo_pids_v2": "S1518-87872019053000621",
+            "scielo_pids_v3": "1234567890",
+            "title": "Validation of an anxiety scale for prenatal diagnostic procedures",
+            "issue_id": "1678-4464-1998-v29-n3",
+            "order": 1,
+            "xml": "<xml>...</xml>",
+        }
+
+    @patch("webapp.controllers.ArticleFactory")
+    @patch("webapp.controllers.Article.objects")
+    def test_create_new_article(self, mock_objects, mock_factory):
+        """Testa a criação de um novo artigo (sem correspondência existente)."""
+        mock_objects.return_value = []  # Nenhum artigo existente
+
+        mock_article = MagicMock()
+        mock_article.save.return_value = mock_article
+        mock_factory.return_value = mock_article
+
+        result = controllers.add_article(
+            document_id=self.payload["_id"],
+            data=self.payload,
+            issue_id=self.payload["issue_id"],
+            document_order=self.payload["order"],
+            document_xml_url=self.payload["xml"]
+        )
+
+        self.assertEqual(result, mock_article)
+        self.assertEqual(result.aid, self.payload["_id"])
+        self.assertIn(self.payload["pid"], result.scielo_pids["other"])
+        self.assertIn(self.payload["_id"], result.scielo_pids["other"])
+        mock_article.save.assert_called_once()
+
+@patch("webapp.controllers.ArticleFactory")
+@patch("webapp.controllers.Article.objects")
+def test_update_existing_article(self, mock_objects, mock_factory):
+    """Testa a atualização de um artigo existente com PIDs coincidentes."""
+    existing_article = MagicMock()
+    existing_article.id = "existing-id"
+    existing_article.aid = "existing-id"
+    existing_article.scielo_pids = {
+        "v2": self.payload["scielo_pids_v2"],
+        "v3": self.payload["scielo_pids_v3"],
+        "other": []
+    }
+
+    mock_objects.return_value = [existing_article]
+
+    mock_article = MagicMock()
+    mock_article.id = existing_article.id
+    mock_article.aid = existing_article.aid
+    mock_article.save.return_value = mock_article  # <- importante!
+
+    mock_factory.return_value = mock_article
+
+    result = controllers.add_article(
+        document_id=self.payload["_id"],
+        data=self.payload,
+        issue_id=self.payload["issue_id"],
+        document_order=self.payload["order"],
+        document_xml_url=self.payload["xml"]
+    )
+
+    self.assertEqual(result.id, existing_article.id)
+    self.assertEqual(result.aid, existing_article.aid)
+    self.assertIn(self.payload["pid"], result.scielo_pids["other"])
+    self.assertIn(self.payload["_id"], result.scielo_pids["other"])
+    mock_article.save.assert_called_once()
