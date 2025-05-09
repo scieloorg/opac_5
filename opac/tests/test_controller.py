@@ -2013,38 +2013,38 @@ class AddArticleTestCase(TestCase):
         self.assertIn(self.payload["_id"], result.scielo_pids["other"])
         mock_article.save.assert_called_once()
 
-@patch("webapp.controllers.ArticleFactory")
-@patch("webapp.controllers.Article.objects")
-def test_update_existing_article(self, mock_objects, mock_factory):
-    """Testa a atualização de um artigo existente com PIDs coincidentes."""
-    existing_article = MagicMock()
-    existing_article.id = "existing-id"
-    existing_article.aid = "existing-id"
-    existing_article.scielo_pids = {
-        "v2": self.payload["scielo_pids_v2"],
-        "v3": self.payload["scielo_pids_v3"],
-        "other": []
-    }
+    @patch("webapp.controllers.ArticleFactory")
+    @patch("webapp.controllers.Article.objects")
+    def test_update_existing_article(self, mock_objects, mock_factory):
+        """Testa a atualização de um artigo existente com PIDs coincidentes."""
+        existing_article = MagicMock()
+        existing_article.id = "existing-id"
+        existing_article.aid = "existing-id"
+        existing_article.scielo_pids = {
+            "v2": self.payload["scielo_pids_v2"],
+            "v3": self.payload["scielo_pids_v3"],
+            "other": []
+        }
 
-    mock_objects.return_value = [existing_article]
+        mock_objects.return_value = [existing_article]
 
-    mock_article = MagicMock()
-    mock_article.id = existing_article.id
-    mock_article.aid = existing_article.aid
-    mock_article.save.return_value = mock_article  # <- importante!
+        mock_article = MagicMock()
+        mock_article.id = existing_article.id
+        mock_article.aid = existing_article.aid
+        mock_article.save.return_value = mock_article  # <- importante!
 
-    mock_factory.return_value = mock_article
+        mock_factory.return_value = mock_article
 
-    result = controllers.add_article(
-        document_id=self.payload["_id"],
-        data=self.payload,
-        issue_id=self.payload["issue_id"],
-        document_order=self.payload["order"],
-        document_xml_url=self.payload["xml"]
-    )
+        result = controllers.add_article(
+            document_id=self.payload["_id"],
+            data=self.payload,
+            issue_id=self.payload["issue_id"],
+            document_order=self.payload["order"],
+            document_xml_url=self.payload["xml"]
+        )
 
-    self.assertEqual(result.id, existing_article.id)
-    self.assertEqual(result.aid, existing_article.aid)
-    self.assertIn(self.payload["pid"], result.scielo_pids["other"])
-    self.assertIn(self.payload["_id"], result.scielo_pids["other"])
-    mock_article.save.assert_called_once()
+        self.assertEqual(result.id, existing_article.id)
+        self.assertEqual(result.aid, existing_article.aid)
+        self.assertIn(self.payload["pid"], result.scielo_pids["other"])
+        self.assertIn(self.payload["_id"], result.scielo_pids["other"])
+        mock_article.save.assert_called_once()
