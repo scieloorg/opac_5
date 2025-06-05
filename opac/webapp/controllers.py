@@ -1,10 +1,10 @@
 # coding: utf-8
 
 """
-    Conjunto de funções utilitarias para acessar a camada de modelos,
-    e agrupar esses resultados em estruturas de dados úties para as views
-    ou outras camadas superiores, evitando assim que as camadas superiores
-    acessem diretamente a camada inferior de modelos.
+Conjunto de funções utilitarias para acessar a camada de modelos,
+e agrupar esses resultados em estruturas de dados úties para as views
+ou outras camadas superiores, evitando assim que as camadas superiores
+acessem diretamente a camada inferior de modelos.
 """
 import logging
 import io
@@ -74,36 +74,28 @@ def _fix_pid(pid):
     return pid
 
 
-class ArticleAbstractNotFoundError(Exception):
-    ...
+class ArticleAbstractNotFoundError(Exception): ...
 
 
-class ArticleIsNotPublishedError(Exception):
-    ...
+class ArticleIsNotPublishedError(Exception): ...
 
 
-class IssueIsNotPublishedError(Exception):
-    ...
+class IssueIsNotPublishedError(Exception): ...
 
 
-class JournalIsNotPublishedError(Exception):
-    ...
+class JournalIsNotPublishedError(Exception): ...
 
 
-class ArticleJournalNotFoundError(Exception):
-    ...
+class ArticleJournalNotFoundError(Exception): ...
 
 
-class ArticleLangNotFoundError(Exception):
-    ...
+class ArticleLangNotFoundError(Exception): ...
 
 
-class ArticleNotFoundError(Exception):
-    ...
+class ArticleNotFoundError(Exception): ...
 
 
-class PreviousOrNextArticleNotFoundError(Exception):
-    ...
+class PreviousOrNextArticleNotFoundError(Exception): ...
 
 
 def now():
@@ -131,10 +123,12 @@ def get_current_collection():
     retornar a primeira coleção disponível.
     """
     try:
-        current_acronym_collection = Collection.objects.get(acronym=current_app.config["OPAC_COLLECTION"])
+        current_acronym_collection = Collection.objects.get(
+            acronym=current_app.config["OPAC_COLLECTION"]
+        )
     except (KeyError, Collection.DoesNotExist):
         current_acronym_collection = Collection.objects.first()
-    
+
     return current_acronym_collection
 
 
@@ -163,9 +157,11 @@ def get_collection_tweets():
                         "id": tweet.id,
                         "screen_name": tweet.user.screen_name,
                         "full_text": tweet.full_text,
-                        "media_url_https": tweet.entities["media"][0]["media_url_https"]
-                        if "media" in tweet.entities
-                        else "",
+                        "media_url_https": (
+                            tweet.entities["media"][0]["media_url_https"]
+                            if "media" in tweet.entities
+                            else ""
+                        ),
                     }
                     for tweet in public_tweets
                 ]
@@ -221,7 +217,7 @@ def get_journals(
     filters = {}
 
     if query_filter not in ["current", "no-current", ""]:
-        raise ValueError("Parámetro: 'query_filter' é inválido!")    
+        raise ValueError("Parámetro: 'query_filter' é inválido!")
     elif query_filter == "no-current":
         filters = {
             "current_status__in": ["deceased", "suspended"],
@@ -703,8 +699,11 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
 
     issues = []
     issues_without_ahead = []
-
-    if get_journal_by_jid(jid):
+    last_issue = None
+    issue_ahead = None
+    journal = get_journal_by_jid(jid)
+    if not journal:
+        last_issue = journal.last_issue
         issues = Issue.objects(
             journal=jid,
             type__in=["ahead", "regular", "special", "supplement", "volume_issue"],
@@ -747,7 +746,8 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
 
     # o primiero item da lista é o último número.
     # condicional para verificar se issues contém itens
-    last_issue = issues[0].journal.last_issue
+    if not last_issue and len(issues) > 0:
+        last_issue = issues[0].journal.last_issue
 
     return {
         "ahead": issue_ahead,  # ahead of print
@@ -766,9 +766,9 @@ def get_issue_nav_bar_data(journal=None, issue=None):
     é o último issue regular odendo ter como item posterior
     um suplemento, um número especial, um ahead ou nenhum item
     """
+    last_issue = None
     if issue:
         journal = issue.journal
-        last_issue = None
 
     elif journal:
         issue = None
@@ -782,10 +782,20 @@ def get_issue_nav_bar_data(journal=None, issue=None):
             or not journal.last_issue.url_segment
         ):
             set_last_issue_and_issue_count(journal)
-
-        last_issue = get_issue_by_iid(journal.last_issue.iid)
+        if journal.last_issue:
+            last_issue = get_issue_by_iid(journal.last_issue.iid)
 
     item = issue or last_issue
+    if not item:
+        issues = Issue.objects(
+            journal=journal,
+        ).order_by("year", "order")
+        return {
+            "previous_item": None,
+            "next_item": issues.first(),
+            "issue": None,
+            "last_issue": None,
+        }
 
     if item.type == "ahead" or item.number == "ahead":
         previous = (
@@ -844,34 +854,33 @@ def set_last_issue_and_issue_count(journal):
             journal=journal,
             type__in=["regular", "volume_issue"],
             is_public=True,
-        )
+        ).order_by(*order_by)
         journal.issue_count = issues.count()
-        journal.save()
     except Exception as e:
         logging.exception(
             f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
         )
 
     try:
-        last_issue = issues.order_by(*order_by).first()
-
-        journal.last_issue = LastIssue(
-            volume=last_issue.volume,
-            number=last_issue.number,
-            year=last_issue.year,
-            label=last_issue.label,
-            type=last_issue.type,
-            suppl_text=last_issue.suppl_text,
-            start_month=last_issue.start_month,
-            end_month=last_issue.end_month,
-            iid=last_issue.iid,
-            url_segment=last_issue.url_segment,
-        )
-        journal.save()
+        last_issue = issues.first()
+        if last_issue:
+            journal.last_issue = LastIssue(
+                volume=last_issue.volume,
+                number=last_issue.number,
+                year=last_issue.year,
+                label=last_issue.label,
+                type=last_issue.type,
+                suppl_text=last_issue.suppl_text,
+                start_month=last_issue.start_month,
+                end_month=last_issue.end_month,
+                iid=last_issue.iid,
+                url_segment=last_issue.url_segment,
+            )
     except Exception as e:
         logging.exception(
             f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
         )
+    journal.save()
     return journal
 
 
