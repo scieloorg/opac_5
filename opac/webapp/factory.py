@@ -81,8 +81,9 @@ def JournalFactory(data):
             journal.publisher_country = institution.get("country")
 
     journal.online_submission_url = metadata.get("online_submission_url", "")
-    if journal.logo_url is None or len(journal.logo_url) == 0:
-        journal.logo_url = metadata.get("logo_url", "")
+
+    if "missing" in journal.logo_url or not journal.logo_url:
+        journal.logo_url = metadata.get("logo_url")
     journal.current_status = metadata.get("current_status")
 
     timelines = []
