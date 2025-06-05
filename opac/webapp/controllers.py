@@ -1,10 +1,10 @@
 # coding: utf-8
 
 """
-    Conjunto de funções utilitarias para acessar a camada de modelos,
-    e agrupar esses resultados em estruturas de dados úties para as views
-    ou outras camadas superiores, evitando assim que as camadas superiores
-    acessem diretamente a camada inferior de modelos.
+Conjunto de funções utilitarias para acessar a camada de modelos,
+e agrupar esses resultados em estruturas de dados úties para as views
+ou outras camadas superiores, evitando assim que as camadas superiores
+acessem diretamente a camada inferior de modelos.
 """
 import logging
 import io
@@ -74,36 +74,28 @@ def _fix_pid(pid):
     return pid
 
 
-class ArticleAbstractNotFoundError(Exception):
-    ...
+class ArticleAbstractNotFoundError(Exception): ...
 
 
-class ArticleIsNotPublishedError(Exception):
-    ...
+class ArticleIsNotPublishedError(Exception): ...
 
 
-class IssueIsNotPublishedError(Exception):
-    ...
+class IssueIsNotPublishedError(Exception): ...
 
 
-class JournalIsNotPublishedError(Exception):
-    ...
+class JournalIsNotPublishedError(Exception): ...
 
 
-class ArticleJournalNotFoundError(Exception):
-    ...
+class ArticleJournalNotFoundError(Exception): ...
 
 
-class ArticleLangNotFoundError(Exception):
-    ...
+class ArticleLangNotFoundError(Exception): ...
 
 
-class ArticleNotFoundError(Exception):
-    ...
+class ArticleNotFoundError(Exception): ...
 
 
-class PreviousOrNextArticleNotFoundError(Exception):
-    ...
+class PreviousOrNextArticleNotFoundError(Exception): ...
 
 
 def now():
@@ -131,10 +123,12 @@ def get_current_collection():
     retornar a primeira coleção disponível.
     """
     try:
-        current_acronym_collection = Collection.objects.get(acronym=current_app.config["OPAC_COLLECTION"])
+        current_acronym_collection = Collection.objects.get(
+            acronym=current_app.config["OPAC_COLLECTION"]
+        )
     except (KeyError, Collection.DoesNotExist):
         current_acronym_collection = Collection.objects.first()
-    
+
     return current_acronym_collection
 
 
@@ -163,9 +157,11 @@ def get_collection_tweets():
                         "id": tweet.id,
                         "screen_name": tweet.user.screen_name,
                         "full_text": tweet.full_text,
-                        "media_url_https": tweet.entities["media"][0]["media_url_https"]
-                        if "media" in tweet.entities
-                        else "",
+                        "media_url_https": (
+                            tweet.entities["media"][0]["media_url_https"]
+                            if "media" in tweet.entities
+                            else ""
+                        ),
                     }
                     for tweet in public_tweets
                 ]
@@ -221,7 +217,7 @@ def get_journals(
     filters = {}
 
     if query_filter not in ["current", "no-current", ""]:
-        raise ValueError("Parámetro: 'query_filter' é inválido!")    
+        raise ValueError("Parámetro: 'query_filter' é inválido!")
     elif query_filter == "no-current":
         filters = {
             "current_status__in": ["deceased", "suspended"],
