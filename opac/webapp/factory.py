@@ -41,7 +41,7 @@ def JournalFactory(data):
     journal.metrics = models.JounalMetrics(**metadata.get("metrics", {}))
 
     # Issue count
-    journal.issue_count = len(data.get("items", []))
+    journal.issue_count =  data.get("issue_count") or len(data.get("items", []))
 
     # Mission
     journal.mission = [
