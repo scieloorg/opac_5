@@ -702,7 +702,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
     last_issue = None
     issue_ahead = None
     journal = get_journal_by_jid(jid)
-    if not journal:
+    if journal:
         last_issue = journal.last_issue
         issues = Issue.objects(
             journal=jid,
