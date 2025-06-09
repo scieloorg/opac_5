@@ -2172,7 +2172,7 @@ def issue_sync(*args):
     if not payload.get("issue_id") or not payload.get("articles_id"):
         return (
             jsonify({"failed": True, "error": "missing param issue_id or articles_id"}),
-            400
+            400,
         )
 
     # Get issue by iid
@@ -2182,20 +2182,11 @@ def issue_sync(*args):
     if not issue:
         return jsonify({"failed": True, "error": "issue not found"}), 404
 
-    # Get articles by issue.iid
-    articles = controllers.get_articles_by_iid(issue.iid)
+    removed_articles_ids = controllers.delete_articles_by_iid(
+        issue_id=issue.id, keep_list=payload.get("articles_id")
+    )
 
-    # Create a set of current article IDs in the issue
-    current_article_ids = {article.aid for article in articles}
-
-    # Create a set of article IDs from the payload
-    new_article_ids = set(payload.get("articles_id"))
-
-    # Determine which articles to remove
-    articles_to_remove = current_article_ids - new_article_ids
-
-    if articles_to_remove:
-        removed_articles_ids = controllers.delete_articles_by_aids(list(articles_to_remove))
+    if removed_articles_ids:
         return (
             jsonify(
                 {
@@ -2203,7 +2194,7 @@ def issue_sync(*args):
                     "removed_articles": removed_articles_ids,
                 }
             ),
-            200
+            200,
         )
     else:
         return (
@@ -2213,8 +2204,9 @@ def issue_sync(*args):
                     "removed_articles": [],
                 }
             ),
-            200
+            200,
         )
+
 
 @restapi.route("/article", methods=["POST", "PUT"])
 @helper.token_required
