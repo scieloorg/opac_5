@@ -500,11 +500,7 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
             data = resp.get_json()
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(data.get("failed"), False)
-            self.assertEqual(data.get("removed_count"), 1)
             self.assertIn("article_to_remove", data.get("removed_articles"))
-            self.assertEqual(set(data["remaining_articles"]), set(self.articles_id_payload))
-            self.assertEqual(data.get("issue_id"), self.issue_id)
-            self.assertEqual("Sync completed. 1 articles removed, 2 remain.", data.get("message"))
 
     @patch("webapp.controllers.get_issue_by_iid")
     @patch("webapp.controllers.get_articles_by_iid")
@@ -529,11 +525,8 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
             data = resp.get_json()
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(data.get("failed"), False)
-            self.assertEqual(data.get("removed_count"), 0)
             self.assertEqual(data.get("removed_articles"), [])
-            self.assertEqual(set(data.get("remaining_articles")), set(self.articles_id_payload))
-            self.assertEqual(data.get("issue_id"), self.issue_id)
-            self.assertEqual("Sync completed. No articles were removed. 2 remain.", data.get("message"))
+
 
     def test_sync_missing_issue_id_or_articles_id(self):
         with self.client as client:

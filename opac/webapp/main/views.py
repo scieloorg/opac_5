@@ -2156,24 +2156,13 @@ def issue_sync(*args):
 
         {
             "failed": false,
-            "removed_count": 3,
             "removed_articles": ["abc123", "def456", "ghi789"],
-            "remaining_articles": ["hYnMxt6qc7qsHQtZqMcgYmv", "wNZLxRjKfGdDw8KGmbNN7qj"],
-            "issue_id": "0001-3765-2000-v72-n1",
-            "message": "Sync completed. 3 articles removed, 2 remain.",
         }
     The return payload examples when have no articles to remove:
 
         {
             "failed": false,
-            "removed_count": 0,
             "removed_articles": [],
-            "remaining_articles": [
-                "hYnMxt6qc7qsHQtZqMcgYmv",
-                "wNZLxRjKfGdDw8KGmbNN7qj"
-            ],
-            "issue_id": "0001-3765-2000-v72-n1",
-            "message": "Sync completed. No articles were removed. 2 remain."
         }
 
     """
@@ -2211,11 +2200,7 @@ def issue_sync(*args):
             jsonify(
                 {
                     "failed": False,
-                    "removed_count": len(removed_articles_ids),
                     "removed_articles": removed_articles_ids,
-                    "remaining_articles": list(new_article_ids),
-                    "issue_id": issue.iid,
-                    "message": f"Sync completed. {len(removed_articles_ids)} articles removed, {len(list(new_article_ids))} remain.",
                 }
             ),
             200
@@ -2225,11 +2210,7 @@ def issue_sync(*args):
             jsonify(
                 {
                     "failed": False,
-                    "removed_count": 0,
                     "removed_articles": [],
-                    "remaining_articles": list(new_article_ids),
-                    "issue_id": issue.iid,
-                    "message": f"Sync completed. No articles were removed. {len(new_article_ids)} remain.",
                 }
             ),
             200
