@@ -466,27 +466,19 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
         # Exemplos de dados para os testes
         self.issue_id = "0001-3765-2000-v72-n1"
         self.articles_id_payload = [
-            "hYnMxt6qc7qsHQtZqMcgYmv", 
+            "hYnMxt6qc7qsHQtZqMcgYmv",
             "wNZLxRjKfGdDw8KGmbNN7qj"
         ]
         self.issue_mock = Mock()
-        self.issue_mock.iid = self.issue_id
+        self.issue_mock.id = self.issue_id  
 
     @patch("webapp.controllers.get_issue_by_iid")
-    @patch("webapp.controllers.get_articles_by_iid")
-    @patch("webapp.controllers.delete_articles_by_aids")
+    @patch("webapp.controllers.delete_articles_by_iid")
     def test_sync_articles_removed(
-        self, mock_delete_articles_by_aids, mock_get_articles_by_iid, mock_get_issue_by_iid
+        self, mock_delete_articles_by_iid, mock_get_issue_by_iid
     ):
-        # Mockando retorno dos controllers
         mock_get_issue_by_iid.return_value = self.issue_mock
-        # Artigos atuais na base (um a mais do que na payload)
-        mock_get_articles_by_iid.return_value = [
-            Mock(aid="hYnMxt6qc7qsHQtZqMcgYmv"),
-            Mock(aid="wNZLxRjKfGdDw8KGmbNN7qj"),
-            Mock(aid="article_to_remove"),
-        ]
-        mock_delete_articles_by_aids.return_value = ["article_to_remove"]
+        mock_delete_articles_by_iid.return_value = ["article_to_remove"]
 
         with self.client as client:
             resp = client.post(
@@ -500,18 +492,15 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
             data = resp.get_json()
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(data.get("failed"), False)
-            self.assertIn("article_to_remove", data.get("removed_articles"))
+            self.assertEqual(data.get("removed_articles"), ["article_to_remove"])
 
     @patch("webapp.controllers.get_issue_by_iid")
-    @patch("webapp.controllers.get_articles_by_iid")
+    @patch("webapp.controllers.delete_articles_by_iid")
     def test_sync_no_articles_removed(
-        self, mock_get_articles_by_iid, mock_get_issue_by_iid
+        self, mock_delete_articles_by_iid, mock_get_issue_by_iid
     ):
         mock_get_issue_by_iid.return_value = self.issue_mock
-        # Nenhum artigo a remover
-        mock_get_articles_by_iid.return_value = [
-            Mock(aid=a) for a in self.articles_id_payload
-        ]
+        mock_delete_articles_by_iid.return_value = []
 
         with self.client as client:
             resp = client.post(
@@ -526,7 +515,6 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(data.get("failed"), False)
             self.assertEqual(data.get("removed_articles"), [])
-
 
     def test_sync_missing_issue_id_or_articles_id(self):
         with self.client as client:
