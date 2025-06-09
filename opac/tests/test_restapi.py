@@ -1,12 +1,13 @@
-import os
 import json
+import os
+from unittest.mock import Mock, patch
 
 from flask import current_app, url_for
 from flask_babelex import gettext as _
+from opac_schema.v1 import models
 
 from .base import BaseTestCase
 
-from opac_schema.v1 import models
 
 FIXTURES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
@@ -457,3 +458,109 @@ class RestAPIAricleTestCase(BaseTestCase):
             # check if the article is in database
             with self.assertRaises(models.Article.DoesNotExist):
                 models.Article.objects.get(_id="id_test")
+
+
+class RestAPIIssueSyncTestCase(BaseTestCase):
+
+    def setUp(self):
+        # Exemplos de dados para os testes
+        self.issue_id = "0001-3765-2000-v72-n1"
+        self.articles_id_payload = [
+            "hYnMxt6qc7qsHQtZqMcgYmv",
+            "wNZLxRjKfGdDw8KGmbNN7qj"
+        ]
+        self.issue_mock = Mock()
+        self.issue_mock.id = self.issue_id  
+
+    @patch("webapp.controllers.get_issue_by_iid")
+    @patch("webapp.controllers.delete_articles_by_iid")
+    def test_sync_articles_removed(
+        self, mock_delete_articles_by_iid, mock_get_issue_by_iid
+    ):
+        mock_get_issue_by_iid.return_value = self.issue_mock
+        mock_delete_articles_by_iid.return_value = ["article_to_remove"]
+
+        with self.client as client:
+            resp = client.post(
+                url_for("restapi.issue_sync"),
+                data=json.dumps({
+                    "issue_id": self.issue_id,
+                    "articles_id": self.articles_id_payload
+                }),
+                content_type="application/json"
+            )
+            data = resp.get_json()
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(data.get("failed"), False)
+            self.assertEqual(data.get("removed_articles"), ["article_to_remove"])
+
+    @patch("webapp.controllers.get_issue_by_iid")
+    @patch("webapp.controllers.delete_articles_by_iid")
+    def test_sync_no_articles_removed(
+        self, mock_delete_articles_by_iid, mock_get_issue_by_iid
+    ):
+        mock_get_issue_by_iid.return_value = self.issue_mock
+        mock_delete_articles_by_iid.return_value = []
+
+        with self.client as client:
+            resp = client.post(
+                url_for("restapi.issue_sync"),
+                data=json.dumps({
+                    "issue_id": self.issue_id,
+                    "articles_id": self.articles_id_payload
+                }),
+                content_type="application/json"
+            )
+            data = resp.get_json()
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(data.get("failed"), False)
+            self.assertEqual(data.get("removed_articles"), [])
+
+    def test_sync_missing_issue_id_or_articles_id(self):
+        with self.client as client:
+            resp = client.post(
+                url_for("restapi.issue_sync"),
+                data=json.dumps({}),
+                content_type="application/json"
+            )
+            data = resp.get_json()
+            self.assertEqual(resp.status_code, 400)
+            self.assertEqual(data.get("failed"), True)
+            self.assertIn("missing param", data.get("error"))
+
+        with self.client as client:
+            resp = client.post(
+                url_for("restapi.issue_sync"),
+                data=json.dumps({"issue_id": self.issue_id}),
+                content_type="application/json"
+            )
+            data = resp.get_json()
+            self.assertEqual(resp.status_code, 400)
+            self.assertEqual(data.get("failed"), True)
+
+        with self.client as client:
+            resp = client.post(
+                url_for("restapi.issue_sync"),
+                data=json.dumps({"articles_id": self.articles_id_payload}),
+                content_type="application/json"
+            )
+            data = resp.get_json()
+            self.assertEqual(resp.status_code, 400)
+            self.assertEqual(data.get("failed"), True)
+
+    @patch("webapp.controllers.get_issue_by_iid")
+    def test_sync_issue_not_found(self, mock_get_issue_by_iid):
+        mock_get_issue_by_iid.return_value = None
+        with self.client as client:
+            resp = client.post(
+                url_for("restapi.issue_sync"),
+                data=json.dumps({
+                    "issue_id": "not-found",
+                    "articles_id": self.articles_id_payload
+                }),
+                content_type="application/json"
+            )
+            data = resp.get_json()
+            self.assertEqual(resp.status_code, 404)
+            self.assertEqual(data.get("failed"), True)
+            self.assertEqual(data.get("error"), "issue not found")

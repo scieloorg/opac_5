@@ -626,7 +626,9 @@ def about_journal(url_seg):
     if not content:
         # content = None se não achar nada no core.
         collection_acronym = controllers.get_current_collection()
-        content = utils.fetch_and_extract_section(collection_acronym, journal.acronym, language)
+        content = utils.fetch_and_extract_section(
+            collection_acronym, journal.acronym, language
+        )
 
     if (
         not journal.last_issue
@@ -649,7 +651,7 @@ def about_journal(url_seg):
         )
     else:
         latest_issue_legend = None
-    
+
     context = {
         "journal": journal,
         "latest_issue_legend": latest_issue_legend,
@@ -916,19 +918,22 @@ def issue_toc(url_seg, url_seg_issue):
     if goto_url:
         return redirect(goto_url, code=301)
 
-    if current_app.config["FILTER_SECTION_ENABLE"] and current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]:
+    if (
+        current_app.config["FILTER_SECTION_ENABLE"]
+        and current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]
+    ):
         filter_section_enable = (
-            len(journal.study_areas or []) >= current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]
+            len(journal.study_areas or [])
+            >= current_app.config["FILTER_SECTION_ENABLE_FOR_MIN_STUDY_AREAS"]
         )
 
     # obtém todos os documentos
     articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
 
     # obtém todas as seções
-    sections = sorted({
-        s.upper()
-        for s in articles.item_frequencies("section", normalize=True).keys()
-    })
+    sections = sorted(
+        {s.upper() for s in articles.item_frequencies("section", normalize=True).keys()}
+    )
 
     # obtém os documentos da seção selecionada
     try:
@@ -942,7 +947,9 @@ def issue_toc(url_seg, url_seg_issue):
     has_math_content = False
     for article in articles:
         if article.abstracts and not article.abstract_languages:
-            article.abstract_languages = set([item.language for item in article.abstracts])
+            article.abstract_languages = set(
+                [item.language for item in article.abstracts]
+            )
             try:
                 article.save()
             except Exception:
@@ -2129,6 +2136,78 @@ def issue(*args):
         return jsonify({"failed": False, "id": issue.id}), 200
 
 
+@restapi.route("/issue/sync", methods=["POST"])
+@helper.token_required
+def issue_sync(*args):
+    """
+    This endpoint responds syncronize the issue with your article POST.
+
+    IMPORTANT: All articles that are in the database and that are not in the
+    issue information payload will be removed.
+
+    A payload example:
+
+        {
+        "issue_id": "0001-3765-2000-v72-n1",
+        "articles_id": ["hYnMxt6qc7qsHQtZqMcgYmv", "wNZLxRjKfGdDw8KGmbNN7qj"]
+        }
+
+    The return payload examples when have articles to remove:
+
+        {
+            "failed": false,
+            "removed_articles": ["abc123", "def456", "ghi789"],
+        }
+    The return payload examples when have no articles to remove:
+
+        {
+            "failed": false,
+            "removed_articles": [],
+        }
+
+    """
+    payload = request.get_json()
+
+    # Verify if the payload has the required fields
+    if not payload.get("issue_id") or not payload.get("articles_id"):
+        return (
+            jsonify({"failed": True, "error": "missing param issue_id or articles_id"}),
+            400,
+        )
+
+    # Get issue by iid
+    issue = controllers.get_issue_by_iid(payload.get("issue_id"))
+
+    # Verify if the issue exists
+    if not issue:
+        return jsonify({"failed": True, "error": "issue not found"}), 404
+
+    removed_articles_ids = controllers.delete_articles_by_iid(
+        issue_id=issue.id, keep_list=payload.get("articles_id")
+    )
+
+    if removed_articles_ids:
+        return (
+            jsonify(
+                {
+                    "failed": False,
+                    "removed_articles": removed_articles_ids,
+                }
+            ),
+            200,
+        )
+    else:
+        return (
+            jsonify(
+                {
+                    "failed": False,
+                    "removed_articles": [],
+                }
+            ),
+            200,
+        )
+
+
 @restapi.route("/article", methods=["POST", "PUT"])
 @helper.token_required
 def article(*args):
@@ -2216,7 +2295,7 @@ def pressrelease(*args):
     try:
         create_press_release_record(pr_model_data=data)
     except Exception as e:
-        return jsonify({"failed": True, "error": str(e)}), 500    
+        return jsonify({"failed": True, "error": str(e)}), 500
     else:
         return jsonify({"failed": False}), 200
 
