@@ -1572,21 +1572,34 @@ def get_articles_by_date_range(begin_date, end_date, page=1, per_page=100):
     return Pagination(articles, page, per_page)
 
 
-def delete_articles_by_aids(aid_list):
+def delete_articles_by_iid(issue_id, keep_list=None):
     """
-    Remove todos os artigos cujos aids estão na lista fornecida.
+    Remove todos os artigos de um determinado issue, exceto os que estão na keep_list.
 
-    :param aid_list: Lista de IDs de artigos a serem removidos.
-    :return: Lista de artigos removidos.
+    :param issue_id: ID do issue do qual os artigos serão removidos.
+    :param keep_list: Lista de IDs de artigos que devem ser mantidos (não removidos).
+    :return: Lista de IDs dos artigos removidos.
     """
-    if not aid_list:
-        raise ValueError("Obrigatório uma lista de aids para deletar.")
+    if not issue_id:
+        raise ValueError("Obrigatório informar um issue_id para deletar.")
 
-    # Busca todos os artigos cujos aids estão na lista
-    articles = Article.objects(aid__in=aid_list)
-    count = articles.count()
-    articles.delete()
-    return [a.aid for a in articles]
+    # Busca os artigos que serão removidos
+    if keep_list is not None:
+        # Busca artigos do issue cujo aid NÃO está em keep_list
+        remove_articles = Article.objects(issue=issue_id, aid__nin=keep_list)
+    else:
+        # Busca todos os artigos do issue
+        remove_articles = Article.objects(issue_id=issue_id)
+
+    # Salva os IDs dos artigos antes de deletar
+    removed_ids = [artigo.aid for artigo in remove_articles]
+
+    # Executa a exclusão
+    remove_articles.delete()
+
+    # Retorna a lista de IDs removidos
+    return removed_ids
+
 
 
 # -------- NEWS --------
