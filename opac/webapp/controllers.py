@@ -1572,6 +1572,23 @@ def get_articles_by_date_range(begin_date, end_date, page=1, per_page=100):
     return Pagination(articles, page, per_page)
 
 
+def delete_articles_by_aids(aid_list):
+    """
+    Remove todos os artigos cujos aids estão na lista fornecida.
+
+    :param aid_list: Lista de IDs de artigos a serem removidos.
+    :return: Lista de artigos removidos.
+    """
+    if not aid_list:
+        raise ValueError("Obrigatório uma lista de aids para deletar.")
+
+    # Busca todos os artigos cujos aids estão na lista
+    articles = Article.objects(aid__in=aid_list)
+    count = articles.count()
+    articles.delete()
+    return [a.aid for a in articles]
+
+
 # -------- NEWS --------
 
 
