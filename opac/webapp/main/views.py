@@ -2169,7 +2169,7 @@ def issue_sync(*args):
     payload = request.get_json()
 
     # Verify if the payload has the required fields
-    if not payload.get("issue_id") or not payload.get("articles_id"):
+    if not payload.get("issue_id"):
         return (
             jsonify({"failed": True, "error": "missing param issue_id or articles_id"}),
             400,
