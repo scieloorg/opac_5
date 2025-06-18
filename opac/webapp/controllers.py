@@ -1601,7 +1601,6 @@ def delete_articles_by_iid(issue_id, keep_list=None):
     return removed_ids
 
 
-
 # -------- NEWS --------
 
 
