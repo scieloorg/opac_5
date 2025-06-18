@@ -826,43 +826,49 @@ def get_issue_nav_bar_data(journal=None, issue=None):
     }
 
 
-def set_last_issue_and_issue_count(journal):
-    """
-    O último issue tem que ser um issue regular, não pode ser aop, nem suppl, nem especial
-    """
-    try:
-        order_by = ["-year", "-order"]
-        issues = Issue.objects(
-            journal=journal,
-            type__in=["regular", "volume_issue"],
+def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
+    if not last_issue or not issue_count:
+        article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
+            "issue"
+        )
+        params = {}
+        if article_issue_ids:
+            params["iid__in"] = [item.iid for item in article_issue_ids]
+        queryset = Issue.objects(
+            journal=jid,
             is_public=True,
-        ).order_by(*order_by)
-        journal.issue_count = issues.count()
-    except Exception as e:
-        logging.exception(
-            f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
+            **params,
+        )
+    if not issue_count:
+        issue_count = queryset.count()
+    if not last_issue:
+        last_issue = (
+            queryset.filter(type__in=["regular", "volume_issue"])
+            .order_by("-year", "-order")
+            .first()
         )
 
-    try:
-        last_issue = issues.first()
-        if last_issue:
-            journal.last_issue = LastIssue(
-                volume=last_issue.volume,
-                number=last_issue.number,
-                year=last_issue.year,
-                label=last_issue.label,
-                type=last_issue.type,
-                suppl_text=last_issue.suppl_text,
-                start_month=last_issue.start_month,
-                end_month=last_issue.end_month,
-                iid=last_issue.iid,
-                url_segment=last_issue.url_segment,
-            )
-    except Exception as e:
-        logging.exception(
-            f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
+    save = False
+    if journal.issue_count != issue_count:
+        journal.issue_count = issue_count
+        save = True
+
+    if last_issue:
+        journal.last_issue = LastIssue(
+            volume=last_issue.volume,
+            number=last_issue.number,
+            year=last_issue.year,
+            label=last_issue.label,
+            type=last_issue.type,
+            suppl_text=last_issue.suppl_text,
+            start_month=last_issue.start_month,
+            end_month=last_issue.end_month,
+            iid=last_issue.iid,
+            url_segment=last_issue.url_segment,
         )
-    journal.save()
+        save = True
+    if save:
+        journal.save()
     return journal
 
 
