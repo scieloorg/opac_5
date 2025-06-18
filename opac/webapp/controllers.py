@@ -694,71 +694,48 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
     - ``kwargs``: parâmetros de filtragem, utilize a chave ``order_by` para indicar
     uma lista de ordenação.
     """
+    queryset = get_issues_by_jid(jid)
+    issue_ahead = queryset.filter(type__in=["ahead"]).first()
+    issues_without_ahead = queryset.filter(
+        type__in=["regular", "special", "supplement", "volume_issue"]
+    )
 
-    order_by = kwargs.get("order_by", None)
+    if not issues_without_ahead:
+        return {
+            "ahead": ahead,  # ahead of print
+            "ordered_for_grid": {},  # lista de números odenadas para a grade
+            "volume_issue": [],  # lista de volumes que são números
+            "previous_issue": None,
+            "last_issue": None,
+        }
 
-    if order_by:
-        del kwargs["order_by"]
-    else:
-        order_by = ["-year", "-volume", "-order"]
-
-    issues = []
-    issues_without_ahead = []
-    last_issue = None
-    issue_ahead = None
-    journal = get_journal_by_jid(jid)
-    if journal:
-        last_issue = journal.last_issue
-        issues = Issue.objects(
-            journal=jid,
-            type__in=["ahead", "regular", "special", "supplement", "volume_issue"],
-            **kwargs,
-        ).order_by(*order_by)
-        issue_ahead = issues.filter(type="ahead").first()
-
-        if issue_ahead:
-            # Verifica que contém artigos no issue de ahead
-            if not get_articles_by_iid(issue_ahead.id, is_public=True):
-                issue_ahead = None
-
-        issues_without_ahead = issues.filter(type__ne="ahead")
+    last_issue = issues_without_ahead.filter(
+        type__in=["regular", "volume_issue"]
+    ).first()
+    articles = Article.objects(journal=jid, is_public=True)
 
     volume_issue = {}
-
     result_dict = OrderedDict()
     for issue in issues_without_ahead:
         key_year = str(issue.year)
+        key_volume = issue.volume
 
         # Verificando se é um volume de número e criando um dicionário auxiliar
         if issue.type == "volume_issue":
-            volume_issue.setdefault(issue.volume, {})
-            volume_issue[issue.volume]["issue"] = issue
-            volume_issue[issue.volume]["art_count"] = len(
-                get_articles_by_iid(issue.iid, is_public=True)
-            )
-
-        key_volume = issue.volume
+            volume_issue.setdefault(key_volume, OrderedDict())
+            volume_issue[key_volume]["issue"] = issue
+            volume_issue[key_volume]["art_count"] = articles.filter(
+                issue=issue.iid
+            ).count()
 
         result_dict.setdefault(key_year, OrderedDict())
         result_dict[key_year].setdefault(key_volume, []).append(issue)
-
-    # A lista de números deve ter mais do que 1 item para que possamos tem
-    # anterior e próximo
-    if len(issues) >= 2:
-        previous_issue = issues[1]
-    else:
-        previous_issue = None
-
-    # o primiero item da lista é o último número.
-    # condicional para verificar se issues contém itens
-    if not last_issue and len(issues) > 0:
-        last_issue = issues[0].journal.last_issue
 
     return {
         "ahead": issue_ahead,  # ahead of print
         "ordered_for_grid": result_dict,  # lista de números odenadas para a grade
         "volume_issue": volume_issue,  # lista de volumes que são números
-        "previous_issue": previous_issue,
+        "previous_issue": issue_ahead or issues_without_ahead.first(),
         "last_issue": last_issue,
     }
 
