@@ -664,20 +664,25 @@ def set_journal_is_public_bulk(jids, is_public=True, reason=""):
 
 def get_issues_by_jid(jid, **kwargs):
     """
-    Retorna uma lista de números considerando os parâmetros ``jid`` e ``kwargs``,
-    e ordenado por parâmetro ``order_by``.
+    Get public issues for a journal that contain public articles.
 
-    - ``jid``: string, chave primaria do periódico (ex.: ``f8c87833e0594d41a89fe60455eaa5a5``);
-    - ``kwargs``: parâmetros de filtragem, utilize a chave ``order_by` para indicar
-    uma lista de ordenação.
+    Args:
+        jid (str): Journal identifier.
+        **kwargs: Additional arguments for future use.
+
+    Returns:
+        list[Issue]: Issues ordered by year and order (descending).
+                    Empty list if no public articles found.
     """
-    try:
-        order_by = kwargs["order_by"]
-        del kwargs["order_by"]
-    except KeyError:
-        order_by = ["-year", "-volume", "-order"]
+    article_issue_ids = Article.objects(journal=jid, is_public=True).distinct("issue")
+    if not article_issue_ids:
+        return []
 
-    return Issue.objects(journal=jid, **kwargs).order_by(*order_by)
+    return Issue.objects(
+        journal=jid,
+        iid__in=[item.iid for item in article_issue_ids],
+        is_public=True,
+    ).order_by("-year", "-order")
 
 
 def get_issues_for_grid_by_jid(jid, **kwargs):
