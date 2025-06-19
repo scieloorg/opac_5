@@ -836,14 +836,7 @@ def issue_grid(url_seg):
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
 
-    if (
-        not journal.last_issue
-        or journal.last_issue.type not in ("volume_issue", "regular")
-        or not journal.last_issue.url_segment
-    ):
-        controllers.set_last_issue_and_issue_count(journal)
-
-    latest_issue = journal.last_issue
+    latest_issue = issues_data.get("last_issue")
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
             title=journal.title,
@@ -859,16 +852,12 @@ def issue_grid(url_seg):
 
     context = {
         "journal": journal,
-        "last_issue": latest_issue,
         "latest_issue_legend": latest_issue_legend,
-        "volume_issue": issues_data["volume_issue"],
-        "ahead": issues_data["ahead"],
-        "result_dict": issues_data["ordered_for_grid"],
         "journal_study_areas": [
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-    context.update(controllers.get_issue_nav_bar_data(journal=journal))
+    context.update(issues_data)
     return render_template("issue/grid.html", **context)
 
 

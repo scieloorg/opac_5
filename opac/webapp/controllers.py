@@ -733,7 +733,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
 
     return {
         "ahead": issue_ahead,  # ahead of print
-        "ordered_for_grid": result_dict,  # lista de números odenadas para a grade
+        "result_dict": result_dict,  # lista de números odenadas para a grade
         "volume_issue": volume_issue,  # lista de volumes que são números
         "previous_issue": issue_ahead or issues_without_ahead.first(),
         "last_issue": last_issue,
