@@ -70,8 +70,8 @@
             </li>
 
             {# Anterior #}
-            <li>
-              <a title="{% trans %}anterior{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='previous') }}">
+            <li class="{% if not previous_item %} disabled {% endif %}">
+              <a title="{% trans %}anterior{% endtrans %}" href="{% if previous_item %}{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=previous_item.url_segment) }}{% endif %}">
                 &laquo; {% trans %}anterior{% endtrans %}
               </a>
             </li>
@@ -84,8 +84,8 @@
             </li>
 
             {# Próximo #}
-            <li class="{% if issue.url_segment == last_issue.url_segment %} disabled {% endif %}">
-              <a title="{% trans %}próximo{% endtrans %}" href="{% if issue.url_segment != last_issue.url_segment %}{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='next') }}{% else %}#{% endif %}">
+            <li class="{% if not next_item %} disabled {% endif %}">
+              <a title="{% trans %}próximo{% endtrans %}" href="{% if next_item %}{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=next_item.url_segment) }}{% else %}#{% endif %}">
                 {% trans %}próximo{% endtrans %} &raquo;
               </a>
             </li>

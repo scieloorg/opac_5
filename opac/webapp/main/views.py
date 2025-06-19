@@ -888,14 +888,6 @@ def issue_toc_legacy(url_seg, url_seg_issue):
 def issue_toc(url_seg, url_seg_issue):
     filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
 
-    goto = request.args.get("goto", None, type=str)
-    if goto not in ("previous", "next"):
-        goto = None
-
-    if goto in (None, "next") and "ahead" in url_seg_issue:
-        # redireciona para `aop_toc`
-        return redirect(url_for("main.aop_toc", url_seg=url_seg), code=301)
-
     # idioma da sessão
     language = session.get("lang", get_locale())
 
@@ -910,13 +902,6 @@ def issue_toc(url_seg, url_seg_issue):
     journal = issue.journal
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-
-    # goto_next_or_previous_issue (redireciona)
-    goto_url = goto_next_or_previous_issue(
-        issue, request.args.get("goto", None, type=str)
-    )
-    if goto_url:
-        return redirect(goto_url, code=301)
 
     if (
         current_app.config["FILTER_SECTION_ENABLE"]
@@ -994,44 +979,6 @@ def issue_toc(url_seg, url_seg_issue):
     return render_template("issue/toc.html", **context)
 
 
-def goto_next_or_previous_issue(current_issue, goto_param):
-    if goto_param not in ["next", "previous"]:
-        return None
-
-    all_issues = list(
-        controllers.get_issues_by_jid(current_issue.journal.id, is_public=True)
-    )
-    if goto_param == "next":
-        selected_issue = utils.get_next_issue(all_issues, current_issue)
-    elif goto_param == "previous":
-        selected_issue = utils.get_prev_issue(all_issues, current_issue)
-    if selected_issue in (None, current_issue):
-        # nao precisa redirecionar
-        return None
-    try:
-        url_seg_issue = selected_issue.url_segment
-    except AttributeError:
-        return None
-    else:
-        return url_for(
-            "main.issue_toc",
-            url_seg=selected_issue.journal.url_segment,
-            url_seg_issue=url_seg_issue,
-        )
-
-
-def get_next_or_previous_issue(current_issue, goto_param):
-    if goto_param not in ["next", "previous"]:
-        return current_issue
-
-    all_issues = list(
-        controllers.get_issues_by_jid(current_issue.journal.id, is_public=True)
-    )
-    if goto_param == "next":
-        return utils.get_next_issue(all_issues, current_issue)
-    return utils.get_prev_issue(all_issues, current_issue)
-
-
 @main.route("/j/<string:url_seg>/aop")
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def aop_toc(url_seg):
@@ -1040,12 +987,6 @@ def aop_toc(url_seg):
     aop_issues = controllers.get_aop_issues(url_seg) or []
     if not aop_issues:
         abort(404, _("Artigos ahead of print não encontrados"))
-
-    goto = request.args.get("goto", None, type=str)
-    if goto == "previous":
-        url = goto_next_or_previous_issue(aop_issues[-1], goto)
-        if url:
-            redirect(url, code=301)
 
     journal = aop_issues[0].journal
     if not journal.is_public:

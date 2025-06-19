@@ -45,11 +45,7 @@
 
 
           {# Atual #}
-          {% if issue %}
-            <a title="{% trans %}número atual{% endtrans %}" href="#" class="btn disabled">
-              {% trans %}Número atual{% endtrans %}
-            </a>
-          {% elif last_issue %}
+          {% if last_issue %}
             <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
               {% trans %}Número atual{% endtrans %}
             </a>
@@ -127,7 +123,7 @@
           {# Próximo #}
           {% if next_item %}
             {# página do sumário #}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=issue.url_segment, goto='next') }}" class="btn btn-secondary scielo__btn-with-icon--only">
+            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=next_item.url_segment) }}" class="btn btn-secondary scielo__btn-with-icon--only">
               <span class="material-icons-outlined">navigate_next</span>
             </a>
           {% else %}
@@ -139,15 +135,7 @@
 
 
           {# Atual #}
-          {% if not last_issue and not issue %}
-            <a href="#" class="btn btn-secondary disabled">
-             {% trans %}Atual{% endtrans %}
-            </a>
-          {% elif issue %}
-            <a href="#" class="btn btn-secondary disabled selected">
-             {% trans %}Atual{% endtrans %}
-            </a>
-          {% elif last_issue %}
+          {% if last_issue %}
             <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn btn-secondary">
               {% trans %}Atual{% endtrans %}
             </a>
