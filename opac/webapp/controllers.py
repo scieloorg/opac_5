@@ -748,75 +748,53 @@ def get_issue_nav_bar_data(journal=None, issue=None):
     é o último issue regular odendo ter como item posterior
     um suplemento, um número especial, um ahead ou nenhum item
     """
-    last_issue = None
-    if issue:
-        journal = issue.journal
+    journal = journal or issue and issue.journal
+    if not journal:
+        raise ArticleJournalNotFoundError(f"Not found journal: {journal} {issue}")
 
-    elif journal:
-        issue = None
-        if (
-            not journal.last_issue
-            or journal.last_issue.type
-            not in (
-                "volume_issue",
-                "regular",
-            )
-            or not journal.last_issue.url_segment
-        ):
-            set_last_issue_and_issue_count(journal)
-        if journal.last_issue:
-            last_issue = get_issue_by_iid(journal.last_issue.iid)
+    queryset = get_issues_by_jid(journal)
+    issue_ahead = queryset.filter(type__in=["ahead"]).first()
+    issues_without_ahead = queryset.filter(
+        type__in=["regular", "special", "supplement", "volume_issue"]
+    )
+    last_issue = issues_without_ahead.filter(
+        type__in=["regular", "volume_issue"]
+    ).first()
+    set_last_issue_and_issue_count(journal, last_issue, queryset.count())
 
-    item = issue or last_issue
-    if not item:
-        issues = Issue.objects(
-            journal=journal,
-        ).order_by("year", "order")
+    if not issue:
         return {
-            "previous_item": None,
-            "next_item": issues.first(),
+            "previous_item": last_issue,
+            "next_item": issue_ahead,
             "issue": None,
-            "last_issue": None,
+            "last_issue": last_issue,
         }
 
-    if item.type == "ahead" or item.number == "ahead":
-        previous = (
-            Issue.objects(
-                journal=journal,
-                number__ne="ahead",
-            )
-            .order_by("-year", "-order")
-            .first()
-        )
-        next_ = None
-    else:
-        try:
-            previous = Issue.objects(
-                journal=journal,
-                year__lte=item.year,
-                order__lte=item.order,
-                number__ne="ahead",
-            ).order_by("-year", "-order")[1]
-        except IndexError:
-            previous = None
+    if issue.type == "ahead":
+        return {
+            "previous_item": last_issue,
+            "next_item": None,
+            "issue": issue,
+            "last_issue": last_issue,
+        }
 
-        try:
-            next_ = Issue.objects(
-                journal=journal,
-                year__gte=item.year,
-                order__gte=item.order,
-                number__ne="ahead",
-            ).order_by("year", "order")[1]
-        except IndexError:
-            # aop
-            next_ = (
-                Issue.objects(
-                    journal=journal,
-                    number="ahead",
-                )
-                .order_by("-year", "-order")
-                .first()
-            )
+    previous = None
+    next_ = None
+    queryset = queryset.filter(number__ne="ahead")
+
+    for item in queryset.filter(
+        Q(year=issue.year, order__lt=issue.order) | Q(year__lt=issue.year)
+    ).order_by("-year", "-order"):
+        previous = item
+        break
+
+    for item in queryset.filter(
+        Q(year=issue.year, order__gt=issue.order) | Q(year__gt=issue.year)
+    ).order_by("year", "order"):
+        next_ = item
+        break
+    if not next_:
+        next_ = issue_ahead
 
     return {
         "previous_item": previous,
