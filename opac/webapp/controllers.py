@@ -1035,17 +1035,18 @@ def get_article_by_aid(
     # add filter publication_date__lte_today_date
     kwargs = add_filter_without_embargo(kwargs)
 
-    articles = Article.objects(
-        Q(pk=aid) | Q(scielo_pids__other=aid), is_public=True, **kwargs
-    )
-
-    if articles:
-        article = articles[0]
+    if gs_abstract:
+        kwargs["abstract_languages"] = lang
     else:
-        raise ArticleNotFoundError(aid)
+        kwargs["languages"] = lang
+    article = Article.objects(
+        Q(pk=aid) | Q(scielo_pids__other=aid),
+        is_public=True,
+        **kwargs
+    ).first()
 
-    if not article.issue.is_public:
-        raise IssueIsNotPublishedError(article.issue.unpublish_reason)
+    if not article:
+        raise ArticleNotFoundError(aid)
 
     if not article.journal.is_public:
         raise JournalIsNotPublishedError(article.journal.unpublish_reason)
@@ -1054,25 +1055,10 @@ def get_article_by_aid(
         if article.journal.url_segment != journal_url_seg:
             raise ArticleJournalNotFoundError(article.journal.url_segment)
 
-    if gs_abstract:
-        abstract_languages = _abstract_languages(article.abstracts)
-        if not abstract_languages or (lang not in abstract_languages):
-            raise ArticleAbstractNotFoundError(lang)
-    else:
-        lang = lang or article.original_language
-        valid_langs = [article.original_language] + article.languages
-        if lang not in valid_langs:
-            raise ArticleLangNotFoundError(str(valid_langs))
+    if not article.issue.is_public:
+        raise IssueIsNotPublishedError(article.issue.unpublish_reason)
 
     return article
-
-
-def _abstracts(abstracts):
-    return [a for a in abstracts if a["text"].strip()]
-
-
-def _abstract_languages(abstracts):
-    return [a["language"] for a in abstracts if a["text"].strip()]
 
 
 def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
@@ -1084,9 +1070,9 @@ def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
     kwargs = {}
     kwargs["publication_date__lte"] = now()
     if gs_abstract:
-        kwargs["abstract__ne"] = None
+        kwargs["abstract_languages"] = lang
 
-    queryset = Article.objects(issue=article.issue, **kwargs)
+    queryset = Article.objects(issue=article.issue, is_public=True, **kwargs)
     if article.issue.type == "ahead" or article.issue.number == "ahead":
         next_article = queryset.filter(
             Q(publication_date=article.publication_date, order__gt=article.order) |
