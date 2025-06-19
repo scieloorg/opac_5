@@ -805,6 +805,7 @@ def get_issue_nav_bar_data(journal=None, issue=None):
 
 
 def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
+
     if not last_issue or not issue_count:
         article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
             "issue"
@@ -813,7 +814,7 @@ def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
         if article_issue_ids:
             params["iid__in"] = [item.iid for item in article_issue_ids]
         queryset = Issue.objects(
-            journal=jid,
+            journal=journal,
             is_public=True,
             **params,
         )
@@ -831,7 +832,7 @@ def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
         journal.issue_count = issue_count
         save = True
 
-    if last_issue:
+    if journal.last_issue.url_segment != last_issue.url_segment:
         journal.last_issue = LastIssue(
             volume=last_issue.volume,
             number=last_issue.number,

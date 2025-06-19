@@ -541,7 +541,6 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("journal/detail.html", **context)
 
 
@@ -630,12 +629,7 @@ def about_journal(url_seg):
             collection_acronym, journal.acronym, language
         )
 
-    if (
-        not journal.last_issue
-        or journal.last_issue.type not in ("volume_issue", "regular")
-        or not journal.last_issue.url_segment
-    ):
-        controllers.set_last_issue_and_issue_count(journal)
+    controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
 
@@ -661,8 +655,6 @@ def about_journal(url_seg):
         ],
         "content": content,
     }
-
-    context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
 
