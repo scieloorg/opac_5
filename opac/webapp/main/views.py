@@ -541,7 +541,6 @@ def journal_detail(url_seg):
         "news": news,
         "journal_metrics": journal_metrics,
     }
-    context.update(controllers.get_issue_nav_bar_data(journal=journal))
     return render_template("journal/detail.html", **context)
 
 
@@ -630,12 +629,7 @@ def about_journal(url_seg):
             collection_acronym, journal.acronym, language
         )
 
-    if (
-        not journal.last_issue
-        or journal.last_issue.type not in ("volume_issue", "regular")
-        or not journal.last_issue.url_segment
-    ):
-        controllers.set_last_issue_and_issue_count(journal)
+    controllers.set_last_issue_and_issue_count(journal)
 
     latest_issue = journal.last_issue
 
@@ -661,8 +655,6 @@ def about_journal(url_seg):
         ],
         "content": content,
     }
-
-    context.update(controllers.get_issue_nav_bar_data(journal))
     return render_template("journal/about.html", **context)
 
 
@@ -836,14 +828,7 @@ def issue_grid(url_seg):
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
 
-    if (
-        not journal.last_issue
-        or journal.last_issue.type not in ("volume_issue", "regular")
-        or not journal.last_issue.url_segment
-    ):
-        controllers.set_last_issue_and_issue_count(journal)
-
-    latest_issue = journal.last_issue
+    latest_issue = issues_data.get("last_issue")
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
             title=journal.title,
@@ -859,16 +844,12 @@ def issue_grid(url_seg):
 
     context = {
         "journal": journal,
-        "last_issue": latest_issue,
         "latest_issue_legend": latest_issue_legend,
-        "volume_issue": issues_data["volume_issue"],
-        "ahead": issues_data["ahead"],
-        "result_dict": issues_data["ordered_for_grid"],
         "journal_study_areas": [
             STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
         ],
     }
-    context.update(controllers.get_issue_nav_bar_data(journal=journal))
+    context.update(issues_data)
     return render_template("issue/grid.html", **context)
 
 
@@ -888,14 +869,6 @@ def issue_toc_legacy(url_seg, url_seg_issue):
 def issue_toc(url_seg, url_seg_issue):
     filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
 
-    goto = request.args.get("goto", None, type=str)
-    if goto not in ("previous", "next"):
-        goto = None
-
-    if goto in (None, "next") and "ahead" in url_seg_issue:
-        # redireciona para `aop_toc`
-        return redirect(url_for("main.aop_toc", url_seg=url_seg), code=301)
-
     # idioma da sessão
     language = session.get("lang", get_locale())
 
@@ -910,13 +883,6 @@ def issue_toc(url_seg, url_seg_issue):
     journal = issue.journal
     if not journal.is_public:
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
-
-    # goto_next_or_previous_issue (redireciona)
-    goto_url = goto_next_or_previous_issue(
-        issue, request.args.get("goto", None, type=str)
-    )
-    if goto_url:
-        return redirect(goto_url, code=301)
 
     if (
         current_app.config["FILTER_SECTION_ENABLE"]
@@ -994,44 +960,6 @@ def issue_toc(url_seg, url_seg_issue):
     return render_template("issue/toc.html", **context)
 
 
-def goto_next_or_previous_issue(current_issue, goto_param):
-    if goto_param not in ["next", "previous"]:
-        return None
-
-    all_issues = list(
-        controllers.get_issues_by_jid(current_issue.journal.id, is_public=True)
-    )
-    if goto_param == "next":
-        selected_issue = utils.get_next_issue(all_issues, current_issue)
-    elif goto_param == "previous":
-        selected_issue = utils.get_prev_issue(all_issues, current_issue)
-    if selected_issue in (None, current_issue):
-        # nao precisa redirecionar
-        return None
-    try:
-        url_seg_issue = selected_issue.url_segment
-    except AttributeError:
-        return None
-    else:
-        return url_for(
-            "main.issue_toc",
-            url_seg=selected_issue.journal.url_segment,
-            url_seg_issue=url_seg_issue,
-        )
-
-
-def get_next_or_previous_issue(current_issue, goto_param):
-    if goto_param not in ["next", "previous"]:
-        return current_issue
-
-    all_issues = list(
-        controllers.get_issues_by_jid(current_issue.journal.id, is_public=True)
-    )
-    if goto_param == "next":
-        return utils.get_next_issue(all_issues, current_issue)
-    return utils.get_prev_issue(all_issues, current_issue)
-
-
 @main.route("/j/<string:url_seg>/aop")
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def aop_toc(url_seg):
@@ -1040,12 +968,6 @@ def aop_toc(url_seg):
     aop_issues = controllers.get_aop_issues(url_seg) or []
     if not aop_issues:
         abort(404, _("Artigos ahead of print não encontrados"))
-
-    goto = request.args.get("goto", None, type=str)
-    if goto == "previous":
-        url = goto_next_or_previous_issue(aop_issues[-1], goto)
-        if url:
-            redirect(url, code=301)
 
     journal = aop_issues[0].journal
     if not journal.is_public:
@@ -1288,8 +1210,6 @@ def article_detail(url_seg, url_seg_issue, url_seg_article, lang_code=""):
 @cache.cached(key_prefix=cache_key_with_lang)
 def article_detail_v3(url_seg, article_pid_v3, part=None):
     qs_lang = request.args.get("lang", type=str) or None
-    qs_goto = request.args.get("goto", type=str) or None
-    qs_stop = request.args.get("stop", type=str) or None
     qs_format = request.args.get("format", "html", type=str)
 
     gs_abstract = part == "abstract"
@@ -1297,22 +1217,9 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         abort(404, _("Não existe '{}'. No seu lugar use '{}'").format(part, "abstract"))
 
     try:
-        qs_lang, article = controllers.get_article(
-            article_pid_v3, url_seg, qs_lang, gs_abstract, qs_goto
+        qs_lang, article, nav = controllers.get_article(
+            article_pid_v3, url_seg, qs_lang, gs_abstract,
         )
-        if qs_goto:
-            return redirect(
-                url_for(
-                    "main.article_detail_v3",
-                    url_seg=url_seg,
-                    article_pid_v3=article.aid,
-                    part=part,
-                    format=qs_format,
-                    lang=qs_lang,
-                    stop=getattr(article, "stop", None),
-                ),
-                code=301,
-            )
     except controllers.PreviousOrNextArticleNotFoundError as e:
         if gs_abstract:
             abort(404, _("Resumo inexistente"))
@@ -1395,8 +1302,6 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             ),
         )
         context = {
-            "next_article": qs_stop != "next",
-            "previous_article": qs_stop != "previous",
             "article": article,
             "journal": article.journal,
             "issue": article.issue,
@@ -1409,6 +1314,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             "gs_abstract": gs_abstract,
             "part": part,
         }
+        context.update(nav)
         return render_template("article/detail.html", **context)
 
     def _handle_pdf():

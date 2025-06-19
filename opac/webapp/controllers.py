@@ -664,20 +664,25 @@ def set_journal_is_public_bulk(jids, is_public=True, reason=""):
 
 def get_issues_by_jid(jid, **kwargs):
     """
-    Retorna uma lista de números considerando os parâmetros ``jid`` e ``kwargs``,
-    e ordenado por parâmetro ``order_by``.
+    Get public issues for a journal that contain public articles.
 
-    - ``jid``: string, chave primaria do periódico (ex.: ``f8c87833e0594d41a89fe60455eaa5a5``);
-    - ``kwargs``: parâmetros de filtragem, utilize a chave ``order_by` para indicar
-    uma lista de ordenação.
+    Args:
+        jid (str): Journal identifier.
+        **kwargs: Additional arguments for future use.
+
+    Returns:
+        list[Issue]: Issues ordered by year and order (descending).
+                    Empty list if no public articles found.
     """
-    try:
-        order_by = kwargs["order_by"]
-        del kwargs["order_by"]
-    except KeyError:
-        order_by = ["-year", "-volume", "-order"]
+    article_issue_ids = Article.objects(journal=jid, is_public=True).distinct("issue")
+    if not article_issue_ids:
+        return []
 
-    return Issue.objects(journal=jid, **kwargs).order_by(*order_by)
+    return Issue.objects(
+        journal=jid,
+        iid__in=[item.iid for item in article_issue_ids],
+        is_public=True,
+    ).order_by("-year", "-order")
 
 
 def get_issues_for_grid_by_jid(jid, **kwargs):
@@ -689,71 +694,48 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
     - ``kwargs``: parâmetros de filtragem, utilize a chave ``order_by` para indicar
     uma lista de ordenação.
     """
+    queryset = get_issues_by_jid(jid)
+    issue_ahead = queryset.filter(type__in=["ahead"]).first()
+    issues_without_ahead = queryset.filter(
+        type__in=["regular", "special", "supplement", "volume_issue"]
+    )
 
-    order_by = kwargs.get("order_by", None)
+    if not issues_without_ahead:
+        return {
+            "ahead": ahead,  # ahead of print
+            "ordered_for_grid": {},  # lista de números odenadas para a grade
+            "volume_issue": [],  # lista de volumes que são números
+            "previous_issue": None,
+            "last_issue": None,
+        }
 
-    if order_by:
-        del kwargs["order_by"]
-    else:
-        order_by = ["-year", "-volume", "-order"]
-
-    issues = []
-    issues_without_ahead = []
-    last_issue = None
-    issue_ahead = None
-    journal = get_journal_by_jid(jid)
-    if journal:
-        last_issue = journal.last_issue
-        issues = Issue.objects(
-            journal=jid,
-            type__in=["ahead", "regular", "special", "supplement", "volume_issue"],
-            **kwargs,
-        ).order_by(*order_by)
-        issue_ahead = issues.filter(type="ahead").first()
-
-        if issue_ahead:
-            # Verifica que contém artigos no issue de ahead
-            if not get_articles_by_iid(issue_ahead.id, is_public=True):
-                issue_ahead = None
-
-        issues_without_ahead = issues.filter(type__ne="ahead")
+    last_issue = issues_without_ahead.filter(
+        type__in=["regular", "volume_issue"]
+    ).first()
+    articles = Article.objects(journal=jid, is_public=True)
 
     volume_issue = {}
-
     result_dict = OrderedDict()
     for issue in issues_without_ahead:
         key_year = str(issue.year)
+        key_volume = issue.volume
 
         # Verificando se é um volume de número e criando um dicionário auxiliar
         if issue.type == "volume_issue":
-            volume_issue.setdefault(issue.volume, {})
-            volume_issue[issue.volume]["issue"] = issue
-            volume_issue[issue.volume]["art_count"] = len(
-                get_articles_by_iid(issue.iid, is_public=True)
-            )
-
-        key_volume = issue.volume
+            volume_issue.setdefault(key_volume, OrderedDict())
+            volume_issue[key_volume]["issue"] = issue
+            volume_issue[key_volume]["art_count"] = articles.filter(
+                issue=issue.iid
+            ).count()
 
         result_dict.setdefault(key_year, OrderedDict())
         result_dict[key_year].setdefault(key_volume, []).append(issue)
 
-    # A lista de números deve ter mais do que 1 item para que possamos tem
-    # anterior e próximo
-    if len(issues) >= 2:
-        previous_issue = issues[1]
-    else:
-        previous_issue = None
-
-    # o primiero item da lista é o último número.
-    # condicional para verificar se issues contém itens
-    if not last_issue and len(issues) > 0:
-        last_issue = issues[0].journal.last_issue
-
     return {
         "ahead": issue_ahead,  # ahead of print
-        "ordered_for_grid": result_dict,  # lista de números odenadas para a grade
+        "result_dict": result_dict,  # lista de números odenadas para a grade
         "volume_issue": volume_issue,  # lista de volumes que são números
-        "previous_issue": previous_issue,
+        "previous_issue": issue_ahead or issues_without_ahead.first(),
         "last_issue": last_issue,
     }
 
@@ -766,75 +748,53 @@ def get_issue_nav_bar_data(journal=None, issue=None):
     é o último issue regular odendo ter como item posterior
     um suplemento, um número especial, um ahead ou nenhum item
     """
-    last_issue = None
-    if issue:
-        journal = issue.journal
+    journal = journal or issue and issue.journal
+    if not journal:
+        raise ArticleJournalNotFoundError(f"Not found journal: {journal} {issue}")
 
-    elif journal:
-        issue = None
-        if (
-            not journal.last_issue
-            or journal.last_issue.type
-            not in (
-                "volume_issue",
-                "regular",
-            )
-            or not journal.last_issue.url_segment
-        ):
-            set_last_issue_and_issue_count(journal)
-        if journal.last_issue:
-            last_issue = get_issue_by_iid(journal.last_issue.iid)
+    queryset = get_issues_by_jid(journal)
+    issue_ahead = queryset.filter(type__in=["ahead"]).first()
+    issues_without_ahead = queryset.filter(
+        type__in=["regular", "special", "supplement", "volume_issue"]
+    )
+    last_issue = issues_without_ahead.filter(
+        type__in=["regular", "volume_issue"]
+    ).first()
+    set_last_issue_and_issue_count(journal, last_issue, queryset.count())
 
-    item = issue or last_issue
-    if not item:
-        issues = Issue.objects(
-            journal=journal,
-        ).order_by("year", "order")
+    if not issue:
         return {
-            "previous_item": None,
-            "next_item": issues.first(),
+            "previous_item": last_issue,
+            "next_item": issue_ahead,
             "issue": None,
-            "last_issue": None,
+            "last_issue": last_issue,
         }
 
-    if item.type == "ahead" or item.number == "ahead":
-        previous = (
-            Issue.objects(
-                journal=journal,
-                number__ne="ahead",
-            )
-            .order_by("-year", "-order")
-            .first()
-        )
-        next_ = None
-    else:
-        try:
-            previous = Issue.objects(
-                journal=journal,
-                year__lte=item.year,
-                order__lte=item.order,
-                number__ne="ahead",
-            ).order_by("-year", "-order")[1]
-        except IndexError:
-            previous = None
+    if issue.type == "ahead":
+        return {
+            "previous_item": last_issue,
+            "next_item": None,
+            "issue": issue,
+            "last_issue": last_issue,
+        }
 
-        try:
-            next_ = Issue.objects(
-                journal=journal,
-                year__gte=item.year,
-                order__gte=item.order,
-                number__ne="ahead",
-            ).order_by("year", "order")[1]
-        except IndexError:
-            # aop
-            next_ = (
-                Issue.objects(
-                    journal=journal,
-                    number="ahead",
-                )
-                .order_by("-year", "-order")
-                .first()
-            )
+    previous = None
+    next_ = None
+    queryset = queryset.filter(number__ne="ahead")
+
+    for item in queryset.filter(
+        Q(year=issue.year, order__lt=issue.order) | Q(year__lt=issue.year)
+    ).order_by("-year", "-order"):
+        previous = item
+        break
+
+    for item in queryset.filter(
+        Q(year=issue.year, order__gt=issue.order) | Q(year__gt=issue.year)
+    ).order_by("year", "order"):
+        next_ = item
+        break
+    if not next_:
+        next_ = issue_ahead
 
     return {
         "previous_item": previous,
@@ -844,43 +804,50 @@ def get_issue_nav_bar_data(journal=None, issue=None):
     }
 
 
-def set_last_issue_and_issue_count(journal):
-    """
-    O último issue tem que ser um issue regular, não pode ser aop, nem suppl, nem especial
-    """
-    try:
-        order_by = ["-year", "-order"]
-        issues = Issue.objects(
+def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
+
+    if not last_issue or not issue_count:
+        article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
+            "issue"
+        )
+        params = {}
+        if article_issue_ids:
+            params["iid__in"] = [item.iid for item in article_issue_ids]
+        queryset = Issue.objects(
             journal=journal,
-            type__in=["regular", "volume_issue"],
             is_public=True,
-        ).order_by(*order_by)
-        journal.issue_count = issues.count()
-    except Exception as e:
-        logging.exception(
-            f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
+            **params,
+        )
+    if not issue_count:
+        issue_count = queryset.count()
+    if not last_issue:
+        last_issue = (
+            queryset.filter(type__in=["regular", "volume_issue"])
+            .order_by("-year", "-order")
+            .first()
         )
 
-    try:
-        last_issue = issues.first()
-        if last_issue:
-            journal.last_issue = LastIssue(
-                volume=last_issue.volume,
-                number=last_issue.number,
-                year=last_issue.year,
-                label=last_issue.label,
-                type=last_issue.type,
-                suppl_text=last_issue.suppl_text,
-                start_month=last_issue.start_month,
-                end_month=last_issue.end_month,
-                iid=last_issue.iid,
-                url_segment=last_issue.url_segment,
-            )
-    except Exception as e:
-        logging.exception(
-            f"Unable to set_last_issue_and_issue_count for {journal.id}: {e} {type(e)}"
+    save = False
+    if journal.issue_count != issue_count:
+        journal.issue_count = issue_count
+        save = True
+
+    if journal.last_issue.url_segment != last_issue.url_segment:
+        journal.last_issue = LastIssue(
+            volume=last_issue.volume,
+            number=last_issue.number,
+            year=last_issue.year,
+            label=last_issue.label,
+            type=last_issue.type,
+            suppl_text=last_issue.suppl_text,
+            start_month=last_issue.start_month,
+            end_month=last_issue.end_month,
+            iid=last_issue.iid,
+            url_segment=last_issue.url_segment,
         )
-    journal.save()
+        save = True
+    if save:
+        journal.save()
     return journal
 
 
@@ -1108,91 +1075,32 @@ def _abstract_languages(abstracts):
     return [a["language"] for a in abstracts if a["text"].strip()]
 
 
-def _articles_or_abstracts_sorted_by_order_or_date(iid, gs_abstract=False):
-    """
-    Retorna uma lista de artigos de um _fascículo_ ou de um _bundle_
+def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
+    article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
+    if lang is None and not gs_abstract:
+        lang = article.original_language
 
-    - ``iid``: chave primaria de número para escolher os artigos.
-    - ``kwargs``: parâmetros de filtragem.
-
-    Em caso de não existir itens retorna {}.
-
-    """
-    articles = get_articles_by_iid(iid, is_public=True)
+    # add filter publication_date__lte_today_date
+    kwargs = {}
+    kwargs["publication_date__lte"] = now()
     if gs_abstract:
-        # garante obter somente os documentos que tem resumos
-        # abstracts = [
-        #   {'language': "pt", "text": ""},
-        #   {'language': "en", "text": ""},
-        # ]
-        #
-        articles = [a for a in articles if _abstracts(a.abstracts)]
-    return articles
+        kwargs["abstract__ne"] = None
 
-
-def _prev_item(items, item):
-    """
-    Retorna os item anterior a `item` na lista `items`
-    Considera `items` em ordem crescente
-    """
-    index = items.index(item)
-    if index == -1:
-        raise ValueError("{} not found in {}".format(item, items))
-    if index > 0:
-        return items[index - 1]
-
-
-def _next_item(items, item):
-    """
-    Retorna os item posterior a `item` na lista `items`
-    Considera `items` em ordem crescente
-    """
-    index = items.index(item)
-    if index == -1:
-        raise ValueError("{} not found in {}".format(item, items))
-    try:
-        return items[index + 1]
-    except (ValueError, IndexError):
-        return None
-
-
-def goto_article(doc, goto, gs_abstract=False):
-    if goto not in ("next", "previous"):
-        raise ValueError(
-            "Invalid value: goto={}. Expected: next or previous)".format(goto)
-        )
-    docs = list(
-        _articles_or_abstracts_sorted_by_order_or_date(doc.issue.iid, gs_abstract)
-    )
-    if goto == "next":
-        article = _next_item(docs, doc)
-    if goto == "previous":
-        article = _prev_item(docs, doc)
-    if article:
-        if article.aid in (docs[-1].aid, docs[0].aid):
-            article.stop = goto
-        return article
-    raise PreviousOrNextArticleNotFoundError(goto)
-
-
-def get_article(aid, journal_url_seg, lang=None, gs_abstract=False, goto=None):
-    # obtém o artigo
-    if goto:
-        # obtém o artigo, não importa o idioma, nem se tem abstract
-        # pois será redirecionado para o próximo ou anterior
-        article = get_article_by_aid(aid, journal_url_seg)
-
-        # obtém o próximo ou anterior?
-        article = goto_article(article, goto, gs_abstract)
-
-        # precisa obter um idioma válido
-        lang = get_existing_lang(article, lang, gs_abstract)
+    queryset = Article.objects(issue=article.issue, **kwargs)
+    if article.issue.type == "ahead" or article.issue.number == "ahead":
+        next_article = queryset.filter(
+            Q(publication_date=article.publication_date, order__gt=article.order) |
+            Q(publication_date__lt=article.publication_date),
+        ).order_by("-publication_date").first()
+        previous_article = queryset.filter(
+            Q(publication_date=article.publication_date, order__lt=article.order) |
+            Q(publication_date__gt=article.publication_date),
+        ).order_by("publication_date").first()
     else:
-        # obtém o artigo
-        article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
-        if lang is None and not gs_abstract:
-            lang = article.original_language
-    return lang, article
+        next_article = queryset.filter(order__gt=article.order).order_by("order").first()
+        previous_article = queryset.filter(order__lt=article.order).order_by("-order").first()
+
+    return lang, article, {"next_article": next_article, "previous_article": previous_article}
 
 
 def get_existing_lang(article, lang, gs_abstract):
@@ -1599,7 +1507,6 @@ def delete_articles_by_iid(issue_id, keep_list=None):
 
     # Retorna a lista de IDs removidos
     return removed_ids
-
 
 
 # -------- NEWS --------

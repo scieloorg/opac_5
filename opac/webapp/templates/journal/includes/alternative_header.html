@@ -62,23 +62,21 @@
               </li>
               
               {# Anterior #}
-              <li class="{% if not last_issue %} disabled {% endif %}">
-                <a title="{% trans %}anterior{% endtrans %}" href="{% if last_issue %}{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment, goto='previous')}}{% endif %}">
-                  &laquo; {% trans %}anterior{% endtrans %}
+              <li class="disabled">
+                <a title="{% trans %}anterior{% endtrans %}" href="#">
+                  {% trans %}anterior{% endtrans %} &raquo;
                 </a>
-              </li>
-  
-              {# Atual #}
-              <li class="{% if not last_issue %} disabled {% endif %}">
-                <a title="{% trans %}atual{% endtrans %}" href="{% if last_issue %}{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment)}}{% endif %}">
-                  {% trans %}atual{% endtrans %}
-                </a>
-              </li>
-  
+              </li>  
               {# Próximo #}
               <li class="disabled">
                 <a title="{% trans %}próximo{% endtrans %}" href="#">
                   {% trans %}próximo{% endtrans %} &raquo;
+                </a>
+              </li>
+              {# Atual #}
+              <li class="{% if not last_issue %} disabled {% endif %}">
+                <a title="{% trans %}atual{% endtrans %}" href="{% if last_issue %}{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment)}}{% endif %}">
+                  {% trans %}atual{% endtrans %}
                 </a>
               </li>
             </ul>
