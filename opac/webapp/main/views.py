@@ -1210,8 +1210,6 @@ def article_detail(url_seg, url_seg_issue, url_seg_article, lang_code=""):
 @cache.cached(key_prefix=cache_key_with_lang)
 def article_detail_v3(url_seg, article_pid_v3, part=None):
     qs_lang = request.args.get("lang", type=str) or None
-    qs_goto = request.args.get("goto", type=str) or None
-    qs_stop = request.args.get("stop", type=str) or None
     qs_format = request.args.get("format", "html", type=str)
 
     gs_abstract = part == "abstract"
@@ -1219,22 +1217,9 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         abort(404, _("Não existe '{}'. No seu lugar use '{}'").format(part, "abstract"))
 
     try:
-        qs_lang, article = controllers.get_article(
-            article_pid_v3, url_seg, qs_lang, gs_abstract, qs_goto
+        qs_lang, article, nav = controllers.get_article(
+            article_pid_v3, url_seg, qs_lang, gs_abstract,
         )
-        if qs_goto:
-            return redirect(
-                url_for(
-                    "main.article_detail_v3",
-                    url_seg=url_seg,
-                    article_pid_v3=article.aid,
-                    part=part,
-                    format=qs_format,
-                    lang=qs_lang,
-                    stop=getattr(article, "stop", None),
-                ),
-                code=301,
-            )
     except controllers.PreviousOrNextArticleNotFoundError as e:
         if gs_abstract:
             abort(404, _("Resumo inexistente"))
@@ -1317,8 +1302,6 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             ),
         )
         context = {
-            "next_article": qs_stop != "next",
-            "previous_article": qs_stop != "previous",
             "article": article,
             "journal": article.journal,
             "issue": article.issue,
@@ -1331,6 +1314,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             "gs_abstract": gs_abstract,
             "part": part,
         }
+        context.update(nav)
         return render_template("article/detail.html", **context)
 
     def _handle_pdf():

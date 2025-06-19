@@ -1075,91 +1075,32 @@ def _abstract_languages(abstracts):
     return [a["language"] for a in abstracts if a["text"].strip()]
 
 
-def _articles_or_abstracts_sorted_by_order_or_date(iid, gs_abstract=False):
-    """
-    Retorna uma lista de artigos de um _fascículo_ ou de um _bundle_
+def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
+    article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
+    if lang is None and not gs_abstract:
+        lang = article.original_language
 
-    - ``iid``: chave primaria de número para escolher os artigos.
-    - ``kwargs``: parâmetros de filtragem.
-
-    Em caso de não existir itens retorna {}.
-
-    """
-    articles = get_articles_by_iid(iid, is_public=True)
+    # add filter publication_date__lte_today_date
+    kwargs = {}
+    kwargs["publication_date__lte"] = now()
     if gs_abstract:
-        # garante obter somente os documentos que tem resumos
-        # abstracts = [
-        #   {'language': "pt", "text": ""},
-        #   {'language': "en", "text": ""},
-        # ]
-        #
-        articles = [a for a in articles if _abstracts(a.abstracts)]
-    return articles
+        kwargs["abstract__ne"] = None
 
-
-def _prev_item(items, item):
-    """
-    Retorna os item anterior a `item` na lista `items`
-    Considera `items` em ordem crescente
-    """
-    index = items.index(item)
-    if index == -1:
-        raise ValueError("{} not found in {}".format(item, items))
-    if index > 0:
-        return items[index - 1]
-
-
-def _next_item(items, item):
-    """
-    Retorna os item posterior a `item` na lista `items`
-    Considera `items` em ordem crescente
-    """
-    index = items.index(item)
-    if index == -1:
-        raise ValueError("{} not found in {}".format(item, items))
-    try:
-        return items[index + 1]
-    except (ValueError, IndexError):
-        return None
-
-
-def goto_article(doc, goto, gs_abstract=False):
-    if goto not in ("next", "previous"):
-        raise ValueError(
-            "Invalid value: goto={}. Expected: next or previous)".format(goto)
-        )
-    docs = list(
-        _articles_or_abstracts_sorted_by_order_or_date(doc.issue.iid, gs_abstract)
-    )
-    if goto == "next":
-        article = _next_item(docs, doc)
-    if goto == "previous":
-        article = _prev_item(docs, doc)
-    if article:
-        if article.aid in (docs[-1].aid, docs[0].aid):
-            article.stop = goto
-        return article
-    raise PreviousOrNextArticleNotFoundError(goto)
-
-
-def get_article(aid, journal_url_seg, lang=None, gs_abstract=False, goto=None):
-    # obtém o artigo
-    if goto:
-        # obtém o artigo, não importa o idioma, nem se tem abstract
-        # pois será redirecionado para o próximo ou anterior
-        article = get_article_by_aid(aid, journal_url_seg)
-
-        # obtém o próximo ou anterior?
-        article = goto_article(article, goto, gs_abstract)
-
-        # precisa obter um idioma válido
-        lang = get_existing_lang(article, lang, gs_abstract)
+    queryset = Article.objects(issue=article.issue, **kwargs)
+    if article.issue.type == "ahead" or article.issue.number == "ahead":
+        next_article = queryset.filter(
+            Q(publication_date=article.publication_date, order__gt=article.order) |
+            Q(publication_date__lt=article.publication_date),
+        ).order_by("-publication_date").first()
+        previous_article = queryset.filter(
+            Q(publication_date=article.publication_date, order__lt=article.order) |
+            Q(publication_date__gt=article.publication_date),
+        ).order_by("publication_date").first()
     else:
-        # obtém o artigo
-        article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
-        if lang is None and not gs_abstract:
-            lang = article.original_language
-    return lang, article
+        next_article = queryset.filter(order__gt=article.order).order_by("order").first()
+        previous_article = queryset.filter(order__lt=article.order).order_by("-order").first()
+
+    return lang, article, {"next_article": next_article, "previous_article": previous_article}
 
 
 def get_existing_lang(article, lang, gs_abstract):
