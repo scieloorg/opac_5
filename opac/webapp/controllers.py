@@ -675,13 +675,14 @@ def get_issues_by_jid(jid, **kwargs):
                     Empty list if no public articles found.
     """
     article_issue_ids = Article.objects(journal=jid, is_public=True).distinct("issue")
-    if not article_issue_ids:
-        return []
+    params = {}
+    if article_issue_ids:
+        params["iid__in"] = [item.iid for item in article_issue_ids]
 
     return Issue.objects(
         journal=jid,
-        iid__in=[item.iid for item in article_issue_ids],
         is_public=True,
+        **params,
     ).order_by("-year", "-order")
 
 
@@ -832,7 +833,7 @@ def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
         journal.issue_count = issue_count
         save = True
 
-    if journal.last_issue.url_segment != last_issue.url_segment:
+    if not journal.last_issue or journal.last_issue.url_segment != last_issue.url_segment:
         journal.last_issue = LastIssue(
             volume=last_issue.volume,
             number=last_issue.number,
