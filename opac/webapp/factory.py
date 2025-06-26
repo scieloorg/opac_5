@@ -41,7 +41,7 @@ def JournalFactory(data):
     journal.metrics = models.JounalMetrics(**metadata.get("metrics", {}))
 
     # Issue count
-    journal.issue_count =  data.get("issue_count") or len(data.get("items", []))
+    journal.issue_count =  data.get("issue_count") or len(data.get("items") or [])
 
     # Mission
     journal.mission = [
@@ -82,8 +82,9 @@ def JournalFactory(data):
 
     journal.online_submission_url = metadata.get("online_submission_url", "")
 
-    if "missing" in journal.logo_url or not journal.logo_url:
+    if not journal.logo_url or "missing" in journal.logo_url:
         journal.logo_url = metadata.get("logo_url")
+
     journal.current_status = metadata.get("current_status")
 
     timelines = []
