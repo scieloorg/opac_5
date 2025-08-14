@@ -77,6 +77,7 @@ let target_src = {
             path.join(paths['static_js'], 'slick.min.js'),
             path.join(paths['static_js'], 'main.js'),
             path.join(paths['static_js'], 'cookieMsg.js'),
+            path.join(paths['static_js'], 'asb.js'),
            
             // instruções JS (equipe scielo)
             path.join(paths['static_js'], 'common.js'),
