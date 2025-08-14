@@ -1098,7 +1098,6 @@ def render_html_from_xml(article, lang, gs_abstract=False):
         xslt = "3.0"
 
     xml = etree.parse(BytesIO(result))
-
     generator = HTMLGenerator.parse(
         xml,
         valid_only=False,
@@ -1220,6 +1219,19 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         qs_lang, article, nav = controllers.get_article(
             article_pid_v3, url_seg, qs_lang, gs_abstract,
         )
+        if not qs_lang:
+            if article.original_language:
+                return redirect(
+                    url_for(
+                        "main.article_detail_v3",
+                        url_seg=url_seg,
+                        article_pid_v3=article_pid_v3,
+                        format=qs_format,
+                        lang=article.original_language,
+                    ),
+                    code=301,
+                )
+            raise controllers.ArticleLangNotFoundError
     except controllers.PreviousOrNextArticleNotFoundError as e:
         if gs_abstract:
             abort(404, _("Resumo inexistente"))
@@ -1227,15 +1239,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
     except (controllers.ArticleNotFoundError, controllers.ArticleJournalNotFoundError):
         abort(404, _("Artigo não encontrado"))
     except controllers.ArticleLangNotFoundError:
-        return redirect(
-            url_for(
-                "main.article_detail_v3",
-                url_seg=url_seg,
-                article_pid_v3=article_pid_v3,
-                format=qs_format,
-            ),
-            code=301,
-        )
+        abort(500, _("Erro inesperado: artigo sem idioma"))
     except controllers.ArticleAbstractNotFoundError:
         abort(404, _("Recurso não encontrado"))
     except controllers.ArticleIsNotPublishedError as e:
@@ -1273,7 +1277,9 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             html, text_languages = render_html(article, qs_lang, gs_abstract)
         except (ValueError, utils.NonRetryableError):
             abort(404, _("HTML do Artigo não encontrado ou indisponível"))
-        except utils.RetryableError:
+        except utils.RetryableError as exc:
+            logger.exception(exc)
+
             abort(500, _("Erro inesperado"))
 
         text_versions = sorted(
