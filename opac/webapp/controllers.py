@@ -1038,7 +1038,7 @@ def get_article_by_aid(
 
     if gs_abstract:
         kwargs["abstract_languages"] = lang
-    else:
+    elif lang:
         kwargs["languages"] = lang
     article = Article.objects(
         Q(pk=aid) | Q(scielo_pids__other=aid),
@@ -1059,21 +1059,27 @@ def get_article_by_aid(
     if not article.issue.is_public:
         raise IssueIsNotPublishedError(article.issue.unpublish_reason)
 
+    if not article.original_language:
+        # notou-se ausência de article.original_language
+        try:
+            article.original_language = article.languages[0]
+            article.save()
+        except IndexError:
+            pass
+
     return article
 
 
 def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
     article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
-    if lang is None and not gs_abstract:
-        lang = article.original_language
 
     # add filter publication_date__lte_today_date
     kwargs = {}
     kwargs["publication_date__lte"] = now()
     if gs_abstract:
-        kwargs["abstract_languages"] = lang
-
+        kwargs["abstract_languages__0__exists"] = True
     queryset = Article.objects(issue=article.issue, is_public=True, **kwargs)
+
     if article.issue.type == "ahead" or article.issue.number == "ahead":
         next_article = queryset.filter(
             Q(publication_date=article.publication_date, order__gt=article.order) |
