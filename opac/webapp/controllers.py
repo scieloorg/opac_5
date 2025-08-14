@@ -703,7 +703,7 @@ def get_issues_for_grid_by_jid(jid, **kwargs):
 
     if not issues_without_ahead:
         return {
-            "ahead": ahead,  # ahead of print
+            "ahead": issue_ahead,  # ahead of print
             "ordered_for_grid": {},  # lista de números odenadas para a grade
             "volume_issue": [],  # lista de volumes que são números
             "previous_issue": None,
