@@ -1302,6 +1302,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             ),
         )
         context = {
+            "article_html_title": remover_tags_html(article.title),
             "article": article,
             "journal": article.journal,
             "issue": article.issue,
@@ -2210,3 +2211,8 @@ def pressrelease(*args):
 @helper.token_required
 def journal_last_issues(*args):
     return list(controllers.journal_last_issues() or [])
+
+
+def remover_tags_html(texto):
+    soup = BeautifulSoup(texto, 'html.parser')
+    return soup.get_text()

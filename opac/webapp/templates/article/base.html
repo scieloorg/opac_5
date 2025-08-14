@@ -7,7 +7,7 @@
 
 {% block body_class %}journal article{% endblock %}
 
-{% block title %}{{ super() }} - {{ article.title }}{% endblock %}
+{% block title %}{{ super() }} - {{ article_html_title }}{% endblock %}
 
 {% block extra_meta %}
   {% include "article/includes/meta.html" %}
