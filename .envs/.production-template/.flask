@@ -230,3 +230,8 @@ SCIMAGO_URL_IR=https://www.scimagoir.com/
 # ---------------------------------------------------
 # string with the default mathjax URL; ex: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"
 OPAC_MATHJAX_CDN_URL=https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML
+
+# -------------------- darkvisitors.com -------------
+# ---------------------------------------------------
+OPAC_ANALYTICS_AGENT_DARKVISITORS_ENABLED=False
+OPAC_ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY=PROJECT_KEY

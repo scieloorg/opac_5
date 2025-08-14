@@ -38,6 +38,10 @@
       <!-- End Google Analytics -->
     {% endif %}
 
+    {% if config.ANALYTICS_AGENT_DARKVISITORS_ENABLED and config.ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY %}
+    <script src="https://darkvisitors.com/tracker.js?project_key={{ config.ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY }}"></script>
+    {% endif %}
+
     {% block extra_css %}{% endblock %}
 
   </head>
