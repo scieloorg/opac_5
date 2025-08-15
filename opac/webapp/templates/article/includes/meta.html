@@ -111,7 +111,9 @@
     <meta name="citation_article_type" content="{{ article.type }}"></meta>
 {% endif -%}
 
-{% if article.publication_date -%}
+{% if issue.year -%}
+    <meta name="citation_publication_date" content="{{ issue.year }}"></meta>
+{% elif article.publication_date -%}
     <meta name="citation_publication_date" content="{{ article.publication_date }}"></meta>
 {% endif -%}
 
