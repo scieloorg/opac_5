@@ -235,6 +235,17 @@ ps:
 rm:
 	$(DOCKER_COMPOSE) -f $(compose) rm -f
 
+# help: pull_webapp           	       - pull opac_webapp image from $(compose)
+.PHONY: pull_webapp
+pull_webapp:
+	@echo "Pulling OPAC_5 version $(SCMS_WEBAPP_VERSION) ..."
+	$(DOCKER_COMPOSE) -f $(compose) pull opac_webapp
+
+# help: down_webapp           	       - down opac_webapp, scheduler and worker containers
+.PHONY: down_webapp
+down_webapp:
+	$(DOCKER_COMPOSE) -f $(compose) rm -s -f opac_webapp opac-rq-scheduler opac-rq-worker-1
+
 # help: shell                          - open a shell from containers
 .PHONY: shell
 shell: up
@@ -388,3 +399,5 @@ exclude_opac_production:  ## Exclude all production images
 # help: update                         - stop, remove old images, and start the containers
 .PHONY: update
 update: backup stop exclude_opac_production up
+
+update_webapp: pull_webapp down_webapp up
