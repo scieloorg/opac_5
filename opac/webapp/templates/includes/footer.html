@@ -1,3 +1,19 @@
+<style>
+	.scielo__logo-partner{
+      max-height: 50px;
+      max-width: 170px;
+    }
+    .scielo__logo-partner--dark{
+      display:none;
+    }
+    .scielo__theme--dark .scielo__logo-partner--light{
+      display:none;
+    }
+	.scielo__theme--dark .scielo__logo-partner--dark{
+      display:inline-block;
+    }
+</style>
+
 <footer>
 	<section class="address-scielo pt-4 pb-4 mt-5">
 		<div class="container">
@@ -65,6 +81,18 @@
 	<section>
 		<div class="container">
 			<div class="row">
+				<div class="col partners text-center my-4">
+
+					<a href="http://www.capes.gov.br/" class="mx-4 my-2" target="_blank"><img src="../../static/img/logo-capes.svg" class="scielo__logo-partner scielo__logo-partner--light " alt="CAPES"><img src="../../static/img/logo-capes--dark.svg" class="scielo__logo-partner scielo__logo-partner--dark" alt="CAPES"></a>
+					<a href="http://www.cnpq.br/" class="mx-4 my-2" target="_blank"><img src="../../static/img/logo-cnpq.svg" class="scielo__logo-partner scielo__logo-partner--light" alt="CNPq"><img src="../../static/img/logo-cnpq--dark.svg" class="scielo__logo-partner scielo__logo-partner--dark" alt="CNPq"></a>
+					<a href="http://www.fapesp.br/" class="mx-4 my-2" target="_blank"><img src="../../static/img/logo-fapesp.svg" class="scielo__logo-partner scielo__logo-partner--light " alt="FAPESP"><img src="../../static/img/logo-fapesp--dark.svg" class="scielo__logo-partner scielo__logo-partner--dark " alt="FAPESP"></a>
+					<a href="http://bvsalud.org/" class="mx-4 my-2" target="_blank"><img src="../../static/img/logo-bvs.svg" class="scielo__logo-partner scielo__logo-partner--light" alt="BVS"><img src="../../static/img/logo-bvs.svg" class="scielo__logo-partner scielo__logo-partner--dark" alt="BVS" style="background: white;"></a>
+					<a href="http://regional.bvsalud.org/bvs/bireme/homepage.htm" class="mx-4 my-2" target="_blank"><img src="../../static/img/logo-bireme.svg" class="scielo__logo-partner scielo__logo-partner--light " alt="BIREME"><img src="../../static/img/logo-bireme--dark.svg" class="scielo__logo-partner scielo__logo-partner--dark " alt="BIREME"></a>
+					<a href="https://www.fapunifesp.edu.br/" class="mx-4 my-2" target="_blank"><img src="../../static/img/logo-fap.svg" class="scielo__logo-partner scielo__logo-partner--light" alt="FAP-UNIFESP"><img src="../../static/img/logo-fap--dark.svg" class="scielo__logo-partner scielo__logo-partner--dark" alt="FAP-UNIFESP"></a> 
+
+				</div>
+			</div>
+			<div class="row d-none">
 				<div class="col text-center mt-4 mb-4">
 				{% if g.collection and g.collection.sponsors %}
 					{% for sponsor in g.collection.sponsors|sort(attribute='order') %}
