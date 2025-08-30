@@ -97,3 +97,4 @@ tenacity==8.2.3
 -e git+https://git@github.com/scieloorg/opac_schema@v2.9.0#egg=Opac_Schema
 -e git+https://git@github.com/scieloorg/packtools@4.11.20#egg=packtools
 -e git+https://github.com/scieloorg/scieloh5m5.git@1.9.5#egg=scieloh5m5
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
