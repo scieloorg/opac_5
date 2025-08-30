@@ -57,7 +57,7 @@ picles.plumber==0.11
 Pillow==9.4.0
 platformdirs==2.6.2
 pluggy==1.0.0
-pymongo==4.3.3
+pymongo==4.6.3
 pyproject_api==1.5.0
 PySocks==1.7.1
 python-dateutil==2.8.2
