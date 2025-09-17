@@ -199,6 +199,23 @@
     }
   });
 
+
+    /**
+     * Criar skip-link
+     */
+
+    const skipLink = document.createElement("a");
+    skipLink.href = "#content";    // destino do skip-link
+    skipLink.textContent = translateAcessibilityBar.skipLinkText; // texto do link
+    skipLink.className = "skip-link visually-hidden-focusable"; // classes para estilo e foco
+    skipLink.setAttribute("aria-label", translateAcessibilityBar.skipLinkText); // opcional, reforço de acessibilidade
+    
+    // Inserir antes do primeiro elemento do body
+    document.body.insertBefore(skipLink, document.body.firstChild);
+
+
+
+
   /*
 === === === === === === === === === === === === === === === === === ===
 === === === === === === === === openBar === === === === === === === ===
