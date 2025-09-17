@@ -13,13 +13,17 @@
 {% block content %}
 
   {% include "journal/includes/header.html" %}
-  
-  {% include "journal/includes/journal_info.html" %}
-  
-  {% include "journal/includes/levelMenu.html" %}
 
-  {% block main_content %}{% endblock %}
+  <main id="content">
+  
+    {% include "journal/includes/journal_info.html" %}
+  
+    {% include "journal/includes/levelMenu.html" %}
 
+    {% block main_content %}{% endblock %}
+
+  </main>
+  
   {% include "includes/footer.html" %}
 
   <div class="modal fade" id="contact_modal_id" tabindex="-1" role="dialog" aria-hidden="true"></div>

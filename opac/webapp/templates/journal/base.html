@@ -10,11 +10,15 @@
 {% block content %}
   {% include "journal/includes/header.html" %}
 
-  {% include "journal/includes/journal_info.html" %}
-  
-  {% include "journal/includes/levelMenu.html" %}
+  <main id="content">
 
-  {% block main_content %}{% endblock %}
+    {% include "journal/includes/journal_info.html" %}
+    
+    {% include "journal/includes/levelMenu.html" %}
+
+    {% block main_content %}{% endblock %}
+
+  </main>
 
   {% include "includes/footer.html" %}
 

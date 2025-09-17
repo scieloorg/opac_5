@@ -36,10 +36,15 @@
     {% endwith %}
 
   {% include "collection/includes/header.html" %}
-  {% block level_menu %}{% endblock %}
+  
+  <main id="content">
+    
+    {% block level_menu %}{% endblock %}
 
-  {% block main_content %}{% endblock %}
-
+    {% block main_content %}{% endblock %}
+  
+  </main>
+  
   {% include "includes/footer.html" %}
 
 {% endblock %}

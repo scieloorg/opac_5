@@ -26,15 +26,19 @@
   <!--- removido da interface --->
   {# include "article/includes/alternative_header.html" #}
 
-  {% block main_content %}{% endblock %}
+  <main id="content">
 
-  {% include "article/includes/modal/download.html" %}
+    {% block main_content %}{% endblock %}
 
-  {% include "article/includes/modal/related_article.html" %}
+    {% include "article/includes/modal/download.html" %}
 
-  {% include "article/includes/modal/translate_version.html" %}
+    {% include "article/includes/modal/related_article.html" %}
 
-  {% include "article/includes/modal/how_cite.html" %}
+    {% include "article/includes/modal/translate_version.html" %}
+
+    {% include "article/includes/modal/how_cite.html" %}
+  
+  </main>
 
   {% include "includes/footer.html" %}
 
