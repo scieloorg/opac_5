@@ -696,6 +696,6 @@ with open(JWT_PUBLIC_KEY_PATH, "rb") as f:
     JWT_PUBLIC_KEY_PEM = f.read()
 
 JWT_ALG = "RS256"
-JWT_ISS = os.environ.get("JWT_ISS", "https://api.seu-django.com")
-JWT_AUD = os.environ.get("JWT_AUD", "seu-flask-servico")
+JWT_ISS = os.environ.get("JWT_ISS", default="Scielo Core")
+JWT_AUD = os.environ.get("JWT_AUD", default="opac_5")
 
