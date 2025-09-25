@@ -208,7 +208,6 @@ def complete_collection(json_data):
     collection = get_current_collection()
     if not collection or not json_data:
         return None
-    print(json_data)
 
     code = json_data.get("code")
     main_name = json_data.get('main_name')
