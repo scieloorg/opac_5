@@ -1,8 +1,8 @@
 # coding: utf-8
-import re
 import json
 import logging
 import mimetypes
+import re
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -11,20 +11,9 @@ from urllib.parse import urljoin, urlparse
 import requests
 from bs4 import BeautifulSoup
 from feedwerk.atom import AtomFeed
-from flask import (
-    Response,
-    abort,
-    current_app,
-    g,
-    jsonify,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    send_from_directory,
-    session,
-    url_for,
-)
+from flask import (Response, abort, current_app, g, jsonify, make_response,
+                   redirect, render_template, request, send_from_directory,
+                   session, url_for)
 from flask_babelex import gettext as _
 from legendarium.formatter import descriptive_short_format
 from lxml import etree
@@ -32,15 +21,14 @@ from opac_schema.v1.models import Article, Collection, Issue, Journal
 from packtools import HTMLGenerator
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
-from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
+from webapp.controllers import create_press_release_record
+from webapp.main.errors import internal_server_error, page_not_found
 from webapp.utils import utils
-from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
-from webapp.main.errors import page_not_found, internal_server_error
+from webapp.utils.caching import (cache_key_with_lang,
+                                  cache_key_with_lang_with_qs)
 
-from . import helper
-
-from . import main, restapi
+from . import helper, main, restapi, decorators
 
 logger = logging.getLogger(__name__)
 
@@ -2187,7 +2175,6 @@ def pressrelease(*args):
     """
 
     payload = request.get_json()
-    params = request.args.to_dict()
 
     if not payload.get("journal_id"):
         return jsonify({"failed": True, "id": 1}), 200
@@ -2222,3 +2209,11 @@ def journal_last_issues(*args):
 def remover_tags_html(texto):
     soup = BeautifulSoup(texto, 'html.parser')
     return soup.get_text()
+
+
+@restapi.route("/update_collection", methods=["POST", "PUT"])
+@decorators.require_jwt
+def update_collection(*args):
+    payload = request.get_json()
+    controllers.complete_collection(payload.get("results"))
+    return jsonify({"success": True})
