@@ -6,11 +6,9 @@ e agrupar esses resultados em estruturas de dados úties para as views
 ou outras camadas superiores, evitando assim que as camadas superiores
 acessem diretamente a camada inferior de modelos.
 """
-import logging
 import io
+import logging
 import re
-import requests
-from bs4 import BeautifulSoup
 from collections import OrderedDict
 from datetime import datetime
 from uuid import uuid4
@@ -24,26 +22,18 @@ from flask_babelex import lazy_gettext as __
 from flask_mongoengine import Pagination
 from legendarium.formatter import descriptive_very_short_format
 from mongoengine import Q
-from mongoengine.errors import InvalidQueryError
-from opac_schema.v1.models import (
-    Article,
-    Collection,
-    Issue,
-    Journal,
-    News,
-    Pages,
-    PressRelease,
-    Sponsor,
-    LastIssue,
-)
+from opac_schema.v1.models import (Article, Collection, Issue, Journal,
+                                   LastIssue, News, Pages, PressRelease,
+                                   Sponsor)
 from scieloh5m5 import h5m5
 from slugify import slugify
 from webapp import dbsql
 
 from .choices import INDEX_NAME, JOURNAL_STATUS, STUDY_AREAS
+from .factory import ArticleFactory, IssueFactory, JournalFactory
 from .models import User
-from .factory import JournalFactory, IssueFactory, ArticleFactory
 from .utils import utils
+from .utils.handler_with_logo import handler_with_logo
 
 HIGHLIGHTED_TYPES = (
     "article-commentary",
@@ -172,6 +162,148 @@ def get_collection_tweets():
     else:
         # falta pelo menos uma credencial do twitter
         return []
+
+
+def extract_collection_names(json_data):
+    data ={}
+    for name in json_data.get("collection_names"):
+        if name.get("language"):
+            lang = name.get("language").get("code2")
+            data[lang] = name.get("text")
+    return data
+
+
+def set_atributtes_logos(collection, logos, name_logos=["home_logo", "logo_menu", "header_logo"], langs=["pt", "en", "es"]):
+    """
+    Atribuí os logos do modelo collection. (home_logo, logo_menu, header_logo)
+    Ex:
+    "logos": {
+        "homepage": {
+            "pt": "http://localhost/media/original_images/wjcm_glogo_F5dW55p.gif",
+            "en": "http://localhost/media/original_images/zcr_glogo_eCDkZlK.gif"
+        },
+        "header": {
+            "pt": "http://localhost/media/original_images/yt_glogo_8AxTwaK.gif"
+        }
+    }
+    """
+    if not logos:
+        return None
+    list_logo = []
+    list_logo.append(logos.get("homepage", ""))
+    list_logo.append(logos.get("header", ""))
+    list_logo.append(logos.get("menu", ""))
+    for logo in list_logo:
+        if not logo:
+            continue
+        for name_logo, lang in zip(name_logos, langs):  
+            if hasattr(collection, f"{name_logo}_{lang}"):
+                logo = handler_with_logo(logo_url=logo.get(lang), folder=f"img/{name_logo}")                
+                if logo.get("rel_path"):
+                    collection_logo = f"http://{current_app.config['SERVER_NAME']}{logo.get('rel_path')}"
+                    setattr(collection, f"{name_logo}_{lang}", collection_logo)
+
+
+def complete_collection(json_data):
+    collection = get_current_collection()
+    if not collection or not json_data:
+        return None
+    print(json_data)
+
+    code = json_data.get("code")
+    main_name = json_data.get('main_name')
+    
+    if code and collection.acronym != code: 
+        collection.acronym = code
+    if main_name and collection.name != main_name:
+        collection.name = main_name
+
+    sponsors = handler_collection_sponsos(json_data.get("supporting_organizations"))
+    collection_names = extract_collection_names(json_data=json_data)
+    set_atributtes_logos(collection=collection, logos=json_data.get("logos"))
+    collection.name_pt = collection_names.get('pt')
+    collection.name_es = collection_names.get('es')
+    collection.name_en = collection_names.get('en')
+    collection.sponsors = sponsors
+
+    collection.save()
+
+
+def upsert_sponsor_by_acronym(data, order):
+    """
+        Cria ou atualiza objetos sponsors e retorna o objeto Sponsor
+        Order é de acordo com a ordem recebida no payload do endpoint update_collection.
+        Ex data:
+        Um dicionario com os dados do sponsor
+        {
+            "acronym": "SP",
+            "name": "Sponsor",
+            "url": "https://www.sponsor.com"
+            "logo_url": "https://core.scielo.org/media/original_images/logo.png"
+        }
+    """
+    import time
+
+    name = data.get('name', '').strip() 
+    url = data.get('url') or None
+    logo_url = data.get("logo_url") or None
+    
+    logo = handler_with_logo(logo_url=logo_url, folder="img/sponsors")
+    
+    # Por causa do order unique, evitar error ao mudar a ordem
+    temp_order = -int(time.time()*1000) # incrementa um valor aleatório em order.
+    rel_path = logo.get("rel_path") 
+    obj = Sponsor.objects(name=name).modify(
+        upsert=True,
+        new=True,
+        set__url=url,
+        set__order=temp_order,
+        set__logo_url=f"http://{current_app.config['SERVER_NAME']}{rel_path}" if rel_path else None,
+    )
+    existing = Sponsor.objects(order=order, _id__ne=obj.id).first()
+    if existing:
+        existing.modify(set__order=temp_order - 1)
+    obj.modify(set__order=order)
+    return obj
+
+
+def handler_collection_sponsos(data):
+    """
+        Recebe uma lista de dados sobre os sponsors e retorna uma lista de objetos sponsors
+        Ex data:
+        Uma lista de dicionarios com os dados dos sponsors
+        [
+            {
+                "organization": {
+                    "acronym": "SP",
+                    "name": "Sponsor",
+                    "url": "https://www.sponsor.com"
+                    "logo_url": "https://core.scielo.org/media/original_images/logo.png"
+                    "location": {
+                        "country_name": "Brasil",
+                        "country_acronym": "BR",
+                        "country_acron3": "BRA",
+                        "state_name": "SP",
+                        "state_acronym": "SP",
+                        "city_name": "São Paulo"
+
+                    }
+                },
+            }
+        ]
+    """
+    
+    sponsors = []
+    if not data:
+        return sponsors
+    if not isinstance(data, list):
+        raise ValueError("data must be a list of sponsor dicts")
+
+    for i, item in enumerate(data):
+        sponsor = upsert_sponsor_by_acronym(item.get("organization"), order=i)
+        if sponsor is not None:
+            sponsors.append(sponsor)
+    return sponsors
 
 
 # -------- PRESSRELEASES --------
