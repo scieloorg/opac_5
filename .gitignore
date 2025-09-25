@@ -80,3 +80,4 @@ opac/webapp/media/images/*.*
 
 # nodejs/gulp/etc
 node_modules/
+data
