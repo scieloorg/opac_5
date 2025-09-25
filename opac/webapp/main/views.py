@@ -2,7 +2,6 @@
 import json
 import logging
 import mimetypes
-import re
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -17,18 +16,17 @@ from flask import (Response, abort, current_app, g, jsonify, make_response,
 from flask_babelex import gettext as _
 from legendarium.formatter import descriptive_short_format
 from lxml import etree
-from opac_schema.v1.models import Article, Collection, Issue, Journal
+from opac_schema.v1.models import Article, Collection, Journal
 from packtools import HTMLGenerator
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.config.lang_names import display_original_lang_name
 from webapp.controllers import create_press_release_record
-from webapp.main.errors import internal_server_error, page_not_found
 from webapp.utils import utils
 from webapp.utils.caching import (cache_key_with_lang,
                                   cache_key_with_lang_with_qs)
 
-from . import helper, main, restapi, decorators
+from . import decorators, helper, main, restapi
 
 logger = logging.getLogger(__name__)
 
