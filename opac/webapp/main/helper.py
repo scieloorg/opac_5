@@ -68,3 +68,21 @@ def auth():
         ),
         401,
     )
+
+
+def get_bearer_token():
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        return auth[len("Bearer "):]
+    return None
+
+def verify_jwt(token):
+    return jwt.decode(
+        token,
+        current_app.config["JWT_PUBLIC_KEY_PEM"],
+        algorithms=[current_app.config["JWT_ALG"]],
+        audience=current_app.config["JWT_AUD"],
+        issuer=current_app.config["JWT_ISS"],
+        # options={"require": ["exp", "iat", "nbf", "iss", "aud"]},
+        leeway=30,
+    )
