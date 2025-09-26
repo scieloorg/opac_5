@@ -30,3 +30,6 @@ OPAC_USE_SCITE=False
 # URL to SCITE_
 OPAC_SCITE_URL=
 OPAC_SCITE_METRICS_URL=
+
+# ativa/desativa a apresentação do link para o site de métricas na listagem de periódicos (default: False),
+OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST=False
