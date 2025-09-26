@@ -287,7 +287,7 @@ def get_journal_json_data(journal, language="pt"):
         "title": "Interface - Comunica\\u00e7\\u00e3o, Sa\\u00fade, Educa\\u00e7\\u00e3o"
     },
     """
-
+    issn = next((issn for issn in [journal.scielo_issn, journal.eletronic_issn, journal.print_issn] if issn), "")
     j_data = {
         "id": journal.id,
         "title": journal.title,
@@ -304,6 +304,7 @@ def get_journal_json_data(journal, language="pt"):
             + "#contact",
             "editors": url_for("main.about_journal", url_seg=journal.url_segment)
             + "#editors",
+            "metrics": f"{current_app.config['METRICS_URL']}?journal={issn}&collection={current_app.config['OPAC_COLLECTION']}",
         },
         "is_active": journal.current_status == "current",
         "issues_count": journal.issue_count,
