@@ -304,7 +304,7 @@ def get_journal_json_data(journal, language="pt"):
             + "#contact",
             "editors": url_for("main.about_journal", url_seg=journal.url_segment)
             + "#editors",
-            "metrics": f"{current_app.config['METRICS_URL']}?journal={issn}&collection={current_app.config['OPAC_COLLECTION']}",
+            "metrics": f"{current_app.config['METRICS_URL']}?journal={issn}&collection={current_app.config['OPAC_COLLECTION']}" if current_app.config['OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST'] else None,
         },
         "is_active": journal.current_status == "current",
         "issues_count": journal.issue_count,
