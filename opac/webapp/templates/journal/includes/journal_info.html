@@ -98,6 +98,7 @@
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#item-2" class="scroll"><span class="material-icons-outlined">article</span> {% trans %}Política editorial{% endtrans %}</a>
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="scroll"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#instructions" class="scroll"><span class="material-icons-outlined">help_outline</span> {% trans %}Instruções aos autores{% endtrans %}</a>
+            
           {% if journal.enable_contact %}
               <a class="list-group-item" href="javascript:;" class="contact_modal_id" data-url="{{ url_for('main.form_contact', url_seg=journal.url_segment) }}">
                 <span class="glyphBtn contact"></span> {% trans %}Contato{% endtrans %}

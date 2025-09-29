@@ -47,7 +47,7 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list_thematic') }}?status=current">
-                                <span class="lbl-corrente"><span class="material-icons" style="color: #2c9d45;">fiber_manual_record</span>{% trans %}Ativos{% endtrans %}</span>
+                                <span class="lbl-corrente"><span class="material-icons" style="color: #1e7c32">fiber_manual_record</span>{% trans %}Ativos{% endtrans %}</span>
                                 </a> 
                             </li>
                             <li class="nav-item" role="presentation">
@@ -59,7 +59,10 @@
                     </div>
 
                     <div class="col-12 col-sm-12 col-md-5">
-                        <input type="text" class="form-control collectionSearch"
+                        <label for="q-field-journal-thematic" class="visually-hidden">
+                            {% trans %}Digite para filtrar a lista{% endtrans %}
+                        </label>
+                        <input id="q-field-journal-thematic" type="text" class="form-control collectionSearch"
                             placeholder="{% trans %}Digite para filtrar a lista{% endtrans %}" />
                     </div>
                 </div>
@@ -89,7 +92,7 @@
                                     <button id="btnGroupDropDownloadTable" type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--only dropdown-toggle mb-0 float-end d-print-none" data-bs-toggle="dropdown" aria-expanded="false">
                                         <span class="material-icons-outlined">download</span>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropDownloadTable">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         <li>
                                             <a class="dropdown-item collectionListDownloadXLS" href="#" title="{% trans %}Lista em arquivo para Excel{% endtrans %}">
                                             XLS
@@ -116,11 +119,11 @@
                                     <td colspan="2" class="td-thematic px-0 pb-0 border-0">
                                         <div class="accordion-item">
                                             <h2 class="accordion-header" id="heading-{{ loop.index }}">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContent-{{ loop.index }}" aria-expanded="false" aria-controls="flush-collapseOne">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContent-{{ loop.index }}" aria-expanded="false">
                                                     {{ group }}
                                                 </button>
                                             </h2>
-                                            <div id="collapseContent-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample" style="">
+                                            <div id="collapseContent-{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
                                                     <table class="table">
                                                         <caption class="visually-hidden">{% trans %}Journal list{% endtrans %}</caption>

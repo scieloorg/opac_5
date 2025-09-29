@@ -39,7 +39,7 @@
                       <li class="nav-item" role="presentation">
                         <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list') }}?status=current">
                           <span class="lbl-corrente">
-                            <span class="material-icons" style="color: #2c9d45;">fiber_manual_record</span> {% trans %}Ativos{% endtrans %}</span>
+                            <span class="material-icons" style="color:#1e7c32">fiber_manual_record</span> {% trans %}Ativos{% endtrans %}</span>
                         </a> 
                       </li>
                       <li class="nav-item" role="presentation">
@@ -51,7 +51,10 @@
                   </div>
 
                   <div class="col-12 col-sm-12 col-md-5">
-                    <input type="text" class="form-control form-control-sm collectionSearch" placeholder="{% trans %}Digite para filtrar a lista{% endtrans %}"/>
+                    <label for="q-field-journal" class="visually-hidden">
+                      {% trans %}Digite para filtrar a lista{% endtrans %}
+                    </label>
+                    <input id="q-field-journal" type="text" class="form-control form-control-sm collectionSearch" placeholder="{% trans %}Digite para filtrar a lista{% endtrans %}"/>
                   </div>
                 </div>
 
