@@ -231,6 +231,9 @@ WEBMASTER_EMAIL = "webmaster@scielo.org"
 # o padrão é não apresentar
 USE_HOME_METRICS = os.environ.get("OPAC_USE_HOME_METRICS", "False") == "True"
 
+# ativa/desativa a apresentação do link para o site de métricas na listagem de periódicos (default: False),
+OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST = os.environ.get("OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST", "False") == "True"
+
 # Acrônimo da coleção OPAC: 'spa' ou 'esp' por exemplo.
 # -*- DEVE SER AJUSTADO NA INSTALAÇÃO -*-
 OPAC_COLLECTION = os.environ.get("OPAC_COLLECTION", "scl")
