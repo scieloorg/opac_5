@@ -617,11 +617,22 @@ def about_journal(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     if journal.old_information_page:
-        page = controllers.get_page_by_journal_acron_lang(journal.acronym, language)
-        try:
-            content = page.content
-        except AttributeError:
-            content = None
+        # Ordem de prioridade em caso de conteúdo não ser encontrado.
+        if language.startswith("pt_BR"):
+            fallback_order = ["pt_BR", "en", "es"]
+        elif language.startswith("es"):
+            fallback_order = ["es", "en", "pt_BR"]
+        else:
+            fallback_order = ["en", "pt_BR", "es"]
+        for lang_try in fallback_order:
+            page = controllers.get_page_by_journal_acron_lang(journal.acronym, lang_try)
+            try:
+                content = page.content
+            except AttributeError:
+                content = None
+            if content:
+                language = lang_try
+                break
     if not content:
         # content = None se não achar nada no core.
         collection_acronym = controllers.get_current_collection()
