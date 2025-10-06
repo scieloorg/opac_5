@@ -213,7 +213,7 @@ def complete_collection(json_data):
     if main_name and collection.name != main_name:
         collection.name = main_name
 
-    sponsors = handler_collection_sponsos(json_data.get("supporting_organizations"))
+    sponsors = handler_collection_sponsors(json_data.get("supporting_organizations"))
     collection_names = extract_collection_names(json_data=json_data)
     set_attributtes_logos(collection=collection, logos=json_data.get("logos"))
     collection.name_pt = collection_names.get('pt')
@@ -262,7 +262,7 @@ def upsert_sponsor_by_acronym(data, order):
     return obj
 
 
-def handler_collection_sponsos(data):
+def handler_collection_sponsors(data):
     """
         Recebe uma lista de dados sobre os sponsors e retorna uma lista de objetos sponsors
         Ex data:
