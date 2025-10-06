@@ -189,10 +189,7 @@ def set_atributtes_logos(collection, logos, name_logos=["home_logo", "logo_menu"
     """
     if not logos:
         return None
-    list_logo = []
-    list_logo.append(logos.get("homepage", ""))
-    list_logo.append(logos.get("header", ""))
-    list_logo.append(logos.get("menu", ""))
+    list_logo = [logos.get(key, "") for key in ["homepage", "header", "menu"]]
     for logo in list_logo:
         if not logo:
             continue
