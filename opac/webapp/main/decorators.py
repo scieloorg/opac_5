@@ -1,7 +1,10 @@
+import logging
 from functools import wraps
-from flask import jsonify, g
+
+from flask import g, jsonify
 from jwt import PyJWTError
-from .helper import get_bearer_token, verify_jwt 
+
+from .helper import get_bearer_token, verify_jwt
 
 
 def require_jwt(f):
@@ -13,7 +16,7 @@ def require_jwt(f):
         try:
             g.jwt = verify_jwt(token)            
         except PyJWTError as e:
-            print("Erro na validação JWT:", str(e))
+            logging.error("Erro na validação JWT:", str(e))
             return jsonify({"detail": f"Invalid token: {str(e)}"}), 401
         return f(*args, **kwargs)
     return wrapper
