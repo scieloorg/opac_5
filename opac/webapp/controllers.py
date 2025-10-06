@@ -190,16 +190,15 @@ def set_attributtes_logos(collection, logos, name_logos=["home_logo", "logo_menu
     if not logos:
         return None
     list_logo = [logos.get(key, "") for key in ["homepage", "header", "menu"]]
-    for logo in list_logo:
-        if not logo:
+    for logo_data in list_logo:
+        if not logo_data:
             continue
         for name_logo, lang in zip(name_logos, langs):  
             if hasattr(collection, f"{name_logo}_{lang}"):
-                logo = handler_with_logo(logo_url=logo.get(lang), folder=f"img/{name_logo}")                
-                if logo.get("rel_path"):
-                    collection_logo = f"http://{current_app.config['SERVER_NAME']}{logo.get('rel_path')}"
+                logo_info = handler_with_logo(logo_url=logo_data.get(lang), folder=f"img/{name_logo}")                
+                if rel_path := logo_info.get("rel_path"):
+                    collection_logo = f"http://{current_app.config['SERVER_NAME']}{rel_path}"
                     setattr(collection, f"{name_logo}_{lang}", collection_logo)
-
 
 def complete_collection(json_data):
     collection = get_current_collection()
