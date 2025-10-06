@@ -26,8 +26,8 @@ def handler_with_logo(logo_url, folder):
         resp.raise_for_status()
 
         with open(abs_path, "wb") as f:
-            for chuck in resp.iter_content(chunk_size=8192):
-                f.write(chuck)
+            for chunk in resp.iter_content(chunk_size=8192):
+                f.write(chunk)
         logging.info(f"File {base_name} downloaded successfully")
     except requests.exceptions.RequestException as e:
         logging.error(f"Error downloading file {base_name}: {e}")
