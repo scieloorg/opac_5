@@ -173,7 +173,7 @@ def extract_collection_names(json_data):
     return data
 
 
-def set_atributtes_logos(collection, logos, name_logos=["home_logo", "logo_menu", "header_logo"], langs=["pt", "en", "es"]):
+def set_attributtes_logos(collection, logos, name_logos=["home_logo", "logo_menu", "header_logo"], langs=["pt", "en", "es"]):
     """
     Atribuí os logos do modelo collection. (home_logo, logo_menu, header_logo)
     Ex:
@@ -216,7 +216,7 @@ def complete_collection(json_data):
 
     sponsors = handler_collection_sponsos(json_data.get("supporting_organizations"))
     collection_names = extract_collection_names(json_data=json_data)
-    set_atributtes_logos(collection=collection, logos=json_data.get("logos"))
+    set_attributtes_logos(collection=collection, logos=json_data.get("logos"))
     collection.name_pt = collection_names.get('pt')
     collection.name_es = collection_names.get('es')
     collection.name_en = collection_names.get('en')
