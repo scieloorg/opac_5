@@ -33,7 +33,7 @@ from packtools import HTMLGenerator
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
-from webapp.config.lang_names import display_original_lang_name
+from webapp.config.lang_names import display_original_lang_name, display_lang_name_fallback
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 from webapp.main.errors import page_not_found, internal_server_error
@@ -1281,12 +1281,13 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             logger.exception(exc)
 
             abort(500, _("Erro inesperado"))
+        language = session.get("lang", get_locale())
 
         text_versions = sorted(
             [
                 (
                     lang,
-                    display_original_lang_name(lang),
+                    display_lang_name_fallback(locale=language, code=lang),
                     url_for(
                         "main.article_detail_v3",
                         url_seg=article.journal.url_segment,
