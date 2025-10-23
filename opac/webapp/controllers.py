@@ -1748,6 +1748,12 @@ def get_page_by_slug_name(slug_name, lang=None, is_draft=False):
     return Pages.objects(language=lang, slug_name=slug_name, is_draft=is_draft).first()
 
 
+def get_page_about_root(lang, is_draft=False):
+    return Pages.objects(language=lang, journal="", is_draft=is_draft, parent_page=None, page_type__ne="free")
+
+def get_free_page_by_slug(slug, lang):
+    return Pages.objects(slug_name=slug, is_draft=False, page_type="free", language=lang)
+
 def related_links(article):
     expr = []
     if article.title or article.section:
