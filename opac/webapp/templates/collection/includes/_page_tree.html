@@ -1,0 +1,14 @@
+<ul class="{{ ul_class }}">
+  {% for node in nodes %}
+    <li>
+      <a href="/about/{{ node.slug_name }}">
+        {% trans %}{{ node }}{% endtrans %}
+      </a>
+      {% if node.child_pages %}
+        {% set nodes = node.child_pages %}
+        {% set ul_class = "networkList--children" %}
+        {% include "collection/includes/_page_tree.html" %}
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

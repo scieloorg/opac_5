@@ -65,14 +65,14 @@
             <div class="col-12 col-lg-6">
               
                 {% if journal.last_issue.cover_url %}
-                <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                <a href="#">
                   <img src="{{ latest_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
                 </a>
                 {% endif %}
                 <span class="text">
                   <strong><small>{% trans %}Número mais recente{% endtrans %}</small></strong>
                   <p>
-                    <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                    <a href="#">
                     <strong>{{ latest_issue_legend|default('--', True) }}</strong>
                     </a>
                   </p>
@@ -83,7 +83,7 @@
                 <h3>{% trans %}Sumário{% endtrans %}</h3>
                 <ul>
                   {% for section in sections %}
-                    <li><a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}#{{ section|upper }}">{{ section }}</a></li>
+                    <li><a href="##{{ section|upper }}">{{ section }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
@@ -248,7 +248,7 @@
             <div class="col-12 col-sm-6">
               
                 {% if journal.last_issue.cover_url %}
-                <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                <a href="#">
                   <img src="{{ latest_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
                 </a>
                 {% endif %}
@@ -258,7 +258,7 @@
                   <h2 class="scielo__text-title--4">{{ latest_issue_legend|default('--', True) }}</h2>
                   -->
                   <p>
-                    <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
+                    <a href="#">
                     <strong>{{ latest_issue_legend|default('--', True) }}</strong>
                     </a>
                   </p>
@@ -270,7 +270,7 @@
                 <h3>{% trans %}Sumário{% endtrans %}</h3>
                 <ul>
                   {% for section in sections %}
-                    <li><a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}#{{ section|upper }}">{{ section }}</a></li>
+                    <li><a href="##{{ section|upper }}">{{ section }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
