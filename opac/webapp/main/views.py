@@ -2005,7 +2005,7 @@ def journal(*args):
     payload = request.get_json()
 
     try:
-        journal = controllers.add_joudrnal(payload)
+        journal = controllers.add_journal(payload)
     except Exception as ex:
         return jsonify({"failed": True, "error": str(ex)}), 500
     else:
