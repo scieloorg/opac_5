@@ -807,33 +807,47 @@ def get_issue_nav_bar_data(journal=None, issue=None):
 
 
 def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
+    try:
+        if last_issue is None or issue_count is None:
+            queryset = get_journal_issues_which_content_is_public(journal)
+            if not issue_count:
+                issue_count = queryset.count()
 
-    if not last_issue or not issue_count:
-        article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
-            "issue"
-        )
-        params = {}
-        if article_issue_ids:
-            params["iid__in"] = [item.iid for item in article_issue_ids]
-        queryset = Issue.objects(
-            journal=journal,
-            is_public=True,
-            **params,
-        )
-    if not issue_count:
-        issue_count = queryset.count()
-    if not last_issue:
-        last_issue = (
-            queryset.filter(type__in=["regular", "volume_issue"])
-            .order_by("-year", "-order")
-            .first()
-        )
+        if issue_count == 0 or journal.issue_count == issue_count:
+            return journal
 
-    save = False
-    if journal.issue_count != issue_count:
+        if not last_issue:
+            last_issue = (
+                queryset.filter(type__in=["regular", "volume_issue"])
+                .order_by("-year", "-order")
+                .first()
+            )
+
         journal.issue_count = issue_count
-        save = True
+        create_last_issue_for_journal(journal, last_issue)
+        journal.save()
+    except Exception as e:
+        logging.exception(f"Error setting last issue and issue count {journal} {last_issue} {issue_count}: {e}")
+    return journal
 
+
+def get_journal_issues_which_content_is_public(journal):
+    article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
+        "issue"
+    )
+    params = {}
+    if article_issue_ids:
+        params["iid__in"] = [item.iid for item in article_issue_ids]
+    return Issue.objects(
+        journal=journal,
+        is_public=True,
+        **params,
+    )
+
+
+def create_last_issue_for_journal(journal, last_issue):
+    if not last_issue:
+        return None
     if not journal.last_issue or journal.last_issue.url_segment != last_issue.url_segment:
         journal.last_issue = LastIssue(
             volume=last_issue.volume,
@@ -847,20 +861,14 @@ def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
             iid=last_issue.iid,
             url_segment=last_issue.url_segment,
         )
-        save = True
-    if save:
-        journal.save()
-    return journal
 
 
 def journal_last_issues():
     for j in Journal.objects.filter(last_issue=None):
-        set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
     for j in Journal.objects.filter(last_issue__type__nin=["regular", "volume_issue"]):
-        set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
