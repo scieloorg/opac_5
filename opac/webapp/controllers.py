@@ -809,6 +809,7 @@ def get_issue_nav_bar_data(journal=None, issue=None):
 def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
     try:
         if last_issue is None or issue_count is None:
+            issue_count = 0
             queryset = get_journal_issues_which_content_is_public(journal)
             if not issue_count:
                 issue_count = queryset.count()
@@ -865,10 +866,14 @@ def create_last_issue_for_journal(journal, last_issue):
 
 def journal_last_issues():
     for j in Journal.objects.filter(last_issue=None):
+        if not j.last_issue or not j.last_issue.url_segment:
+            set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
     for j in Journal.objects.filter(last_issue__type__nin=["regular", "volume_issue"]):
+        if not j.last_issue or not j.last_issue.url_segment:
+            set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
