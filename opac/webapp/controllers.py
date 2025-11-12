@@ -808,24 +808,26 @@ def get_issue_nav_bar_data(journal=None, issue=None):
 
 def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
     try:
-        if last_issue is None or issue_count is None:
-            issue_count = 0
-            queryset = get_journal_issues_which_content_is_public(journal)
-            if not issue_count:
-                issue_count = queryset.count()
-
-        if issue_count == 0 or journal.issue_count == issue_count:
+        if journal.last_issue and journal.last_issue.url_segment and journal.issue_count is not None:
             return journal
 
-        if not last_issue:
-            last_issue = (
-                queryset.filter(type__in=["regular", "volume_issue"])
-                .order_by("-year", "-order")
-                .first()
-            )
+        queryset = get_journal_issues_which_content_is_public(journal)
+        issue_count = queryset.count()
 
-        journal.issue_count = issue_count
-        create_last_issue_for_journal(journal, last_issue)
+        if not issue_count:
+            return journal
+
+        if journal.issue_count != issue_count:
+            journal.issue_count = issue_count
+        
+        if not journal.last_issue or not journal.last_issue.url_segment:
+            if not last_issue:
+                last_issue = (
+                    queryset.filter(type__in=["regular", "volume_issue"], url_segment__ne=None)
+                    .order_by("-year", "-order")
+                    .first()
+                )
+            create_last_issue_for_journal(journal, last_issue)
         journal.save()
     except Exception as e:
         logging.exception(f"Error setting last issue and issue count {journal} {last_issue} {issue_count}: {e}")
@@ -848,6 +850,8 @@ def get_journal_issues_which_content_is_public(journal):
 
 def create_last_issue_for_journal(journal, last_issue):
     if not last_issue:
+        return None
+    if not last_issue.url_segment:
         return None
     if not journal.last_issue or journal.last_issue.url_segment != last_issue.url_segment:
         journal.last_issue = LastIssue(
