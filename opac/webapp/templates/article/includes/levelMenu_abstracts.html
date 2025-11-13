@@ -12,7 +12,7 @@
         {% elif abstract['language'] == 'pt' %}
         (PT)
         {% else %}
-          {{ abstract['language'] }}
+          ({{ abstract['language']|upper }})
         {% endif %}
       {% endif %}
     {% endfor %}
