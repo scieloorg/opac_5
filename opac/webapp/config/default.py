@@ -693,3 +693,12 @@ SITE_LICENSE_IMG_MINI_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_MINI_URL") or 
 ANALYTICS_AGENT_DARKVISITORS_ENABLED = os.environ.get('OPAC_ANALYTICS_AGENT_DARKVISITORS_ENABLED', 'False').lower() in ('true', '1', 't', 'yes', 'y')
 ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY = os.environ.get("OPAC_ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY")
 
+# JWT PARA ENDPOINT CORE TO COLLECTION
+JWT_PUBLIC_KEY_PATH = os.environ.get("JWT_PUBLIC_KEY_PATH", default="/app/jwt_public.pem")
+with open(JWT_PUBLIC_KEY_PATH, "rb") as f:
+    JWT_PUBLIC_KEY_PEM = f.read()
+
+JWT_ALG = "RS256"
+JWT_ISS = os.environ.get("JWT_ISS", default="Scielo Core")
+JWT_AUD = os.environ.get("JWT_AUD", default="opac_5")
+

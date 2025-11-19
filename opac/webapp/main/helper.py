@@ -1,3 +1,4 @@
+import logging
 import datetime
 from functools import wraps
 
@@ -67,4 +68,36 @@ def auth():
             }
         ),
         401,
+    )
+
+
+def get_bearer_token():
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        return auth[len("Bearer "):]
+    return None
+
+def get_jwt_public_key():
+    public_key = current_app.config["JWT_PUBLIC_KEY_PATH"]
+    try:
+        with open(public_key, "rb") as f:
+            return f.read()
+    except (FileNotFoundError, PermissionError, OSError) as e:
+        logging.error(f"Error reading public key: {e}")
+
+
+def verify_jwt(token):
+    public_key = get_jwt_public_key()
+    
+    if not public_key:
+        return None
+    
+    return jwt.decode(
+        token,
+        public_key,
+        algorithms=[current_app.config["JWT_ALG"]],
+        audience=current_app.config["JWT_AUD"],
+        issuer=current_app.config["JWT_ISS"],
+        # options={"require": ["exp", "iat", "nbf", "iss", "aud"]},
+        leeway=30,
     )
