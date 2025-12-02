@@ -194,9 +194,181 @@ LANG_NAMES = {
 }
 
 
+LANGS_FALLBACK = {
+    "pt_BR": {
+        "de": "Alemão",
+        "fr": "Francês",
+        "ru": "Russo",
+        "zh": "Chinês",
+        "zh-Hans": "Chinês",
+        "zh-Hant": "Chinês",
+        "it": "Italiano",
+        "en": "Inglês",
+        "pt": "Português",
+        "es": "Espanhol",
+        "af": "Afrikaans",  # às vezes "Africâner"
+        "nso": "Lamnso",
+        "ar": "Árabe",
+        "eu": "Basco/Eusquera",
+        "bg": "Búlgaro",
+        "ca": "Catalão",
+        "cs": "Tcheco",
+        "da": "Dinamarquês",
+        "nl": "Neerlandês/Holandês",
+        "eo": "Esperanto",
+        "gl": "Galego",
+        "gr": "Grego",  # considere usar "el"
+        "he": "Hebraico",
+        "hi": "Hindi",
+        "hu": "Húngaro",
+        "in": "Indonésio",  # considere usar "id"
+        "ia": "Interlíngua",
+        "ie": "Interlíngue",
+        "ja": "Japonês",
+        "ko": "Coreano",
+        "la": "Latim",
+        "no": "Norueguês",
+        "pl": "Polonês",
+        "ro": "Romeno",
+        "sa": "Sânscrito",
+        "sh": "Servo-croata",
+        "sk": "Eslovaco",
+        "sn": "Esloveno",
+        "sv": "Sueco",
+        "tr": "Turco",
+        "uk": "Ucraniano",
+        "ur": "Urdu",
+        "zz": "Outro",
+        # opcionais ISO modernos (espelho de chaves alternativas)
+        "el": "Grego",      # alternativo a "gr"
+        "id": "Indonésio",  # alternativo a "in"
+        "nb": "Norueguês (Bokmål)",
+        "nn": "Norueguês (Nynorsk)",
+        "sr": "Sérvio",
+        "hr": "Croata",
+        "bs": "Bósnio",
+    },
+    "en": {
+        "de": "German",
+        "fr": "French",
+        "ru": "Russian",
+        "zh": "Chinese",
+        "zh-Hans": "Chinese",
+        "zh-Hant": "Chinese",
+        "it": "Italian",
+        "en": "English",
+        "pt": "Portuguese",
+        "es": "Spanish",
+        "af": "Afrikaans",
+        "nso": "Lamnso",
+        "ar": "Arabic",
+        "eu": "Basque",
+        "bg": "Bulgarian",
+        "ca": "Catalan",
+        "cs": "Czech",
+        "da": "Danish",
+        "nl": "Dutch",
+        "eo": "Esperanto",
+        "gl": "Galician",
+        "gr": "Greek",  # consider "el"
+        "he": "Hebrew",
+        "hi": "Hindi",
+        "hu": "Hungarian",
+        "in": "Indonesian",  # consider "id"
+        "ia": "Interlingua",
+        "ie": "Interlingue",
+        "ja": "Japanese",
+        "ko": "Korean",
+        "la": "Latin",
+        "no": "Norwegian",
+        "pl": "Polish",
+        "ro": "Romanian",
+        "sa": "Sanskrit",
+        "sh": "Serbo-Croat",
+        "sk": "Slovak",
+        "sn": "Slovenian",
+        "sv": "Swedish",
+        "tr": "Turkish",
+        "uk": "Ukrainian",
+        "ur": "Urdu",
+        "zz": "Other",
+        "el": "Greek",      # mirror for "gr"
+        "id": "Indonesian", # mirror for "in"
+        "nb": "Norwegian (Bokmål)",
+        "nn": "Norwegian (Nynorsk)",
+        "sr": "Serbian",
+        "hr": "Croatian",
+        "bs": "Bosnian",
+    },
+    "es": {
+        "de": "Alemán",
+        "fr": "Francés",
+        "ru": "Ruso",
+        "zh": "Chino",
+        "zh-Hans": "Chino",
+        "zh-Hant": "Chino",
+        "it": "Italiano",
+        "en": "Inglés",
+        "pt": "Portugués",
+        "es": "Español",
+        "af": "Afrikaans",
+        "nso": "Lamnso",
+        "ar": "Árabe",
+        "eu": "Vasco/Euskera",
+        "bg": "Búlgaro",
+        "ca": "Catalán",
+        "cs": "Checo",
+        "da": "Danés",
+        "nl": "Neerlandés/Holandés",
+        "eo": "Esperanto",
+        "gl": "Gallego",
+        "gr": "Griego",  # considere usar "el"
+        "he": "Hebreo",
+        "hi": "Hindi",
+        "hu": "Húngaro",
+        "in": "Indonesio",  # considere "id"
+        "ia": "Interlingua",
+        "ie": "Interlingue",
+        "ja": "Japonés",
+        "ko": "Coreano",
+        "la": "Latín",
+        "no": "Noruego",
+        "pl": "Polaco",
+        "ro": "Rumano",
+        "sa": "Sánscrito",
+        "sh": "Serbocroata",
+        "sk": "Eslovaco",
+        "sn": "Esloveno",
+        "sv": "Sueco",
+        "tr": "Turco",
+        "uk": "Ucraniano",
+        "ur": "Urdu",
+        "zz": "Otro",
+        # espejos ISO modernos
+        "el": "Griego",      # espejo de "gr"
+        "id": "Indonesio",   # espejo de "in"
+        "nb": "Noruego (Bokmål)",
+        "nn": "Noruego (Nynorsk)",
+        "sr": "Serbio",
+        "hr": "Croata",
+        "bs": "Bosnio",
+    },
+}
+
+
 def get_original_lang_name(code):
     return LANG_NAMES.get(code, (None, code))[0]
 
+
+def display_lang_name_fallback(locale, code):
+    lang = None
+    try:
+        lang = LANGS_FALLBACK.get(locale, {}).get(str(code).lower())
+    except:
+        return code
+    finally:
+        return lang or code
+    
 
 def display_original_lang_name(code):
     name = get_original_lang_name(code)

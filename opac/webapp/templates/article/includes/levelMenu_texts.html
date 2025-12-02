@@ -13,7 +13,7 @@
             {% elif lang == 'pt' %}
               (PT)
             {% else %} 
-              ({{ text_lang }})
+              ({{ text_lang|upper }})
             {% endif %}
           {% endif %}
         {% endfor %}

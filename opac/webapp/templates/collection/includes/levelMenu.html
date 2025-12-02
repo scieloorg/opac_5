@@ -12,6 +12,11 @@
           <ol class="breadcrumb mb-0 ps-0">
               <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
               <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</a></li>
+                {% if breadcrumbs %}
+                  {% for breadcrumb in breadcrumbs %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('.page_about_detail', slug_name=breadcrumb.slug_name) }}">{{ breadcrumb.name }}</a></li>
+                  {% endfor %}
+                {% endif %}
               <li class="breadcrumb-item">{{ page }}</li>
           </ol>
   
@@ -65,6 +70,11 @@
           <ol class="breadcrumb mb-0 ps-0">
               <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
               <li class="breadcrumb-item"><a href="{{ url_for('.about_collection') }}">{% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</a></li>
+              {% if breadcrumbs %}
+                {% for breadcrumb in breadcrumbs %}
+                  <li class="breadcrumb-item"><a href="{{ url_for('.page_about_detail', slug_name=breadcrumb.slug_name) }}">{{ breadcrumb.name }}</a></li>
+                {% endfor %}
+              {% endif %}
               <li class="breadcrumb-item">{{ page }}</li>
           </ol>
   

@@ -46,11 +46,11 @@
 
           {# Atual #}
           {% if not next_item and last_issue %}
-            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn {{ mmenu.endpoint_selected(view_name='main.issue_grid') }} {% if not 'grid' in request.url_rule.rule %} active {% else %} unselected {% endif %}{% if mmenu.endpoint_selected(view_name='main.journal_detail') %} unselected {% endif %}">
+            
               {% trans %}Número atual{% endtrans %}
             </a>
           {% else %}
-            <a title="{% trans %}número atual{% endtrans %}" href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn">
+            <a title="{% trans %}número atual{% endtrans %}" href="#" class="btn">
               {% trans %}Número atual{% endtrans %}
             </a>
           {% endif %}
@@ -140,7 +140,7 @@
 
           {# Atual #}
           {% if last_issue %}
-            <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}" class="btn btn-secondary">
+            <a href="#" class="btn btn-secondary">
               {% trans %}Atual{% endtrans %}
             </a>
           {% endif %}

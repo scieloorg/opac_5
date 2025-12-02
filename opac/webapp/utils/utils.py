@@ -790,3 +790,15 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
 
     return extract_section(content, class_name)
 
+
+def get_children_in_order(page):
+    return sorted(page.child_pages or [], key=lambda p: (p.order, p.name.lower()))
+
+
+def build_breadcrumbs(page):
+    crumbs = []
+    current = page
+    while current.parent_page:
+        crumbs.insert(0, current.parent_page)
+        current = current.parent_page
+    return crumbs
