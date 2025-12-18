@@ -138,7 +138,7 @@ def create_app():
         sentry.init_app(app, dsn=dsn, logging=True, level=logging.ERROR)
 
     # login
-    login_manager.session_protection = "strong"
+    login_manager.session_protection = None
     login_manager.login_view = "admin.login_view"
     login_manager.init_app(app)
 
