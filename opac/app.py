@@ -44,6 +44,20 @@ app = Flask(__name__)
 app = create_app()
 
 
+@app.route('/')
+def root():
+    """
+    Redireciona raiz para idioma do navegador ou padrão.
+    """
+    from flask import request, redirect, url_for, current_app
+
+    langs = current_app.config.get("LANGUAGES", {})
+    browser_lang = request.accept_languages.best_match(list(langs.keys()))
+    lang = browser_lang if browser_lang else 'pt'
+
+    return redirect(url_for('main.index', ilang=lang))
+
+
 @app.shell_context_processor
 def make_shell_context():
     app_models = {
