@@ -55,6 +55,23 @@ IAHX_LANGS = dict(
 )
 
 
+SUPPORTED_LANGS = ['pt', 'en', 'es']
+DEFAULT_LANG = 'pt'
+
+@main.url_value_preprocessor
+def pull_lang(endpoint, values):
+    if values is None:
+        return
+    lang = values.pop('ilang', None)
+    request.lang_code = lang if lang in SUPPORTED_LANGS else DEFAULT_LANG
+
+
+@main.url_defaults
+def add_lang(endpoint, values):
+    if 'ilang' not in values and hasattr(request, 'lang_code'):
+        values['ilang'] = request.lang_code
+
+
 def url_external(endpoint, **kwargs):
     url = url_for(endpoint, **kwargs)
     return urljoin(request.url_root, url)
@@ -69,11 +86,8 @@ def add_collection_to_g():
         except Exception:
             # discutir o que fazer aqui
             setattr(g, "collection", {})
-
-
-@main.before_app_request
-def add_langs():
-    session["langs"] = current_app.config.get("LANGUAGES")
+    setattr(g, "locale", get_locale())
+    setattr(g, "langs", current_app.config.get("LANGUAGES", {}))
 
 
 @main.after_request
@@ -82,13 +96,6 @@ def add_header(response):
         "CACHE_CONTROL_MAX_AGE_HEADER"
     )
     response.headers["x-content-type-options"] = "nosniff"
-    return response
-
-
-@main.after_request
-def add_language_code(response):
-    language = session.get("lang", get_locale())
-    response.set_cookie("language", language)
     return response
 
 
@@ -101,7 +108,7 @@ def add_forms_to_g():
 
 @main.before_app_request
 def add_scielo_org_config_to_g():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     scielo_org_links = {
         # if language doesnt exists set the 'en' to SciELO ORG links.
         key: url.get(language, "en")
@@ -112,55 +119,45 @@ def add_scielo_org_config_to_g():
 
 @babel.localeselector
 def get_locale():
-    langs = current_app.config.get("LANGUAGES")
-    lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
-
-    if "lang" not in list(session.keys()):
-        session["lang"] = lang_from_headers
-
-    if not lang_from_headers and not session["lang"]:
-        # Caso não seja possível detectar o idioma e não tenhamos a chave lang
-        # no seção, fixamos o idioma padrão.
-        session["lang"] = current_app.config.get("BABEL_DEFAULT_LOCALE")
-
-    return session["lang"]
+    """
+    Define o idioma ativo de acordo com a URL.
+    """
+    return getattr(request, 'lang_code', DEFAULT_LANG)
 
 
-@main.route("/set_locale/<string:lang_code>/")
-def set_locale(lang_code):
+@main.route("/set_locale/<string:new_lang_code>/")
+def set_locale(new_lang_code):
+    """
+    Redireciona para a mesma página com o novo idioma na URL.
+    """
     langs = current_app.config.get("LANGUAGES")
 
-    if lang_code not in list(langs.keys()):
+    if new_lang_code not in list(langs.keys()):
         abort(400, _("Código de idioma inválido"))
 
-    referrer = request.referrer
-    hash = request.args.get("hash")
-    if hash:
-        referrer += "#" + hash
+    referrer = request.referrer or url_for('main.index', ilang=new_lang_code)
+    hash_fragment = request.args.get("hash")
 
-    # salvar o lang code na sessão
-    session["lang"] = lang_code
-    if referrer:
-        return redirect(referrer)
+    # Substitui idioma na URL
+    parsed = urlparse(referrer)
+    path_parts = parsed.path.split('/')
+
+    if len(path_parts) > 1 and path_parts[1] in langs.keys():
+        path_parts[1] = new_lang_code
     else:
-        return redirect("/")
+        path_parts.insert(1, new_lang_code)
 
+    new_path = '/'.join(path_parts)
+    if hash_fragment:
+        new_path += f"#{hash_fragment}"
 
-def get_lang_from_session():
-    """
-    Tenta retornar o idioma da seção, caso não consiga retorna
-    BABEL_DEFAULT_LOCALE.
-    """
-    try:
-        return session["lang"]
-    except KeyError:
-        return current_app.config.get("BABEL_DEFAULT_LOCALE")
+    return redirect(new_path)
 
 
 @main.route("/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def index():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     news = controllers.get_latest_news_by_lang(language)
 
     tweets = controllers.get_collection_tweets()
@@ -244,7 +241,7 @@ def collection_list_thematic():
     if not thematic_filter in allowed_thematic_filters:
         thematic_filter = "areas"
 
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
     objects = controllers.get_journals_grouped_by(
         thematic_table[thematic_filter],
         title_query,
@@ -261,7 +258,7 @@ def collection_list_thematic():
 @main.route("/journals/feed/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def collection_list_feed():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     collection = controllers.get_current_collection()
 
     title = "SciELO - %s - %s" % (
@@ -327,7 +324,7 @@ def collection_list_feed():
 @main.route("/about/<string:slug_name>", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def about_collection(slug_name=None):
-    language = session.get("lang", get_locale())
+    language = get_locale()
 
     context = {}
     page = None
@@ -486,7 +483,7 @@ def journal_detail(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     # todo: ajustar para que seja só noticias relacionadas ao periódico
-    language = session.get("lang", get_locale())
+    language = get_locale()
     news = controllers.get_latest_news_by_lang(language)
 
     # Press releases
@@ -576,7 +573,7 @@ def journal_feed(url_seg):
         subtitle=utils.get_label_issue(last_issue),
     )
 
-    feed_language = session.get("lang", get_locale())
+    feed_language = get_locale()
     feed_language = feed_language[:2].lower()
 
     for article in articles:
@@ -607,7 +604,7 @@ def journal_feed(url_seg):
 @main.route("/journal/<string:url_seg>/about/", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
-    language = session.get("lang", get_locale())
+    language = get_locale()
     journal = controllers.get_journal_by_url_seg(url_seg)
     content = None
 
@@ -673,7 +670,7 @@ def journals_search_alpha_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     page = request.args.get("page", 1, type=int)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
 
     response_data = controllers.get_alpha_list_from_paginated_journals(
         title_query=query, query_filter=query_filter, page=page, lang=lang
@@ -691,7 +688,7 @@ def journals_search_by_theme_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     filter = request.args.get("filter", "areas", type=str)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
 
     if filter == "areas":
         objects = controllers.get_journals_grouped_by(
@@ -824,7 +821,7 @@ def issue_grid(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     # idioma da sessão
-    language = session.get("lang", get_locale())
+    language = get_locale()
 
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
@@ -871,7 +868,7 @@ def issue_toc(url_seg, url_seg_issue):
     filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
 
     # idioma da sessão
-    language = session.get("lang", get_locale())
+    language = get_locale()
 
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -1035,7 +1032,7 @@ def issue_feed(url_seg, url_seg_issue):
         subtitle=utils.get_label_issue(issue),
     )
 
-    feed_language = session.get("lang", get_locale())
+    feed_language = get_locale()
 
     for article in articles:
         # ######### TODO: Revisar #########
