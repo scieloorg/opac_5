@@ -4,7 +4,7 @@
 <meta property="og:type" content="article"/>
 <meta property="og:title" content="{{ article.title }}"/>
 <meta property="og:description" content="{{ article.abstract|escape|truncate(100) }}"/>
-<meta property="og:image" content="{{request.url_root}}{{ journal.logo_url|replace("/", "" , 1)}}"/>
+<meta property="og:image" content="{{ journal.logo_url|get_absolute_url(request.url_root) }}"/>
 <!-- social share tags -->
 
 {% if article.authors_meta -%}

@@ -150,6 +150,7 @@ def create_app():
     # Registrando os filtros
     app.jinja_env.filters["trans_alpha2"] = custom_filters.trans_alpha2
     app.jinja_env.filters["datetimefilter"] = custom_filters.datetimefilter
+    app.jinja_env.filters["get_absolute_url"] = custom_filters.get_absolute_url
 
     # i18n
     babel.init_app(app)
