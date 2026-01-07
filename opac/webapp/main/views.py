@@ -70,6 +70,31 @@ def add_collection_to_g():
             # discutir o que fazer aqui
             setattr(g, "collection", {})
 
+@main.before_app_request
+def setup_language():
+    """
+    Define idioma APENAS pelo Accept-Language header.
+    Sem cookies = Cache funciona no CDN/Varnish.
+
+    Esta abordagem:
+    - Usa header Accept-Language do navegador
+    - Não cria cookies de idioma
+    - Permite cache com Vary: Accept-Language
+    - Armazena idioma em g.interface_language para uso global
+    """
+    langs = current_app.config.get('LANGUAGES', {})
+    default_lang = current_app.config.get('BABEL_DEFAULT_LOCALE', 'pt_BR')
+
+    # Detecta idioma do header Accept-Language
+    lang = request.accept_languages.best_match(list(langs.keys()))
+
+    if not lang or lang not in langs.keys():
+        lang = default_lang
+
+    # Disponibiliza para toda aplicação via g (não request!)
+    g.interface_language = lang
+
+
 
 @main.before_app_request
 def add_langs():
@@ -84,12 +109,56 @@ def add_header(response):
     response.headers["x-content-type-options"] = "nosniff"
     return response
 
+@main.after_app_request
+def clean_response_headers(response):
+    """
+    Remove cookies de idioma legados e configura headers de cache.
 
-@main.after_request
-def add_language_code(response):
-    language = session.get("lang", get_locale())
-    response.set_cookie("language", language)
+    Esta função:
+    - Remove cookies de idioma antigos (cleanup de implementação antiga)
+    - Mantém outros cookies (sessão, CSRF)
+    - Configura Vary: Accept-Language (não Cookie!)
+    - Define Cache-Control apenas para rotas públicas
+    """
+    import re
+
+    # Remove cookies de idioma se existirem
+    if 'Set-Cookie' in response.headers:
+        set_cookie_headers = response.headers.getlist('Set-Cookie')
+        response.headers.pop('Set-Cookie', None)
+
+        for cookie in set_cookie_headers:
+            # Remove apenas cookies de idioma, mantém outros
+            # Usa regex com word boundary para evitar falsos positivos
+            if not re.search(r'(language|lang|interface_lang)=', cookie):
+                response.headers.add('Set-Cookie', cookie)
+
+    # Configura Vary para Accept-Language (NÃO Cookie!)
+    response.headers['Vary'] = 'Accept-Language'
+
+    # Cache público apenas para rotas públicas
+    if request.endpoint:
+        # Padrões de endpoints privados (não cachear)
+        private_patterns = [
+            r'^admin\.',
+            r'^auth\.',
+            r'^user\.',
+            r'\.login$',
+            r'\.profile$',
+        ]
+
+        endpoint = request.endpoint or ''
+        is_private = any(re.search(pattern, endpoint) for pattern in private_patterns)
+        is_static = 'static' in endpoint
+
+        if not is_private and not is_static:
+            # Não sobrescrever Cache-Control se já definido por add_header
+            if 'Cache-Control' not in response.headers:
+                response.headers['Cache-Control'] = 'public, max-age=3600'
+
     return response
+
+
 
 
 @main.before_app_request
@@ -101,7 +170,7 @@ def add_forms_to_g():
 
 @main.before_app_request
 def add_scielo_org_config_to_g():
-    language = session.get("lang", get_locale())
+    language = g.interface_language
     scielo_org_links = {
         # if language doesnt exists set the 'en' to SciELO ORG links.
         key: url.get(language, "en")
@@ -112,55 +181,83 @@ def add_scielo_org_config_to_g():
 
 @babel.localeselector
 def get_locale():
-    langs = current_app.config.get("LANGUAGES")
-    lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
+    """
+    Define o idioma ativo baseado em Accept-Language header.
 
-    if "lang" not in list(session.keys()):
-        session["lang"] = lang_from_headers
-
-    if not lang_from_headers and not session["lang"]:
-        # Caso não seja possível detectar o idioma e não tenhamos a chave lang
-        # no seção, fixamos o idioma padrão.
-        session["lang"] = current_app.config.get("BABEL_DEFAULT_LOCALE")
-
-    return session["lang"]
+    Esta função é chamada pelo Flask-Babel para determinar o idioma
+    de tradução. Usa g.interface_language que foi definido por
+    setup_language() no before_app_request.
+    """
+    return getattr(g, 'interface_language', current_app.config.get('BABEL_DEFAULT_LOCALE', 'pt_BR'))
 
 
 @main.route("/set_locale/<string:lang_code>/")
 def set_locale(lang_code):
+    """
+    Endpoint para troca de idioma via seletor no frontend.
+
+    Nota: Com Accept-Language, o idioma é definido pelo header HTTP.
+    Esta rota serve para redirecionar o usuário com um parâmetro
+    que o frontend JavaScript pode capturar e usar para atualizar
+    a preferência do usuário (ex: localStorage).
+
+    O frontend deve então forçar um reload com o novo Accept-Language.
+    """
+    from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
     langs = current_app.config.get("LANGUAGES")
 
     if lang_code not in list(langs.keys()):
         abort(400, _("Código de idioma inválido"))
 
     referrer = request.referrer
-    hash = request.args.get("hash")
-    if hash:
-        referrer += "#" + hash
+    hash_fragment = request.args.get("hash")
 
-    # salvar o lang code na sessão
-    session["lang"] = lang_code
     if referrer:
-        return redirect(referrer)
+        # Parse da URL do referrer
+        parsed = urlparse(referrer)
+
+        # Preserva query params existentes
+        query_params = parse_qs(parsed.query)
+
+        # Adiciona parâmetro de mudança de idioma
+        query_params['_lang_change'] = [lang_code]
+
+        # Reconstrói query string
+        new_query = urlencode(query_params, doseq=True)
+
+        # Reconstrói URL completa
+        new_url = urlunparse((
+            parsed.scheme,
+            parsed.netloc,
+            parsed.path,
+            parsed.params,
+            new_query,
+            hash_fragment or parsed.fragment
+        ))
+
+        response = make_response(redirect(new_url))
+        response.headers['X-Language-Change'] = lang_code
+
+        return response
     else:
-        return redirect("/")
+        return redirect(url_for('main.index'))
 
 
-def get_lang_from_session():
+def get_current_language():
     """
-    Tenta retornar o idioma da seção, caso não consiga retorna
-    BABEL_DEFAULT_LOCALE.
+    Retorna o idioma atual da requisição.
+
+    Esta função substitui get_lang_from_session() na migração
+    de session-based para Accept-Language.
     """
-    try:
-        return session["lang"]
-    except KeyError:
-        return current_app.config.get("BABEL_DEFAULT_LOCALE")
+    return getattr(g, 'interface_language', current_app.config.get('BABEL_DEFAULT_LOCALE', 'pt_BR'))
 
 
 @main.route("/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def index():
-    language = session.get("lang", get_locale())
+    language = g.interface_language
     news = controllers.get_latest_news_by_lang(language)
 
     tweets = controllers.get_collection_tweets()
@@ -244,7 +341,7 @@ def collection_list_thematic():
     if not thematic_filter in allowed_thematic_filters:
         thematic_filter = "areas"
 
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_current_language()[:2].lower()
     objects = controllers.get_journals_grouped_by(
         thematic_table[thematic_filter],
         title_query,
@@ -261,7 +358,7 @@ def collection_list_thematic():
 @main.route("/journals/feed/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def collection_list_feed():
-    language = session.get("lang", get_locale())
+    language = g.interface_language
     collection = controllers.get_current_collection()
 
     title = "SciELO - %s - %s" % (
@@ -327,7 +424,7 @@ def collection_list_feed():
 @main.route("/about/<string:slug_name>", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def about_collection(slug_name=None):
-    language = session.get("lang", get_locale())
+    language = g.interface_language
 
     context = {}
     page = None
@@ -486,7 +583,7 @@ def journal_detail(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     # todo: ajustar para que seja só noticias relacionadas ao periódico
-    language = session.get("lang", get_locale())
+    language = g.interface_language
     news = controllers.get_latest_news_by_lang(language)
 
     # Press releases
@@ -576,7 +673,7 @@ def journal_feed(url_seg):
         subtitle=utils.get_label_issue(last_issue),
     )
 
-    feed_language = session.get("lang", get_locale())
+    feed_language = g.interface_language
     feed_language = feed_language[:2].lower()
 
     for article in articles:
@@ -607,7 +704,7 @@ def journal_feed(url_seg):
 @main.route("/journal/<string:url_seg>/about/", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
-    language = session.get("lang", get_locale())
+    language = g.interface_language
     journal = controllers.get_journal_by_url_seg(url_seg)
     content = None
 
@@ -673,7 +770,7 @@ def journals_search_alpha_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     page = request.args.get("page", 1, type=int)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_current_language()[:2].lower()
 
     response_data = controllers.get_alpha_list_from_paginated_journals(
         title_query=query, query_filter=query_filter, page=page, lang=lang
@@ -691,7 +788,7 @@ def journals_search_by_theme_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     filter = request.args.get("filter", "areas", type=str)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_current_language()[:2].lower()
 
     if filter == "areas":
         objects = controllers.get_journals_grouped_by(
@@ -824,7 +921,7 @@ def issue_grid(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     # idioma da sessão
-    language = session.get("lang", get_locale())
+    language = g.interface_language
 
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
@@ -871,7 +968,7 @@ def issue_toc(url_seg, url_seg_issue):
     filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
 
     # idioma da sessão
-    language = session.get("lang", get_locale())
+    language = g.interface_language
 
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -1035,7 +1132,7 @@ def issue_feed(url_seg, url_seg_issue):
         subtitle=utils.get_label_issue(issue),
     )
 
-    feed_language = session.get("lang", get_locale())
+    feed_language = g.interface_language
 
     for article in articles:
         # ######### TODO: Revisar #########
