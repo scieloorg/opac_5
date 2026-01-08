@@ -6,23 +6,6 @@
 
 <section class="collection collectionAbout">
     <div class="container">
-       
-        {% if pages %}
-
-            <div class="row">
-                <div class="col">
-
-                    <h1 class="h4 pt-1 mb-4"> {% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</h1>
-                    
-                    <div class="about">
-                        {% set nodes = pages %}
-                        {% set ul_class = "networkList" %}
-                        {% include "collection/includes/_page_tree.html" %}
-                    </div>
-                </div>
-            </div>
-
-        {% endif %}
 
         {% if page %}
             <div class="row">
@@ -44,6 +27,27 @@
                 </div>
             </div>
             {% endwith %}
+            {% if children or page.parent_page %}
+                <section class="child-pages">
+                <h2>{% trans %} Páginas relacionadas {% endtrans %}</h2>
+                <ul>
+                    {% if page.parent_page %}
+                        <li>
+                            <a href="{{ url_for('.page_about_detail', slug_name=page.parent_page.slug_name) }}">
+                            {{ page.parent_page.name }}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% for child in children %}
+                    <li>
+                        <a href="{{ url_for('.page_about_detail', slug_name=child.slug_name) }}">
+                        {{ child.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                </section>
+            {% endif %}
         {% endif %}
     
         {% if page %}

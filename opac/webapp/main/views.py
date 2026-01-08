@@ -33,7 +33,7 @@ from packtools import HTMLGenerator
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
-from webapp.config.lang_names import display_original_lang_name
+from webapp.config.lang_names import display_original_lang_name, display_lang_name_fallback
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 from webapp.main.errors import page_not_found, internal_server_error
@@ -323,27 +323,45 @@ def collection_list_feed():
     return feed.get_response()
 
 
+
+@main.route("/about/<path:slug_name>", methods=["GET"])
+def page_about_detail(slug_name):
+    language = session.get("lang", get_locale())
+    page = controllers.get_page_by_slug_about(slug_name, lang=language, is_draft=False)
+    
+    if not page:
+        abort(404, _("Página não encontrada"))
+    breadcrumbs = utils.build_breadcrumbs(page)
+    children = utils.get_children_in_order(page)
+    context = {
+        "children": children,
+        "breadcrumbs": breadcrumbs,
+        "page": page,
+    }
+    return render_template("collection/about_detail.html", **context)
+
+
 @main.route("/about/", methods=["GET"])
-@main.route("/about/<string:slug_name>", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
-def about_collection(slug_name=None):
+def about_collection():
     language = session.get("lang", get_locale())
 
     context = {}
-    page = None
-    if slug_name:
-        # caso seja uma página
-        page = controllers.get_page_by_slug_name(slug_name, language)
-        if not page:
-            abort(404, _("Página não encontrada"))
-        context["page"] = page
-    else:
-        # caso não seja uma página é uma lista
-        pages = controllers.get_pages_by_lang(language)
-        context["pages"] = pages
+    pages = controllers.get_page_about_root(language)
 
+    context["pages"] = pages.order_by("order")
     return render_template("collection/about.html", **context)
 
+
+@main.route("/free/<string:slug_name>", methods=["GET"])
+def free_page(slug_name):
+    language = session.get("lang", get_locale())
+    page = controllers.get_free_page_by_slug(slug_name, lang=language, is_draft=False)
+    
+    if not page:
+        abort(404, _("Página não encontrada"))
+
+    return render_template("collection/about_detail.html", page=page)
 
 # ###################################Journal#####################################
 
@@ -1282,12 +1300,13 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             logger.exception(exc)
 
             abort(500, _("Erro inesperado"))
+        language = session.get("lang", get_locale())
 
         text_versions = sorted(
             [
                 (
                     lang,
-                    display_original_lang_name(lang),
+                    display_lang_name_fallback(locale=language, code=lang),
                     url_for(
                         "main.article_detail_v3",
                         url_seg=article.journal.url_segment,
