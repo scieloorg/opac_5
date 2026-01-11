@@ -120,7 +120,6 @@ def clean_response_headers(response):
     - Configura Vary: Accept-Language (não Cookie!)
     - Define Cache-Control apenas para rotas públicas
     """
-    import re
 
     # Remove cookies de idioma se existirem
     if 'Set-Cookie' in response.headers:
@@ -130,14 +129,15 @@ def clean_response_headers(response):
         for cookie in set_cookie_headers:
             # Remove apenas cookies de idioma, mantém outros
             # Usa regex com word boundary para evitar falsos positivos
-            if not re.search(r'(language|lang|interface_lang)=', cookie):
+            if not re.search(r'^(language|lang|interface_lang)=', cookie):
                 response.headers.add('Set-Cookie', cookie)
 
-    # Configura Vary para Accept-Language (NÃO Cookie!)
-    response.headers['Vary'] = 'Accept-Language'
+    # Configura Vary para Accept-Language (NÃO Cookie!), preservando outros valores
+    response.vary.add('Accept-Language')
 
     # Cache público apenas para rotas públicas
-    if request.endpoint:
+    endpoint = request.endpoint or ''
+    if endpoint:
         # Padrões de endpoints privados (não cachear)
         private_patterns = [
             r'^admin\.',
@@ -147,14 +147,14 @@ def clean_response_headers(response):
             r'\.profile$',
         ]
 
-        endpoint = request.endpoint or ''
         is_private = any(re.search(pattern, endpoint) for pattern in private_patterns)
         is_static = 'static' in endpoint
 
         if not is_private and not is_static:
-            # Não sobrescrever Cache-Control se já definido por add_header
-            if 'Cache-Control' not in response.headers:
-                response.headers['Cache-Control'] = 'public, max-age=3600'
+            # Não sobrescrever Cache-Control se já definido (via cache_control ou header)
+            if response.cache_control.max_age is None:
+                response.cache_control.public = True
+                response.cache_control.max_age = 3600
 
     return response
 
@@ -170,7 +170,8 @@ def add_forms_to_g():
 
 @main.before_app_request
 def add_scielo_org_config_to_g():
-    language = g.interface_language
+    # Usa defensive default para evitar dependência de ordem de before_app_request
+    language = getattr(g, 'interface_language', 'pt_BR')
     scielo_org_links = {
         # if language doesnt exists set the 'en' to SciELO ORG links.
         key: url.get(language, "en")
@@ -196,13 +197,37 @@ def set_locale(lang_code):
     """
     Endpoint para troca de idioma via seletor no frontend.
 
-    Nota: Com Accept-Language, o idioma é definido pelo header HTTP.
-    Esta rota serve para redirecionar o usuário com um parâmetro
-    que o frontend JavaScript pode capturar e usar para atualizar
-    a preferência do usuário (ex: localStorage).
+    IMPORTANTE - LIMITAÇÃO ARQUITETURAL:
+    =====================================
+    Esta rota NÃO muda o idioma imediatamente da página. A detecção de idioma
+    é feita via Accept-Language header (configuração do navegador), não via cookies.
 
-    O frontend deve então forçar um reload com o novo Accept-Language.
+    Fluxo completo de mudança de idioma:
+    1. Usuário clica no seletor de idioma
+    2. Servidor redireciona com ?_lang_change=XX e header X-Language-Change
+    3. FRONTEND JAVASCRIPT deve detectar estes sinais e:
+       a. Salvar preferência (ex: localStorage.setItem('preferred_lang', lang))
+       b. Recarregar página OU configurar navegador
+
+    Alternativas para o usuário:
+    - Configurar idioma preferencial nas configurações do navegador
+      (Chrome: chrome://settings/languages, Firefox: about:preferences#general)
+    - Aguardar implementação de JavaScript frontend para persistência
+
+    Parâmetros:
+        lang_code (str): Código de idioma (ex: 'pt_BR', 'en', 'es')
+
+    Retorna:
+        Response: Redirecionamento com ?_lang_change=XX
+
+    Headers adicionados:
+        X-Language-Change: Código do idioma selecionado (para detecção JavaScript)
+
+    Nota técnica:
+        Navegadores não permitem JavaScript modificar Accept-Language header.
+        Qualquer solução de "override" requer cookies ou localStorage + reload.
     """
+
     from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
     langs = current_app.config.get("LANGUAGES")
@@ -216,6 +241,15 @@ def set_locale(lang_code):
     if referrer:
         # Parse da URL do referrer
         parsed = urlparse(referrer)
+
+        # Validação de segurança: Permitir apenas redirecionamentos internos
+        current = urlparse(request.host_url)
+
+        if parsed.scheme and parsed.netloc:
+            # URL absoluta: validar que é do mesmo domínio
+            if parsed.scheme != current.scheme or parsed.netloc != current.netloc:
+                # Redirecionar para home se domínio diferente
+                return redirect(url_for('main.index'))
 
         # Preserva query params existentes
         query_params = parse_qs(parsed.query)
