@@ -1,15 +1,7 @@
 # coding: utf-8
 import unittest
-import sys
-from pathlib import Path
 
-# Adicionar o caminho do utils ao sys.path
-utils_path = Path(__file__).parent.parent / 'webapp' / 'utils'
-sys.path.insert(0, str(utils_path))
-
-from template_filters import make_absolute_url
-
-
+from opac.webapp.utils.template_filters import make_absolute_url
 class TestMakeAbsoluteUrl(unittest.TestCase):
     """Testes para o filtro make_absolute_url"""
 
