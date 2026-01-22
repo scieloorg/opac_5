@@ -1,0 +1,47 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  pr-checks:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+          
+    steps:
+      - uses: actions/checkout@v4
+
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements.dev.txt
+
+      - name: Run unit tests
+        run: |
+          make test
+
+      - name: Run test coverage
+        run: |
+          make test_coverage
+
+      - name: SAST - CodeQL Init
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+
+      - name: SAST - CodeQL Analyze
+        uses: github/codeql-action/analyze@v3
