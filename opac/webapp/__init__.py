@@ -29,7 +29,6 @@ from raven.contrib.flask import Sentry
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.routing import BaseConverter
 
-from opac.webapp.utils.template_filters import make_absolute_url
 
 login_manager = LoginManager()
 dbmongo = MongoEngine()
@@ -152,7 +151,7 @@ def create_app():
     # Registrando os filtros
     app.jinja_env.filters["trans_alpha2"] = custom_filters.trans_alpha2
     app.jinja_env.filters["datetimefilter"] = custom_filters.datetimefilter
-    app.jinja_env.filters["absolute_url"] = make_absolute_url
+    app.jinja_env.filters["absolute_url"] = custom_filters.make_absolute_url
 
     # i18n
     babel.init_app(app)

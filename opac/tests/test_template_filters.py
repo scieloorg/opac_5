@@ -1,7 +1,7 @@
 # coding: utf-8
 import unittest
 
-from opac.webapp.utils.template_filters import make_absolute_url
+from opac.webapp.main.custom_filters import make_absolute_url
 class TestMakeAbsoluteUrl(unittest.TestCase):
     """Testes para o filtro make_absolute_url"""
 
