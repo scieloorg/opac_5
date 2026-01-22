@@ -1,0 +1,24 @@
+name: DAST - Homolog (OWASP ZAP)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  zap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run OWASP ZAP Baseline (Docker)
+        run: |
+          docker run --rm \
+            --user root \
+            -v $(pwd):/zap/wrk \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+            -t https://qa1.scielo.br \
+            -r zap-report.html || true
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: zap-report.html
