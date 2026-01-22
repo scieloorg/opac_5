@@ -299,15 +299,13 @@ class AuxiliarArticleFactory:
         self.doc.fpage_sequence = fpage_seq
         self.doc.lpage = lpage
 
-    def add_author(self, surname, given_names, suffix, affiliation, orcid):
+    def add_author(self, name, affiliation, orcid):
         # author meta
         # authors_meta = EmbeddedDocumentListField(AuthorMeta))
         if self.doc.authors_meta is None:
             self.doc.authors_meta = []
         author = models.AuthorMeta()
-        author.surname = surname
-        author.given_names = given_names
-        author.suffix = suffix
+        author.name = name
         author.affiliation = affiliation
         author.orcid = orcid
         self.doc.authors_meta.append(author)
@@ -315,12 +313,7 @@ class AuxiliarArticleFactory:
         # author
         if self.doc.authors is None:
             self.doc.authors = []
-        _author = _format_author_name(
-            surname,
-            given_names,
-            suffix,
-        )
-        self.doc.authors.append(_author)
+        self.doc.authors.append(name)
 
     def add_translated_title(self, language, name):
         # translated_titles = EmbeddedDocumentListField(TranslatedTitle))
@@ -525,9 +518,7 @@ def ArticleFactory(
 
     for item in data.get("authors_meta") or []:
         factory.add_author(
-            surname=item.get("surname"),
-            given_names=item.get("given_names"),
-            suffix=item.get("suffix"),
+            name=item.get("name"),
             affiliation=item.get("affiliation"),
             orcid=item.get("orcid"),
         )
