@@ -1,20 +1,12 @@
 {% if article and text_versions %}
 
-
     <div class="btn-group">
       <button id="btnGroupDropTextLanguage" type="button" class="btn btn-secondary dropdown-toggle mb-0" data-bs-toggle="dropdown" aria-expanded="false">
         {% trans %}Texto{% endtrans %}
         {% for lang, text_lang, uri in text_versions  %}
           {% if not gs_abstract and lang == article_lang %}        
-            {% if lang == 'es' %}
-              (ES)
-            {% elif lang == 'en' %}
-              (EN)
-            {% elif lang == 'pt' %}
-              (PT)
-            {% else %} 
-              ({{ text_lang }})
-            {% endif %}
+            {# Botão colapsado: mostra código ISO em MAIÚSCULO #}
+            ({{ lang|upper }})
           {% endif %}
         {% endfor %}
       </button>
@@ -25,28 +17,16 @@
             <!-- página de texto -->
             <a href="#" class="current dropdown-item"> 
                 {% trans %}Texto{% endtrans %}
-                {% if lang == 'es' %}
-                  ({% trans %}Espanhol{% endtrans %})
-                {% elif lang == 'en' %}
-                  ({% trans %}Inglês{% endtrans %})
-                {% elif lang == 'pt' %}
-                  ({% trans %}Português{% endtrans %})
-                {% else %}
-                  ({{ text_lang }})
-                {% endif %}
+                {# Dropdown expandido: mostra nome traduzido do idioma #}
+                {# g.interface_language contém o idioma da interface (pt/en/es) #}
+                {# Compatível com PR #366 - migração de session.get('lang') para g.interface_language #}
+                ({{ lang|language_name(g.interface_language) }})
             </a>
         {% else %}
             <a href="{{ uri }}" class="dropdown-item">
                 {% trans %}Texto {% endtrans %}
-                {% if lang == 'es' %}
-                  ({% trans %}Espanhol{% endtrans %})
-                {% elif lang == 'en' %}
-                  ({% trans %}Inglês{% endtrans %})
-                {% elif lang == 'pt' %}
-                  ({% trans %}Português{% endtrans %})
-                {% else %}
-                  ({{ text_lang }})
-                {% endif %}
+                {# Dropdown expandido: mostra nome traduzido do idioma #}
+                ({{ lang|language_name(g.interface_language) }})
             </a>
         {% endif %}
         </li>
@@ -55,6 +35,3 @@
     </div>
 
   {% endif %}
-
-
-
