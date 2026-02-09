@@ -16,7 +16,7 @@ services:
             - "8025:8025"
 
     opac_mongo:
-        image: mongo:8.0
+        image: mongo:4.2
         container_name: opac_mongo_dev
         restart: always
         user: mongodb
@@ -88,6 +88,7 @@ services:
             - OPAC_APM_SERVICE_NAME=Website
             - OPAC_APM_ENVIRONMENT=development
             - OPAC_APM_SECRET_TOKEN=
+            - OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST=True
         stdin_open: True
         tty: true
 
