@@ -89,7 +89,9 @@ def build_classic_website_uri(resource_type, resource=None, **kwargs):
         return None
     
     # Obter idioma da sessão ou usar o padrão
-    lang = kwargs.get('lang') or session.get("lang", str(get_locale()))
+    lang = kwargs.get('lang')
+    if not lang:
+        lang = session.get("lang", str(get_locale()))
     if lang and len(lang) > 2:
         lang = lang[:2]  # Converter pt_BR para pt
     
@@ -117,8 +119,8 @@ def build_classic_website_uri(resource_type, resource=None, **kwargs):
                 params = {'script': 'sci_arttext', 'pid': pid, 'lng': lang, 'nrm': 'iso'}
                 return f"{base_url}/scielo.php?{urlencode(params)}"
     
-    except Exception:
-        # Se houver qualquer erro ao construir a URL, retorna None
-        pass
+    except (AttributeError, TypeError) as e:
+        # Se houver erro ao acessar atributos do recurso, retorna None
+        current_app.logger.debug(f"Error building classic URL for {resource_type}: {e}")
     
     return None

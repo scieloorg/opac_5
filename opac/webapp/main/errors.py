@@ -69,7 +69,7 @@ def _build_classic_url_for_resource(path):
     Returns:
         String com a URL completa para o site clássico ou None se não puder ser construída
     """
-    # Pattern para journal: /j/<url_seg>/
+    # Pattern para journal: /j/<url_seg>/ ou /j/<url_seg>
     journal_pattern = r'^/j/([^/]+)/?$'
     match = re.match(journal_pattern, path)
     if match:
@@ -78,7 +78,7 @@ def _build_classic_url_for_resource(path):
         if journal:
             return build_classic_website_uri('journal', journal)
     
-    # Pattern para issue: /j/<url_seg>/i/<url_seg_issue>/
+    # Pattern para issue: /j/<url_seg>/i/<url_seg_issue>/ ou /j/<url_seg>/i/<url_seg_issue>
     issue_pattern = r'^/j/([^/]+)/i/([^/]+)/?$'
     match = re.match(issue_pattern, path)
     if match:
@@ -100,8 +100,8 @@ def _build_classic_url_for_resource(path):
             article = Article.objects(aid=article_pid_v3).first()
             if article:
                 return build_classic_website_uri('article', article)
-        except Exception:
-            pass
+        except (AttributeError, ImportError) as e:
+            current_app.logger.debug(f"Error loading article for classic URL: {e}")
     
     return None
 
