@@ -95,6 +95,8 @@ class ErrorsTestCase(BaseTestCase):
         self.assertEqual(expected_msg, json_msg)
 
     def test_page_not_found(self):
+        # When PREVIOUS_WEBSITE_URI is not set, should render 404 template
+        current_app.config["PREVIOUS_WEBSITE_URI"] = ""
         response = self.client.get("/page_not_found")
         self.assert_404(response)
         self.assertEqual("text/html; charset=utf-8", response.content_type)
@@ -104,6 +106,8 @@ class ErrorsTestCase(BaseTestCase):
         self.assertEqual(expected_msg, context_msg)
 
     def test_page_not_found_json(self):
+        # JSON requests should not redirect
+        current_app.config["PREVIOUS_WEBSITE_URI"] = "https://old.scielo.br"
         response = self.client.get(
             "/page_not_found", headers={"Accept": "application/json"}
         )
@@ -114,6 +118,24 @@ class ErrorsTestCase(BaseTestCase):
         json_msg = response.json["error"]
         expected_msg = "<p>%s</p>" % ERROR_MSG
         self.assertEqual(expected_msg, json_msg)
+    
+    def test_page_not_found_with_redirect_to_classic_site(self):
+        # When PREVIOUS_WEBSITE_URI is set, should redirect to classic site
+        classic_site_url = "https://old.scielo.br"
+        current_app.config["PREVIOUS_WEBSITE_URI"] = classic_site_url
+        response = self.client.get("/page_not_found", follow_redirects=False)
+        self.assertEqual(302, response.status_code)
+        expected_redirect_url = classic_site_url + "/page_not_found"
+        self.assertEqual(expected_redirect_url, response.location)
+    
+    def test_page_not_found_redirect_preserves_query_string(self):
+        # When redirecting, should preserve query string
+        classic_site_url = "https://old.scielo.br"
+        current_app.config["PREVIOUS_WEBSITE_URI"] = classic_site_url
+        response = self.client.get("/page_not_found?param=value&test=123", follow_redirects=False)
+        self.assertEqual(302, response.status_code)
+        expected_redirect_url = classic_site_url + "/page_not_found?param=value&test=123"
+        self.assertEqual(expected_redirect_url, response.location)
 
     def test_internal_server_error(self):
         current_app.config["DEBUG"] = False

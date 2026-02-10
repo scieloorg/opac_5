@@ -6,4 +6,8 @@
   {% else %}
     {% trans %}A URL solicitada não foi encontrada no servidor. Se você digitou a URL manualmente, por favor verifique e tente novamente.{% endtrans %}
   {% endif %}
+  
+  {% if classic_site_url %}
+    <p>{% trans %}O site está em processo de migração. Caso o conteúdo que você procura não esteja disponível, você pode acessar{% endtrans %} <a href="{{ classic_site_url }}">{% trans %}o site anterior{% endtrans %}</a>.</p>
+  {% endif %}
 {% endblock %}
