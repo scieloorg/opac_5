@@ -48,10 +48,9 @@ def page_not_found(e):
         return redirect(classic_url, code=302)
     
     # If no classic site is configured, show the 404 page with migration message
-    context = {
-        "message": e,
-        "classic_site_url": classic_site_url
-    }
+    context = {"message": e}
+    if classic_site_url:
+        context["classic_site_url"] = classic_site_url
     return render_template("errors/404.html", **context), 404
 
 
