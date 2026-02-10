@@ -77,7 +77,7 @@ def build_classic_website_uri(resource_type, resource=None, **kwargs):
     Constrói a URI completa para o site clássico com base no tipo de recurso.
     
     Args:
-        resource_type: tipo do recurso ('journal', 'issue', 'article')
+        resource_type: tipo do recurso ('journal', 'issue', 'article', 'pdf')
         resource: objeto do recurso (Journal, Issue, ou Article)
         **kwargs: parâmetros adicionais (ex: lang)
     
@@ -117,6 +117,13 @@ def build_classic_website_uri(resource_type, resource=None, **kwargs):
             pid = getattr(resource, 'pid', None)
             if pid:
                 params = {'script': 'sci_arttext', 'pid': pid, 'lng': lang, 'nrm': 'iso'}
+                return f"{base_url}/scielo.php?{urlencode(params)}"
+        
+        elif resource_type == 'pdf' and resource:
+            # Para PDF, usa o PID v2 do artigo com script sci_pdf
+            pid = getattr(resource, 'pid', None)
+            if pid:
+                params = {'script': 'sci_pdf', 'pid': pid, 'lng': lang, 'nrm': 'iso'}
                 return f"{base_url}/scielo.php?{urlencode(params)}"
     
     except (AttributeError, TypeError) as e:

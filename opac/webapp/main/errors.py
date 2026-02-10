@@ -103,6 +103,28 @@ def _build_classic_url_for_resource(path):
         except (AttributeError, ImportError) as e:
             current_app.logger.debug(f"Error loading article for classic URL: {e}")
     
+    # Pattern para PDF: /pdf/<journal_acron>/<issue_info>/<pdf_filename>.pdf
+    pdf_pattern = r'^/pdf/([^/]+)/([^/]+)/([^/]+)\.pdf$'
+    match = re.match(pdf_pattern, path)
+    if match:
+        journal_acron = match.group(1)
+        issue_info = match.group(2)
+        pdf_filename = match.group(3) + ".pdf"
+        # Tenta obter o artigo pelo PDF filename
+        try:
+            article = controllers.get_article_by_pdf_filename(
+                journal_acron, issue_info, pdf_filename
+            )
+            # Se não encontrou, tenta material suplementar
+            if not article:
+                article = controllers.get_article_by_suppl_material_filename(
+                    journal_acron, issue_info, pdf_filename
+                )
+            if article:
+                return build_classic_website_uri('pdf', article)
+        except (AttributeError, ImportError) as e:
+            current_app.logger.debug(f"Error loading article PDF for classic URL: {e}")
+    
     return None
 
 
