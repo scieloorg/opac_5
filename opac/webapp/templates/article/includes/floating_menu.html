@@ -1,121 +1,116 @@
 
-<div class="container">
-<div class="row">
-  <div class="col">
 
-    <div class="scielo__floatingMenuCttJs3">
-      <a class="scielo__floatingMenuItem fm-button-child item-goto d-none d-lg-inline-block" data-bs-toggle="tooltip" title="{% trans %}Ir para o topo{% endtrans %}" href="#top">
-        <span class="material-icons-outlined">
+<div class="container scielo--floatBar">
+  <div class="row">
+    <div class="col">
+
+      <!-- Botão fixo para abrir o modal -->
+      <button
+        type="button"
+        class="btn btn-primary btn-float-menu"
+        data-bs-toggle="modal"
+        data-bs-target="#menuModal"
+        aria-controls="menuModal"
+        aria-label="{% trans %}Abrir menu de ferramentas do artigo{% endtrans %}">
+        <span class="material-icons-outlined mt-1" aria-hidden="true">more_horiz</span>
+      </button>
+
+        
+      <a id="btnTop" class="btn btn-primary btn-float-gotop"
+        data-bs-toggle="tooltip" title=""
+        href="#top"
+        data-bs-original-title="{% trans %}Ir para o topo{% endtrans %}" style="opacity: 1;">
+        <span class="material-icons-outlined mt-2" aria-hidden="true">
           vertical_align_top
         </span>
       </a>
-      <!--
-      <a href="javascript:;" class="scielo__floatingMenuItem fm-button-child item-download d-none d-lg-inline-block" data-bs-toggle="tooltip" title="{% trans %}PDFs{% endtrans %}" data-bs-target="#ModalDownloads" tabindex="0">
-        <span class="material-icons-outlined">
-          file_download
-        </span>
-      </a>
-      -->
-      <a href="javascript:;" class="scielo__floatingMenuItem fm-button-child item-metrics d-none d-lg-inline-block" data-bs-toggle="tooltip" title="{% trans %}Métricas{% endtrans %}" target="_blank" data-bs-target="#metric_modal_id" tabindex="0">
-        <span class="material-icons-outlined">
-          show_chart
-        </span>
-      </a>
-      <ul class="scielo__floatingMenuJs3 fm-slidein" data-fm-toogle="hover">
-        <li class="fm-wrap">
-          <a href="javascript:;" class="fm-button-main" data-bs-toggle="tooltip" title="{% trans %}Abrir menu{% endtrans %}" tabindex="0"><span class="material-icons-outlined material-icons-outlined-menu-default">more_horiz</span></a>
-          <a href="javascript:;" class="fm-button-close" data-bs-toggle="tooltip" title="{% trans %}Fechar menu{% endtrans %}" tabindex="0"><span class="material-icons-outlined material-icons-outlined-menu-close">close</span></a>
 
-          <!-- exibe em tudo menos mobile-->
-          <ul class="fm-list-desktop d-none d-lg-block">
-            <li>
-              <a class="fm-button-child" id="lnkFigsTables" data-bs-toggle="tooltip" title="{% trans %}Figuras e tabelas{% endtrans %}" data-bs-target="#ModalTablesFigures" tabindex="0">
-                <span class="material-icons-outlined">
-                  image
-                </span>
-              </a>
-            </li>
-            <li>
-              <a class="fm-button-child" id="lnkVersTranslations" data-bs-toggle="tooltip" title="{% trans %}Versões e traduções{% endtrans %}" data-bs-target="#ModalVersionsTranslations" tabindex="0">
-                <span class="material-icons-outlined">
-                  translate
-                </span>
-              </a>
-            </li>
-            <li>
-              <a class="fm-button-child" id="lnkHowToCite" data-bs-toggle="tooltip" title="{% trans %}Como citar este artigo{% endtrans %}" data-bs-target="#ModalHowcite" tabindex="0">
-                <span class="material-icons-outlined">
-                  link
-                </span>
-              </a>
-            </li>
-            <li>
-              <a class="fm-button-child" id="lnkArticles" data-bs-toggle="tooltip" title="{% trans %}Artigos relacionados{% endtrans %}" data-bs-target="#ModalRelatedArticles" tabindex="0">
-                <span class="material-icons-outlined">
-                  article
-                </span>
-              </a>
-            </li>
-          </ul>
+      <!-- Modal estreito -->
+      <div class="modal fade" id="menuModal" tabindex="-1"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="menuModalLabel">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 280px;margin: 0 auto;">
+          <div class="modal-content" role="document">
+
+            <h2 id="menuModalLabel" class="visually-hidden">{% trans %}Ferramentas do artigo{% endtrans %}</h2>
+
+            <div class="modal-body p-0">
+              <ul class="list-group list-group-flush">
+
+                <li class="list-group-item p-0">
+                  <a href="#" class="px-3 py-2 text-decoration-none d-block"
+                     data-mobile-tooltip="PDFs"
+                     data-bs-toggle="modal"
+                     data-bs-target="#ModalDownloads"
+                     data-bs-dismiss="modal">
+                    <span class="material-icons-outlined" aria-hidden="true">file_download</span>
+                    PDFs
+                  </a>
+                </li>
+
+                <li class="list-group-item p-0">
+                  <a href="#" class="px-3 py-2 text-decoration-none d-block"
+                     data-mobile-tooltip="Métricas"
+                     data-bs-toggle="modal"
+                     data-bs-target="#metric_modal_id"
+                     data-bs-dismiss="modal">
+                    <span class="material-icons-outlined" aria-hidden="true">show_chart</span>
+                    {% trans %}Métricas{% endtrans %}
+                  </a>
+                </li>
+
+                <li class="list-group-item p-0">
+                  <a href="#" class="px-3 py-2 text-decoration-none d-block"
+                     data-mobile-tooltip="{% trans %}Figuras e tabelas{% endtrans %}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#ModalTablesFigures"
+                     data-bs-dismiss="modal">
+                    <span class="material-icons-outlined" aria-hidden="true">image</span>
+                    Figuras e tabelas
+                  </a>
+                </li>
+
+                <li class="list-group-item p-0">
+                  <a href="#" class="px-3 py-2 text-decoration-none d-block"
+                     data-mobile-tooltip="{% trans %}Versões e traduções{% endtrans %}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#ModalVersionsTranslations"
+                     data-bs-dismiss="modal">
+                    <span class="material-icons-outlined" aria-hidden="true">translate</span>
+                    {% trans %}Versões e traduções{% endtrans %}
+                  </a>
+                </li>
+
+                <li class="list-group-item p-0">
+                  <a href="#" class="px-3 py-2 text-decoration-none d-block"
+                     data-mobile-tooltip="{% trans %}Como citar este artigo{% endtrans %}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#ModalHowcite"
+                     data-bs-dismiss="modal">
+                    <span class="material-icons-outlined" aria-hidden="true">link</span>
+                    {% trans %}Como citar este artigo{% endtrans %}
+                  </a>
+                </li>
+
+                <li class="list-group-item p-0">
+                  <a href="#" class="px-3 py-2 text-decoration-none d-block"
+                     data-mobile-tooltip="{% trans %}Artigos relacionados{% endtrans %}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#ModalRelatedArticles"
+                     data-bs-dismiss="modal">
+                    <span class="material-icons-outlined" aria-hidden="true">article</span>
+                    {% trans %}Artigos relacionados{% endtrans %}
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
-
-          <!-- exibe apenas no mobile-->
-          <ul class="fm-list-mobile d-block d-xl-none">
-            <li class="">
-              <a class="fm-button-child item-goto" data-mobile-tooltip="{% trans %}Ir para o topo{% endtrans %}" href="#top">
-                <span class="material-icons-outlined">
-                  vertical_align_top
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a href="javascript:;" class="fm-button-child item-download" data-mobile-tooltip="{% trans %}PDFs{% endtrans %}" data-bs-toggle="modal" data-bs-target="#ModalDownloads">
-                <span class="material-icons-outlined">
-                  file_download
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a href="javascript:;" class="fm-button-child item-metrics" data-mobile-tooltip="{% trans %}Métricas{% endtrans %}" data-bs-toggle="modal" data-bs-target="#metric_modal_id">
-                <span class="material-icons-outlined">
-                  show_chart
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a class="fm-button-child" data-mobile-tooltip="{% trans %}Figuras e tabelas{% endtrans %}" data-bs-toggle="modal" data-bs-target="#ModalTablesFigures">
-                <span class="material-icons-outlined">
-                  image
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a class="fm-button-child" data-mobile-tooltip="{% trans %}Versões e traduções{% endtrans %}" data-bs-toggle="modal" data-bs-target="#ModalVersionsTranslations">
-                <span class="material-icons-outlined">
-                  translate
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a class="fm-button-child" data-mobile-tooltip="{% trans %}Como citar este artigo{% endtrans %}" data-bs-toggle="modal" data-bs-target="#ModalHowcite">
-                <span class="material-icons-outlined">
-                  link
-                </span>
-              </a>
-            </li>
-            <li class="">
-              <a class="fm-button-child" data-mobile-tooltip="{% trans %}Artigos relacionados{% endtrans %}" data-bs-toggle="modal" data-bs-target="#ModalRelatedArticles">
-                <span class="material-icons-outlined">
-                  article
-                </span>
-              </a>
-            </li>
-          </ul>
-
-        </li>
-      </ul>
     </div>
   </div>
-</div>
 </div>
