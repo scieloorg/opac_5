@@ -77,7 +77,7 @@ let target_src = {
             path.join(paths['static_js'], 'slick.min.js'),
             path.join(paths['static_js'], 'main.js'),
             path.join(paths['static_js'], 'cookieMsg.js'),
-           // path.join(paths['static_js'], 'asb.js'),
+            path.join(paths['static_js'], 'asb.js'),
            
             // instruções JS (equipe scielo)
             path.join(paths['static_js'], 'common.js'),
@@ -88,7 +88,7 @@ let target_src = {
         ],
         'scielo-article': [
             path.join(paths['static_js'], 'scielo-article.js'),
-            path.join(paths['static_js'], 'scielo-article-floating-menu.js')
+           // path.join(paths['static_js'], 'scielo-article-floating-menu.js')
 
         ],
         'scielo-article-standalone': [
