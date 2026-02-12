@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 permissions:
   id-token: write
@@ -12,35 +11,10 @@ permissions:
 jobs:
 
 # =========================================================
-# VALIDATION JOB (impede erro humano)
-# =========================================================
-  validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Validate tag vs branch
-        run: |
-          TAG="${GITHUB_REF_NAME}"
-          git fetch origin qa main
-
-          if [[ "$TAG" == *"-qa" ]]; then
-             git branch -r --contains $GITHUB_SHA | grep origin/qa \
-               || (echo "Tag -qa deve apontar para commit do branch qa" && exit 1)
-          else
-            git branch -r --contains $GITHUB_SHA | grep origin/master \
-              || (echo "Tag de produção deve apontar para commit do main" && exit 1)
-          fi
-
-# =========================================================
 # QA
 # =========================================================
   qa:
-    needs: validate
-    if: endsWith(github.ref_name, '-qa')
+    if: endsWith(github.event.release.tag_name, '-qa')
 
     runs-on: ubuntu-latest
     environment: homolog
@@ -48,68 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
-
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build
-        run: |
-          docker build \
-            --label org.opencontainers.image.revision=${GITHUB_SHA} \
-            -t infrascielo/opac_5:${VERSION} .
-
-      - name: Trivy Gate
-        uses: aquasecurity/trivy-action@0.20.0
-        with:
-          image-ref: infrascielo/opac_5:${{ env.VERSION }}
-          severity: HIGH,CRITICAL
-          exit-code: 1
-
-      - name: Push
-        run: docker push infrascielo/opac_5:${VERSION}
-
-      - name: Digest
-        run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
-          infrascielo/opac_5:${VERSION})
-          echo "IMAGE_DIGEST=${DIGEST}" >> $GITHUB_ENV
-
-      - uses: sigstore/cosign-installer@v3
-
-      - run: cosign sign --yes ${IMAGE_DIGEST}
-
-      - name: Update GitOps Homolog
-        env:
-          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
-        run: |
-          git clone https://${GITOPS_TOKEN}@github.com/scieloorg/gitops.git
-          cd gitops
-
-          sed -i "s|digest: sha256:.*|digest: ${IMAGE_DIGEST#*@}|" \
-          apps/opac_5/homolog/kustomization.yaml
-
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git commit -am "QA ${VERSION}"
-          git push
-
-# =========================================================
-# PROD
-# =========================================================
-  prod:
-    needs: validate
-    if: "!endsWith(github.ref_name, '-qa')"
-
-    runs-on: ubuntu-latest
-    environment: production   # approval gate
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Set version
+        run: echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
 
       - uses: docker/login-action@v3
         with:
@@ -132,14 +46,74 @@ jobs:
       - name: Push
         run: docker push infrascielo/opac_5:${VERSION}
 
-      - name: Digest
+      - name: Get Digest
         run: |
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
-          infrascielo/opac_5:${VERSION})
+            infrascielo/opac_5:${VERSION})
           echo "IMAGE_DIGEST=${DIGEST}" >> $GITHUB_ENV
 
       - uses: sigstore/cosign-installer@v3
+      - run: cosign sign --yes ${IMAGE_DIGEST}
 
+      - name: Update GitOps Homolog
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          git clone https://${GITOPS_TOKEN}@github.com/scieloorg/gitops.git
+          cd gitops
+
+          sed -i "s|digest: sha256:.*|digest: ${IMAGE_DIGEST#*@}|" \
+            apps/opac_5/homolog/kustomization.yaml
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "QA ${VERSION}"
+          git push
+
+
+# =========================================================
+# PROD
+# =========================================================
+  prod:
+    if: "!endsWith(github.event.release.tag_name, '-qa')"
+
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version
+        run: echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build
+        run: |
+          docker build \
+            --label org.opencontainers.image.revision=${GITHUB_SHA} \
+            -t infrascielo/opac_5:${VERSION} .
+
+      - name: Trivy Gate
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: infrascielo/opac_5:${{ env.VERSION }}
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
+      - name: Push
+        run: docker push infrascielo/opac_5:${VERSION}
+
+      - name: Get Digest
+        run: |
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
+            infrascielo/opac_5:${VERSION})
+          echo "IMAGE_DIGEST=${DIGEST}" >> $GITHUB_ENV
+
+      - uses: sigstore/cosign-installer@v3
       - run: cosign sign --yes ${IMAGE_DIGEST}
 
       - name: Update GitOps Prod
@@ -150,7 +124,7 @@ jobs:
           cd gitops
 
           sed -i "s|digest: sha256:.*|digest: ${IMAGE_DIGEST#*@}|" \
-          apps/opac_5/producao/kustomization.yaml
+            apps/opac_5/producao/kustomization.yaml
 
           git config user.name github-actions
           git config user.email github-actions@github.com
