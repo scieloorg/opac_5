@@ -1798,15 +1798,8 @@ def download_file_by_filename(filename):
     return send_from_directory(media_root, filename)
 
 
-@main.route("/img/scielo.gif", methods=["GET"])
-def full_text_image():
-    return send_from_directory("static", "img/full_text_scielo_img.gif")
-
-
-@main.route("/robots.txt", methods=["GET"])
-def get_robots_txt_file():
-    return send_from_directory("static", "robots.txt")
-
+# Note: robots.txt and img/scielo.gif routes moved to app level
+# (see opac/webapp/__init__.py) to avoid language prefix requirement
 
 @main.route("/revistas/<path:journal_seg>/<string:page>.htm", methods=["GET"])
 def router_legacy_info_pages(journal_seg, page):
