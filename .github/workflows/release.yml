@@ -21,19 +21,14 @@ jobs:
       - name: Validate tag vs branch
         run: |
           TAG="${GITHUB_REF_NAME}"
-          BRANCH="${GITHUB_REF##*/}"
+          git fetch origin qa main
 
-          echo "Tag: $TAG"
-          echo "Branch: $BRANCH"
-
-          if [[ "$TAG" == *"-qa" && "$BRANCH" != "qa" ]]; then
-            echo "Tag -qa só pode vir do branch qa"
-            exit 1
-          fi
-
-          if [[ "$TAG" != *"-qa" && "$BRANCH" != "master" ]]; then
-            echo "Tag de produção só pode vir do master"
-            exit 1
+          if [[ "$TAG" == *"-qa" ]]; then
+             git branch -r --contains $GITHUB_SHA | grep origin/qa \
+               || (echo "Tag -qa deve apontar para commit do branch qa" && exit 1)
+          else
+            git branch -r --contains $GITHUB_SHA | grep origin/master \
+              || (echo "Tag de produção deve apontar para commit do main" && exit 1)
           fi
 
 # =========================================================
