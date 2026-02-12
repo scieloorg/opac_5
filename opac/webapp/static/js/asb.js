@@ -14,15 +14,31 @@
   // ===== MODAL PATCH - Dynamic Modal Creation =====
   function createAccessibilityModal() {
     if (document.getElementById("accessibilityModal")) return;
-
+  
     const modalWrapper = document.createElement("div");
     modalWrapper.innerHTML = `
-      <div class="modal fade" id="accessibilityModal" tabindex="-1">
+      <div 
+        class="modal fade" 
+        id="accessibilityModal" 
+        tabindex="-1"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="accessibilityModalLabel">
         <div class="modal-dialog modal-dialog-centered" style="max-width:380px; margin: 0 auto;">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">${translateAcessibilityBar.accessibilityMenu}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <h5 
+                id="accessibilityModalLabel" 
+                class="modal-title"
+              >
+                ${translateAcessibilityBar.accessibilityMenu}
+              </h5>
+              <button 
+                type="button" 
+                class="btn-close" 
+                data-bs-dismiss="modal" 
+                aria-label="Close"
+              ></button>
             </div>
             <div class="modal-body">
               <div id="accessibilityBarModal" class="d-flex flex-column gap-2"></div>
@@ -31,9 +47,10 @@
         </div>
       </div>
     `;
-
+  
     document.body.appendChild(modalWrapper.firstElementChild);
   }
+  
 
   // Create modal before anything else uses it
   createAccessibilityModal();
@@ -128,7 +145,7 @@
 
     const spanText = document.createElement("span");
     spanText.textContent = translateAcessibilityBar.accessibilityMenu;
-    spanText.className = "visually-hidden"
+    spanText.className = "visually-hidden";
     btnAccessibilityBar.appendChild(spanText);
 
     document.body.appendChild(btnAccessibilityBar);
