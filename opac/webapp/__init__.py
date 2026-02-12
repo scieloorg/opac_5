@@ -28,6 +28,7 @@ from opac_schema.v1.models import (
 from raven.contrib.flask import Sentry
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.routing import BaseConverter
+from werkzeug.urls import url_encode
 
 
 login_manager = LoginManager()
@@ -289,7 +290,6 @@ def create_app():
         target_lang = lang_from_headers if lang_from_headers else default_lang
         
         # Build the new URL with language prefix and preserve query string
-        from werkzeug.urls import url_encode
         query_string = url_encode(request.args)
         new_path = f"/{target_lang}/scielo.php/"
         if query_string:

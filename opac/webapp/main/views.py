@@ -65,6 +65,9 @@ def pull_lang(endpoint, values):
     Extract language from URL and inject into request object.
     This function runs before each request to extract the language
     parameter from the URL.
+    
+    Note: values can be None for static file requests, error handlers,
+    or other special routes that don't have URL parameters.
     """
     if values is None:
         return
