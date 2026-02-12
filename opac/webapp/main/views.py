@@ -154,14 +154,6 @@ def get_locale():
     return getattr(g, 'lang', current_app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR"))
 
 
-def get_lang():
-    """
-    Get the current language from the g object.
-    Returns BABEL_DEFAULT_LOCALE if not set.
-    """
-    return getattr(g, 'lang', current_app.config.get("BABEL_DEFAULT_LOCALE"))
-
-
 @main.route("/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def index():
