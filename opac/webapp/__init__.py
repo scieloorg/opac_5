@@ -276,6 +276,40 @@ def create_app():
         """Serve legacy full text image"""
         return send_from_directory("static", "img/full_text_scielo_img.gif")
 
+    # Legacy URL redirects - redirect to language-prefixed versions
+    @app.route("/scielo.php/")
+    def scielo_php_redirect():
+        """
+        Redirect old scielo.php URLs to language-prefixed version.
+        This maintains backward compatibility with old external links.
+        """
+        default_lang = app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
+        langs = app.config.get("LANGUAGES", {})
+        lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
+        target_lang = lang_from_headers if lang_from_headers else default_lang
+        
+        # Build the new URL with language prefix and preserve query string
+        from werkzeug.urls import url_encode
+        query_string = url_encode(request.args)
+        new_path = f"/{target_lang}/scielo.php/"
+        if query_string:
+            new_path += f"?{query_string}"
+        return redirect(new_path, code=301)
+
+    @app.route("/revistas/<path:journal_seg>/<string:page>.htm")
+    def revistas_redirect(journal_seg, page):
+        """
+        Redirect old /revistas/ URLs to language-prefixed version.
+        This maintains backward compatibility with old external links.
+        """
+        default_lang = app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
+        langs = app.config.get("LANGUAGES", {})
+        lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
+        target_lang = lang_from_headers if lang_from_headers else default_lang
+        
+        new_path = f"/{target_lang}/revistas/{journal_seg}/{page}.htm"
+        return redirect(new_path, code=301)
+
     # Setup RQ Dashboard e Scheduler: - mover para um modulo proprio
     @app.before_request
     def check_user_logged_in_or_redirect():
