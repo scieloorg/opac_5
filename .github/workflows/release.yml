@@ -5,140 +5,155 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  release:
+
+# =========================================================
+# VALIDATION JOB (impede erro humano)
+# =========================================================
+  validate:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+
+    steps:
+      - name: Validate tag vs branch
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          BRANCH="${GITHUB_REF##*/}"
+
+          echo "Tag: $TAG"
+          echo "Branch: $BRANCH"
+
+          if [[ "$TAG" == *"-qa" && "$BRANCH" != "qa" ]]; then
+            echo "Tag -qa só pode vir do branch qa"
+            exit 1
+          fi
+
+          if [[ "$TAG" != *"-qa" && "$BRANCH" != "master" ]]; then
+            echo "Tag de produção só pode vir do master"
+            exit 1
+          fi
+
+# =========================================================
+# QA
+# =========================================================
+  qa:
+    needs: validate
+    if: endsWith(github.ref_name, '-qa')
+
+    runs-on: ubuntu-latest
+    environment: homolog
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set version
-        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
-      - name: Docker Login
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build image
+      - name: Build
         run: |
           docker build \
-            -t infrascielo/opac_5:${VERSION} \
-            -t infrascielo/opac_5:latest \
-            .
+            --label org.opencontainers.image.revision=${GITHUB_SHA} \
+            -t infrascielo/opac_5:${VERSION} .
 
-      # 🔐 Scan único (policy)
-      - name: Trivy Image Scan
+      - name: Trivy Gate
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: infrascielo/opac_5:${{ env.VERSION }}
+          severity: HIGH,CRITICAL
+          exit-code: 1
+
+      - name: Push
+        run: docker push infrascielo/opac_5:${VERSION}
+
+      - name: Digest
+        run: |
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
+          infrascielo/opac_5:${VERSION})
+          echo "IMAGE_DIGEST=${DIGEST}" >> $GITHUB_ENV
+
+      - uses: sigstore/cosign-installer@v3
+
+      - run: cosign sign --yes ${IMAGE_DIGEST}
+
+      - name: Update GitOps Homolog
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          git clone https://${GITOPS_TOKEN}@github.com/scieloorg/gitops.git
+          cd gitops
+
+          sed -i "s|digest: sha256:.*|digest: ${IMAGE_DIGEST#*@}|" \
+          apps/opac_5/homolog/kustomization.yaml
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "QA ${VERSION}"
+          git push
+
+# =========================================================
+# PROD
+# =========================================================
+  prod:
+    needs: validate
+    if: "!endsWith(github.ref_name, '-qa')"
+
+    runs-on: ubuntu-latest
+    environment: production   # approval gate
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build
+        run: |
+          docker build \
+            --label org.opencontainers.image.revision=${GITHUB_SHA} \
+            -t infrascielo/opac_5:${VERSION} .
+
+      - name: Trivy Gate
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: infrascielo/opac_5:${{ env.VERSION }}
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      - name: Install Trivy CLI
+      - name: Push
+        run: docker push infrascielo/opac_5:${VERSION}
+
+      - name: Digest
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
-
-      # 📄 Relatório (evidência)
-      - name: Trivy Report
-        run: |
-          trivy image \
-            --scanners vuln \
-            --severity HIGH,CRITICAL \
-            --format table \
-            --output trivy-report.txt \
-            infrascielo/opac_5:${VERSION}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report
-          path: trivy-report.txt
-
-      # 📦 SBOM
-      - name: Generate SBOM (CycloneDX)
-        run: |
-          trivy image \
-            --scanners vuln \
-            --format cyclonedx \
-            --output sbom-${VERSION}.json \
-            infrascielo/opac_5:${VERSION}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: sbom-${{ env.VERSION }}
-          path: sbom-${{ env.VERSION }}.json
-
-      - name: Push image
-        run: |
-          docker push infrascielo/opac_5:${VERSION}
-          docker push infrascielo/opac_5:latest
-
-      - name: Push image
-        run: |
-          docker push infrascielo/opac_5:${VERSION}
-          docker push infrascielo/opac_5:latest
-
-      - name: Get image digest
-        run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' infrascielo/opac_5:${VERSION})
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
+          infrascielo/opac_5:${VERSION})
           echo "IMAGE_DIGEST=${DIGEST}" >> $GITHUB_ENV
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3
+      - uses: sigstore/cosign-installer@v3
 
-      - name: Sign image with Cosign
-        env:
-          COSIGN_EXPERIMENTAL: "1"
-          COSIGN_YES: "true"
-        run: |
-          cosign sign ${IMAGE_DIGEST}
+      - run: cosign sign --yes ${IMAGE_DIGEST}
 
-      - name: Verify image signature
-        env:
-          COSIGN_EXPERIMENTAL: "1"
-        run: |
-          cosign verify \
-            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-            --certificate-identity-regexp "https://github.com/${{ github.repository }}/*" \
-            ${IMAGE_DIGEST}
-
-      - name: Attach SBOM attestation
-        env:
-          COSIGN_EXPERIMENTAL: "1"
-          COSIGN_YES: "true"
-        run: |
-          cosign attest \
-            --predicate sbom-${VERSION}.json \
-            --type cyclonedx \
-            ${IMAGE_DIGEST}
-
-      - name: Update GitOps repo (homolog)
+      - name: Update GitOps Prod
         env:
           GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
-          IMAGE_DIGEST: ${{ env.IMAGE_DIGEST }}
-          VERSION: ${{ env.VERSION }}
         run: |
-          set -e
-
-          #Clona o repo GitOps
           git clone https://${GITOPS_TOKEN}@github.com/scieloorg/gitops.git
           cd gitops
 
-          # Extrai apenas o sha256
-          DIGEST_ONLY="${IMAGE_DIGEST#*@}"
+          sed -i "s|digest: sha256:.*|digest: ${IMAGE_DIGEST#*@}|" \
+          apps/opac_5/producao/kustomization.yaml
 
-          # Atualiza o digest no overlay de homologação
-          sed -i "s|digest: sha256:.*|digest: ${DIGEST_ONLY}|" \
-            apps/opac_5/homolog/kustomization.yaml
-
-          # Configura autor do commit
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          # Commit e push
-          git commit -am "Release opac ${VERSION} (homolog)"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "PROD ${VERSION}"
           git push
