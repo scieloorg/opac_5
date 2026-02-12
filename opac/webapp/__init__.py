@@ -251,6 +251,20 @@ def create_app():
     app.register_blueprint(main_bp)
     app.register_blueprint(rest_bp)
 
+    # Root route: redirect to default language
+    @app.route("/")
+    def root_redirect():
+        """
+        Redirect root URL to default language.
+        This handles requests to / and redirects to /<default_lang>/
+        """
+        default_lang = app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
+        # Detect language from Accept-Language header if available
+        langs = app.config.get("LANGUAGES", {})
+        lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
+        target_lang = lang_from_headers if lang_from_headers else default_lang
+        return redirect(url_for("main.index", ilng=target_lang))
+
     # Setup RQ Dashboard e Scheduler: - mover para um modulo proprio
     @app.before_request
     def check_user_logged_in_or_redirect():
