@@ -6,7 +6,7 @@ import flask_admin
 import rq_dashboard
 import rq_scheduler_dashboard
 from elasticapm.contrib.flask import ElasticAPM
-from flask import Flask, flash, redirect, request, url_for, send_from_directory
+from flask import Flask, flash, redirect, request, url_for
 from flask_babelex import Babel, lazy_gettext
 from flask_caching import Cache
 from flask_htmlmin import HTMLMIN
@@ -28,7 +28,6 @@ from opac_schema.v1.models import (
 from raven.contrib.flask import Sentry
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.routing import BaseConverter
-from werkzeug.urls import url_encode
 
 
 login_manager = LoginManager()
@@ -251,64 +250,6 @@ def create_app():
 
     app.register_blueprint(main_bp)
     app.register_blueprint(rest_bp)
-
-    # Root route: redirect to default language
-    @app.route("/")
-    def root_redirect():
-        """
-        Redirect root URL to default language.
-        This handles requests to / and redirects to /<default_lang>/
-        """
-        default_lang = app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
-        # Detect language from Accept-Language header if available
-        langs = app.config.get("LANGUAGES", {})
-        lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
-        target_lang = lang_from_headers if lang_from_headers else default_lang
-        return redirect(url_for("main.index", ilng=target_lang))
-
-    # Static file routes that should not have language prefix
-    @app.route("/robots.txt", methods=["GET"])
-    def get_robots_txt_file():
-        """Serve robots.txt from static folder"""
-        return send_from_directory("static", "robots.txt")
-
-    @app.route("/img/scielo.gif", methods=["GET"])
-    def full_text_image():
-        """Serve legacy full text image"""
-        return send_from_directory("static", "img/full_text_scielo_img.gif")
-
-    # Legacy URL redirects - redirect to language-prefixed versions
-    @app.route("/scielo.php/")
-    def scielo_php_redirect():
-        """
-        Redirect old scielo.php URLs to language-prefixed version.
-        This maintains backward compatibility with old external links.
-        """
-        default_lang = app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
-        langs = app.config.get("LANGUAGES", {})
-        lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
-        target_lang = lang_from_headers if lang_from_headers else default_lang
-        
-        # Build the new URL with language prefix and preserve query string
-        query_string = url_encode(request.args)
-        new_path = f"/{target_lang}/scielo.php/"
-        if query_string:
-            new_path += f"?{query_string}"
-        return redirect(new_path, code=301)
-
-    @app.route("/revistas/<path:journal_seg>/<string:page>.htm")
-    def revistas_redirect(journal_seg, page):
-        """
-        Redirect old /revistas/ URLs to language-prefixed version.
-        This maintains backward compatibility with old external links.
-        """
-        default_lang = app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
-        langs = app.config.get("LANGUAGES", {})
-        lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
-        target_lang = lang_from_headers if lang_from_headers else default_lang
-        
-        new_path = f"/{target_lang}/revistas/{journal_seg}/{page}.htm"
-        return redirect(new_path, code=301)
 
     # Setup RQ Dashboard e Scheduler: - mover para um modulo proprio
     @app.before_request

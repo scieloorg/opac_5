@@ -29,7 +29,7 @@
         <p class="text-center text-capitalize">
           <small>
             {% for k,v in config.LANGUAGES.items() %}
-              <a href="{{ url_for('main.index', ilng=k) }}">
+              <a href="{{ url_for('main.set_locale', lang_code=k) }}">
                 {% if k == g.lang %}
                   <strong>{{ v }}</strong>
                 {% else %}

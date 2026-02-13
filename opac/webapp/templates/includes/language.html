@@ -18,11 +18,7 @@
       {% for lang_code, lang_name in g.langs.items() %}
     
         {% if g.lang != lang_code %}
-        {% if request.endpoint %}
-        <li><a class="dropdown-item" href="{{ url_for(request.endpoint, ilng=lang_code, **request.view_args) }}" lang="{{lang_code}}">{{lang_name}}</a></li>
-        {% else %}
-        <li><a class="dropdown-item" href="/{{ lang_code }}/" lang="{{lang_code}}">{{lang_name}}</a></li>
-        {% endif %}
+        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code=lang_code) }}" lang="{{lang_code}}">{{lang_name}}</a></li>
         {% endif %}
 
       {% endfor %}
