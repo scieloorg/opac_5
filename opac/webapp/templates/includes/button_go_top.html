@@ -1,0 +1,27 @@
+<a id="btnTop" class="btn btn-primary btn-float-gotop"
+    data-bs-toggle="tooltip" title=""
+    href="#top"
+    data-bs-original-title="Ir para o topo" style="opacity: 1;">
+    <span class="material-icons-outlined mt-2" aria-hidden="true">
+        vertical_align_top
+    </span>
+</a>
+
+<script>
+    
+    // Mostrar o botão ao rolar
+    const btnTop = document.getElementById("btnTop");
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 200) {
+        btnTop.style.display = "block";
+      } else {
+        btnTop.style.display = "none";
+      }
+    });
+
+    // Rolar suavemente até o topo ao clicar
+    btnTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
