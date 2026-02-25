@@ -2,7 +2,7 @@
 <!-- social share tags -->
 <meta property="og:url" content="{{ request.url }}"/>
 <meta property="og:type" content="article"/>
-<meta property="og:title" content="{{ article.title|escape }}"/>
+<meta property="og:title" content="{{ article.title|default( _('Artigo sem título'), true)|escape }}"/>
 <meta property="og:description" content="{{ article.abstract|escape|truncate(100) }}"/>
 <meta property="og:image" content="{{ journal.logo_url|absolute_url(request.url_root) }}"/>
 <!-- social share tags -->
@@ -89,7 +89,7 @@
 
 {% if article.original_language == article_lang %}
     {% if article.title -%}
-        <meta name="citation_title" content="{{ article.title|escape }}"></meta>
+        <meta name="citation_title" content="{{ article.title|default( _('Artigo sem título'), true)|escape }}"></meta>
     {% endif -%}
 {%else -%}
     {%- if article.translated_titles -%}

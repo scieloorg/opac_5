@@ -86,7 +86,7 @@
                             <div class="badge-logo">
                                 <a href="{{ config.PLUMX_METRICS_URL }}/?doi={{ article.doi }}" data-popup="right" data-size="large"
                                     class="plumx-plum-print-popup plum-liberty-theme" data-site="plum" data-hide-when-empty="true"
-                                    data-no-link="true" target="_blank">{{ article.title }}</a>
+                                    data-no-link="true" target="_blank">{{ article.title|default( _('Artigo sem título'), true)|escape }}</a>
                             </div>
                         </div>
                         <a target="_blank" href="{{ config.PLUMX_METRICS_URL }}/?doi={{ article.doi }}">
