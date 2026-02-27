@@ -1,34 +1,84 @@
-<div class="modal fade ModalDefault" id="ModalVersionsTranslations" tabindex="-1" role="dialog" aria-hidden="true">
+<div
+  class="modal fade ModalDefault"
+  id="ModalVersionsTranslations"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="ModalVersionsTranslationsTitle"
+  aria-describedby="ModalVersionsTranslationsDesc">
   <div class="modal-dialog">
     <div class="modal-content">
+
       <div class="modal-header">
-        <h2 class="h4 modal-title">
+        <h2 class="h4 modal-title" id="ModalVersionsTranslationsTitle">
           {% trans %}Versões e tradução automática{% endtrans %}
         </h2>
-        <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="{% trans %}Fechar{% endtrans %}">
+        </button>
       </div>
+
       <div class="modal-body">
+
+        <p id="ModalVersionsTranslationsDesc" class="visually-hidden">
+          {% trans %}Escolha a versão original do texto ou utilize um serviço de tradução automática.{% endtrans %}
+        </p>
+
         <div class="row modal-center">
+
+          <!-- Versão original -->
           <div class="col-md-4 col-md-offset-1">
-            <strong>{% trans %}Versão original do texto{% endtrans %}</strong>
-            <ul class="md-list">
+            <h3 class="h6">
+              {% trans %}Versão original do texto{% endtrans %}
+            </h3>
+
             {% if text_versions %}
-              {% for code, name, url in text_versions  %}
-                <li>
-                  <a href="{{ url }}">{{ name }}</a>
-                </li>
-              {% endfor %}
+              <ul class="md-list">
+                {% for code, name, url in text_versions  %}
+                  <li>
+                    <a href="{{ url }}">{{ name }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>
+                {% trans %}Nenhuma versão disponível.{% endtrans %}
+              </p>
             {% endif %}
-            </ul>
           </div>
-          <div class="col-md-2 md-body-dashVertical"></div>
+
+          <div class="col-md-2 md-body-dashVertical" aria-hidden="true"></div>
+
+          <!-- Tradução automática -->
           <div class="col-md-4">
-            <strong>Tradução automática</strong>
+            <h3 class="h6">
+              {% trans %}Tradução automática{% endtrans %}
+            </h3>
+
             <ul class="md-list">
-              <li><a href="">Google Translator</a></li>
-              <li><a href="">Microsoft Translator</a></li>
+              <li>
+                <a href="#">
+                  Google Translator
+                  <span class="visually-hidden">
+                    {% trans %}(abre serviço externo de tradução){% endtrans %}
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="#">
+                  Microsoft Translator
+                  <span class="visually-hidden">
+                    {% trans %}(abre serviço externo de tradução){% endtrans %}
+                  </span>
+                </a>
+              </li>
             </ul>
           </div>
+
         </div>
       </div>
     </div>
