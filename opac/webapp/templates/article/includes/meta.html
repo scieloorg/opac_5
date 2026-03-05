@@ -74,6 +74,7 @@
 
 {% if article.doi -%}
     <meta name="citation_doi" content="{{ article.doi }}"></meta>
+    <meta name="dc.identifier" content="doi:{{ article.doi }}"/>
 {% endif -%}
 
 <meta name="citation_fulltext_world_readable" content=""></meta>
