@@ -94,6 +94,7 @@
           {%- set logo_url = img_macro.get_home_logo(g.collection, session.lang)|default('')|trim -%}
           <a href="/" aria-label="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}">
             {%- if logo_url -%}
+              <span class="visually-hidden">Logo {{ coll_macro.get_collection_name() }}</span>
               <img src="{{ logo_url }}" alt="{{ coll_macro.get_collection_name() }}" class="img-fluid scielo__logo-img">
             {%- else -%}
               <span class="visually-hidden">Logo SciELO</span>
