@@ -1085,7 +1085,7 @@ def article_detail_pid(pid):
     )
 
 
-def render_html_from_xml(article, lang, gs_abstract=False):
+def render_html_from_xml(article, lang, gs_abstract=False, crossmark_policy_page=None):
     logger.debug("Get XML: %s", article.xml)
 
     if current_app.config["SSM_XML_URL_REWRITE"]:
@@ -1105,6 +1105,7 @@ def render_html_from_xml(article, lang, gs_abstract=False):
         gs_abstract=gs_abstract,
         output_style="website",
         xslt=xslt,
+        crossmark_policy_page=crossmark_policy_page,
     )
 
     return generator.generate(lang), generator.languages
@@ -1136,9 +1137,9 @@ def render_html_abstract(article, lang):
     return abstract_text, article.abstract_languages
 
 
-def render_html(article, lang, gs_abstract=False):
+def render_html(article, lang, gs_abstract=False, crossmark_policy_page=None):
     if article.xml:
-        return render_html_from_xml(article, lang, gs_abstract)
+        return render_html_from_xml(article, lang, gs_abstract, crossmark_policy_page)
     elif article.htmls:
         if gs_abstract:
             return render_html_abstract(article, lang)
@@ -1274,8 +1275,13 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
                 website = "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
         if citation_pdf_url:
             citation_pdf_url = "{}{}".format(website, citation_pdf_url)
+        crossmark_policy_page = controllers.get_crossmark_policy_page(
+            article.journal, qs_lang
+        )
         try:
-            html, text_languages = render_html(article, qs_lang, gs_abstract)
+            html, text_languages = render_html(
+                article, qs_lang, gs_abstract, crossmark_policy_page
+            )
         except (ValueError, utils.NonRetryableError):
             abort(404, _("HTML do Artigo não encontrado ou indisponível"))
         except utils.RetryableError as exc:
