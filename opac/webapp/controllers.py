@@ -36,6 +36,7 @@ from opac_schema.v1.models import (
     Sponsor,
     LastIssue,
 )
+from .crossmark_models import CrossmarkPage
 from scieloh5m5 import h5m5
 from slugify import slugify
 from webapp import dbsql
@@ -1944,3 +1945,41 @@ def add_article(
     )
 
     return article.save()
+
+
+# -------- CROSSMARK --------
+
+
+def add_crossmark_page(doi, is_doi_active, language, journal):
+    """
+    Cria ou atualiza um registro de CrossmarkPage.
+
+    - ``doi``: string, DOI do documento
+    - ``is_doi_active``: bool, indica se o DOI está ativo
+    - ``language``: string, código do idioma (máx. 5 caracteres)
+    - ``journal``: instância de Journal
+
+    Retorna a instância de CrossmarkPage salva.
+    """
+    crossmark = CrossmarkPage.objects(doi=doi).first()
+
+    if crossmark is None:
+        crossmark = CrossmarkPage(
+            doi=doi,
+            is_doi_active=is_doi_active,
+            language=language,
+            journal=journal,
+        )
+    else:
+        crossmark.is_doi_active = is_doi_active
+        crossmark.language = language
+        crossmark.journal = journal
+
+    return crossmark.save()
+
+
+def get_crossmark_page_by_doi(doi):
+    """
+    Retorna um CrossmarkPage pelo seu DOI, ou None se não existir.
+    """
+    return CrossmarkPage.objects(doi=doi).first()
