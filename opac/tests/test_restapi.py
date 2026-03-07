@@ -578,6 +578,8 @@ class RestAPICrossmarkPageTestCase(BaseTestCase):
             "is_doi_active": True,
             "language": "pt",
             "journal_id": "1678-4464",
+            "url": "https://example.com/crossmark",
+            "text": "Crossmark policy text",
         }
 
     def _create_journal(self):
@@ -675,6 +677,40 @@ class RestAPICrossmarkPageTestCase(BaseTestCase):
             self.assertTrue(data["failed"])
             self.assertEqual(data["error"], "journal not found")
 
+    def test_add_crossmarkpolicy_missing_url(self):
+        with current_app.app_context():
+            self._create_journal()
+            payload = dict(self.crossmark_payload)
+            del payload["url"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("url", data["error"])
+
+    def test_add_crossmarkpolicy_missing_text(self):
+        with current_app.app_context():
+            self._create_journal()
+            payload = dict(self.crossmark_payload)
+            del payload["text"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("text", data["error"])
+
     def test_update_crossmarkpolicy(self):
         with current_app.app_context():
             self._create_journal()
@@ -686,8 +722,8 @@ class RestAPICrossmarkPageTestCase(BaseTestCase):
                     content_type="application/json",
                 )
             updated_payload = dict(self.crossmark_payload)
+            updated_payload["doi"] = "10.1234/updated.doi"
             updated_payload["is_doi_active"] = False
-            updated_payload["language"] = "en"
             with self.client as client:
                 response = client.put(
                     url_for("restapi.crossmarkpolicy"),
@@ -698,9 +734,9 @@ class RestAPICrossmarkPageTestCase(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             data = response.get_json()
             self.assertFalse(data["failed"])
-            crossmark = CrossmarkPage.objects(doi=self.crossmark_payload["doi"]).first()
+            crossmark = CrossmarkPage.objects(doi=updated_payload["doi"]).first()
             self.assertFalse(crossmark.is_doi_active)
-            self.assertEqual(crossmark.language, "en")
+            self.assertEqual(crossmark.language, "pt")
             self.assertEqual(CrossmarkPage.objects.count(), 1)
 
     def test_add_crossmarkpolicy_missing_payload(self):

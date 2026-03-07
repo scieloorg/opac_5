@@ -2260,8 +2260,14 @@ def crossmarkpolicy(*args):
         return jsonify({"failed": True, "error": "journal not found"}), 404
 
     is_doi_active = payload.get("is_doi_active", True)
+
     url = payload.get("url")
+    if not url:
+        return jsonify({"failed": True, "error": "missing field: url"}), 400
+
     text = payload.get("text")
+    if not text:
+        return jsonify({"failed": True, "error": "missing field: text"}), 400
 
     try:
         crossmark = controllers.add_crossmark_page(

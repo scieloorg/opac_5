@@ -1954,16 +1954,18 @@ def add_crossmark_page(doi, is_doi_active, language, journal, url=None, text=Non
     """
     Cria ou atualiza um registro de CrossmarkPage.
 
+    O registro é identificado pela combinação de ``journal`` e ``language``.
+
     - ``doi``: string, DOI do documento
     - ``is_doi_active``: bool, indica se o DOI está ativo
     - ``language``: string, código do idioma (máx. 5 caracteres)
     - ``journal``: instância de Journal
-    - ``url``: string, URL da política de atualização (opcional)
-    - ``text``: string, texto da política de atualização (opcional)
+    - ``url``: string, URL da política de atualização
+    - ``text``: string, texto da política de atualização
 
     Retorna a instância de CrossmarkPage salva.
     """
-    crossmark = CrossmarkPage.objects(doi=doi).first()
+    crossmark = CrossmarkPage.objects(journal=journal, language=language).first()
 
     if crossmark is None:
         crossmark = CrossmarkPage(
@@ -1973,9 +1975,8 @@ def add_crossmark_page(doi, is_doi_active, language, journal, url=None, text=Non
             journal=journal,
         )
     else:
+        crossmark.doi = doi
         crossmark.is_doi_active = is_doi_active
-        crossmark.language = language
-        crossmark.journal = journal
 
     crossmark.url = url
     crossmark.text = text
