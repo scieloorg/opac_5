@@ -1127,7 +1127,7 @@ def get_crossmark_policy_page(journal, lang):
         journal=journal, language=lang, is_doi_active=True
     ).first()
     if crossmark:
-        return "https://doi.org/{}".format(crossmark.doi)
+        return crossmark.url
     return None
 
 

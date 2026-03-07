@@ -1985,10 +1985,27 @@ class CrossmarkPolicyPageControllerTestCase(BaseTestCase):
         journal = self._make_journal()
         self._make_crossmark(
             journal,
+            {
+                "doi": "10.1590/crossmark-policy",
+                "url": "https://www.crossref.org/crossmark-policy",
+                "language": "en",
+                "is_doi_active": True,
+            },
+        )
+        result = controllers.get_crossmark_policy_page(journal, "en")
+        self.assertEqual("https://www.crossref.org/crossmark-policy", result)
+
+    def test_returns_none_when_active_crossmark_has_no_url(self):
+        """
+        Retorna None quando CrossmarkPage ativa não possui url.
+        """
+        journal = self._make_journal()
+        self._make_crossmark(
+            journal,
             {"doi": "10.1590/crossmark-policy", "language": "en", "is_doi_active": True},
         )
         result = controllers.get_crossmark_policy_page(journal, "en")
-        self.assertEqual("https://doi.org/10.1590/crossmark-policy", result)
+        self.assertIsNone(result)
 
     def test_returns_none_when_no_crossmark_exists(self):
         """
