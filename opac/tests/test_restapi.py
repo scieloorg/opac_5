@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 from flask import current_app, url_for
 from flask_babelex import gettext as _
 from opac_schema.v1 import models
+from opac_schema.v1.models import CrossmarkPage
 
 from .base import BaseTestCase
 
@@ -564,3 +565,189 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
             self.assertEqual(resp.status_code, 404)
             self.assertEqual(data.get("failed"), True)
             self.assertEqual(data.get("error"), "issue not found")
+
+class RestAPICrossmarkPageTestCase(BaseTestCase):
+    def load_json_fixture(self, filename):
+        with open(os.path.join(FIXTURES_PATH, filename)) as f:
+            return json.load(f)
+
+    def setUp(self):
+        self.journal_dict = self.load_json_fixture("journal_payload.json")
+        self.crossmark_payload = {
+            "doi": "10.1234/example.doi",
+            "is_doi_active": True,
+            "language": "pt",
+            "journal_id": "1678-4464",
+            "url": "https://example.com/crossmark",
+            "text": "Crossmark policy text",
+        }
+
+    def _create_journal(self):
+        with self.client as client:
+            client.post(
+                url_for("restapi.journal"),
+                data=json.dumps(self.journal_dict),
+                follow_redirects=True,
+                content_type="application/json",
+            )
+
+    def test_add_crossmarkpolicy(self):
+        with current_app.app_context():
+            self._create_journal()
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(self.crossmark_payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertFalse(data["failed"])
+            self.assertEqual(data["doi"], self.crossmark_payload["doi"])
+            crossmark = CrossmarkPage.objects(doi=self.crossmark_payload["doi"]).first()
+            self.assertIsNotNone(crossmark)
+            self.assertEqual(crossmark.doi, self.crossmark_payload["doi"])
+            self.assertTrue(crossmark.is_doi_active)
+            self.assertEqual(crossmark.language, "pt")
+
+    def test_add_crossmarkpolicy_missing_doi(self):
+        with current_app.app_context():
+            self._create_journal()
+            payload = dict(self.crossmark_payload)
+            del payload["doi"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("doi", data["error"])
+
+    def test_add_crossmarkpolicy_missing_language(self):
+        with current_app.app_context():
+            self._create_journal()
+            payload = dict(self.crossmark_payload)
+            del payload["language"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("language", data["error"])
+
+    def test_add_crossmarkpolicy_missing_journal_id(self):
+        with current_app.app_context():
+            payload = dict(self.crossmark_payload)
+            del payload["journal_id"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("journal_id", data["error"])
+
+    def test_add_crossmarkpolicy_journal_not_found(self):
+        with current_app.app_context():
+            payload = dict(self.crossmark_payload)
+            payload["journal_id"] = "9999-9999"
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 404)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertEqual(data["error"], "journal not found")
+
+    def test_add_crossmarkpolicy_missing_url(self):
+        with current_app.app_context():
+            self._create_journal()
+            payload = dict(self.crossmark_payload)
+            del payload["url"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("url", data["error"])
+
+    def test_add_crossmarkpolicy_missing_text(self):
+        with current_app.app_context():
+            self._create_journal()
+            payload = dict(self.crossmark_payload)
+            del payload["text"]
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])
+            self.assertIn("text", data["error"])
+
+    def test_update_crossmarkpolicy(self):
+        with current_app.app_context():
+            self._create_journal()
+            with self.client as client:
+                client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(self.crossmark_payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            updated_payload = dict(self.crossmark_payload)
+            updated_payload["doi"] = "10.1234/updated.doi"
+            updated_payload["is_doi_active"] = False
+            with self.client as client:
+                response = client.put(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=json.dumps(updated_payload),
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertFalse(data["failed"])
+            crossmark = CrossmarkPage.objects(doi=updated_payload["doi"]).first()
+            self.assertFalse(crossmark.is_doi_active)
+            self.assertEqual(crossmark.language, "pt")
+            self.assertEqual(CrossmarkPage.objects.count(), 1)
+
+    def test_add_crossmarkpolicy_missing_payload(self):
+        with current_app.app_context():
+            with self.client as client:
+                response = client.post(
+                    url_for("restapi.crossmarkpolicy"),
+                    data=None,
+                    follow_redirects=True,
+                    content_type="application/json",
+                )
+            self.assertEqual(response.status_code, 400)
+            data = response.get_json()
+            self.assertTrue(data["failed"])

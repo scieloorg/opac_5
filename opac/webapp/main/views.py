@@ -2220,6 +2220,70 @@ def journal_last_issues(*args):
     return list(controllers.journal_last_issues() or [])
 
 
+@restapi.route("/crossmarkpolicy", methods=["POST", "PUT"])
+@helper.token_required
+def crossmarkpolicy(*args):
+    """
+    Endpoint para criar ou atualizar a política de atualização (CrossmarkPage) de um periódico.
+
+    Payload de exemplo:
+        {
+            "doi": "10.1234/example.doi",
+            "is_doi_active": true,
+            "language": "pt",
+            "journal_id": "1678-4464",
+            "url": "https://example.com/crossmark",
+            "text": "Crossmark policy text"
+        }
+
+    O campo ``journal_id`` pode ser um eISSN, pISSN ou scielo_issn do periódico.
+    """
+    payload = request.get_json()
+
+    if not payload:
+        return jsonify({"failed": True, "error": "missing payload"}), 400
+
+    doi = payload.get("doi")
+    if not doi:
+        return jsonify({"failed": True, "error": "missing field: doi"}), 400
+
+    language = payload.get("language")
+    if not language:
+        return jsonify({"failed": True, "error": "missing field: language"}), 400
+
+    journal_id = payload.get("journal_id")
+    if not journal_id:
+        return jsonify({"failed": True, "error": "missing field: journal_id"}), 400
+
+    journal = controllers.get_journal_by_issn(issn=journal_id)
+    if not journal:
+        return jsonify({"failed": True, "error": "journal not found"}), 404
+
+    is_doi_active = payload.get("is_doi_active", True)
+
+    url = payload.get("url")
+    if not url:
+        return jsonify({"failed": True, "error": "missing field: url"}), 400
+
+    text = payload.get("text")
+    if not text:
+        return jsonify({"failed": True, "error": "missing field: text"}), 400
+
+    try:
+        crossmark = controllers.add_crossmark_page(
+            doi=doi,
+            is_doi_active=is_doi_active,
+            language=language,
+            journal=journal,
+            url=url,
+            text=text,
+        )
+    except Exception as ex:
+        return jsonify({"failed": True, "error": str(ex)}), 500
+    else:
+        return jsonify({"failed": False, "doi": crossmark.doi}), 200
+
+
 def remover_tags_html(texto):
     soup = BeautifulSoup(texto, 'html.parser')
     return soup.get_text()
