@@ -95,10 +95,14 @@
             <a class="list-group-item" href="{{ journal.online_submission_url|default('', true) }}" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
           {% endif %}
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#about" class="scroll"><span class="material-icons-outlined">info</span> {% trans %}Sobre o periódico{% endtrans %}</a>
-            <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#item-2" class="scroll"><span class="material-icons-outlined">article</span> {% trans %}Política editorial{% endtrans %}</a>
+            <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editorialpolicy" class="scroll"><span class="material-icons-outlined">article</span> {% trans %}Política editorial{% endtrans %}</a>
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="scroll"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#instructions" class="scroll"><span class="material-icons-outlined">help_outline</span> {% trans %}Instruções aos autores{% endtrans %}</a>
             <a class="list-group-item" href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#contact" class="scroll"><span class="material-icons-outlined">markunread</span> {% trans %}Contato{% endtrans %}</a>
+          {% set update_policy_page = get_update_policy_page(journal.acronym, session.get('lang', 'pt_BR')) %}
+          {% if update_policy_page %}
+            <a class="list-group-item" href="{{ url_for('.update_policy', url_seg=journal.url_segment) }}"><span class="material-icons-outlined">update</span> {% trans %}Política de atualização{% endtrans %}</a>
+          {% endif %}
           
           {#
             {% if journal.enable_contact %}

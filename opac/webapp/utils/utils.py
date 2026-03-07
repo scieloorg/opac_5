@@ -385,6 +385,38 @@ def create_page(name, language, content, journal=None, description=None):
     return page
 
 
+def create_update_policy_page(journal_acron, language, content, crossmark_url=None):
+    """
+    Cria uma página de política de atualização (crossmark) para um periódico
+    no modelo Pages, mas somente se a URL está ausente ou segue o padrão
+    `https://domain/j/journal_acron/update_policy/`.
+
+    Parâmetro journal_acron: acrônimo do periódico
+    Parâmetro language: idioma do texto da página
+    Parâmetro content: conteúdo em HTML da página
+    Parâmetro crossmark_url: URL do crossmark do periódico (opcional)
+    """
+    standard_pattern = re.compile(
+        r"https?://[^/]+/j/" + re.escape(journal_acron) + r"/update_policy/?$"
+    )
+    if crossmark_url is not None and not standard_pattern.match(crossmark_url):
+        return None
+
+    existing = Pages.objects(
+        journal=journal_acron, slug_name="update-policy", language=language
+    ).first()
+    if existing:
+        return existing
+
+    return create_page(
+        name="update_policy",
+        language=language,
+        content=content,
+        journal=journal_acron,
+        description="Política de atualização do periódico %s" % journal_acron,
+    )
+
+
 def join_html_files_content(revistas_path, acron, files):
     """
     Função que lê os arquivos aboutj.htm, instruct.htm e edboard.htm

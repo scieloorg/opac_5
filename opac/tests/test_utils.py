@@ -420,3 +420,82 @@ class UtilsTestCase(BaseTestCase):
             '<a href="http://www.scielo.br/avaliacao/avaliacao_en.htm"></a>',
             new_content,
         )
+
+
+class CreateUpdatePolicyPageTestCase(BaseTestCase):
+    def test_create_update_policy_page_creates_page_when_no_url(self):
+        """
+        Teste da função create_update_policy_page().
+        Deve criar uma página quando crossmark_url está ausente.
+        """
+        with self._ctx.app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            page = wutils.create_update_policy_page(
+                journal_acron=journal.acronym,
+                language="pt_BR",
+                content="<p>Política de atualização</p>",
+            )
+            self.assertIsNotNone(page)
+            self.assertEqual(page.slug_name, "update-policy")
+            self.assertEqual(page.journal, journal.acronym)
+            self.assertEqual(page.language, "pt_BR")
+
+    def test_create_update_policy_page_creates_page_when_standard_url(self):
+        """
+        Teste da função create_update_policy_page().
+        Deve criar uma página quando crossmark_url segue o padrão padrão.
+        """
+        with self._ctx.app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            standard_url = (
+                "https://scielo.br/j/%s/update_policy/" % journal.acronym
+            )
+            page = wutils.create_update_policy_page(
+                journal_acron=journal.acronym,
+                language="pt_BR",
+                content="<p>Política de atualização</p>",
+                crossmark_url=standard_url,
+            )
+            self.assertIsNotNone(page)
+            self.assertEqual(page.slug_name, "update-policy")
+
+    def test_create_update_policy_page_returns_none_when_external_url(self):
+        """
+        Teste da função create_update_policy_page().
+        Deve retornar None quando crossmark_url é uma URL externa não padrão.
+        """
+        with self._ctx.app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            page = wutils.create_update_policy_page(
+                journal_acron=journal.acronym,
+                language="pt_BR",
+                content="<p>Política de atualização</p>",
+                crossmark_url="https://doi.org/10.1016/crossmark-policy",
+            )
+            self.assertIsNone(page)
+
+    def test_create_update_policy_page_returns_existing_page(self):
+        """
+        Teste da função create_update_policy_page().
+        Deve retornar a página existente ao invés de criar outra.
+        """
+        with self._ctx.app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            existing_page = utils.makeOnePage(
+                {
+                    "name": "update_policy",
+                    "slug_name": "update-policy",
+                    "language": "pt_BR",
+                    "journal": journal.acronym,
+                }
+            )
+            page = wutils.create_update_policy_page(
+                journal_acron=journal.acronym,
+                language="pt_BR",
+                content="<p>Novo conteúdo</p>",
+            )
+            self.assertEqual(page.id, existing_page.id)
