@@ -35,6 +35,7 @@ from opac_schema.v1.models import (
     PressRelease,
     Sponsor,
     LastIssue,
+    CrossmarkPage,
 )
 from scieloh5m5 import h5m5
 from slugify import slugify
@@ -1112,6 +1113,22 @@ def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
         previous_article = queryset.filter(order__lt=article.order).order_by("-order").first()
 
     return lang, article, {"next_article": next_article, "previous_article": previous_article}
+
+
+def get_crossmark_policy_page(journal, lang):
+    """
+    Retorna a URL da página de política do Crossmark para o periódico e idioma
+    informados, ou ``None`` caso não exista registro ativo.
+
+    - ``journal``: objeto Journal do artigo;
+    - ``lang``: string, código do idioma (ex.: ``'pt'``, ``'en'``).
+    """
+    crossmark = CrossmarkPage.objects(
+        journal=journal, language=lang, is_doi_active=True
+    ).first()
+    if crossmark:
+        return crossmark.url
+    return None
 
 
 def get_existing_lang(article, lang, gs_abstract):

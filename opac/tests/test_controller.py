@@ -1969,3 +1969,72 @@ class AddFilterWithoutEmbargoTestCase(TestCase):
         expected = {"is_public": False, "publication_date__lte": "2021-01-01"}
         result = controllers.add_filter_without_embargo(kwargs)
         self.assertDictEqual(expected, result)
+
+
+class CrossmarkPolicyPageControllerTestCase(BaseTestCase):
+    def _make_journal(self, attrib=None):
+        return utils.makeOneJournal(attrib=attrib)
+
+    def _make_crossmark(self, journal, attrib=None):
+        return utils.makeOneCrossmarkPage(journal, attrib=attrib)
+
+    def test_returns_url_when_active_crossmark_exists(self):
+        """
+        Retorna URL quando há CrossmarkPage ativa para o periódico e idioma.
+        """
+        journal = self._make_journal()
+        self._make_crossmark(
+            journal,
+            {
+                "doi": "10.1590/crossmark-policy",
+                "url": "https://www.crossref.org/crossmark-policy",
+                "language": "en",
+                "is_doi_active": True,
+            },
+        )
+        result = controllers.get_crossmark_policy_page(journal, "en")
+        self.assertEqual("https://www.crossref.org/crossmark-policy", result)
+
+    def test_returns_none_when_active_crossmark_has_no_url(self):
+        """
+        Retorna None quando CrossmarkPage ativa não possui url.
+        """
+        journal = self._make_journal()
+        self._make_crossmark(
+            journal,
+            {"doi": "10.1590/crossmark-policy", "language": "en", "is_doi_active": True},
+        )
+        result = controllers.get_crossmark_policy_page(journal, "en")
+        self.assertIsNone(result)
+
+    def test_returns_none_when_no_crossmark_exists(self):
+        """
+        Retorna None quando não há CrossmarkPage para o periódico e idioma.
+        """
+        journal = self._make_journal()
+        result = controllers.get_crossmark_policy_page(journal, "en")
+        self.assertIsNone(result)
+
+    def test_returns_none_when_crossmark_is_not_active(self):
+        """
+        Retorna None quando CrossmarkPage existe mas is_doi_active=False.
+        """
+        journal = self._make_journal()
+        self._make_crossmark(
+            journal,
+            {"doi": "10.1590/crossmark-policy", "language": "pt", "is_doi_active": False},
+        )
+        result = controllers.get_crossmark_policy_page(journal, "pt")
+        self.assertIsNone(result)
+
+    def test_returns_none_when_language_does_not_match(self):
+        """
+        Retorna None quando CrossmarkPage existe para idioma diferente.
+        """
+        journal = self._make_journal()
+        self._make_crossmark(
+            journal,
+            {"doi": "10.1590/crossmark-policy", "language": "en", "is_doi_active": True},
+        )
+        result = controllers.get_crossmark_policy_page(journal, "pt")
+        self.assertIsNone(result)

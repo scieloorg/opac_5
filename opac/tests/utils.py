@@ -377,3 +377,20 @@ def getLastIssue(attrib=None):  # noqa
         last_issue.get("suppl_text") or "",
     )
     return models.LastIssue(**last_issue)
+
+
+def makeOneCrossmarkPage(journal, attrib=None):  # noqa
+    """
+    Retorna um objeto ``CrossmarkPage`` com os atributos obrigatórios:
+    ``doi``, ``language``, ``journal``.
+    Atualiza o objeto de retorno com os valores do param ``attrib``.
+    """
+    attrib = attrib or {}
+    crossmark = {
+        "doi": attrib.get("doi", "10.1590/crossmark-policy"),
+        "is_doi_active": attrib.get("is_doi_active", True),
+        "language": attrib.get("language", "en"),
+        "journal": journal,
+    }
+    crossmark.update({k: v for k, v in attrib.items() if k not in crossmark})
+    return models.CrossmarkPage(**crossmark).save()
