@@ -1765,6 +1765,15 @@ def get_page_by_slug_name(slug_name, lang=None, is_draft=False):
     return Pages.objects(language=lang, slug_name=slug_name, is_draft=is_draft).first()
 
 
+def get_update_policy_page_by_journal_acron_lang(acron, language, is_draft=False):
+    return Pages.objects(
+        language=language,
+        journal=acron,
+        slug_name="update-policy",
+        is_draft=is_draft,
+    ).first()
+
+
 def related_links(article):
     expr = []
     if article.title or article.section:
