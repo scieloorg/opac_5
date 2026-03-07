@@ -28,6 +28,7 @@ from mongoengine.errors import InvalidQueryError
 from opac_schema.v1.models import (
     Article,
     Collection,
+    CrossmarkPage,
     Issue,
     Journal,
     News,
@@ -36,7 +37,6 @@ from opac_schema.v1.models import (
     Sponsor,
     LastIssue,
 )
-from .crossmark_models import CrossmarkPage
 from scieloh5m5 import h5m5
 from slugify import slugify
 from webapp import dbsql
@@ -1950,7 +1950,7 @@ def add_article(
 # -------- CROSSMARK --------
 
 
-def add_crossmark_page(doi, is_doi_active, language, journal):
+def add_crossmark_page(doi, is_doi_active, language, journal, url=None, text=None):
     """
     Cria ou atualiza um registro de CrossmarkPage.
 
@@ -1958,6 +1958,8 @@ def add_crossmark_page(doi, is_doi_active, language, journal):
     - ``is_doi_active``: bool, indica se o DOI está ativo
     - ``language``: string, código do idioma (máx. 5 caracteres)
     - ``journal``: instância de Journal
+    - ``url``: string, URL da política de atualização (opcional)
+    - ``text``: string, texto da política de atualização (opcional)
 
     Retorna a instância de CrossmarkPage salva.
     """
@@ -1974,6 +1976,9 @@ def add_crossmark_page(doi, is_doi_active, language, journal):
         crossmark.is_doi_active = is_doi_active
         crossmark.language = language
         crossmark.journal = journal
+
+    crossmark.url = url
+    crossmark.text = text
 
     return crossmark.save()
 

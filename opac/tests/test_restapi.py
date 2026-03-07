@@ -5,9 +5,9 @@ from unittest.mock import Mock, patch
 from flask import current_app, url_for
 from flask_babelex import gettext as _
 from opac_schema.v1 import models
+from opac_schema.v1.models import CrossmarkPage
 
 from .base import BaseTestCase
-from webapp.crossmark_models import CrossmarkPage
 
 
 FIXTURES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")

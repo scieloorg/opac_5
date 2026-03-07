@@ -2231,7 +2231,9 @@ def crossmarkpolicy(*args):
             "doi": "10.1234/example.doi",
             "is_doi_active": true,
             "language": "pt",
-            "journal_id": "1678-4464"
+            "journal_id": "1678-4464",
+            "url": "https://example.com/crossmark",
+            "text": "Crossmark policy text"
         }
 
     O campo ``journal_id`` pode ser um eISSN, pISSN ou scielo_issn do periódico.
@@ -2258,6 +2260,8 @@ def crossmarkpolicy(*args):
         return jsonify({"failed": True, "error": "journal not found"}), 404
 
     is_doi_active = payload.get("is_doi_active", True)
+    url = payload.get("url")
+    text = payload.get("text")
 
     try:
         crossmark = controllers.add_crossmark_page(
@@ -2265,6 +2269,8 @@ def crossmarkpolicy(*args):
             is_doi_active=is_doi_active,
             language=language,
             journal=journal,
+            url=url,
+            text=text,
         )
     except Exception as ex:
         return jsonify({"failed": True, "error": str(ex)}), 500
