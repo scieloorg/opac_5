@@ -40,6 +40,13 @@
     {{ collection.logo_footer|default("", true) }}
 {%- endmacro %}
 
+
+{% macro render_logo(logo_url, alt_text, href='/', img_class='img-fluid scielo__logo-img') -%}
+    {%- if logo_url -%}
+        <a href="{{ href }}"><img src="{{ logo_url }}" alt="{{ alt_text }}" class="{{ img_class }}"></a>
+    {%- endif -%}
+{%- endmacro %}
+
 {% macro proxy_ssm_resource_url(ssm_url) -%}
     {%- if ssm_url.startswith('http') and config['SSM_MEDIA_PATH'] in ssm_url -%}
         {{ config['SSM_MEDIA_PATH'] }}{{ ssm_url.split(config['SSM_MEDIA_PATH'])[1] }}

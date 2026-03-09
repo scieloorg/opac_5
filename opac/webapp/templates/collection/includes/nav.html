@@ -11,8 +11,7 @@
       <li class="logo">
         {%- set menu_logo_url = img_macro.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
         {%- if menu_logo_url -%}
-          <span class="visually-hidden">Logo {{ coll_macro.get_collection_name() }}</span>
-          <img src="{{ menu_logo_url }}" alt="{{ coll_macro.get_collection_name() }}" class="img-fluid">
+          {{ img_macro.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
         {%- else -%}
           <div class="scielo__logo-scielo--small"></div>
         {%- endif -%}
