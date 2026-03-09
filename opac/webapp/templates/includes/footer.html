@@ -1,3 +1,5 @@
+{% import 'macros/images.html' as img_macro %}
+{% import 'macros/collection.html' as coll_macro %}
 <style>
 	.scielo__logo-partner{
       max-height: 50px;
@@ -19,8 +21,14 @@
 		<div class="container">
 			<div class="row">
 				<div class="col col-12 col-sm-2 text-center">
-					<div class="scielo__logo-scielo--small" alt="Logo SciELO"></div>
-				</div>
+				{%- set footer_logo_url = img_macro.get_footer_logo(g.collection)|default('')|trim -%}
+				{%- if footer_logo_url -%}
+					<span class="visually-hidden">Logo SciELO {{ coll_macro.get_collection_name() }}</span>
+					<img src="{{ footer_logo_url }}" alt="{{ coll_macro.get_collection_name() }}" class="img-fluid scielo__logo-img">
+				{%- else -%}
+					<div class="scielo__logo-scielo--small" aria-hidden="true"></div>
+				{%- endif -%}
+			</div>
 				<div class="col col-12 col-sm-8 text-center text-sm-start">
 					<p><small><strong> SciELO - Scientific Electronic Library Online</strong></small></p>
 					<p><small>{{ g.collection.address1 or '' }}<br/>

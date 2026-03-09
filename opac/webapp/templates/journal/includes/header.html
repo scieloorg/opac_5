@@ -8,10 +8,16 @@
               {% include "collection/includes/nav.html" %}
           </div>
           <div class="col col-md-3">
+              {%- set header_logo_url = cimages.get_header_logo(g.collection, session.lang)|default('')|trim -%}
               <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
+                {%- if header_logo_url -%}
+                  <span class="visually-hidden">Logo {{ coll_macro.get_collection_name() }}</span>
+                  <img src="{{ header_logo_url }}" alt="{{ coll_macro.get_collection_name() }}" class="img-fluid scielo__logo-img my-1 ms-5">
+                {%- else -%}
                   <div class="scielo__logo-scielo-collection my-1 ms-5">
                     <small id="collectionNameInternal">{{ coll_macro.get_collection_name() }}</small>
                   </div>
+                {%- endif -%}
               </a>
           </div>
           <div class="d-none d-md-block d-lg-none col col-md-5 d-print-none">

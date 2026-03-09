@@ -1,4 +1,5 @@
 {% import 'macros/collection.html' as coll_macro %}
+{% import 'macros/images.html' as img_macro %}
 
 <details class="scielo__accessibleMenu">
   <summary>
@@ -8,7 +9,13 @@
   <nav style="max-height: 780px;">
     <ul>
       <li class="logo">
-        <div class="scielo__logo-scielo--small"></div>
+        {%- set menu_logo_url = img_macro.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
+        {%- if menu_logo_url -%}
+          <span class="visually-hidden">Logo {{ coll_macro.get_collection_name() }}</span>
+          <img src="{{ menu_logo_url }}" alt="{{ coll_macro.get_collection_name() }}" class="img-fluid">
+        {%- else -%}
+          <div class="scielo__logo-scielo--small"></div>
+        {%- endif -%}
       </li>
       <li>
         <a href="{{ url_for('.index') }}" alt="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}">
