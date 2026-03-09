@@ -5,15 +5,8 @@
     {% trans %}Resumo{% endtrans %}
     {% for abstract in article.abstracts  %}
       {% if gs_abstract and article_lang == abstract['language'] %}  
-        {% if abstract['language'] == 'es' %}
-        (ES)
-        {% elif abstract['language'] == 'en' %}
-        (EN)
-        {% elif abstract['language'] == 'pt' %}
-        (PT)
-        {% else %}
-          {{ abstract['language'] }}
-        {% endif %}
+        {# Botão colapsado: mostra código ISO em MAIÚSCULO #}
+        ({{ abstract['language']|upper }})
       {% endif %}
     {% endfor %}
   </button>
@@ -23,28 +16,16 @@
           {% if gs_abstract and article_lang == abstract['language'] %}
               <a href="#" class="current dropdown-item">
                 {% trans %}Resumo{% endtrans %}
-                {% if abstract['language'] == 'es' %}
-                  ({% trans %}Espanhol{% endtrans %})
-                {% elif abstract['language'] == 'en' %}
-                  ({% trans %}Inglês{% endtrans %})
-                {% elif abstract['language'] == 'pt' %}
-                  ({% trans %}Português{% endtrans %})
-                {% else %}
-                  ({{ abstract['language'] }})
-                {% endif %}
+                {# Dropdown expandido: mostra nome traduzido do idioma #}
+                {# g.interface_language contém o idioma da interface (pt/en/es) #}
+                {# Compatível com PR #366 - migração de session.get('lang') para g.interface_language #}
+                ({{ abstract['language']|language_name(g.interface_language) }})
               </a>
           {% else %}
               <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}" class="dropdown-item">
                 {% trans %}Resumo {% endtrans %}
-                {% if abstract['language'] == 'es' %}
-                  ({% trans %}Espanhol{% endtrans %})
-                {% elif abstract['language'] == 'en' %}
-                  ({% trans %}Inglês{% endtrans %})
-                {% elif abstract['language'] == 'pt' %}
-                  ({% trans %}Português{% endtrans %})
-                {% else %}
-                  ({{ abstract['language'] }})
-                {% endif %}
+                {# Dropdown expandido: mostra nome traduzido do idioma #}
+                ({{ abstract['language']|language_name(g.interface_language) }})
               </a>
           {% endif %}
       <li>
@@ -52,4 +33,3 @@
   </ul>
 </div>
 {% endif %}
-
