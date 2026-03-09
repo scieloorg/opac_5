@@ -2400,24 +2400,24 @@ class TestJournalGrid(BaseTestCase):
             self.assertStatus(response, 200)
             self.assertTemplateUsed("issue/grid.html")
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/grid" />'
+                '<meta property="og:url" content="http://%s/j/journal_acron/grid"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:type" content="website" />',
+                '<meta property="og:type" content="website"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:title" content="Social Meta tags" />',
+                '<meta property="og:title" content="Social Meta tags"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:description" content="Esse periódico tem com objetivo xpto" />',
+                '<meta property="og:description" content="Esse periódico tem com objetivo xpto"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None" />'
+                '<meta property="og:image" content="http://%s/None"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
@@ -2634,24 +2634,24 @@ class TestIssueToc(BaseTestCase):
             self.assertTemplateUsed("issue/toc.html")
 
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/i/2023.v10n31supplX/" />'
+                '<meta property="og:url" content="http://%s/j/journal_acron/i/2023.v10n31supplX/"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:type" content="website" />',
+                '<meta property="og:type" content="website"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:title" content="Social Meta tags" />',
+                '<meta property="og:title" content="Social Meta tags"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:description" content="Esse periódico tem com objetivo xpto" />',
+                '<meta property="og:description" content="Esse periódico tem com objetivo xpto"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None" />'
+                '<meta property="og:image" content="http://%s/None"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
