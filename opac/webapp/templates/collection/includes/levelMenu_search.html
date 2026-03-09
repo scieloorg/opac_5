@@ -4,7 +4,7 @@
   <div class="container">
     <form class="visually-hidden" method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
       <input type="hidden" name="q" id="q" value="">
-      <input type="hidden" name="lang" id="lang" value="{% if session.lang %}{{ session.lang[:2] }}{% endif %}">
+      <input type="hidden" name="lang" id="lang" value="{% if g.lang %}{{ g.lang[:2] }}{% endif %}">
       <input type="hidden" name="filter[in][]" value="{{ config.OPAC_COLLECTION }}">
       <button type="submit">Enviar</button>
     </form>
