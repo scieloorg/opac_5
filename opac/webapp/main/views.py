@@ -327,12 +327,12 @@ def collection_list_feed():
 @main.route("/about/<path:slug_name>", methods=["GET"])
 def page_about_detail(slug_name):
     language = session.get("lang", get_locale())
-    page = controllers.get_page_by_slug_about(slug_name, lang=language, is_draft=False)
+    page = controllers.get_page_by_slug_name(slug_name, lang=language, is_draft=False)
     
     if not page:
         abort(404, _("Página não encontrada"))
     breadcrumbs = utils.build_breadcrumbs(page)
-    children = utils.get_children_in_order(page)
+    children = page.get_children()
     context = {
         "children": children,
         "breadcrumbs": breadcrumbs,
