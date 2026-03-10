@@ -1,20 +1,20 @@
 {% import 'macros/images.html' as cimages %}
 {% import 'macros/collection.html' as coll_macro %}
 
-<header class="fixed-top scielo__shadow-2">
+<header class="scielo__shadow-2">
   <div class="container">
       <div class="row">
-          <div class="col-2 col-sm-1 d-print-none">
+          <div class="col-2 col-md-1 d-print-none">
               {% include "collection/includes/nav.html" %}
           </div>
-          <div class="col col-sm-3">
+          <div class="col col-md-3">
               <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
-                  <div class="scielo__logo-scielo-collection mt-1 ms-5">
-                      <small>{{ coll_macro.get_collection_name() }}</small>
+                  <div class="scielo__logo-scielo-collection my-1 ms-5">
+                    <small id="collectionNameInternal">{{ coll_macro.get_collection_name() }}</small>
                   </div>
               </a>
           </div>
-          <div class="d-none d-sm-block d-lg-none col col-sm-5 d-print-none">
+          <div class="d-none d-md-block d-lg-none col col-md-5 d-print-none">
               <div class="dropdown mt-3">
                   <button class="btn btn-link dropdown-toggle mb-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="text-truncate scielo__truncate">{{ journal.title }} </span>
@@ -50,7 +50,7 @@
                   </ul>
                 </div>
           </div>
-          <div class="col col-sm-3 col-lg-3 offset-lg-5">
+          <div class="col col-md-3 col-lg-3 offset-lg-5">
               <div class="language mt-3">
                 {% include "includes/language.html" %}
               </div>

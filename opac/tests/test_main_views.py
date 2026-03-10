@@ -1742,6 +1742,57 @@ class MainTestCase(BaseTestCase):
                 content,
             )
 
+    @patch("requests.get")
+    def test_article_detail_v3_has_dc_identifier_meta_tag(self, mocked_requests_get):
+        """
+        Teste da ``view function`` ``article_detail_v3``, deve retornar uma página
+        que usa o template ``article/detail.html`` com o meta dc.identifier do DOI.
+        """
+        mocked_response = Mock()
+        mocked_response.status_code = 200
+        mocked_response.content = b"<html/>"
+        mocked_requests_get.return_value = mocked_response
+
+        with current_app.app_context():
+            utils.makeOneCollection()
+
+            journal = utils.makeOneJournal()
+
+            issue = utils.makeOneIssue({"journal": journal})
+
+            article = utils.makeOneArticle(
+                {
+                    "title": "Article Y",
+                    "original_language": "pt",
+                    "languages": ["pt"],
+                    "issue": issue,
+                    "journal": journal,
+                    "url_segment": "10-11",
+                    "htmls": [
+                        {"lang": "pt", "url": "https://link/pt_artigo.html"},
+                    ],
+                    "doi": "10.1590/S0103-5053200600020001234",
+                }
+            )
+
+            response = self.client.get(
+                url_for(
+                    "main.article_detail_v3",
+                    url_seg=journal.url_segment,
+                    article_pid_v3=article.aid,
+                    lang="pt",
+                )
+            )
+
+            self.assertStatus(response, 200)
+            self.assertTemplateUsed("article/detail.html")
+            content = response.data.decode("utf-8")
+
+            self.assertIn(
+                '<meta name="dc.identifier" content="doi:10.1590/S0103-5053200600020001234"/>',
+                content,
+            )
+
     @patch("webapp.main.views.fetch_data")
     def test_article_with_supplementary_material(self, mk_fetch_data):
         """
@@ -2349,24 +2400,24 @@ class TestJournalGrid(BaseTestCase):
             self.assertStatus(response, 200)
             self.assertTemplateUsed("issue/grid.html")
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/grid" />'
+                '<meta property="og:url" content="http://%s/j/journal_acron/grid"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:type" content="website" />',
+                '<meta property="og:type" content="website"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:title" content="Social Meta tags" />',
+                '<meta property="og:title" content="Social Meta tags"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:description" content="Esse periódico tem com objetivo xpto" />',
+                '<meta property="og:description" content="Esse periódico tem com objetivo xpto"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None" />'
+                '<meta property="og:image" content="http://%s/None"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
@@ -2583,24 +2634,24 @@ class TestIssueToc(BaseTestCase):
             self.assertTemplateUsed("issue/toc.html")
 
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/i/2023.v10n31supplX/" />'
+                '<meta property="og:url" content="http://%s/j/journal_acron/i/2023.v10n31supplX/"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:type" content="website" />',
+                '<meta property="og:type" content="website"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:title" content="Social Meta tags" />',
+                '<meta property="og:title" content="Social Meta tags"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:description" content="Esse periódico tem com objetivo xpto" />',
+                '<meta property="og:description" content="Esse periódico tem com objetivo xpto"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None" />'
+                '<meta property="og:image" content="http://%s/None"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )

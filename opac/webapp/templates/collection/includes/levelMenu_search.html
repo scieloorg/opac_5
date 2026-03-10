@@ -16,7 +16,10 @@
                   <div class="col">
 
                       <div class="input-group">
-                        <textarea name="q[]" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}" rows="1" class="form-control"></textarea>
+                        <label for="q-field" class="visually-hidden">
+                          {% trans %}Entre uma ou mais palavras{% endtrans %}
+                        </label>
+                        <textarea id="q-field" name="q[]" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}" rows="1" class="form-control"></textarea>
                         <a href="javascript:;" class="clearIptText showTooltip" title="Limpar expressão" style="display: none;"></a> 
                           
                           <div class="input-group-append">

@@ -3,10 +3,6 @@
 
 <style>
 
-    body{  
-        padding-top: 74px;
-    }
-    
     .articleTxt{
         top: -16px;
     }
@@ -32,23 +28,23 @@
       }
 
     }
- 
+
 </style>
 
-<header class="fixed-top scielo__shadow-2">
+<header class="scielo__shadow-2">
     <div class="container">
         <div class="row">
-            <div class="col-2 col-sm-1 d-print-none">
+            <div class="col-2 col-md-1 d-print-none">
                 {% include "collection/includes/nav.html" %}
             </div>
-            <div class="col col-sm-3 --mainNav">
+            <div class="col col-md-3">
                 <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
                     <div class="scielo__logo-scielo-collection mt-1 ms-5">
-                        <small>{{ coll_macro.get_collection_name() }}</small>
+                      <small id="collectionNameInternal">{{ coll_macro.get_collection_name() }}</small>
                     </div>
                 </a>
             </div>
-            <div class="d-none d-sm-block col">
+            <div class="d-none d-md-block d-lg-none col col-md-5 d-print-none">
                 <div class="dropdown mt-3">
                     <button class="btn btn-link dropdown-toggle mb-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       <span class="text-truncate scielo__truncate">{{ journal.title }} </span>
@@ -61,6 +57,7 @@
                           {% endif %}
                         </a>
                       </li>
+                      
                       {% if journal.online_submission_url and journal.current_status == 'current' %}
                         <li>
                           <a href="{{ journal.online_submission_url|default('', true) }}" class="dropdown-item" target="_blank"><span class="material-icons-outlined">launch</span> {% trans %}Submissão de manuscritos{% endtrans %}</a>
@@ -70,17 +67,21 @@
                         <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#about" class="dropdown-item"><span class="material-icons-outlined">info</span> {% trans %}Sobre o periódico{% endtrans %}</a>
                       </li>
                       <li>
+                        <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#item2" class="dropdown-item"><span class="material-icons-outlined">help_outline</span> {% trans %}Política editorial{% endtrans %}</a>
+                      </li>
+                      <li>
                         <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="dropdown-item"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
                       </li>
                       <li>
                         <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#instructions" class="dropdown-item"><span class="material-icons-outlined">help_outline</span> {% trans %}Instruções aos autores{% endtrans %}</a>
                       </li>
                       <li>
-                        <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#item2" class="dropdown-item"><span class="material-icons-outlined">help_outline</span> {% trans %}Política editorial{% endtrans %}</a>
-                      </li>
-                      <li>
                         <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#contact" class="dropdown-item"><span class="material-icons-outlined">email</span> {% trans %}Contato{% endtrans %}</a>
                       </li>
+                      <li>
+                        <a href="{{ config.METRICS_URL }}/?journal={{ journal.scielo_issn or journal.eletronic_issn or journal.print_issn }}&collection={{ config.OPAC_COLLECTION }}" class="dropdown-item"><span class="material-icons-outlined">show_chart</span> {% trans %}Métricas{% endtrans %}</a>
+                      </li>
+                      
                     </ul>
                   </div>
             </div>
@@ -113,6 +114,9 @@
                     <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#about" class="dropdown-item"><span class="material-icons-outlined">info</span> {% trans %}Sobre o periódico{% endtrans %}</a>
                   </li>
                   <li>
+                    <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#item2" class="dropdown-item"><span class="material-icons-outlined">help_outline</span> {% trans %}Política editorial{% endtrans %}</a>
+                  </li>
+                  <li>
                     <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#editors" class="dropdown-item"><span class="material-icons-outlined">people</span> {% trans %}Corpo Editorial{% endtrans %}</a>
                   </li>
                   <li>
@@ -120,6 +124,9 @@
                   </li>
                   <li>
                     <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#contact" class="dropdown-item"><span class="material-icons-outlined">email</span> {% trans %}Contato{% endtrans %}</a>
+                  </li>
+                  <li>
+                    <a href="{{ config.METRICS_URL }}/?journal={{ journal.scielo_issn or journal.eletronic_issn or journal.print_issn }}&collection={{ config.OPAC_COLLECTION }}" class="dropdown-item"><span class="material-icons-outlined">show_chart</span> {% trans %}Métricas{% endtrans %}</a>
                   </li>
                 </ul>
               </div>

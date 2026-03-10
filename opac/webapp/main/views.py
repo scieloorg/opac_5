@@ -609,6 +609,7 @@ def journal_feed(url_seg):
 def about_journal(url_seg):
     language = session.get("lang", get_locale())
     journal = controllers.get_journal_by_url_seg(url_seg)
+    content = None
 
     if not journal:
         abort(404, _("Periódico não encontrado"))
@@ -634,7 +635,6 @@ def about_journal(url_seg):
                 language = lang_try
                 break
     if not content:
-        # content = None se não achar nada no core.
         collection_acronym = controllers.get_current_collection()
         content = utils.fetch_and_extract_section(
             collection_acronym, journal.acronym, language
@@ -936,7 +936,7 @@ def issue_toc(url_seg, url_seg_issue):
         article_pdf_languages = set([(doc["lang"], doc["url"]) for doc in article.pdfs])
         setattr(article, "article_text_languages", article_text_languages)
         setattr(article, "article_pdf_languages", article_pdf_languages)
-        if "mml:" in article.title:
+        if article.title and "mml:" in article.title:
             has_math_content = True
 
     # obtém a legenda bibliográfica
@@ -1054,7 +1054,7 @@ def issue_feed(url_seg, url_seg_issue):
             article_lang = article.original_language
 
         feed.add(
-            article.title or "Unknow title",
+            article.title or _("Artigo sem título"),
             render_template("issue/feed_content.html", article=article),
             content_type="html",
             author=article.authors,
@@ -1319,7 +1319,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             ),
         )
         context = {
-            "article_html_title": remover_tags_html(article.title),
+            "article_html_title": remover_tags_html(article.title or _("Artigo sem título")),
             "article": article,
             "journal": article.journal,
             "issue": article.issue,

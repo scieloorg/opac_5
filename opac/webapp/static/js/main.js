@@ -840,6 +840,9 @@ var Portal = {
 				}
 			});
 
+			/* Ajuste automatico nome da coleção */
+			Collection.ApplyHomeCollectionName();
+			
 
 				/*
 				download.on("click",function(e) {
@@ -853,6 +856,91 @@ var Portal = {
 				});
 				*/
 		},
+
+		ApplyHomeCollectionName: function () {
+
+			var collection = document.getElementById("collectionNameHome");
+			if (!collection) return;
+	
+			var value = collection.textContent.trim();
+			if (!value) return;
+	
+			collection.classList.remove("medium-text", "long-text", "very-long-text");
+	
+			var words = value.split(/\s+/);
+			var wordCount = words.length;
+	
+			var outputText = value;
+			var classApplied = false;
+	
+			/* =========================
+			   QUEBRAS DE LINHA
+			========================= */
+	
+			// Caso especial: 3 palavras e palavra do meio curta (de, da, do, em...)
+			if (
+				wordCount === 3 &&
+				words[0].length > 3 &&
+				words[1].length <= 2
+			) {
+				outputText = words[0] + "<br>" + words.slice(1).join(" ");
+				collection.classList.add("medium-text");
+				classApplied = true;
+			}
+	
+			// 2 palavras longas
+			else if (
+				wordCount === 2 &&
+				words[0].length > 3 &&
+				words[1].length > 3
+			) {
+				outputText = words[0] + "<br>" + words[1];
+				collection.classList.add("medium-text");
+				classApplied = true;
+			}
+	
+			// Mais de 2 palavras
+			else if (
+				wordCount > 2 &&
+				words[0].length > 3 &&
+				words[1].length > 3
+			) {
+				outputText =
+					words.slice(0, 2).join(" ") +
+					"<br>" +
+					words.slice(2).join(" ");
+				collection.classList.add("long-text");
+				classApplied = true;
+			}
+	
+			collection.innerHTML = outputText;
+	
+			/* =========================
+			   CLASSES POR TAMANHO
+			========================= */
+	
+			if (wordCount > 1) {
+	
+				if (value.length > 30) {
+					collection.classList.remove("medium-text", "long-text");
+					collection.classList.add("very-long-text");
+					classApplied = true;
+				}
+				else if (value.length >= 20) {
+					collection.classList.remove("medium-text");
+					collection.classList.add("long-text");
+					classApplied = true;
+				}
+	
+				// fallback obrigatório
+				if (!classApplied) {
+					collection.classList.add("medium-text");
+				}
+			}
+		},
+
+		
+		
 		JournalListFinder: function(param,loading,container,labels,empty,scroll,callback,htmlFill) {
 			var currentPage = $(".collectionCurrentPage",container),
 				totalPages = $(".collectionTotalPages",container),
@@ -1191,7 +1279,36 @@ var Portal = {
 				}
 			});
 
+			/* Ajuste automatico do nome da coleção */
+			Journal.ApplyInternalCollectionName();
+
 		},
+
+		ApplyInternalCollectionName: function () {
+			const collection = document.getElementById("collectionNameInternal");
+			if (!collection) return;
+	
+			const value = collection.textContent.trim();
+			if (!value) return;
+	
+			collection.classList.remove(
+				"medium-text",
+				"long-text",
+				"very-long-text"
+			);
+	
+			if (value.length > 30) {
+				collection.classList.add("very-long-text");
+			} 
+			else if (value.length > 20) {
+				collection.classList.add("long-text");
+			} 
+			else if (value.length > 12) {
+				collection.classList.add("medium-text");
+			}
+		
+		},
+
 		Bindings: function(ctn) {
 			if(typeof ctn == "undefined") ctn = ".journal";
 		},

@@ -287,7 +287,7 @@ def get_journal_json_data(journal, language="pt"):
         "title": "Interface - Comunica\\u00e7\\u00e3o, Sa\\u00fade, Educa\\u00e7\\u00e3o"
     },
     """
-
+    issn = next((issn for issn in [journal.scielo_issn, journal.eletronic_issn, journal.print_issn] if issn), "")
     j_data = {
         "id": journal.id,
         "title": journal.title,
@@ -304,6 +304,7 @@ def get_journal_json_data(journal, language="pt"):
             + "#contact",
             "editors": url_for("main.about_journal", url_seg=journal.url_segment)
             + "#editors",
+            "metrics": f"{current_app.config['METRICS_URL']}?journal={issn}&collection={current_app.config['OPAC_COLLECTION']}" if current_app.config['OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST'] else None,
         },
         "is_active": journal.current_status == "current",
         "issues_count": journal.issue_count,
@@ -806,33 +807,52 @@ def get_issue_nav_bar_data(journal=None, issue=None):
 
 
 def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
+    try:
+        if journal.last_issue and journal.last_issue.url_segment and journal.issue_count is not None:
+            return journal
 
-    if not last_issue or not issue_count:
-        article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
-            "issue"
-        )
-        params = {}
-        if article_issue_ids:
-            params["iid__in"] = [item.iid for item in article_issue_ids]
-        queryset = Issue.objects(
-            journal=journal,
-            is_public=True,
-            **params,
-        )
-    if not issue_count:
+        queryset = get_journal_issues_which_content_is_public(journal)
         issue_count = queryset.count()
+
+        if not issue_count:
+            return journal
+
+        if journal.issue_count != issue_count:
+            journal.issue_count = issue_count
+        
+        if not journal.last_issue or not journal.last_issue.url_segment:
+            if not last_issue:
+                last_issue = (
+                    queryset.filter(type__in=["regular", "volume_issue"], url_segment__ne=None)
+                    .order_by("-year", "-order")
+                    .first()
+                )
+            create_last_issue_for_journal(journal, last_issue)
+        journal.save()
+    except Exception as e:
+        logging.exception(f"Error setting last issue and issue count {journal} {last_issue} {issue_count}: {e}")
+    return journal
+
+
+def get_journal_issues_which_content_is_public(journal):
+    article_issue_ids = Article.objects(journal=journal, is_public=True).distinct(
+        "issue"
+    )
+    params = {}
+    if article_issue_ids:
+        params["iid__in"] = [item.iid for item in article_issue_ids]
+    return Issue.objects(
+        journal=journal,
+        is_public=True,
+        **params,
+    )
+
+
+def create_last_issue_for_journal(journal, last_issue):
     if not last_issue:
-        last_issue = (
-            queryset.filter(type__in=["regular", "volume_issue"])
-            .order_by("-year", "-order")
-            .first()
-        )
-
-    save = False
-    if journal.issue_count != issue_count:
-        journal.issue_count = issue_count
-        save = True
-
+        return None
+    if not last_issue.url_segment:
+        return None
     if not journal.last_issue or journal.last_issue.url_segment != last_issue.url_segment:
         journal.last_issue = LastIssue(
             volume=last_issue.volume,
@@ -846,20 +866,18 @@ def set_last_issue_and_issue_count(journal, last_issue=None, issue_count=None):
             iid=last_issue.iid,
             url_segment=last_issue.url_segment,
         )
-        save = True
-    if save:
-        journal.save()
-    return journal
 
 
 def journal_last_issues():
     for j in Journal.objects.filter(last_issue=None):
-        set_last_issue_and_issue_count(j)
+        if not j.last_issue or not j.last_issue.url_segment:
+            set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
     for j in Journal.objects.filter(last_issue__type__nin=["regular", "volume_issue"]):
-        set_last_issue_and_issue_count(j)
+        if not j.last_issue or not j.last_issue.url_segment:
+            set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
