@@ -332,9 +332,7 @@ def page_about_detail(slug_name):
     if not page:
         abort(404, _("Página não encontrada"))
     breadcrumbs = utils.build_breadcrumbs(page)
-    children = page.get_children()
     context = {
-        "children": children,
         "breadcrumbs": breadcrumbs,
         "page": page,
     }
