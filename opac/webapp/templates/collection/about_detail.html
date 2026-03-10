@@ -27,24 +27,28 @@
                 </div>
             </div>
             {% endwith %}
-            {% if children or page.parent_page %}
+            {% if page.get_descendants() or page.get_ancestors() %}
                 <section class="child-pages">
                 <h2>{% trans %} Páginas relacionadas {% endtrans %}</h2>
                 <ul>
                     {% if page.parent_page %}
-                        <li>
-                            <a href="{{ url_for('.page_about_detail', slug_name=page.parent_page.slug_name) }}">
-                            {{ page.parent_page.name }}
-                            </a>
-                        </li>
+                        {% for ancestor in page.get_ancestors() %}
+                            <li>
+                                <a href="{{ url_for('.page_about_detail', slug_name=ancestor.slug_name) }}">
+                                {{ ancestor.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
                     {% endif %}
-                    {% for child in children %}
-                    <li>
-                        <a href="{{ url_for('.page_about_detail', slug_name=child.slug_name) }}">
-                        {{ child.name }}
-                        </a>
-                    </li>
-                    {% endfor %}
+                    {% if page.get_descendants() %}
+                        {% for descendant in page.get_descendants() %}
+                            <li>
+                                <a href="{{ url_for('.page_about_detail', slug_name=descendant.slug_name) }}">
+                                {{ descendant.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
                 </ul>
                 </section>
             {% endif %}
