@@ -208,14 +208,25 @@
                         {% endif %}
 
                         <!-- Autores --->
-                        {%- for author in article.authors %}
-                          {% if session.lang %}
-                            <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:{{ author }}">{{- author|striptags -}}</a>
-                          {% else %}
-                            <a class="me-2" href="{{config['URL_SEARCH']}}?q=au:{{ author }}">{{- author|striptags -}}</a>
-                          {% if not loop.last %};{% endif %}
-                          {% endif %}
-                        {% endfor -%}
+                        {%- if article.authors_meta %}
+                          {%- for author in article.authors_meta %}
+                            {% if session.lang %}
+                              <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:{{ author.name }}{% if author.orcid %} orcid:{{ author.orcid }}{% endif %}">{{- author.name|striptags -}}</a>
+                            {% else %}
+                              <a class="me-2" href="{{config['URL_SEARCH']}}?q=au:{{ author.name }}{% if author.orcid %} orcid:{{ author.orcid }}{% endif %}">{{- author.name|striptags -}}</a>
+                            {% if not loop.last %};{% endif %}
+                            {% endif %}
+                          {% endfor -%}
+                        {%- else %}
+                          {%- for author in article.authors %}
+                            {% if session.lang %}
+                              <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q=au:{{ author }}">{{- author|striptags -}}</a>
+                            {% else %}
+                              <a class="me-2" href="{{config['URL_SEARCH']}}?q=au:{{ author }}">{{- author|striptags -}}</a>
+                            {% if not loop.last %};{% endif %}
+                            {% endif %}
+                          {% endfor -%}
+                        {%- endif %}
 
                         <ul class="nav mt-3">
                         
