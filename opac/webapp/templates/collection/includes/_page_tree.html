@@ -2,7 +2,7 @@
   {% for node in nodes %}
     <li>
       <a href="{{ url_for('.page_about_detail', slug_name=node.slug_name) }}">
-        {% trans %}{{ node }}{% endtrans %}
+        {{ node }}
       </a>
       {% set child_nodes = node.get_children() %}
       {% if child_nodes %}
