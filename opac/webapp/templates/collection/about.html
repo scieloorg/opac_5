@@ -6,9 +6,7 @@
 
 <section class="collection collectionAbout">
     <div class="container">
-       
         {% if pages %}
-
             <div class="row">
                 <div class="col">
 
@@ -22,34 +20,7 @@
                 </div>
             </div>
 
-        {% endif %}
-
-        {% if page %}
-            <div class="row">
-                <div class="col-12">
-                    <h1 class="h4">{{ page }}</h1>
-    
-                    {%- if page.content -%}
-                        {{ page.content|safe }}
-                    {%- else -%}
-                        {% trans %} Conteúdo não cadastrado {% endtrans %}
-                    {%- endif -%}
-                </div>
-            </div>
-
-            {% with page_updated_at=page.updated_at  %}
-            <div class="row">
-                <div class="col">
-                    {% include "includes/page_updated_at_info.html" %}
-                </div>
-            </div>
-            {% endwith %}
-        {% endif %}
-    
-        {% if page %}
-        
-    {% endif %}
-        
+        {% endif %}        
     </div>
 </section>
 
