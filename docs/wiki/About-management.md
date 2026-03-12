@@ -1,6 +1,6 @@
 _Update: Development team, 05-Aug-2024_
 
-To manage the "About SciELO" link, you need to have access to the administrative area of the website.
+To manage the "About SciELO" link, the access to the website administrative area is needed.
 
 The _link_ to access the administrative area is [http://yourdomain/admin](http://yourdomain/admin)
 
