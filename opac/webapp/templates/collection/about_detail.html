@@ -1,0 +1,60 @@
+{% extends "collection/base.html" %}
+{% block level_menu %}
+    {% include "collection/includes/levelMenu.html" %}
+{% endblock %}
+{% block main_content %}
+
+<section class="collection collectionAbout">
+    <div class="container">
+
+        {% if page %}
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="h4">{{ page }}</h1>
+    
+                    {%- if page.content -%}
+                        {{ page.content|safe }}
+                    {%- else -%}
+                        {% trans %} Conteúdo não cadastrado {% endtrans %}
+                    {%- endif -%}
+                </div>
+            </div>
+
+            {% with page_updated_at=page.updated_at  %}
+            <div class="row">
+                <div class="col">
+                    {% include "includes/page_updated_at_info.html" %}
+                </div>
+            </div>
+            {% endwith %}
+            {% if page.get_descendants() or page.get_ancestors() %}
+                <section class="child-pages">
+                <h2>{% trans %} Páginas relacionadas {% endtrans %}</h2>
+                <ul>
+                    {% if page.parent_page %}
+                        {% for ancestor in page.get_ancestors() %}
+                            <li>
+                                <a href="{{ url_for('.page_about_detail', slug_name=ancestor.slug_name) }}">
+                                {{ ancestor.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if page.get_descendants() %}
+                        {% for descendant in page.get_descendants() %}
+                            <li>
+                                <a href="{{ url_for('.page_about_detail', slug_name=descendant.slug_name) }}">
+                                {{ descendant.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
+                </section>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

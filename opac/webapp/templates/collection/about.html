@@ -6,59 +6,21 @@
 
 <section class="collection collectionAbout">
     <div class="container">
-       
         {% if pages %}
-
             <div class="row">
                 <div class="col">
 
                     <h1 class="h4 pt-1 mb-4"> {% trans %}Sobre o SciELO{% endtrans %} {{ coll_macro.get_collection_name() }}</h1>
                     
                     <div class="about">
-                        <ul class="networkList">
-        
-                            {% for page in pages %}
-                                <a href="/about/{{ page.slug_name }}">
-                                    <li>
-                                        {% trans %} {{ page }} {% endtrans %}
-                                    </li>
-                                </a>
-                            {% endfor %}
-        
-                        </ul>
+                        {% set nodes = pages %}
+                        {% set ul_class = "networkList" %}
+                        {% include "collection/includes/_page_tree.html" %}
                     </div>
                 </div>
             </div>
 
-        {% endif %}
-
-        {% if page %}
-            <div class="row">
-                <div class="col-12">
-                    <h1 class="h4">{{ page }}</h1>
-    
-                    {%- if page.content -%}
-                        {{ page.content|safe }}
-                    {%- else -%}
-                        {% trans %} Conteúdo não cadastrado {% endtrans %}
-                    {%- endif -%}
-                </div>
-            </div>
-
-            {% with page_updated_at=page.updated_at  %}
-            <div class="row">
-                <div class="col">
-                    {% include "includes/page_updated_at_info.html" %}
-                </div>
-            </div>
-            {% endwith %}
-
-        {% endif %}
-    
-        {% if page %}
-        
-    {% endif %}
-        
+        {% endif %}        
     </div>
 </section>
 
