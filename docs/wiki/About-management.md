@@ -16,7 +16,7 @@ Example of a page that is part of "About SciELO":
 
 Note that there is only one page without the journal acronym, therefore it belongs to "About SciELO", while the others are pages for journals that are part of "About the journal".
 
-In this area, you can register new pages by clicking "Create":
+In this area, you can add new pages by clicking "Create":
 
 ![Screenshot 2024-08-05 at 15 36 46](https://github.com/user-attachments/assets/00006293-f877-43e2-b505-14d36ff8f4e6)
 
