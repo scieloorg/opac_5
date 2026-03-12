@@ -33,7 +33,7 @@ from packtools import HTMLGenerator
 from webapp import babel, cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
-from webapp.config.lang_names import display_original_lang_name, display_lang_name_fallback
+from webapp.config.lang_names import display_lang_name_fallback
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 from webapp.main.errors import page_not_found, internal_server_error
