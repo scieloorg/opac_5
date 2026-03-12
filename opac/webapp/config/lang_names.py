@@ -356,25 +356,16 @@ LANGS_FALLBACK = {
 }
 
 
+LANGS_FALLBACK_NORMALIZED = {
+    str(locale).lower(): {str(k).lower(): v for k, v in mapping.items()}
+    for locale, mapping in LANGS_FALLBACK.items()
+}
+
 def get_original_lang_name(code):
     return LANG_NAMES.get(code, (None, code))[0]
 
-
 def display_lang_name_fallback(locale, code):
-    lang = None
-    try:
-        lang = LANGS_FALLBACK.get(locale, {}).get(str(code).lower())
-    except:
-        return code
-    finally:
-        return lang or code
-    
-
-def display_original_lang_name(code):
-    name = get_original_lang_name(code)
-    if name is None:
-        return code
-    name = name.capitalize()
-    if "," in name:
-        return name.split(",")[0]
-    return name
+    locale_key = str(locale).lower() if locale is not None else ""
+    code_key = str(code).lower() if code is not None else ""
+    lang = LANGS_FALLBACK_NORMALIZED.get(locale_key, {}).get(code_key)
+    return lang or code
