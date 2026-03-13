@@ -43,7 +43,7 @@
             </li>
             <li>
               <a href="{{ url_for('.about_collection') }}">
-                {% trans %}Sobre o{% endtrans %} SciELO {{ coll_macro.get_collection_name() }}
+                {% trans %}Sobre{% endtrans %} {{ coll_macro.get_collection_name() }}
               </a>
             </li>
             <li>
@@ -77,7 +77,7 @@
       </li>
       <li>
         <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
-          <strong>{% trans %}SciELO.org - Rede SciELO{% endtrans %}</strong>
+          <strong>{{ config.NETWORK_LABEL }}</strong>
         </a>
         <ul>
           <li>
@@ -112,7 +112,7 @@
           </li>
           <li>
             <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
-              {% trans %}Sobre a Rede SciELO{% endtrans %}
+              {% trans %}Sobre a rede{% endtrans %}
             </a>
           </li>
           <li>
@@ -128,7 +128,7 @@
         {% else  %}
           <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
         {% endif %}
-            <strong>{% trans %}Blog SciELO em Perspectiva{% endtrans %}</strong>
+            <strong>{{ config.BLOG_LABEL }}</strong>
           </a>
       </li>
     </ul>
