@@ -350,3 +350,91 @@ class TOCTestCase(BaseTestCase):
             for uri in uris:
                 with self.subTest(uri):
                     self.assertIn(uri, response.data.decode("utf-8"))
+
+    def test_author_search_link_includes_orcid_when_authors_meta_has_orcid(self):
+        """
+        Teste para verificar se o link de busca do autor inclui o orcid
+        quando o artigo tem authors_meta com orcid.
+        """
+        journal = utils.makeOneJournal()
+
+        with self.client as c:
+            utils.makeOneCollection()
+
+            issue = utils.makeOneIssue({"journal": journal})
+
+            _article_data = {
+                "title": "Article Y",
+                "issue": issue,
+                "journal": journal,
+                "authors": ["Author One", "Author Two"],
+                "authors_meta": [
+                    {
+                        "name": "Author One",
+                        "affiliation": "University A",
+                        "orcid": "0000-0002-3430-5422",
+                    },
+                    {
+                        "name": "Author Two",
+                        "affiliation": "University B",
+                    },
+                ],
+            }
+            utils.makeOneArticle(_article_data)
+
+            response = c.get(
+                url_for(
+                    "main.issue_toc",
+                    url_seg=journal.url_segment,
+                    url_seg_issue=issue.url_segment,
+                )
+            )
+
+            response_data = response.data.decode("utf-8")
+
+            # Author with ORCID should have orcid OR au:(name) in the search query
+            self.assertIn(
+                "q=orcid:0000-0002-3430-5422 OR au:(Author One)",
+                response_data,
+            )
+            # Author without ORCID should only have au:name in the search query
+            self.assertIn("q=au:Author Two", response_data)
+            self.assertNotIn("orcid:Author Two", response_data)
+            self.assertNotIn("OR au:(Author Two)", response_data)
+            # Author search links should open in a new tab
+            self.assertIn('target="_blank"', response_data)
+
+    def test_author_search_link_without_orcid_when_no_authors_meta(self):
+        """
+        Teste para verificar se o link de busca do autor funciona sem orcid
+        quando o artigo não tem authors_meta (fallback para authors).
+        """
+        journal = utils.makeOneJournal()
+
+        with self.client as c:
+            utils.makeOneCollection()
+
+            issue = utils.makeOneIssue({"journal": journal})
+
+            _article_data = {
+                "title": "Article Z",
+                "issue": issue,
+                "journal": journal,
+                "authors": ["Simple Author"],
+            }
+            utils.makeOneArticle(_article_data)
+
+            response = c.get(
+                url_for(
+                    "main.issue_toc",
+                    url_seg=journal.url_segment,
+                    url_seg_issue=issue.url_segment,
+                )
+            )
+
+            response_data = response.data.decode("utf-8")
+
+            self.assertIn("q=au:Simple Author", response_data)
+            self.assertNotIn("orcid:", response_data)
+            # Author search links should open in a new tab
+            self.assertIn('target="_blank"', response_data)
