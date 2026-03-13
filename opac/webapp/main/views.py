@@ -509,7 +509,7 @@ def journal_detail(url_seg):
         sections = []
         recent_articles = []
 
-    latest_issue = journal.last_issue
+    latest_issue = utils.fix_journal_last_issue(journal)
 
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
@@ -642,7 +642,7 @@ def about_journal(url_seg):
 
     controllers.set_last_issue_and_issue_count(journal)
 
-    latest_issue = journal.last_issue
+    latest_issue = utils.fix_journal_last_issue(journal)
 
     if latest_issue:
         latest_issue_legend = descriptive_short_format(
