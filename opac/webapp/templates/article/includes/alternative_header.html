@@ -45,7 +45,12 @@
           <div class="scielo__mainMenu" id="mainMenu">
              <div class="row">
                 <div class="col text-center">
-                   <div class="scielo__logo-scielo--small"></div>
+                   {%- set menu_logo_url = cimages.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
+                   {%- if menu_logo_url -%}
+                     {{ cimages.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
+                   {%- else -%}
+                     <a href="/" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
+                   {%- endif -%}
                 </div>
              </div>
              <nav>
