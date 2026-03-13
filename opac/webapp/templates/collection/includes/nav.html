@@ -77,7 +77,7 @@
       </li>
       <li>
         <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
-          <strong>{{ config.NETWORK_LABEL }}</strong>
+          <strong>{% trans %}SciELO.org - Rede SciELO{% endtrans %}</strong>
         </a>
         <ul>
           <li>
@@ -112,7 +112,7 @@
           </li>
           <li>
             <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
-              {{ config.NETWORK_ABOUT_LABEL }}
+              {% trans %}Sobre a Rede SciELO{% endtrans %}
             </a>
           </li>
           <li>
@@ -128,7 +128,7 @@
         {% else  %}
           <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
         {% endif %}
-            <strong>{{ config.BLOG_LABEL }}</strong>
+            <strong>{% trans %}Blog SciELO em Perspectiva{% endtrans %}</strong>
           </a>
       </li>
     </ul>

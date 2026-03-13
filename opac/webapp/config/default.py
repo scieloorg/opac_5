@@ -694,12 +694,6 @@ ANALYTICS_AGENT_DARKVISITORS_ENABLED = os.environ.get('OPAC_ANALYTICS_AGENT_DARK
 ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY = os.environ.get("OPAC_ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY")
 
 # -*- Site Identity / Branding -*-
-# Labels customizáveis para a identidade do site e da rede
-NETWORK_LABEL = os.environ.get("OPAC_NETWORK_LABEL", "SciELO.org - Rede SciELO")
-NETWORK_ABOUT_LABEL = os.environ.get("OPAC_NETWORK_ABOUT_LABEL", "Sobre a Rede SciELO")
-BLOG_LABEL = os.environ.get("OPAC_BLOG_LABEL", "Blog SciELO em Perspectiva")
-ANALYTICS_LABEL = os.environ.get("OPAC_ANALYTICS_LABEL", "SciELO Analytics")
-
 # URLs das redes sociais
 SOCIAL_NETWORK_BLUESKY_URL = os.environ.get(
     "OPAC_SOCIAL_NETWORK_BLUESKY_URL", "https://bsky.app/profile/scielo.org"

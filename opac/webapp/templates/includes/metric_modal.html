@@ -17,7 +17,7 @@
                             <a target="_blank"
                                 href="{{ config.METRICS_URL }}/w/accesses?document={{ article.pid }}&amp;collection={{ config.OPAC_COLLECTION }}">
                                 <div class="logo-statistc logo-statistc-scielo"></div>
-                                <div>{{ config.ANALYTICS_LABEL }}</div>
+                                <div>{% trans %}SciELO Analytics{% endtrans %}</div>
                             </a>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                 <div class="badge-link col-center">
                     <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}">
                         <div class="logo-statistc logo-statistc-scielo"></div>
-                        <div>{{ config.ANALYTICS_LABEL }}</div>
+                        <div>{% trans %}SciELO Analytics{% endtrans %}</div>
                     </a>
                 </div>
             {% endif %}
