@@ -33,42 +33,39 @@
 					<p><small>{{ g.collection.address1 or '' }}<br/>
 						{{ g.collection.address2 or '' }}</small></p>
 						<div>
+							<!-- 
+								Fix me:
+								
+								Criar configuração para verificar se deve ou não ser exibido 
+								o ícone da rede social e url correta de cada rede.
+								
+							-->
 							<ul class="list-unstyled justify-content-center justify-content-sm-start d-flex mt-3 mb-0 scielo__social-network-links">
-								{% if config.SOCIAL_NETWORK_BLUESKY_URL %}
 								<li class="me-2">
-									<a href="{{ config.SOCIAL_NETWORK_BLUESKY_URL }}" target="_blank" aria-label="BlueSky">
+									<a href="https://bsky.app/profile/scielo.org" target="_blank" aria-label="BlueSky">
 										<i class="icon-bluesky"></i>
 									</a>
 								</li>
-								{% endif %}
-								{% if config.SOCIAL_NETWORK_MASTODON_URL %}
 								<li class="me-2">
-									<a href="{{ config.SOCIAL_NETWORK_MASTODON_URL }}" target="_blank" aria-label="Mastodon">
+									<a href="https://openbiblio.social/@scielo" target="_blank" aria-label="Mastodon">
 										<i class="icon-mastodon"></i>
 									</a>
 								</li>
-								{% endif %}
-								{% if config.SOCIAL_NETWORK_LINKEDIN_URL %}
 								<li class="me-2">
-									<a href="{{ config.SOCIAL_NETWORK_LINKEDIN_URL }}" target="_blank" aria-label="LinkedIn">
+									<a href="https://www.linkedin.com/company/scielo---scientific-electronic-library-online/?originalSubdomain=br" target="_blank" aria-label="LinkedIn">
 										<i class="icon-linkedin"></i>
 									</a>
 								</li>
-								{% endif %}
-								{% if config.SOCIAL_NETWORK_FACEBOOK_URL %}
 								<li class="me-2">
-									<a href="{{ config.SOCIAL_NETWORK_FACEBOOK_URL }}" target="_blank" aria-label="Facebook">
+									<a href="https://www.facebook.com/SciELONetwork" target="_blank" aria-label="Facebook">
 										<i class="icon-facebook"></i>
 									</a>
 								</li>
-								{% endif %}
-								{% if config.SOCIAL_NETWORK_YOUTUBE_URL %}
 								<li>
-									<a href="{{ config.SOCIAL_NETWORK_YOUTUBE_URL }}" target="_blank" aria-label="Youtube">
+									<a href="https://www.youtube.com/c/SciELONetwork" target="_blank" aria-label="Youtube">
 										<i class="icon-youtube"></i>
 									</a>
 								</li>
-								{% endif %}
 							</ul>
 						</div>
 				</div>

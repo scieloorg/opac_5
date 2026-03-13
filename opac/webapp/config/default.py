@@ -693,22 +693,4 @@ SITE_LICENSE_IMG_MINI_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_MINI_URL") or 
 ANALYTICS_AGENT_DARKVISITORS_ENABLED = os.environ.get('OPAC_ANALYTICS_AGENT_DARKVISITORS_ENABLED', 'False').lower() in ('true', '1', 't', 'yes', 'y')
 ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY = os.environ.get("OPAC_ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY")
 
-# -*- Site Identity / Branding -*-
-# URLs das redes sociais
-SOCIAL_NETWORK_BLUESKY_URL = os.environ.get(
-    "OPAC_SOCIAL_NETWORK_BLUESKY_URL", "https://bsky.app/profile/scielo.org"
-)
-SOCIAL_NETWORK_MASTODON_URL = os.environ.get(
-    "OPAC_SOCIAL_NETWORK_MASTODON_URL", "https://openbiblio.social/@scielo"
-)
-SOCIAL_NETWORK_LINKEDIN_URL = os.environ.get(
-    "OPAC_SOCIAL_NETWORK_LINKEDIN_URL",
-    "https://www.linkedin.com/company/scielo---scientific-electronic-library-online/?originalSubdomain=br",
-)
-SOCIAL_NETWORK_FACEBOOK_URL = os.environ.get(
-    "OPAC_SOCIAL_NETWORK_FACEBOOK_URL", "https://www.facebook.com/SciELONetwork"
-)
-SOCIAL_NETWORK_YOUTUBE_URL = os.environ.get(
-    "OPAC_SOCIAL_NETWORK_YOUTUBE_URL", "https://www.youtube.com/c/SciELONetwork"
-)
 
