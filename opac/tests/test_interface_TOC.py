@@ -400,6 +400,7 @@ class TOCTestCase(BaseTestCase):
             # Author without ORCID should only have au:name in the search query
             self.assertIn("q=au:Author Two", response_data)
             self.assertNotIn("orcid:Author Two", response_data)
+            self.assertNotIn("OR au:(Author Two)", response_data)
 
     def test_author_search_link_without_orcid_when_no_authors_meta(self):
         """
