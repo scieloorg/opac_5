@@ -1481,13 +1481,14 @@ def get_article_by_suppl_material_filename(journal_acron, issue_label, pdf_filen
         return article
 
 
-def get_articles_by_date_range(begin_date, end_date, page=1, per_page=100):
+def get_articles_by_date_range(begin_date, end_date, page=1, per_page=100, journal_id=None):
     """
     Retorna artigos criados ou atualizados durante o período entre start_date e end_date.
     """
-    articles = Article.objects(
-        Q(updated__gte=begin_date) & Q(updated__lte=end_date)
-    ).order_by("pid")
+    query = Q(updated__gte=begin_date) & Q(updated__lte=end_date)
+    if journal_id:
+        query = query & Q(journal=journal_id)
+    articles = Article.objects(query).order_by("pid")
     return Pagination(articles, page, per_page)
 
 

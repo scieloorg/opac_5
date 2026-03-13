@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 from unittest.mock import Mock, patch
@@ -7,6 +8,7 @@ from flask_babelex import gettext as _
 from opac_schema.v1 import models
 
 from .base import BaseTestCase
+from .utils import makeOneArticle, makeOneJournal
 
 
 FIXTURES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
@@ -564,3 +566,91 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
             self.assertEqual(resp.status_code, 404)
             self.assertEqual(data.get("failed"), True)
             self.assertEqual(data.get("error"), "issue not found")
+
+
+class RestAPICounterDictTestCase(BaseTestCase):
+
+    def test_counter_dict_filter_by_journal_id(self):
+        """Test that counter_dict returns only articles for the given journal_id."""
+        with current_app.app_context():
+            journal_a = makeOneJournal({"_id": "1111-1111", "acronym": "jrn-a"})
+            journal_b = makeOneJournal({"_id": "2222-2222", "acronym": "jrn-b"})
+
+            now = datetime.datetime.now()
+            makeOneArticle({
+                "_id": "art-a1",
+                "aid": "art-a1",
+                "journal": journal_a,
+                "updated": now,
+            })
+            makeOneArticle({
+                "_id": "art-b1",
+                "aid": "art-b1",
+                "journal": journal_b,
+                "updated": now,
+            })
+
+            with self.client as client:
+                response = client.get(
+                    url_for("restapi.router_counter_dicts", journal_id="1111-1111"),
+                    follow_redirects=True,
+                )
+                self.assertEqual(response.status_code, 200)
+                data = response.get_json()
+                self.assertEqual(data["total"], 1)
+                self.assertIn("art-a1", data["documents"])
+                self.assertNotIn("art-b1", data["documents"])
+
+    def test_counter_dict_without_journal_id_returns_all(self):
+        """Test that counter_dict returns all articles when no journal_id is provided."""
+        with current_app.app_context():
+            journal_a = makeOneJournal({"_id": "1111-1111", "acronym": "jrn-a"})
+            journal_b = makeOneJournal({"_id": "2222-2222", "acronym": "jrn-b"})
+
+            now = datetime.datetime.now()
+            makeOneArticle({
+                "_id": "art-a1",
+                "aid": "art-a1",
+                "journal": journal_a,
+                "updated": now,
+            })
+            makeOneArticle({
+                "_id": "art-b1",
+                "aid": "art-b1",
+                "journal": journal_b,
+                "updated": now,
+            })
+
+            with self.client as client:
+                response = client.get(
+                    url_for("restapi.router_counter_dicts"),
+                    follow_redirects=True,
+                )
+                self.assertEqual(response.status_code, 200)
+                data = response.get_json()
+                self.assertEqual(data["total"], 2)
+                self.assertIn("art-a1", data["documents"])
+                self.assertIn("art-b1", data["documents"])
+
+    def test_counter_dict_filter_by_nonexistent_journal_id(self):
+        """Test that counter_dict returns no articles for a non-existent journal_id."""
+        with current_app.app_context():
+            journal_a = makeOneJournal({"_id": "1111-1111", "acronym": "jrn-a"})
+
+            now = datetime.datetime.now()
+            makeOneArticle({
+                "_id": "art-a1",
+                "aid": "art-a1",
+                "journal": journal_a,
+                "updated": now,
+            })
+
+            with self.client as client:
+                response = client.get(
+                    url_for("restapi.router_counter_dicts", journal_id="9999-9999"),
+                    follow_redirects=True,
+                )
+                self.assertEqual(response.status_code, 200)
+                data = response.get_json()
+                self.assertEqual(data["total"], 0)
+                self.assertEqual(data["documents"], {})
