@@ -211,9 +211,9 @@
                         {%- for author in article.authors_meta or article.authors %}
                           {% set author_name = author.name|default(author) %}
                           {% if session.lang %}
-                            <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}">{{- author_name|striptags -}}</a>
+                            <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}" target="_blank">{{- author_name|striptags -}}</a>
                           {% else %}
-                            <a class="me-2" href="{{config['URL_SEARCH']}}?q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}">{{- author_name|striptags -}}</a>
+                            <a class="me-2" href="{{config['URL_SEARCH']}}?q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}" target="_blank">{{- author_name|striptags -}}</a>
                           {% if not loop.last %};{% endif %}
                           {% endif %}
                         {% endfor -%}

@@ -401,6 +401,8 @@ class TOCTestCase(BaseTestCase):
             self.assertIn("q=au:Author Two", response_data)
             self.assertNotIn("orcid:Author Two", response_data)
             self.assertNotIn("OR au:(Author Two)", response_data)
+            # Author search links should open in a new tab
+            self.assertIn('target="_blank"', response_data)
 
     def test_author_search_link_without_orcid_when_no_authors_meta(self):
         """
@@ -434,3 +436,5 @@ class TOCTestCase(BaseTestCase):
 
             self.assertIn("q=au:Simple Author", response_data)
             self.assertNotIn("orcid:", response_data)
+            # Author search links should open in a new tab
+            self.assertIn('target="_blank"', response_data)
