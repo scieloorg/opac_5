@@ -49,7 +49,7 @@
                    {%- if menu_logo_url -%}
                      {{ cimages.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
                    {%- else -%}
-                     <div class="scielo__logo-scielo--small"></div>
+                     <a href="/" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
                    {%- endif -%}
                 </div>
              </div>
