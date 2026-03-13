@@ -1978,6 +1978,8 @@ def router_counter_dicts():
     if not limit or limit > 100 or limit < 0:
         limit = 100
 
+    journal_id = request.args.get("journal_id", type=str)
+
     results = {
         "dictionary_date": end_date,
         "end_date": end_date.strftime("%Y-%m-%d %H-%M-%S"),
@@ -1986,7 +1988,9 @@ def router_counter_dicts():
         "collection": current_app.config["OPAC_COLLECTION"],
     }
 
-    articles = controllers.get_articles_by_date_range(begin_date, end_date, page, limit)
+    articles = controllers.get_articles_by_date_range(
+        begin_date, end_date, page, limit, journal_id=journal_id
+    )
     for a in articles.items:
         results["documents"].update(get_article_counter_data(a))
 
