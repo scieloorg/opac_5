@@ -6,15 +6,7 @@
         {% trans %}Texto{% endtrans %}
         {% for lang, text_lang, uri in text_versions  %}
           {% if not gs_abstract and lang == article_lang %}        
-            {% if lang == 'es' %}
-              (ES)
-            {% elif lang == 'en' %}
-              (EN)
-            {% elif lang == 'pt' %}
-              (PT)
-            {% else %} 
-              ({{ text_lang }})
-            {% endif %}
+            ({{ lang|upper }})
           {% endif %}
         {% endfor %}
       </button>
@@ -25,28 +17,12 @@
             <!-- página de texto -->
             <a href="#" class="current dropdown-item"> 
                 {% trans %}Texto{% endtrans %}
-                {% if lang == 'es' %}
-                  ({% trans %}Espanhol{% endtrans %})
-                {% elif lang == 'en' %}
-                  ({% trans %}Inglês{% endtrans %})
-                {% elif lang == 'pt' %}
-                  ({% trans %}Português{% endtrans %})
-                {% else %}
-                  ({{ text_lang }})
-                {% endif %}
+                ({{ lang|trans_alpha2 }})
             </a>
         {% else %}
             <a href="{{ uri }}" class="dropdown-item">
                 {% trans %}Texto {% endtrans %}
-                {% if lang == 'es' %}
-                  ({% trans %}Espanhol{% endtrans %})
-                {% elif lang == 'en' %}
-                  ({% trans %}Inglês{% endtrans %})
-                {% elif lang == 'pt' %}
-                  ({% trans %}Português{% endtrans %})
-                {% else %}
-                  ({{ text_lang }})
-                {% endif %}
+                ({{ lang|trans_alpha2 }})
             </a>
         {% endif %}
         </li>

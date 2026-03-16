@@ -27,6 +27,7 @@ ISO3166_ALPHA2 = {
     "cn": __("Chinês"),
     "ro": __("Romeno"),
     "fr": __("Francês"),
+    "de": __("Alemão"),
     "it": __("Italiano"),
     "ru": __("Russo"),
     "ar": __("Árabe"),
