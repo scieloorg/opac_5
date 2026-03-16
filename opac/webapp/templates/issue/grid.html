@@ -137,9 +137,9 @@
                 {% if event.status == 'current'%}
                   <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Admitido na coleção{% endtrans %}.</li>
                 {% elif event.status == 'rejected' %}
-                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Rejeitado na coleção SciELO{% endtrans %}({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
+                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Rejeitado na coleção{% endtrans %}({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
                 {% elif event.status == 'suspended' %}
-                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Suspenso da coleção SciELO{% endtrans %} ({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
+                  <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Suspenso da coleção{% endtrans %} ({% trans %}motivo{% endtrans %}: {{ event.reason }}).</li>
                 {% elif event.status == 'deceased' %}
                   <li>{{ event.since.strftime('%B')[:3] }} {{ event.since.strftime('%Y') }}: {% trans %}Terminado{% endtrans %}, {% trans %}continuado como{% endtrans %}<a href="{{ url_for('main.journal_detail', url_seg=journal.url_next_journal)}}"> {{ journal.next_title }}</a>.</li>
                 {% endif %}

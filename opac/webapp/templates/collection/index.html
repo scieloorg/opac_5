@@ -116,7 +116,7 @@
         <div class="row-fluid row-lg">
           <div class="col">
               
-            <h2 class="h4 text-center text-md-start">SciELO <span>Press Releases</span></h2>
+            <h2 class="h4 text-center text-md-start">{{ coll_macro.get_collection_name() }} <span>Press Releases</span></h2>
             <div class="scielo-slider">
               
               {% for press_release in press_releases %}
@@ -140,7 +140,7 @@
       <div class="container-fluid g-0 container-md">
         <div class="row-fluid row-lg">
           <div class="col">
-            <h2 class="h4 text-center text-md-start">SciELO <span>{% trans %}em perspectiva{% endtrans %}</span></h2>
+            <h2 class="h4 text-center text-md-start">{% trans %}SciELO em perspectiva{% endtrans %}</h2>
             <div class="scielo-slider">
               {% for item in news %}
                 {% include "news/includes/collection_news_row.html" %}
