@@ -630,6 +630,10 @@ msgid ""
 "página da coleção, verificar páginas da coleção em\n"
 "    <em>Sobre a coleção</em>. "
 msgstr ""
+"<strong>Atención:</strong> al seleccionar una <strong>revista</strong> "
+"esta página será la página \"secundaria\" de la revista seleccionada, en "
+"caso contrario será una página de la colección, verifique las páginas de "
+"la colección en <em>Acerca de la colección</em>. "
 
 #: opac/webapp/templates/admin/pages/edit.html:7
 msgid ""
@@ -638,6 +642,10 @@ msgid ""
 "contrário será uma página da coleção, verificar páginas da coleção em "
 "<em>Sobre a coleção</em>. "
 msgstr ""
+"<strong>Atención:</strong> al seleccionar una <strong>revista</strong> "
+"esta página será la página \"secundaria\" de la revista seleccionada, en "
+"caso contrario será una página de la colección, verifique las páginas de "
+"la colección en <em>Acerca de la colección</em>. "
 
 #: opac/webapp/templates/article/base.html:132
 msgid " SCImago image"
@@ -1063,9 +1071,8 @@ msgstr ""
 #: opac/webapp/templates/collection/includes/levelMenu.html:67
 #: opac/webapp/templates/collection/includes/levelMenu.html:80
 #: opac/webapp/templates/collection/includes/nav.html:46
-#, fuzzy
 msgid "Sobre"
-msgstr "Sobre el"
+msgstr "Acerca de"
 
 #: opac/webapp/templates/collection/about.html:23
 #, python-format
@@ -1128,9 +1135,8 @@ msgid "Busca por periódicos"
 msgstr "Búsqueda por periódicos"
 
 #: opac/webapp/templates/collection/index.html:143
-#, fuzzy
 msgid "SciELO em perspectiva"
-msgstr "en perspectiva"
+msgstr "SciELO en Perspectiva"
 
 #: opac/webapp/templates/collection/list_feed_content.html:1
 msgid "Último número"
@@ -1494,13 +1500,12 @@ msgid "(por favor, considere responder ao "
 msgstr "(por favor, considere responder a "
 
 #: opac/webapp/templates/includes/error_form.html:37
-#, fuzzy
 msgid ""
 "nosso questionário para mapear o perfil dos usuários do site - link "
 "externo"
 msgstr ""
-"nuestro cuestionario para mapear el perfil de los usuarios del sitio "
-"SciELO - enlace externo"
+"nuestro cuestionario para mapear el perfil de los usuarios del sitio - "
+"enlace externo"
 
 #: opac/webapp/templates/includes/error_form.html:42
 msgid "outro tipo de erro"
@@ -1582,9 +1587,8 @@ msgid "Admitido na coleção"
 msgstr "Admitido en la colección"
 
 #: opac/webapp/templates/issue/grid.html:140
-#, fuzzy
 msgid "Rejeitado na coleção"
-msgstr "Rechazado de la colección SciELO"
+msgstr "Rechazado de la colección"
 
 #: opac/webapp/templates/issue/grid.html:140
 #: opac/webapp/templates/issue/grid.html:142
@@ -1592,7 +1596,6 @@ msgid "motivo"
 msgstr "Razón"
 
 #: opac/webapp/templates/issue/grid.html:142
-#, fuzzy
 msgid "Suspenso da coleção"
 msgstr "Indización interrumpida"
 
