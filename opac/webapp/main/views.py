@@ -84,7 +84,6 @@ def add_header(response):
     )
     response.headers["x-content-type-options"] = "nosniff"
     response.vary.add("Accept-Language")
-    response.vary.discard("Cookie")
     return response
 
 
