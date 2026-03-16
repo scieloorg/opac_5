@@ -72,9 +72,17 @@
     {% endif -%}
 {% endif -%}
 
-{% if article.doi -%}
-    <meta name="citation_doi" content="{{ article.doi }}"></meta>
-    <meta name="dc.identifier" content="doi:{{ article.doi }}"/>
+{% set _doi_ns = namespace(value=article.doi or '') -%}
+{% if article.doi_with_lang and article_lang -%}
+    {% for doi in article.doi_with_lang -%}
+        {% if doi.language == article_lang -%}
+            {% set _doi_ns.value = doi.doi -%}
+        {% endif -%}
+    {% endfor -%}
+{% endif -%}
+{% if _doi_ns.value -%}
+    <meta name="citation_doi" content="{{ _doi_ns.value }}"></meta>
+    <meta name="dc.identifier" content="doi:{{ _doi_ns.value }}"/>
 {% endif -%}
 
 <meta name="citation_fulltext_world_readable" content=""></meta>

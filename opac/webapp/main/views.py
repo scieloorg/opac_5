@@ -6,7 +6,7 @@ import mimetypes
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from io import BytesIO
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -35,6 +35,7 @@ from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
+from webapp.config.default import INTERNAL_LANG_TO_URL, URL_LANG_TO_INTERNAL
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
 from webapp.main.errors import page_not_found, internal_server_error
 
@@ -56,6 +57,9 @@ IAHX_LANGS = dict(
 
 
 def url_external(endpoint, **kwargs):
+    if endpoint and str(endpoint).startswith("main.") and "lang" not in kwargs:
+        loc = get_locale()
+        kwargs = dict(kwargs, lang=INTERNAL_LANG_TO_URL.get(loc, loc))
     url = url_for(endpoint, **kwargs)
     return urljoin(request.url_root, url)
 
@@ -76,6 +80,43 @@ def add_langs():
     session["langs"] = current_app.config.get("LANGUAGES")
 
 
+@main.url_value_preprocessor
+def pull_lang(endpoint, values):
+    """
+    Extrai o idioma da URL e injeta em request/g.
+    O valor é removido de values para que as views não precisem do parâmetro lang.
+    Ver: https://flask.palletsprojects.com/en/stable/patterns/urlprocessors/
+    """
+    if values is None:
+        return
+    lang = values.pop("lang", None)
+    if lang is not None:
+        langs = current_app.config.get("LANGUAGES") or {}
+        if lang in URL_LANG_TO_INTERNAL:
+            lang_internal = URL_LANG_TO_INTERNAL[lang]
+        elif lang in langs:
+            lang_internal = lang
+        else:
+            lang_internal = current_app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
+        request.ilang = lang_internal
+        g.ilang = lang_internal
+        g.lang_from_url = lang_internal  # para add_language_code não setar cookie
+        session["lang"] = lang_internal  # templates usam session.lang
+
+
+@main.url_defaults
+def add_lang(endpoint, values):
+    """Injeta 'lang' ao construir URLs do main a partir de request.ilang/g.ilang."""
+    if endpoint and str(endpoint).startswith("main.") and "lang" not in values:
+        lang_internal = getattr(g, "ilang", None)
+        if lang_internal is None:
+            try:
+                lang_internal = get_locale()
+            except Exception:
+                lang_internal = current_app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
+        values["lang"] = INTERNAL_LANG_TO_URL.get(lang_internal, lang_internal) or "pt"
+
+
 @main.after_request
 def add_header(response):
     response.cache_control.max_age = current_app.config.get(
@@ -87,6 +128,9 @@ def add_header(response):
 
 @main.after_request
 def add_language_code(response):
+    # Não definir cookie quando o idioma vem da URL: permite cache no CDN/Varnish
+    if getattr(g, "lang_from_url", None):
+        return response
     language = session.get("lang", get_locale())
     response.set_cookie("language", language)
     return response
@@ -101,7 +145,7 @@ def add_forms_to_g():
 
 @main.before_app_request
 def add_scielo_org_config_to_g():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     scielo_org_links = {
         # if language doesnt exists set the 'en' to SciELO ORG links.
         key: url.get(language, "en")
@@ -110,40 +154,67 @@ def add_scielo_org_config_to_g():
     setattr(g, "scielo_org", scielo_org_links)
 
 
-@babel.localeselector
 def get_locale():
-    langs = current_app.config.get("LANGUAGES")
+    """
+    Define o idioma ativo de acordo com a URL (request.ilang injetado pelo
+    url_value_preprocessor). Fallback: sessão, Accept-Language, padrão.
+    """
+    lang = getattr(request, "ilang", None)
+    if lang is not None:
+        return lang
+    langs = current_app.config.get("LANGUAGES") or {}
     lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
-
     if "lang" not in list(session.keys()):
         session["lang"] = lang_from_headers
-
-    if not lang_from_headers and not session["lang"]:
-        # Caso não seja possível detectar o idioma e não tenhamos a chave lang
-        # no seção, fixamos o idioma padrão.
+    if not lang_from_headers and not session.get("lang"):
         session["lang"] = current_app.config.get("BABEL_DEFAULT_LOCALE")
-
     return session["lang"]
 
 
-@main.route("/set_locale/<string:lang_code>/")
-def set_locale(lang_code):
+def redirect_to_lang_root():
+    """Redireciona / para /pt/, /en/ ou /es/ conforme Accept-Language"""
     langs = current_app.config.get("LANGUAGES")
+    best = request.accept_languages.best_match(list(langs.keys()))
+    lang_url = INTERNAL_LANG_TO_URL.get(best, "pt")
+    return redirect("/" + lang_url + "/")
 
-    if lang_code not in list(langs.keys()):
+
+def set_locale(ilang):
+    """Redireciona para a mesma URL com o idioma no path."""
+    langs = current_app.config.get("LANGUAGES") or {}
+    if ilang not in list(langs.keys()):
         abort(400, _("Código de idioma inválido"))
 
+    new_lang_url = INTERNAL_LANG_TO_URL.get(ilang, ilang)
     referrer = request.referrer
-    hash = request.args.get("hash")
-    if hash:
-        referrer += "#" + hash
+    hash_part = request.args.get("hash")
 
-    # salvar o lang code na sessão
-    session["lang"] = lang_code
-    if referrer:
-        return redirect(referrer)
+    if not referrer:
+        return redirect("/" + new_lang_url + "/")
+
+    parsed = urlparse(referrer)
+    path = (parsed.path or "/").rstrip("/") or "/"
+    parts = path.strip("/").split("/") if path.strip("/") else []
+    valid_lang_segments = set(URL_LANG_TO_INTERNAL.keys()) | set(langs.keys())
+
+    if parts and parts[0] in valid_lang_segments:
+        parts[0] = new_lang_url
+        new_path = "/" + "/".join(parts) + "/"
     else:
-        return redirect("/")
+        base = "/" + path.strip("/") if path.strip("/") else ""
+        new_path = ("/" + new_lang_url + base).replace("//", "/") + "/"
+
+    new_url = urlunparse((
+        parsed.scheme or "https",
+        parsed.netloc or "",
+        new_path,
+        parsed.params,
+        parsed.query,
+        "",
+    ))
+    if hash_part:
+        new_url += "#" + hash_part
+    return redirect(new_url)
 
 
 def get_lang_from_session():
@@ -155,6 +226,42 @@ def get_lang_from_session():
         return session["lang"]
     except KeyError:
         return current_app.config.get("BABEL_DEFAULT_LOCALE")
+
+
+def _path_with_lang(ilang):
+    """Retorna o path atual com o segmento de idioma substituído."""
+    path = (request.path or "/").rstrip("/") or "/"
+    parts = path.strip("/").split("/") if path.strip("/") else []
+    lang_url = INTERNAL_LANG_TO_URL.get(ilang, ilang)
+    langs = current_app.config.get("LANGUAGES") or {}
+    valid_lang_segments = set(URL_LANG_TO_INTERNAL.keys()) | set(langs.keys())
+    if parts and parts[0] in valid_lang_segments:
+        parts[0] = lang_url
+    else:
+        parts = [lang_url] + parts
+    return "/" + "/".join(parts) + "/"
+
+
+@main.app_context_processor
+def inject_lang_url_context():
+    """Disponibiliza current_lang_url, url_for_lang e url_for com ilang para main."""
+    current = get_locale()
+    current_lang_url = INTERNAL_LANG_TO_URL.get(current, current)
+
+    def url_for_lang(ilang):
+        return _path_with_lang(ilang)
+
+    def wrapped_url_for(endpoint, **kwargs):
+        if endpoint and str(endpoint).startswith("main.") and "lang" not in kwargs:
+            kwargs = dict(kwargs, lang=current_lang_url)
+        return url_for(endpoint, **kwargs)
+
+    return {
+        "current_lang_url": current_lang_url,
+        "current_lang_internal": current,
+        "url_for_lang": url_for_lang,
+        "url_for": wrapped_url_for,
+    }
 
 
 @main.route("/")
@@ -396,7 +503,6 @@ def router_legacy():
                 return redirect(
                     url_for("main.aop_toc", url_seg=issue.url_segment), code=301
                 )
-
             return redirect(
                 url_for(
                     "main.issue_toc",
@@ -417,16 +523,15 @@ def router_legacy():
             if tlng not in article.languages:
                 tlng = article.original_language
 
-            return redirect(
-                url_for(
-                    "main.article_detail_v3",
-                    url_seg=article.journal.url_segment,
-                    article_pid_v3=article.aid,
-                    part=part,
-                    lang=tlng,
-                ),
-                code=301,
+            url = url_for(
+                "main.article_detail_v3",
+                url_seg=article.journal.url_segment,
+                article_pid_v3=article.aid,
+                part=part,
             )
+            if tlng:
+                url += "?lang=" + tlng
+            return redirect(url, code=301)
 
         elif script_php == "sci_issues":
             journal = controllers.get_journal_by_issn(pid)
@@ -447,16 +552,14 @@ def router_legacy():
             if not article:
                 abort(404, _("Artigo não encontrado"))
 
-            return redirect(
-                url_for(
-                    "main.article_detail_v3",
-                    url_seg=article.journal.url_segment,
-                    article_pid_v3=article.aid,
-                    format="pdf",
-                    lang=tlng,
-                ),
-                code=301,
-            )
+            url = url_for(
+                "main.article_detail_v3",
+                url_seg=article.journal.url_segment,
+                article_pid_v3=article.aid,
+            ) + "?format=pdf"
+            if tlng:
+                url += "&lang=" + tlng
+            return redirect(url, code=301)
 
         else:
             abort(
@@ -465,7 +568,8 @@ def router_legacy():
             )
 
     else:
-        return redirect("/")
+        lang_url = INTERNAL_LANG_TO_URL.get(getattr(g, "ilang", None), "pt")
+        return redirect("/" + lang_url + "/")
 
 
 @main.route("/<string:journal_seg>")
@@ -868,7 +972,6 @@ def issue_grid(url_seg):
 def issue_toc_legacy(url_seg, url_seg_issue):
     if url_seg_issue and "ahead" in url_seg_issue:
         return redirect(url_for("main.aop_toc", url_seg=url_seg), code=301)
-
     return redirect(
         url_for("main.issue_toc", url_seg=url_seg, url_seg_issue=url_seg_issue),
         code=301,
@@ -906,10 +1009,16 @@ def issue_toc(url_seg, url_seg_issue):
 
     # obtém todos os documentos
     articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
+    if articles is None:
+        articles = Article.objects(id__in=[])
 
-    # obtém todas as seções
+    # obtém todas as seções (ignora section=None)
     sections = sorted(
-        {s.upper() for s in articles.item_frequencies("section", normalize=True).keys()}
+        {
+            s.upper()
+            for s in articles.item_frequencies("section", normalize=True).keys()
+            if s is not None
+        }
     )
 
     # obtém os documentos da seção selecionada
@@ -1183,16 +1292,16 @@ def use_ssm_url(url):
     "/article/<string:url_seg>/<string:url_seg_issue>/<string:url_seg_article>/"
 )
 @main.route(
-    '/article/<string:url_seg>/<string:url_seg_issue>/<string:url_seg_article>/<regex("(?:\w{2})"):lang_code>/'
+    '/article/<string:url_seg>/<string:url_seg_issue>/<string:url_seg_article>/<regex("(?:\w{2})"):ilang>/'
 )
 @main.route(
     '/article/<string:url_seg>/<string:url_seg_issue>/<regex("(.*)"):url_seg_article>/'
 )
 @main.route(
-    '/article/<string:url_seg>/<string:url_seg_issue>/<regex("(.*)"):url_seg_article>/<regex("(?:\w{2})"):lang_code>/'
+    '/article/<string:url_seg>/<string:url_seg_issue>/<regex("(.*)"):url_seg_article>/<regex("(?:\w{2})"):ilang>/'
 )
 @cache.cached(key_prefix=cache_key_with_lang)
-def article_detail(url_seg, url_seg_issue, url_seg_article, lang_code=""):
+def article_detail(url_seg, url_seg_issue, url_seg_article, ilang=""):
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
     if not issue:
         abort(404, _("Issue não encontrado"))
@@ -1209,10 +1318,10 @@ def article_detail(url_seg, url_seg_issue, url_seg_article, lang_code=""):
         "url_seg": article.journal.acronym,
         "article_pid_v3": article.aid,
     }
-    if lang_code:
-        req_params["lang"] = lang_code
-
-    return redirect(url_for("main.article_detail_v3", **req_params))
+    url = url_for("main.article_detail_v3", **req_params)
+    if ilang:
+        url += "?lang=" + ilang
+    return redirect(url)
 
 
 @main.route("/j/<string:url_seg>/a/<string:article_pid_v3>/")
@@ -1232,16 +1341,12 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         )
         if not qs_lang:
             if article.original_language:
-                return redirect(
-                    url_for(
-                        "main.article_detail_v3",
-                        url_seg=url_seg,
-                        article_pid_v3=article_pid_v3,
-                        format=qs_format,
-                        lang=article.original_language,
-                    ),
-                    code=301,
-                )
+                url = url_for(
+                    "main.article_detail_v3",
+                    url_seg=url_seg,
+                    article_pid_v3=article_pid_v3,
+                ) + "?format=" + qs_format + "&lang=" + article.original_language
+                return redirect(url, code=301)
             raise controllers.ArticleLangNotFoundError
     except controllers.PreviousOrNextArticleNotFoundError as e:
         if gs_abstract:
@@ -1249,7 +1354,17 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         abort(404, _("Artigo inexistente"))
     except (controllers.ArticleNotFoundError, controllers.ArticleJournalNotFoundError):
         abort(404, _("Artigo não encontrado"))
-    except controllers.ArticleLangNotFoundError:
+    except controllers.ArticleLangNotFoundError as e:
+        # idioma solicitado não existe no artigo; redireciona para o idioma original
+        available = e.args[0] if e.args else []
+        original_lang = available[0] if available else None
+        if original_lang:
+            url = url_for(
+                "main.article_detail_v3",
+                url_seg=url_seg,
+                article_pid_v3=article_pid_v3,
+            ) + "?format=" + qs_format + "&lang=" + original_lang
+            return redirect(url, code=302)
         abort(500, _("Erro inesperado: artigo sem idioma"))
     except controllers.ArticleAbstractNotFoundError:
         abort(404, _("Recurso não encontrado"))
@@ -1270,9 +1385,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
                     "main.article_detail_v3",
                     url_seg=article.journal.url_segment,
                     article_pid_v3=article_pid_v3,
-                    lang=qs_lang,
-                    format="pdf",
-                )
+                ) + "?format=pdf&lang=" + qs_lang
                 break
 
         website = request.url
@@ -1296,16 +1409,15 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         text_versions = sorted(
             [
                 (
-                    lang,
-                    display_original_lang_name(lang),
+                    text_lang,
+                    display_original_lang_name(text_lang),
                     url_for(
                         "main.article_detail_v3",
                         url_seg=article.journal.url_segment,
                         article_pid_v3=article_pid_v3,
-                        lang=lang,
-                    ),
+                    ) + "?lang=" + text_lang,
                 )
-                for lang in text_languages
+                for text_lang in text_languages
             ]
         )
         citation_xml_url = "{}{}".format(
@@ -1314,9 +1426,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
                 "main.article_detail_v3",
                 url_seg=article.journal.url_segment,
                 article_pid_v3=article_pid_v3,
-                format="xml",
-                lang=article.original_language,
-            ),
+            ) + "?format=xml&lang=" + (article.original_language or ""),
         )
         context = {
             "article_html_title": remover_tags_html(article.title or _("Artigo sem título")),
@@ -1454,22 +1564,22 @@ def article_ssm_content_raw():
 
 @main.route("/pdf/<string:url_seg>/<string:url_seg_issue>/<string:url_seg_article>")
 @main.route(
-    '/pdf/<string:url_seg>/<string:url_seg_issue>/<string:url_seg_article>/<regex("(?:\w{2})"):lang_code>'
+    '/pdf/<string:url_seg>/<string:url_seg_issue>/<string:url_seg_article>/<regex("(?:\w{2})"):ilang>'
 )
 @main.route(
     '/pdf/<string:url_seg>/<string:url_seg_issue>/<regex("(.*)"):url_seg_article>'
 )
 @main.route(
-    '/pdf/<string:url_seg>/<string:url_seg_issue>/<regex("(.*)"):url_seg_article>/<regex("(?:\w{2})"):lang_code>'
+    '/pdf/<string:url_seg>/<string:url_seg_issue>/<regex("(.*)"):url_seg_article>/<regex("(?:\w{2})"):ilang>'
 )
 @cache.cached(key_prefix=cache_key_with_lang)
-def article_detail_pdf(url_seg, url_seg_issue, url_seg_article, lang_code=""):
+def article_detail_pdf(url_seg, url_seg_issue, url_seg_article, ilang=""):
     """
     Padrões esperados:
         `/pdf/csc/2021.v26suppl1/2557-2558`
         `/pdf/csc/2021.v26suppl1/2557-2558/en`
     """
-    if not lang_code and "." not in url_seg_issue:
+    if not ilang and "." not in url_seg_issue:
         return router_legacy_pdf(url_seg, url_seg_issue, url_seg_article)
 
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -1480,15 +1590,14 @@ def article_detail_pdf(url_seg, url_seg_issue, url_seg_article, lang_code=""):
     if not article:
         abort(404, _("Artigo não encontrado"))
 
-    req_params = {
-        "url_seg": article.journal.url_segment,
-        "article_pid_v3": article.aid,
-        "format": "pdf",
-    }
-    if lang_code:
-        req_params["lang"] = lang_code
-
-    return redirect(url_for("main.article_detail_v3", **req_params), code=301)
+    url = url_for(
+        "main.article_detail_v3",
+        url_seg=article.journal.url_segment,
+        article_pid_v3=article.aid,
+    ) + "?format=pdf"
+    if ilang:
+        url += "&lang=" + ilang
+    return redirect(url, code=301)
 
 
 @main.route("/pdf/<string:journal_acron>/<string:issue_info>/<string:pdf_filename>.pdf")
@@ -1524,16 +1633,14 @@ def router_legacy_pdf(journal_acron, issue_info, pdf_filename):
     if not article:
         abort(404, _("PDF do artigo não foi encontrado"))
 
-    return redirect(
-        url_for(
-            "main.article_detail_v3",
-            url_seg=article.journal.url_segment,
-            article_pid_v3=article.aid,
-            format="pdf",
-            lang=article._pdf_lang if hasattr(article, "_pdf_lang") else None,
-        ),
-        code=301,
-    )
+    url = url_for(
+        "main.article_detail_v3",
+        url_seg=article.journal.url_segment,
+        article_pid_v3=article.aid,
+    ) + "?format=pdf"
+    if hasattr(article, "_pdf_lang") and article._pdf_lang:
+        url += "&lang=" + article._pdf_lang
+    return redirect(url, code=301)
 
 
 @main.route("/cgi-bin/fbpe/<string:text_or_abstract>/")
@@ -2096,15 +2203,23 @@ def issue_sync(*args):
     """
     payload = request.get_json()
 
-    # Verify if the payload has the required fields
-    if not payload.get("issue_id"):
+    if not payload or not isinstance(payload, dict):
+        return (
+            jsonify({"failed": True, "error": "missing param issue_id or articles_id"}),
+            400,
+        )
+
+    # Verify if the payload has the required fields (issue_id obrigatório)
+    issue_id_value = payload.get("issue_id")
+    issue_id = (issue_id_value if isinstance(issue_id_value, str) else None) or None
+    if not (issue_id and issue_id.strip()):
         return (
             jsonify({"failed": True, "error": "missing param issue_id or articles_id"}),
             400,
         )
 
     # Get issue by iid
-    issue = controllers.get_issue_by_iid(payload.get("issue_id"))
+    issue = controllers.get_issue_by_iid(issue_id)
 
     # Verify if the issue exists
     if not issue:

@@ -313,6 +313,10 @@ LANGUAGES = ast.literal_eval(
     )
 )
 
+# Mapeamento idioma na URL <-> idioma interno (permite cache CDN sem cookie)
+URL_LANG_TO_INTERNAL = {"pt": "pt_BR", "en": "en", "es": "es"}
+INTERNAL_LANG_TO_URL = {"pt_BR": "pt", "en": "en", "es": "es"}
+
 # linguagem padrão:
 BABEL_DEFAULT_LOCALE = "pt_BR"
 
