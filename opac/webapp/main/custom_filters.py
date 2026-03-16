@@ -11,8 +11,14 @@ def trans_alpha2(value):
 
     if value in choices.ISO3166_ALPHA2:
         return choices.ISO3166_ALPHA2[value]
-    else:
-        return value
+    from webapp.config.lang_names import LANG_NAMES
+    lang_data = LANG_NAMES.get(value)
+    if lang_data:
+        name = lang_data[1]
+        if "," in name:
+            name = name.split(",")[0].strip()
+        return name
+    return value
 
 
 def datetimefilter(value, format="%Y-%m-%d %H:%M"):

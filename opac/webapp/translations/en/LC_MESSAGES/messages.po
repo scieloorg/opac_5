@@ -961,6 +961,30 @@ msgstr "English"
 msgid "Português"
 msgstr "Portuguese"
 
+msgid "Francês"
+msgstr "French"
+
+msgid "Alemão"
+msgstr "German"
+
+msgid "Italiano"
+msgstr "Italian"
+
+msgid "Russo"
+msgstr "Russian"
+
+msgid "Árabe"
+msgstr "Arabic"
+
+msgid "Chinês"
+msgstr "Chinese"
+
+msgid "Romeno"
+msgstr "Romanian"
+
+msgid "Albanês"
+msgstr "Albanian"
+
 #: opac/webapp/templates/article/includes/levelMenu.html:121
 #: opac/webapp/templates/article/includes/levelMenu.html:322
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:38

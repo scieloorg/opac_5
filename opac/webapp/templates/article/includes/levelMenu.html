@@ -67,15 +67,7 @@
                 
                 {% for abstract in article.abstracts  %}
                 {% if gs_abstract and article_lang == abstract['language'] %}  
-                {% if abstract['language'] == 'es' %}
-                {% trans %}Resumo{% endtrans %} (ES)
-                {% elif abstract['language'] == 'en' %}
-                {% trans %}Resumo{% endtrans %} (EN)
-                {% elif abstract['language'] == 'pt' %}
-                {% trans %}Resumo{% endtrans %} (PT)
-                {% else %}
-                {{ abstract['language'] }}
-                {% endif %}
+                {% trans %}Resumo{% endtrans %} ({{ abstract['language']|upper }})
                 {% endif %}
                 {% endfor %}
                 {% endif %}
@@ -85,15 +77,7 @@
                 
                 {% for lang, text_lang, uri in text_versions  %}
                 {% if not gs_abstract and lang == article_lang %}        
-                {% if lang == 'es' %}
-                {% trans %}Texto{% endtrans %} (ES)
-                {% elif lang == 'en' %}
-                {% trans %}Texto{% endtrans %} (EN)
-                {% elif lang == 'pt' %}
-                {% trans %}Texto{% endtrans %} (PT)
-                {% else %} 
-                ({{ text_lang }})
-                {% endif %}
+                {% trans %}Texto{% endtrans %} ({{ lang|upper }})
                 {% endif %}
                 {% endfor %}
                 {% endif %}
@@ -106,28 +90,12 @@
                 {% if gs_abstract and article_lang == abstract['language'] %}
                 <a href="#" class="current dropdown-item">
                 {% trans %}Resumo{% endtrans %}
-                {% if abstract['language'] == 'es' %}
-                ({% trans %}Espanhol{% endtrans %})
-                {% elif abstract['language'] == 'en' %}
-                ({% trans %}Inglês{% endtrans %})
-                {% elif abstract['language'] == 'pt' %}
-                ({% trans %}Português{% endtrans %})
-                {% else %}
-                ({{ abstract['language'] }})
-                {% endif %}
+                ({{ abstract['language']|trans_alpha2 }})
                 </a>
                 {% else %}
                 <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}" class="dropdown-item">
                 {% trans %}Resumo {% endtrans %}
-                {% if abstract['language'] == 'es' %}
-                ({% trans %}Espanhol{% endtrans %})
-                {% elif abstract['language'] == 'en' %}
-                ({% trans %}Inglês{% endtrans %})
-                {% elif abstract['language'] == 'pt' %}
-                ({% trans %}Português{% endtrans %})
-                {% else %}
-                ({{ abstract['language'] }})
-                {% endif %}
+                ({{ abstract['language']|trans_alpha2 }})
                 </a>
                 {% endif %}
                 <li>
@@ -142,28 +110,12 @@
                 <!-- página de texto -->
                 <a href="#" class="current dropdown-item"> 
                 {% trans %}Texto{% endtrans %}
-                {% if lang == 'es' %}
-                ({% trans %}Espanhol{% endtrans %})
-                {% elif lang == 'en' %}
-                ({% trans %}Inglês{% endtrans %})
-                {% elif lang == 'pt' %}
-                ({% trans %}Português{% endtrans %})
-                {% else %}
-                ({{ text_lang }})
-                {% endif %}
+                ({{ lang|trans_alpha2 }})
                 </a>
                 {% else %}
                 <a href="{{ uri }}" class="dropdown-item">
                 {% trans %}Texto {% endtrans %}
-                {% if lang == 'es' %}
-                ({% trans %}Espanhol{% endtrans %})
-                {% elif lang == 'en' %}
-                ({% trans %}Inglês{% endtrans %})
-                {% elif lang == 'pt' %}
-                ({% trans %}Português{% endtrans %})
-                {% else %}
-                ({{ text_lang }})
-                {% endif %}
+                ({{ lang|trans_alpha2 }})
                 </a>
                 {% endif %}
                 </li>
@@ -175,15 +127,7 @@
                 {% for pdf in article.pdfs  %}
                 <li>
                 <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
-                {% if pdf.lang == 'es' %}
-                {% trans %}Download PDF (Espanhol){% endtrans %}
-                {% elif pdf.lang == 'en' %}
-                {% trans %}Download PDF (Inglês){% endtrans %}
-                {% elif pdf.lang == 'pt' %}
-                {% trans %}Download PDF (Português){% endtrans %}
-                {% else %}
-                {{ pdf.lang }}
-                {% endif %}
+                Download PDF ({{ pdf.lang|trans_alpha2 }})
                 </a>
                 </li>
                 {% endfor %}
@@ -195,15 +139,7 @@
                 {% for pdf in article.pdfs  %}
                 <li>
                 <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
-                {% if pdf.lang == 'es' %}
-                {% trans %}Download PDF (Espanhol){% endtrans %}
-                {% elif pdf.lang == 'en' %}
-                {% trans %}Download PDF (Inglês){% endtrans %}
-                {% elif pdf.lang == 'pt' %}
-                {% trans %}Download PDF (Português){% endtrans %}
-                {% else %}
-                {{ pdf.lang }}
-                {% endif %}
+                Download PDF ({{ pdf.lang|trans_alpha2 }})
                 </a>
                 </li>
                 {% endfor %}
@@ -215,15 +151,7 @@
                 {% for pdf in article.pdfs  %}
                 <li>
                 <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
-                {% if pdf.lang == 'es' %}
-                {% trans %}Download PDF (Espanhol){% endtrans %}
-                {% elif pdf.lang == 'en' %}
-                {% trans %}Download PDF (Inglês){% endtrans %}
-                {% elif pdf.lang == 'pt' %}
-                {% trans %}Download PDF (Português){% endtrans %}
-                {% else %}
-                {{ pdf.lang }}
-                {% endif %}
+                Download PDF ({{ pdf.lang|trans_alpha2 }})
                 </a>
                 </li>
                 {% endfor %}
@@ -289,15 +217,7 @@
           {% trans %}Resumo{% endtrans %}
           {% for abstract in article.abstracts  %}
           {% if gs_abstract and article_lang == abstract['language'] %}  
-          {% if abstract['language'] == 'es' %}
-          (ES)
-          {% elif abstract['language'] == 'en' %}
-          (EN)
-          {% elif abstract['language'] == 'pt' %}
-          (PT)
-          {% else %}
-          {{ abstract['language'] }}
-          {% endif %}
+          ({{ abstract['language']|upper }})
           {% endif %}
           {% endfor %}
           </button>
@@ -307,28 +227,12 @@
           {% if gs_abstract and article_lang == abstract['language'] %}
           <a href="#" class="current dropdown-item">
           {% trans %}Resumo{% endtrans %}
-          {% if abstract['language'] == 'es' %}
-            ({% trans %}Espanhol{% endtrans %})
-          {% elif abstract['language'] == 'en' %}
-            ({% trans %}Inglês{% endtrans %})
-          {% elif abstract['language'] == 'pt' %}
-            ({% trans %}Português{% endtrans %})
-          {% else %}
-            ({{ abstract['language'] }})
-          {% endif %}
+          ({{ abstract['language']|trans_alpha2 }})
           </a>
           {% else %}
           <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}" class="dropdown-item">
           {% trans %}Resumo {% endtrans %}
-          {% if abstract['language'] == 'es' %}
-            ({% trans %}Espanhol{% endtrans %})
-          {% elif abstract['language'] == 'en' %}
-            ({% trans %}Inglês{% endtrans %})
-          {% elif abstract['language'] == 'pt' %}
-            ({% trans %}Português{% endtrans %})
-          {% else %}
-            ({{ abstract['language'] }})
-          {% endif %}
+          ({{ abstract['language']|trans_alpha2 }})
           </a>
           {% endif %}
           <li>
@@ -347,15 +251,7 @@
           {% trans %}Texto{% endtrans %}
           {% for lang, text_lang, uri in text_versions  %}
           {% if not gs_abstract and lang == article_lang %}        
-          {% if lang == 'es' %}
-          (ES)
-          {% elif lang == 'en' %}
-          (EN)
-          {% elif lang == 'pt' %}
-          (PT)
-          {% else %} 
-          ({{ text_lang }})
-          {% endif %}
+          ({{ lang|upper }})
           {% endif %}
           {% endfor %}
           </button>
@@ -366,28 +262,12 @@
           <!-- página de texto -->
           <a href="#" class="current dropdown-item"> 
           {% trans %}Texto{% endtrans %}
-          {% if lang == 'es' %}
-          ({% trans %}Espanhol{% endtrans %})
-          {% elif lang == 'en' %}
-          ({% trans %}Inglês{% endtrans %})
-          {% elif lang == 'pt' %}
-          ({% trans %}Português{% endtrans %})
-          {% else %}
-          ({{ text_lang }})
-          {% endif %}
+          ({{ lang|trans_alpha2 }})
           </a>
           {% else %}
           <a href="{{ uri }}" class="dropdown-item">
           {% trans %}Texto {% endtrans %}
-          {% if lang == 'es' %}
-          ({% trans %}Espanhol{% endtrans %})
-          {% elif lang == 'en' %}
-          ({% trans %}Inglês{% endtrans %})
-          {% elif lang == 'pt' %}
-          ({% trans %}Português{% endtrans %})
-          {% else %}
-          ({{ text_lang }})
-          {% endif %}
+          ({{ lang|trans_alpha2 }})
           </a>
           {% endif %}
           </li>
@@ -408,15 +288,7 @@
           {% for pdf in article.pdfs  %}
           <li>
           <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}" class="dropdown-item">
-          {% if pdf.lang == 'es' %}
-          {% trans %}Download PDF (Espanhol){% endtrans %}
-          {% elif pdf.lang == 'en' %}
-          {% trans %}Download PDF (Inglês){% endtrans %}
-          {% elif pdf.lang == 'pt' %}
-          {% trans %}Download PDF (Português){% endtrans %}
-          {% else %}
-          {{ pdf.lang }}
-          {% endif %}
+          Download PDF ({{ pdf.lang|trans_alpha2 }})
           </a>
           </li>
           {% endfor %}
@@ -443,15 +315,7 @@
           {% for pdf in article.pdfs  %}
           <li>
           <a target='_blank' href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}" class="dropdown-item">
-          {% if pdf.lang == 'es' %}
-          {% trans %}Download PDF (Espanhol){% endtrans %}
-          {% elif pdf.lang == 'en' %}
-          {% trans %}Download PDF (Inglês){% endtrans %}
-          {% elif pdf.lang == 'pt' %}
-          {% trans %}Download PDF (Português){% endtrans %}
-          {% else %}
-          {{ pdf.lang }}
-          {% endif %}
+          Download PDF ({{ pdf.lang|trans_alpha2 }})
           </a>
           </li>
           {% endfor %}
@@ -469,15 +333,7 @@
           {% for pdf in article.pdfs  %}
           <li>
           <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
-          {% if pdf.lang == 'es' %}
-          {% trans %}Download PDF (Espanhol){% endtrans %}
-          {% elif pdf.lang == 'en' %}
-          {% trans %}Download PDF (Inglês){% endtrans %}
-          {% elif pdf.lang == 'pt' %}
-          {% trans %}Download PDF (Português){% endtrans %}
-          {% else %}
-          {{ pdf.lang }}
-          {% endif %}
+          Download PDF ({{ pdf.lang|trans_alpha2 }})
           </a>
           </li>
           {% endfor %}
