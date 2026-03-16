@@ -29,6 +29,10 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 
+# Remove src/ para evitar conflito com instaláveis editáveis do git (opac_schema, packtools, etc.):
+# se o diretório já existir e não for um clone, o pip pergunta interativamente e o build falha com EOFError.
+RUN rm -rf /app/src
+
 RUN pip --no-cache-dir install -U pip && \
     pip --no-cache-dir install -r /app/requirements.txt && \
     pip --no-cache-dir install -r /app/requirements.dev.txt
