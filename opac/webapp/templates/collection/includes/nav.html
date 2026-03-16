@@ -9,7 +9,7 @@
   <nav style="max-height: 780px;">
     <ul>
       <li class="logo">
-        {%- set menu_logo_url = img_macro.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
+        {%- set menu_logo_url = img_macro.get_menu_logo(g.collection, g.lang)|default('')|trim -%}
         {%- if menu_logo_url -%}
           {{ img_macro.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
         {%- else -%}
@@ -32,7 +32,7 @@
               </a>
             </li>
             <li>
-              <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
+              <a href="{{ config.URL_SEARCH }}?q=*&lang={% if g.lang %}{{ g.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
                 {% trans %}Busca{% endtrans %}
               </a>
             </li>
@@ -123,10 +123,10 @@
         </ul>
       </li>
       <li>
-        {% if session.lang == 'pt_BR' %}
+        {% if g.lang == 'pt_BR' %}
           <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}">
         {% else  %}
-          <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
+          <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ g.lang }}/">
         {% endif %}
             <strong>{% trans %}Blog SciELO em Perspectiva{% endtrans %}</strong>
           </a>
