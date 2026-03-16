@@ -642,7 +642,6 @@ msgstr ""
 "<strong>Please contact your administrator.</strong>"
 
 #: opac/webapp/templates/admin/pages/add.html:7
-#, fuzzy
 msgid ""
 "<strong>Atenção:</strong> ao selecionar um <strong>periódico</strong> "
 "esta página será a página\n"
@@ -653,10 +652,9 @@ msgstr ""
 "<strong>Warning:</strong> when a <strong>journal</strong> is selected, "
 "the page will be set as a \"secondary\" page of the selected journal, "
 "otherwise the page will be a collection page, check the collection pages "
-"at <em>About SciELO</em>"
+"at <em>About the collection</em>"
 
 #: opac/webapp/templates/admin/pages/edit.html:7
-#, fuzzy
 msgid ""
 "<strong>Atenção:</strong> ao selecionar um <strong>periódico</strong> "
 "esta página será a página \"secundária\" do periódico selecionado, caso "
@@ -666,7 +664,7 @@ msgstr ""
 "<strong>Warning:</strong> when a <strong>journal</strong> is selected, "
 "the page will be set as a \"secondary\" page of the selected journal, "
 "otherwise the page will be a collection page, check the collection pages "
-"at <em>About SciELO</em>"
+"at <em>About the collection</em>"
 
 #: opac/webapp/templates/article/base.html:132
 msgid " SCImago image"
@@ -1092,7 +1090,6 @@ msgstr ""
 #: opac/webapp/templates/collection/includes/levelMenu.html:67
 #: opac/webapp/templates/collection/includes/levelMenu.html:80
 #: opac/webapp/templates/collection/includes/nav.html:46
-#, fuzzy
 msgid "Sobre"
 msgstr "About"
 
@@ -1158,9 +1155,8 @@ msgid "Busca por periódicos"
 msgstr "Search by journals"
 
 #: opac/webapp/templates/collection/index.html:143
-#, fuzzy
 msgid "SciELO em perspectiva"
-msgstr "in perspective"
+msgstr "SciELO in Perspective"
 
 #: opac/webapp/templates/collection/list_feed_content.html:1
 msgid "Último número"
@@ -1525,11 +1521,10 @@ msgid "(por favor, considere responder ao "
 msgstr "(please consider replying to "
 
 #: opac/webapp/templates/includes/error_form.html:37
-#, fuzzy
 msgid ""
 "nosso questionário para mapear o perfil dos usuários do site - link "
 "externo"
-msgstr "our questionnaire to map the profile of SciELO site users - external link"
+msgstr "our questionnaire to map the profile of site users - external link"
 
 #: opac/webapp/templates/includes/error_form.html:42
 msgid "outro tipo de erro"
@@ -1611,9 +1606,8 @@ msgid "Admitido na coleção"
 msgstr "Admitted to the collection"
 
 #: opac/webapp/templates/issue/grid.html:140
-#, fuzzy
 msgid "Rejeitado na coleção"
-msgstr "Rejected from the SciELO collection"
+msgstr "Rejected from the collection"
 
 #: opac/webapp/templates/issue/grid.html:140
 #: opac/webapp/templates/issue/grid.html:142
@@ -1621,7 +1615,6 @@ msgid "motivo"
 msgstr "Reason"
 
 #: opac/webapp/templates/issue/grid.html:142
-#, fuzzy
 msgid "Suspenso da coleção"
 msgstr "Indexing interrupted"
 
