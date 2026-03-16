@@ -195,14 +195,14 @@
                       <tr>
                         <td class="pt-4 pb-4" data-date="{% if article.publication_date %}{{ article.publication_date.replace('-', '') }}{% endif %}">
   
-                        {% if session.lang %}
-                          {% with nova_variavel=article.get_section_by_lang(session.lang[:2])%}
+                        {% if g.lang %}
+                          {% with nova_variavel=article.get_section_by_lang(g.lang[:2])%}
                               <!-- Aqui você pode usar 'nova_variavel' -->
                               {% if nova_variavel %}
                                 <span class="badge badge-info d-inline px-2 py-1 border-0">{{ nova_variavel | safe }}</span><br>
                               {% endif %}
                           {% endwith %}
-                          <strong class="d-block mt-2">{{ article.get_title_by_lang(session.lang[:2])|default(_('Documento sem título'), true) | safe }}</strong>
+                          <strong class="d-block mt-2">{{ article.get_title_by_lang(g.lang[:2])|default(_('Documento sem título'), true) | safe }}</strong>
                           <!-- publication_date: {{article.publication_date}} -->
                           <!-- PID: {{article.pid}} -->
                         {% endif %}
@@ -210,8 +210,8 @@
                         <!-- Autores --->
                         {%- for author in article.authors_meta or article.authors %}
                           {% set author_name = author.name|default(author) %}
-                          {% if session.lang %}
-                            <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{session.lang[:2]}}&q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}" target="_blank">{{- author_name|striptags -}}</a>
+                          {% if g.lang %}
+                            <a class="me-2" href="{{config['URL_SEARCH']}}?lang={{g.lang[:2]}}&q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}" target="_blank">{{- author_name|striptags -}}</a>
                           {% else %}
                             <a class="me-2" href="{{config['URL_SEARCH']}}?q={% if author.orcid is defined and author.orcid %}orcid:{{ author.orcid }} OR au:({{ author_name }}){% else %}au:{{ author_name }}{% endif %}" target="_blank">{{- author_name|striptags -}}</a>
                           {% if not loop.last %};{% endif %}

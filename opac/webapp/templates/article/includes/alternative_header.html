@@ -45,7 +45,7 @@
           <div class="scielo__mainMenu" id="mainMenu">
              <div class="row">
                 <div class="col text-center">
-                   {%- set menu_logo_url = cimages.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
+                   {%- set menu_logo_url = cimages.get_menu_logo(g.collection, g.lang)|default('')|trim -%}
                    {%- if menu_logo_url -%}
                      {{ cimages.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
                    {%- else -%}
@@ -72,7 +72,7 @@
                             </a>
                          </li>
                          <li>
-                            <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
+                            <a href="{{ config.URL_SEARCH }}?q=*&lang={% if g.lang %}{{ g.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
                             Busca
                             </a>
                          </li>
@@ -148,7 +148,7 @@
                       </ul>
                    </li>
                    <li>
-                      <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
+                      <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ g.lang }}/">
                       <strong>Blog SciELO em Perspectiva</strong>
                       </a>
                    </li>

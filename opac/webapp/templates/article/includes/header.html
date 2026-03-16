@@ -38,7 +38,7 @@
                 {% include "collection/includes/nav.html" %}
             </div>
             <div class="col col-md-3">
-                {%- set header_logo_url = cimages.get_header_logo(g.collection, session.lang)|default('')|trim -%}
+                {%- set header_logo_url = cimages.get_header_logo(g.collection, g.lang)|default('')|trim -%}
                 {%- if header_logo_url -%}
                   {{ cimages.render_logo(header_logo_url, coll_macro.get_collection_name(), img_class='img-fluid scielo__logo-img mt-1 ms-5') }}
                 {%- else -%}
