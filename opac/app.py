@@ -176,7 +176,7 @@ def create_superuser():
 
 @app.cli.command("test")
 @click.option("-p", "--pattern", default=None)
-@click.option("-f", "--failfast", default=False)
+@click.option("-f", "--failfast", is_flag=True, default=False)
 def test(pattern=None, failfast=False):
     """Executa tests unitarios.
     Lembre de definir a variável: OPAC_CONFIG="path do arquivo de conf para testing"
