@@ -25,7 +25,7 @@ class HomeTestCase(BaseTestCase):
             with self.client as c:
                 # idioma em 'pt_br'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="pt_BR"),
+                    url_for("set_locale", ilang="pt_BR"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -36,7 +36,7 @@ class HomeTestCase(BaseTestCase):
 
                 # idioma em 'en'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="en"),
+                    url_for("set_locale", ilang="en"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -47,7 +47,7 @@ class HomeTestCase(BaseTestCase):
 
                 # idioma em 'es'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="es"),
+                    url_for("set_locale", ilang="es"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -74,7 +74,7 @@ class HomeTestCase(BaseTestCase):
             with self.client as c:
                 # idioma em 'pt_br'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="pt_BR"),
+                    url_for("set_locale", ilang="pt_BR"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -90,7 +90,7 @@ class HomeTestCase(BaseTestCase):
 
                 # idioma em 'en'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="en"),
+                    url_for("set_locale", ilang="en"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -111,7 +111,7 @@ class HomeTestCase(BaseTestCase):
 
             with self.client as c:
                 response = c.get(
-                    url_for("main.set_locale", lang_code="pt_BR"),
+                    url_for("set_locale", ilang="pt_BR"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -132,7 +132,7 @@ class HomeTestCase(BaseTestCase):
 
             with self.client as c:
                 response = c.get(
-                    url_for("main.set_locale", lang_code="pt_BR"),
+                    url_for("set_locale", ilang="pt_BR"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
