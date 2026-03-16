@@ -17,15 +17,15 @@ class FooterTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             with self.client as c:
-                response = c.get(url_for("main.index"))
+                response = c.get(url_for("main.index", lang="pt"))
 
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -39,14 +39,14 @@ class FooterTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             with self.client as c:
-                response = c.get(url_for("main.collection_list"))
+                response = c.get(url_for("main.collection_list", lang="pt"))
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/list_journal.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -64,16 +64,16 @@ class FooterTestCase(BaseTestCase):
 
             with self.client as c:
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
 
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("journal/detail.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -91,16 +91,16 @@ class FooterTestCase(BaseTestCase):
 
             with self.client as c:
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
 
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("journal/detail.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -120,16 +120,16 @@ class FooterTestCase(BaseTestCase):
 
             with self.client as c:
                 response = c.get(
-                    url_for("main.issue_grid", url_seg=journal.url_segment)
+                    url_for("main.issue_grid", url_seg=journal.url_segment, lang="pt")
                 )
 
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("issue/grid.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -160,9 +160,9 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("issue/toc.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -180,7 +180,7 @@ class FooterTestCase(BaseTestCase):
 
             with self.client as c:
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
 
                 self.assertStatus(response, 200)
@@ -188,9 +188,9 @@ class FooterTestCase(BaseTestCase):
                 self.assertTemplateUsed("journal/detail.html")
 
                 # Collection license
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", lang="pt"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)

@@ -19,6 +19,8 @@ import tweepy
 import unicodecsv
 import xlsxwriter
 from flask import current_app, url_for
+
+from webapp.config.default import INTERNAL_LANG_TO_URL
 from flask_babelex import gettext as _
 from flask_babelex import lazy_gettext as __
 from flask_mongoengine import Pagination
@@ -288,21 +290,22 @@ def get_journal_json_data(journal, language="pt"):
     },
     """
     issn = next((issn for issn in [journal.scielo_issn, journal.eletronic_issn, journal.print_issn] if issn), "")
+    lang_url = INTERNAL_LANG_TO_URL.get(language, language)
     j_data = {
         "id": journal.id,
         "title": journal.title,
         "links": {
-            "detail": url_for("main.journal_detail", url_seg=journal.url_segment),
-            "issue_grid": url_for("main.issue_grid", url_seg=journal.url_segment),
+            "detail": url_for("main.journal_detail", lang=lang_url, url_seg=journal.url_segment),
+            "issue_grid": url_for("main.issue_grid", lang=lang_url, url_seg=journal.url_segment),
             "submission": journal.online_submission_url
-            or url_for("main.about_journal", url_seg=journal.url_segment)
+            or url_for("main.about_journal", lang=lang_url, url_seg=journal.url_segment)
             + "#submission",
-            "instructions": url_for("main.about_journal", url_seg=journal.url_segment)
+            "instructions": url_for("main.about_journal", lang=lang_url, url_seg=journal.url_segment)
             + "#instructions",
-            "about": url_for("main.about_journal", url_seg=journal.url_segment),
-            "contact": url_for("main.about_journal", url_seg=journal.url_segment)
+            "about": url_for("main.about_journal", lang=lang_url, url_seg=journal.url_segment),
+            "contact": url_for("main.about_journal", lang=lang_url, url_seg=journal.url_segment)
             + "#contact",
-            "editors": url_for("main.about_journal", url_seg=journal.url_segment)
+            "editors": url_for("main.about_journal", lang=lang_url, url_seg=journal.url_segment)
             + "#editors",
             "metrics": f"{current_app.config['METRICS_URL']}?journal={issn}&collection={current_app.config['OPAC_COLLECTION']}" if current_app.config['OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST'] else None,
         },
@@ -1065,6 +1068,31 @@ def get_article_by_aid(
     ).first()
 
     if not article:
+        if gs_abstract and lang:
+            kwargs_no_abstract_lang = {
+                k: v for k, v in kwargs.items() if k != "abstract_languages"
+            }
+            article_without_lang = Article.objects(
+                Q(pk=aid) | Q(scielo_pids__other=aid),
+                is_public=True,
+                **kwargs_no_abstract_lang,
+            ).first()
+            if article_without_lang:
+                raise ArticleAbstractNotFoundError(aid)
+        elif lang:
+            kwargs_no_lang = {
+                k: v for k, v in kwargs.items() if k != "languages"
+            }
+            article_without_lang = Article.objects(
+                Q(pk=aid) | Q(scielo_pids__other=aid),
+                is_public=True,
+                **kwargs_no_lang,
+            ).first()
+            if article_without_lang:
+                available = [article_without_lang.original_language] + (
+                    article_without_lang.languages or []
+                )
+                raise ArticleLangNotFoundError(available)
         raise ArticleNotFoundError(aid)
 
     if not article.journal.is_public:
@@ -1481,13 +1509,14 @@ def get_article_by_suppl_material_filename(journal_acron, issue_label, pdf_filen
         return article
 
 
-def get_articles_by_date_range(begin_date, end_date, page=1, per_page=100):
+def get_articles_by_date_range(begin_date, end_date, page=1, per_page=100, journal_id=None):
     """
     Retorna artigos criados ou atualizados durante o período entre start_date e end_date.
     """
-    articles = Article.objects(
-        Q(updated__gte=begin_date) & Q(updated__lte=end_date)
-    ).order_by("pid")
+    query = Q(updated__gte=begin_date) & Q(updated__lte=end_date)
+    if journal_id:
+        query = query & Q(journal=journal_id)
+    articles = Article.objects(query).order_by("pid")
     return Pagination(articles, page, per_page)
 
 
@@ -1507,8 +1536,8 @@ def delete_articles_by_iid(issue_id, keep_list=None):
         # Busca artigos do issue cujo aid NÃO está em keep_list
         remove_articles = Article.objects(issue=issue_id, aid__nin=keep_list)
     else:
-        # Busca todos os artigos do issue
-        remove_articles = Article.objects(issue_id=issue_id)
+        # Busca todos os artigos do issue (campo no modelo é "issue", não "issue_id")
+        remove_articles = Article.objects(issue=issue_id)
 
     # Salva os IDs dos artigos antes de deletar
     removed_ids = [artigo.aid for artigo in remove_articles]

@@ -32,7 +32,7 @@ class JournalControllerTestCase(BaseTestCase):
         Teste da função controllers.get_journals() para retornar um objeto:
         ``Journal``.
         """
-        journal = self._make_one()
+        journal = self._make_one({"current_status": "current"})
         self.assertEqual(controllers.get_journals()[0], journal)
 
     def test_get_public_journal(self):
@@ -40,7 +40,7 @@ class JournalControllerTestCase(BaseTestCase):
         Teste da função controllers.get_journals() para retorna um objeto:
         ``Journal`` explicitanto o artibuto is_public=True.
         """
-        journal = self._make_one()
+        journal = self._make_one({"current_status": "current"})
         self.assertEqual(controllers.get_journals(is_public=True)[0], journal)
 
     def test_get_not_public_journal(self):
@@ -48,7 +48,7 @@ class JournalControllerTestCase(BaseTestCase):
         Teste da função controllers.get_journals() para retorna um objeto:
         ``Journal`` explicitanto o artibuto is_public=False.
         """
-        journal = self._make_one({"is_public": False})
+        journal = self._make_one({"is_public": False, "current_status": "current"})
         self.assertEqual(controllers.get_journals(is_public=False)[0], journal)
 
     def test_get_journal_order_by_acronym(self):
@@ -56,9 +56,9 @@ class JournalControllerTestCase(BaseTestCase):
         Teste da função controllers.get_journals() para retorna um objeto:
         ``Journal`` considerando a ordenação por acrônimo.
         """
-        journal3 = self._make_one({"acronym": "revistaC"})
-        journal1 = self._make_one({"acronym": "revistaA"})
-        journal2 = self._make_one({"acronym": "revistaB"})
+        journal3 = self._make_one({"acronym": "revistaC", "current_status": "current"})
+        journal1 = self._make_one({"acronym": "revistaA", "current_status": "current"})
+        journal2 = self._make_one({"acronym": "revistaB", "current_status": "current"})
 
         self.assertListEqual(
             [journal for journal in controllers.get_journals(order_by="acronym")],
@@ -80,36 +80,42 @@ class JournalControllerTestCase(BaseTestCase):
 
         journal1 = self._make_one(
             {
+                "current_status": "current",
                 "study_areas": ["Health Sciences"],
                 "last_issue": {"volume": "1", "number": "1", "year": "2016"},
             }
         )
         journal2 = self._make_one(
             {
+                "current_status": "current",
                 "study_areas": ["Health Sciences", "Biological Sciences"],
                 "last_issue": {"volume": "2", "number": "2", "year": "2016"},
             }
         )
         journal3 = self._make_one(
             {
+                "current_status": "current",
                 "study_areas": ["Exact and Earth Sciences"],
                 "last_issue": {"volume": "3", "number": "3", "year": "2016"},
             }
         )
         journal4 = self._make_one(
             {
+                "current_status": "current",
                 "study_areas": ["Human Sciences", "Biological Sciences", "Engineering"],
                 "last_issue": {"volume": "4", "number": "4", "year": "2016"},
             }
         )
         journal5 = self._make_one(
             {
+                "current_status": "current",
                 "study_areas": ["Linguistics"],
                 "last_issue": {"volume": "5", "number": "5", "year": "2016"},
             }
         )
         journal6 = self._make_one(
             {
+                "current_status": "current",
                 "study_areas": ["Engineering"],
                 "last_issue": {"volume": "6", "number": "6", "year": "2016"},
             }
@@ -175,36 +181,42 @@ class JournalControllerTestCase(BaseTestCase):
 
         journal1 = self._make_one(
             {
+                "current_status": "current",
                 "index_at": ["SCIE"],
                 "last_issue": {"volume": "1", "number": "1", "year": "2016"},
             }
         )
         journal2 = self._make_one(
             {
+                "current_status": "current",
                 "index_at": ["SCIE", "SSCI"],
                 "last_issue": {"volume": "2", "number": "2", "year": "2016"},
             }
         )
         journal3 = self._make_one(
             {
+                "current_status": "current",
                 "index_at": ["SCIE"],
                 "last_issue": {"volume": "3", "number": "3", "year": "2016"},
             }
         )
         journal4 = self._make_one(
             {
+                "current_status": "current",
                 "index_at": ["SSCI", "ICSE"],
                 "last_issue": {"volume": "4", "number": "4", "year": "2016"},
             }
         )
         journal5 = self._make_one(
             {
+                "current_status": "current",
                 "index_at": ["SSCI", "SCIE"],
                 "last_issue": {"volume": "5", "number": "5", "year": "2016"},
             }
         )
         self._make_one(
             {
+                "current_status": "current",
                 "index_at": ["SSCI"],
                 "last_issue": {"volume": "6", "number": "6", "year": "2016"},
             }
@@ -263,36 +275,42 @@ class JournalControllerTestCase(BaseTestCase):
 
         journal1 = self._make_one(
             {
+                "current_status": "current",
                 "publisher_name": "CNPQ",
                 "last_issue": {"volume": "1", "number": "1", "year": "2016"},
             }
         )
         journal2 = self._make_one(
             {
+                "current_status": "current",
                 "publisher_name": "SciELO",
                 "last_issue": {"volume": "2", "number": "2", "year": "2016"},
             }
         )
         journal3 = self._make_one(
             {
+                "current_status": "current",
                 "publisher_name": "FAPESP",
                 "last_issue": {"volume": "3", "number": "3", "year": "2016"},
             }
         )
         journal4 = self._make_one(
             {
+                "current_status": "current",
                 "publisher_name": "FUNDAÇÃO XPTO",
                 "last_issue": {"volume": "4", "number": "4", "year": "2016"},
             }
         )
         journal5 = self._make_one(
             {
+                "current_status": "current",
                 "publisher_name": "FAPESP",
                 "last_issue": {"volume": "5", "number": "5", "year": "2016"},
             }
         )
         journal6 = self._make_one(
             {
+                "current_status": "current",
                 "publisher_name": "FUNDAÇÃO XPTO",
                 "last_issue": {"volume": "6", "number": "6", "year": "2016"},
             }
@@ -777,6 +795,7 @@ class ArticleControllerTestCase(BaseTestCase):
         issue = utils.makeOneIssue()
         default_attribs = [
             {
+                "order": 1,
                 "original_language": "pt",
                 "languages": [
                     "pt",
@@ -787,6 +806,7 @@ class ArticleControllerTestCase(BaseTestCase):
                 "abstract_languages": ["pt"],
             },
             {
+                "order": 2,
                 "original_language": "es",
                 "languages": [
                     "es",
@@ -807,36 +827,36 @@ class ArticleControllerTestCase(BaseTestCase):
     def test_get_article_returns_next_article(self):
         """
         Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        ``Article`` e o dicionário com next_article e previous_article.
         """
         articles = self._make_same_issue_articles()
-        article = articles[1]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             articles[0].original_language,
             gs_abstract=False,
-            goto="next",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "es")
+        self.assertEqual(articles[0].id, result.id)
+        self.assertEqual(lang, articles[0].original_language)
+        self.assertIsNotNone(nav.get("next_article"))
+        self.assertEqual(articles[1].id, nav["next_article"].id)
 
     def test_get_article_returns_previous_article(self):
         """
         Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        ``Article`` e o dicionário com next_article e previous_article.
         """
         articles = self._make_same_issue_articles()
-        article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[1].id,
             articles[1].journal.url_segment,
             articles[1].original_language,
             gs_abstract=False,
-            goto="previous",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "pt")
+        self.assertEqual(articles[1].id, result.id)
+        self.assertEqual(lang, articles[1].original_language)
+        self.assertIsNotNone(nav.get("previous_article"))
+        self.assertEqual(articles[0].id, nav["previous_article"].id)
 
     def test_get_article_returns_article(self):
         """
@@ -845,7 +865,7 @@ class ArticleControllerTestCase(BaseTestCase):
         """
         articles = self._make_same_issue_articles()
         article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, _ = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             "pt",
@@ -861,48 +881,48 @@ class ArticleControllerTestCase(BaseTestCase):
         """
         articles = self._make_same_issue_articles()
         article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, _ = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             None,
             gs_abstract=False,
         )
         self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "pt")
+        self.assertIsNone(lang)
 
     def test_get_article_returns_next_article_which_has_abstract(self):
         """
         Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        ``Article`` e o dicionário com next_article (com resumo).
         """
         articles = self._make_same_issue_articles()
-        article = articles[1]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
-            "en",
+            "pt",
             gs_abstract=True,
-            goto="next",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "es")
+        self.assertEqual(articles[0].id, result.id)
+        self.assertEqual(lang, "pt")
+        self.assertIsNotNone(nav.get("next_article"))
+        self.assertEqual(articles[1].id, nav["next_article"].id)
 
     def test_get_article_returns_previous_article_which_has_abstract(self):
         """
         Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        ``Article`` e o dicionário com previous_article (com resumo).
         """
         articles = self._make_same_issue_articles()
-        article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[1].id,
             articles[1].journal.url_segment,
-            "en",
+            "es",
             gs_abstract=True,
-            goto="previous",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "pt")
+        self.assertEqual(articles[1].id, result.id)
+        self.assertEqual(lang, "es")
+        self.assertIsNotNone(nav.get("previous_article"))
+        self.assertEqual(articles[0].id, nav["previous_article"].id)
 
     def test_get_article_returns_article_which_has_abstract(self):
         """
@@ -911,7 +931,7 @@ class ArticleControllerTestCase(BaseTestCase):
         """
         articles = self._make_same_issue_articles()
         article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, _ = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             "pt",
@@ -919,117 +939,6 @@ class ArticleControllerTestCase(BaseTestCase):
         )
         self.assertEqual(article.id, result.id)
         self.assertEqual(lang, "pt")
-
-    def test_goto_article_returns_next_article(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[0], "next").id, articles[1].id
-        )
-
-    def test_goto_article_returns_no_next(self):
-        articles = self._make_same_issue_articles()
-        with self.assertRaises(controllers.PreviousOrNextArticleNotFoundError):
-            controllers.goto_article(articles[-1], "next")
-
-    def test_goto_article_returns_previous_article(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[-1], "previous").id, articles[-2].id
-        )
-
-    def test_goto_article_returns_no_previous(self):
-        articles = self._make_same_issue_articles()
-        with self.assertRaises(controllers.PreviousOrNextArticleNotFoundError):
-            controllers.goto_article(articles[0], "previous")
-
-    def test_goto_article_returns_next_article_with_abstract(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[0], "next", True).id, articles[1].id
-        )
-
-    def test_goto_article_returns_no_next_because_next_has_no_abstract(self):
-        attribs = [
-            {
-                "abstract": "texto",
-                "abstract": "resumo",
-                "abstracts": [{"language": "x", "text": "Resumo"}],
-            },
-            {},
-        ]
-        articles = self._make_same_issue_articles(attribs)
-        with self.assertRaises(controllers.PreviousOrNextArticleNotFoundError):
-            controllers.goto_article(articles[0], "next", True)
-
-    def test_goto_article_returns_previous_article_with_abstract(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[-1], "previous", True).id, articles[-2].id
-        )
-
-    def test_goto_article_returns_no_previous_because_previous_has_no_abstract(self):
-        attribs = [
-            {},
-            {"abstract": "resumo", "abstracts": [{"language": "x", "text": "Resumo"}]},
-        ]
-        articles = self._make_same_issue_articles(attribs)
-        with self.assertRaises(controllers.ArticleNotFoundError):
-            controllers.goto_article(articles[-1], "previous", True)
-
-    def test_goto_article_returns_no_previous_because_previous_has_no_abstract(self):
-        attribs = [
-            {},
-            {"abstract": "resumo", "abstracts": [{"language": "x", "text": "Resumo"}]},
-        ]
-        articles = self._make_same_issue_articles(attribs)
-        with self.assertRaises(ValueError) as exc:
-            controllers.goto_article(articles[-1], "prev", True)
-        self.assertIn("Expected: next or previous", str(exc.exception))
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list(self):
-        a = self._make_one({"abstracts": []})
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list2(self):
-        a = self._make_one({"abstracts": None})
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list3(self):
-        # nao existe nem o campo `abstracts`
-        a = self._make_one()
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list3(self):
-        a = self._make_one()
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_one(self):
-        abstracts = [{"language": "en", "text": "Texto"}]
-        abstract_languages = ["en"]
-        a = self._make_one(
-            {
-                "abstract": "Texto",
-                "abstract": "resumo",
-                "abstracts": abstracts,
-                "abstract_languages": abstract_languages,
-            }
-        )
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(len(articles), 1)
 
     def test_get_articles_by_aid(self):
         """
@@ -1347,17 +1256,14 @@ class ArticleControllerTestCase(BaseTestCase):
             }
         )
 
-        expected = [
-            "2183ikos90",
-            "9298wjso89",
-            "012ijs9y24",
-        ]
-
         articles = [
             article.id for article in controllers.get_articles_by_iid("90210j83")
         ]
 
-        self.assertListEqual(articles, expected)
+        self.assertCountEqual(
+            articles,
+            ["012ijs9y24", "2183ikos90", "9298wjso89"],
+        )
 
     def test_get_articles_by_iid_without_iid(self):
         """

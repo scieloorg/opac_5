@@ -5,7 +5,7 @@
       <span class="material-icons-outlined">language</span>
       {% for lang_code, lang_name in session.langs.items() %}
 
-        {% if session.lang == lang_code %}
+        {% if current_lang_internal == lang_code %}
           <span class="d-lg-none">{{lang_code}}</span>
           <span class="d-none d-lg-block">{{lang_name}}</span>
         {% endif %}
@@ -17,8 +17,8 @@
 
       {% for lang_code, lang_name in session.langs.items() %}
     
-        {% if session.lang != lang_code %}
-        <li><a class="dropdown-item" href="{{ url_for('.set_locale', lang_code=lang_code) }}" lang="{{lang_code}}">{{lang_name}}</a></li>
+        {% if current_lang_internal != lang_code %}
+        <li><a class="dropdown-item" href="{{ url_for_lang(lang_code) }}" lang="{{lang_code}}">{{lang_name}}</a></li>
         {% endif %}
 
       {% endfor %}

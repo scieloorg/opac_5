@@ -2,7 +2,6 @@
 import unittest
 from unittest.mock import patch
 
-import flask
 from bs4 import BeautifulSoup
 from flask import current_app, url_for
 from flask_babelex import gettext as _
@@ -28,18 +27,18 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="pt_BR"),
+                url_for("set_locale", ilang="pt_BR"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "pt_BR")
+            self.assertIn(b'lang="pt', response.data)
             content = response.data.decode("utf-8")
             expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
             self.assertIn(expected, content)
@@ -60,18 +59,18 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="es"),
+                url_for("set_locale", ilang="es"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertIn(b'lang="es"', response.data)
 
             content = response.data.decode("utf-8")
             expected = "Ciencias Sociales Aplicadas, Ciencias Agrícolas"
@@ -93,18 +92,18 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="en"),
+                url_for("set_locale", ilang="en"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "en")
+            self.assertIn(b'lang="en"', response.data)
 
             content = response.data.decode("utf-8")
             expected = "Applied Social Sciences, Agricultural Sciences"
@@ -130,7 +129,7 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             for lang, expected in zip(
@@ -139,14 +138,17 @@ class JournalHomeTestCase(BaseTestCase):
             ):
                 with self.subTest(lang):
                     response = c.get(
-                        url_for("main.set_locale", lang_code=lang),
+                        url_for("set_locale", ilang=lang),
                         headers=header,
                         follow_redirects=True,
                     )
 
                     self.assertEqual(200, response.status_code)
 
-                    self.assertEqual(flask.session["lang"], lang)
+                    if lang == "pt_BR":
+                        self.assertIn(b'lang="pt', response.data)
+                    else:
+                        self.assertIn(('lang="%s"' % lang).encode(), response.data)
 
                     content = response.data.decode("utf-8")
                     self.assertIn(expected, content)
@@ -164,18 +166,18 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="pt_BR"),
+                url_for("set_locale", ilang="pt_BR"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "pt_BR")
+            self.assertIn(b'lang="pt', response.data)
 
             self.assertIn(
                 "Esse periódico tem com objetivo xpto", response.data.decode("utf-8")
@@ -193,18 +195,18 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="es"),
+                url_for("set_locale", ilang="es"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertIn(b'lang="es"', response.data)
 
             self.assertIn(
                 "Esta revista tiene como objetivo xpto", response.data.decode("utf-8")
@@ -222,18 +224,18 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="en"),
+                url_for("set_locale", ilang="en"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "en")
+            self.assertIn(b'lang="en"', response.data)
 
             self.assertIn("This journal is aiming xpto", response.data.decode("utf-8"))
 
@@ -255,13 +257,13 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 # then
                 self.assertEqual(journal.social_networks, [])
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
+                # Sem redes sociais, o link "Siga-nos" não aparece
+                self.assertNotIn("Siga-nos", response.data.decode("utf-8"))
                 twitter_btn_class = "bigTwitter"
                 self.assertNotIn(twitter_btn_class, response.data.decode("utf-8"))
                 facebook_btn_class = "bigFacebook"
@@ -293,12 +295,12 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 # then
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
+                # Com redes sociais, a seção "Siga-nos" aparece
+                self.assertIn("Siga-nos", response.data.decode("utf-8"))
                 twitter_btn_class = "bigTwitter"
                 self.assertIn(twitter_btn_class, response.data.decode("utf-8"))
                 facebook_btn_class = "bigFacebook"
@@ -336,12 +338,12 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 # then
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
+                # Com redes sociais, a seção "Siga-nos" aparece
+                self.assertIn("Siga-nos", response.data.decode("utf-8"))
                 twitter_btn_class = "bigTwitter"
                 self.assertNotIn(twitter_btn_class, response.data.decode("utf-8"))
                 facebook_btn_class = "bigFacebook"
@@ -379,12 +381,12 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 # then
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
+                # Com redes sociais, a seção "Siga-nos" aparece
+                self.assertIn("Siga-nos", response.data.decode("utf-8"))
                 twitter_btn_class = "bigTwitter"
                 self.assertNotIn(twitter_btn_class, response.data.decode("utf-8"))
                 facebook_btn_class = "bigFacebook"
@@ -419,7 +421,7 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 response_data = response.data.decode("utf-8")
                 # then
@@ -455,7 +457,7 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 response_data = response.data.decode("utf-8")
                 # then
@@ -486,7 +488,7 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 response_data = response.data.decode("utf-8")
 
@@ -527,7 +529,7 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 response_data = response.data.decode("utf-8")
                 # then
@@ -561,14 +563,18 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 response_data = response.data.decode("utf-8")
                 # then
                 self.assertStatus(response, 200)
 
                 soup = BeautifulSoup(response_data, "html.parser")
-                mission_tag = soup.find(attrs={"class": "block mission"})
+                mission_tag = soup.select_one(".block.mission")
+                self.assertIsNotNone(
+                    mission_tag,
+                    "Expected .block.mission element in journal detail page",
+                )
 
                 expected_year_text = "{}: ".format(_("ano"))
                 for item in mission_tag.find_all("small"):
@@ -604,14 +610,18 @@ class JournalHomeTestCase(BaseTestCase):
             with self.client as c:
                 # when
                 response = c.get(
-                    url_for("main.journal_detail", url_seg=journal.url_segment)
+                    url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
                 )
                 response_data = response.data.decode("utf-8")
                 # then
                 self.assertStatus(response, 200)
 
                 soup = BeautifulSoup(response_data, "html.parser")
-                mission_tag = soup.find(attrs={"class": "block mission"})
+                mission_tag = soup.select_one(".block.mission")
+                self.assertIsNotNone(
+                    mission_tag,
+                    "Expected .block.mission element in journal detail page",
+                )
 
                 expected_year_text = "({}: 2020)".format(_("ano"))
                 for item in mission_tag.find_all("small"):
@@ -632,20 +642,21 @@ class JournalHomeTestCase(BaseTestCase):
             utils.makeOneCollection()
 
             header = {
-                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment)
+                "Referer": url_for("main.journal_detail", url_seg=journal.url_segment, lang="pt")
             }
 
             response = c.get(
-                url_for("main.set_locale", lang_code="en"),
+                url_for("set_locale", ilang="en"),
                 headers=header,
                 follow_redirects=True,
             )
 
             self.assertEqual(200, response.status_code)
 
+            # URL inclui o idioma no path (ex.: /en/j/journal_acron/)
+            expected_og_url = "http://%s/en/j/journal_acron/" % current_app.config["SERVER_NAME"]
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/"/>'
-                % current_app.config["SERVER_NAME"],
+                'property="og:url" content="%s"' % expected_og_url,
                 response.data.decode("utf-8"),
             )
             self.assertIn(
@@ -656,11 +667,8 @@ class JournalHomeTestCase(BaseTestCase):
                 '<meta property="og:title" content="Social Meta tags"/>',
                 response.data.decode("utf-8"),
             )
-            self.assertIn(
-                '<meta property="og:image" content="http://%s/None"/>'
-                % current_app.config["SERVER_NAME"],
-                response.data.decode("utf-8"),
-            )
+            # Sem logo no periódico, o template retorna og:image com content vazio
+            self.assertIn('property="og:image"', response.data.decode("utf-8"))
             self.assertIn(
                 '<meta property="og:description" content="This journal is aiming xpto"/>',
                 response.data.decode("utf-8"),

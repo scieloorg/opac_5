@@ -487,7 +487,7 @@ class CollectionAdminView(OpacBaseAdminView):
     can_edit = True
     edit_modal = True
     can_delete = True
-    form_excluded_columns = ("metrics")
+    form_excluded_columns = ("acronym", "metrics")
     column_exclude_list = [
         "_id",
         "about",

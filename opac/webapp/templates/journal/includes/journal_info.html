@@ -8,8 +8,10 @@
 
       <div class="col-9 pt-4 pb-4">
         <a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">
+          {% if journal.logo_url %}
           <img src="{{ cimages.proxy_ssm_resource_url(journal.logo_url) }}"
                class="image scielo__logo-periodico" alt="Logomarca do periódico: {{ journal.title }}" />
+          {% endif %}
         </a>
         <h1 class="h4" style="margin: 1rem auto">
           <img src="{{ url_for('static', filename='img/logo-open-access.svg', _external=True) }}" alt="Open-access" class="logo-open-access" data-bs-toggle="tooltip" data-bs-original-title="by 4.0 "> {{ journal.title }}
