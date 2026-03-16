@@ -8,7 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+<<<<<<< Updated upstream
 "POT-Creation-Date: 2025-05-22 10:40-0300\n"
+=======
+"POT-Creation-Date: 2026-03-15 23:51-0300\n"
+>>>>>>> Stashed changes
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,8 +27,13 @@ msgstr ""
 #: opac/tests/test_admin_custom_filters.py:155
 #: opac/tests/test_admin_custom_filters.py:168 opac/webapp/__init__.py:197
 #: opac/webapp/admin/views.py:709 opac/webapp/admin/views.py:818
+<<<<<<< Updated upstream
 #: opac/webapp/admin/views.py:940 opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:28
+=======
+#: opac/webapp/admin/views.py:940 opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:31
+>>>>>>> Stashed changes
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_grouper_table_row.html:16
 #: opac/webapp/templates/collection/list_thematic.html:129
 #: opac/webapp/templates/issue/includes/alternative_header.html:116
@@ -40,6 +49,7 @@ msgstr ""
 msgid "Obrigatório um journal."
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/tests/test_controller.py:1561 opac/webapp/controllers.py:1483
 #: opac/webapp/controllers.py:1531
 msgid "Obrigatório o acrônimo do periódico."
@@ -52,6 +62,20 @@ msgstr ""
 
 #: opac/tests/test_controller.py:1575 opac/webapp/controllers.py:1487
 #: opac/webapp/controllers.py:1535
+=======
+#: opac/tests/test_controller.py:1467 opac/webapp/controllers.py:1439
+#: opac/webapp/controllers.py:1487
+msgid "Obrigatório o acrônimo do periódico."
+msgstr ""
+
+#: opac/tests/test_controller.py:1474 opac/webapp/controllers.py:1441
+#: opac/webapp/controllers.py:1489
+msgid "Obrigatório o campo issue_label."
+msgstr ""
+
+#: opac/tests/test_controller.py:1481 opac/webapp/controllers.py:1443
+#: opac/webapp/controllers.py:1491
+>>>>>>> Stashed changes
 msgid "Obrigatório o nome do arquivo PDF."
 msgstr ""
 
@@ -68,6 +92,7 @@ msgstr ""
 msgid "NOME DA COLEÇÃO!!"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/tests/test_interface_menu.py:58 opac/tests/test_interface_menu.py:123
 #: opac/webapp/templates/collection/includes/nav.html:20
 #: opac/webapp/templates/collection/includes/nav.html:84
@@ -84,6 +109,24 @@ msgstr ""
 #: opac/webapp/templates/article/includes/floating_menu.html:80
 #: opac/webapp/templates/collection/includes/nav.html:35
 #: opac/webapp/templates/collection/includes/nav.html:99
+=======
+#: opac/tests/test_interface_menu.py:63
+#: opac/webapp/templates/collection/includes/nav.html:31
+#: opac/webapp/templates/collection/includes/nav.html:100
+msgid "Lista alfabética de periódicos"
+msgstr ""
+
+#: opac/tests/test_interface_menu.py:65
+#: opac/webapp/templates/collection/includes/nav.html:36
+msgid "Lista temática de periódicos"
+msgstr ""
+
+#: opac/tests/test_interface_menu.py:71
+#: opac/webapp/templates/article/includes/floating_menu.html:50
+#: opac/webapp/templates/collection/includes/journal_list_row.html:54
+#: opac/webapp/templates/collection/includes/nav.html:49
+#: opac/webapp/templates/collection/includes/nav.html:118
+>>>>>>> Stashed changes
 #: opac/webapp/templates/includes/metric_modal.html:7
 #: opac/webapp/templates/issue/includes/alternative_header.html:101
 #: opac/webapp/templates/issue/includes/alternative_header.html:105
@@ -105,6 +148,7 @@ msgstr ""
 msgid "Sobre o SciELO"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/tests/test_interface_menu.py:102 opac/tests/test_interface_menu.py:161
 #: opac/webapp/templates/collection/includes/nav.html:45
 #: opac/webapp/templates/collection/includes/nav.html:114
@@ -132,6 +176,31 @@ msgstr ""
 
 #: opac/tests/test_interface_menu.py:156
 #: opac/webapp/templates/collection/includes/nav.html:109
+=======
+#: opac/tests/test_interface_menu.py:75
+#: opac/webapp/templates/collection/includes/nav.html:60
+#: opac/webapp/templates/collection/includes/nav.html:136
+msgid "Contatos"
+msgstr ""
+
+#: opac/tests/test_interface_menu.py:79
+#: opac/webapp/templates/collection/includes/nav.html:94
+msgid "Coleções nacionais e temáticas"
+msgstr ""
+
+#: opac/tests/test_interface_menu.py:82
+#: opac/webapp/templates/collection/includes/nav.html:106
+msgid "Lista de periódicos por assunto"
+msgstr ""
+
+#: opac/tests/test_interface_menu.py:84
+#: opac/webapp/templates/collection/includes/nav.html:124
+msgid "Acesso OAI e RSS"
+msgstr ""
+
+#: opac/tests/test_interface_menu.py:86
+#: opac/webapp/templates/collection/includes/nav.html:130
+>>>>>>> Stashed changes
 msgid "Sobre a Rede SciELO"
 msgstr ""
 
@@ -159,8 +228,13 @@ msgstr ""
 msgid "Artigo"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/__init__.py:212 opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:27
+=======
+#: opac/webapp/__init__.py:224 opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:30
+>>>>>>> Stashed changes
 msgid "Financiador"
 msgstr ""
 
@@ -200,6 +274,7 @@ msgid "Conteúdo temporariamente indisponível"
 msgstr ""
 
 #: opac/webapp/choices.py:11 opac/webapp/choices.py:23
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:114
 #: opac/webapp/templates/article/includes/levelMenu.html:127
 #: opac/webapp/templates/article/includes/levelMenu.html:150
@@ -208,15 +283,27 @@ msgstr ""
 #: opac/webapp/templates/article/includes/levelMenu.html:341
 #: opac/webapp/templates/article/includes/levelMenu.html:387
 #: opac/webapp/templates/article/includes/levelMenu.html:400
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:175
+#: opac/webapp/templates/article/includes/levelMenu.html:191
+#: opac/webapp/templates/article/includes/levelMenu.html:214
+#: opac/webapp/templates/article/includes/levelMenu.html:227
+#: opac/webapp/templates/article/includes/levelMenu.html:392
+#: opac/webapp/templates/article/includes/levelMenu.html:408
+#: opac/webapp/templates/article/includes/levelMenu.html:460
+#: opac/webapp/templates/article/includes/levelMenu.html:473
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:31
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:44
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:33
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:46
-#: opac/webapp/templates/article/includes/modal/download.html:27
+#: opac/webapp/templates/article/includes/modal/download.html:37
+#: opac/webapp/templates/article/includes/modal/download.html:45
 msgid "Português"
 msgstr ""
 
 #: opac/webapp/choices.py:12 opac/webapp/choices.py:24
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:112
 #: opac/webapp/templates/article/includes/levelMenu.html:125
 #: opac/webapp/templates/article/includes/levelMenu.html:148
@@ -225,15 +312,27 @@ msgstr ""
 #: opac/webapp/templates/article/includes/levelMenu.html:339
 #: opac/webapp/templates/article/includes/levelMenu.html:385
 #: opac/webapp/templates/article/includes/levelMenu.html:398
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:173
+#: opac/webapp/templates/article/includes/levelMenu.html:189
+#: opac/webapp/templates/article/includes/levelMenu.html:212
+#: opac/webapp/templates/article/includes/levelMenu.html:225
+#: opac/webapp/templates/article/includes/levelMenu.html:390
+#: opac/webapp/templates/article/includes/levelMenu.html:406
+#: opac/webapp/templates/article/includes/levelMenu.html:458
+#: opac/webapp/templates/article/includes/levelMenu.html:471
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:29
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:42
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:31
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:44
-#: opac/webapp/templates/article/includes/modal/download.html:25
+#: opac/webapp/templates/article/includes/modal/download.html:37
+#: opac/webapp/templates/article/includes/modal/download.html:43
 msgid "Inglês"
 msgstr ""
 
 #: opac/webapp/choices.py:13 opac/webapp/choices.py:25
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:110
 #: opac/webapp/templates/article/includes/levelMenu.html:123
 #: opac/webapp/templates/article/includes/levelMenu.html:146
@@ -242,11 +341,22 @@ msgstr ""
 #: opac/webapp/templates/article/includes/levelMenu.html:337
 #: opac/webapp/templates/article/includes/levelMenu.html:383
 #: opac/webapp/templates/article/includes/levelMenu.html:396
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:171
+#: opac/webapp/templates/article/includes/levelMenu.html:187
+#: opac/webapp/templates/article/includes/levelMenu.html:210
+#: opac/webapp/templates/article/includes/levelMenu.html:223
+#: opac/webapp/templates/article/includes/levelMenu.html:388
+#: opac/webapp/templates/article/includes/levelMenu.html:404
+#: opac/webapp/templates/article/includes/levelMenu.html:456
+#: opac/webapp/templates/article/includes/levelMenu.html:469
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:27
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:40
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:29
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:42
-#: opac/webapp/templates/article/includes/modal/download.html:23
+#: opac/webapp/templates/article/includes/modal/download.html:37
+#: opac/webapp/templates/article/includes/modal/download.html:41
 msgid "Espanhol"
 msgstr ""
 
@@ -366,12 +476,21 @@ msgstr ""
 msgid "Obrigatório um title."
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:658 opac/webapp/controllers.py:955
 #: opac/webapp/controllers.py:1292 opac/webapp/controllers.py:1304
 msgid "Obrigatório uma lista de ids."
 msgstr ""
 
 #: opac/webapp/controllers.py:899 opac/webapp/controllers.py:1323
+=======
+#: opac/webapp/controllers.py:658 opac/webapp/controllers.py:953
+#: opac/webapp/controllers.py:1248 opac/webapp/controllers.py:1260
+msgid "Obrigatório uma lista de ids."
+msgstr ""
+
+#: opac/webapp/controllers.py:897 opac/webapp/controllers.py:1279
+>>>>>>> Stashed changes
 msgid "Obrigatório um iid."
 msgstr ""
 
@@ -395,6 +514,7 @@ msgstr ""
 msgid "Obrigatório um aid."
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:1213
 msgid "Obrigatório um url_seg_article."
 msgstr ""
@@ -429,19 +549,64 @@ msgid "Parâmetro email deve ser uma inteiro"
 msgstr ""
 
 #: opac/webapp/controllers.py:1631 opac/webapp/controllers.py:1645
+=======
+#: opac/webapp/controllers.py:1169
+msgid "Obrigatório um url_seg_article."
+msgstr ""
+
+#: opac/webapp/controllers.py:1187
+msgid "Obrigatório um iid and url_seg_article."
+msgstr ""
+
+#: opac/webapp/controllers.py:1206
+msgid "Obrigatório um jid, url_seg_issue and url_seg_article."
+msgstr ""
+
+#: opac/webapp/controllers.py:1325 opac/webapp/controllers.py:1341
+#: opac/webapp/controllers.py:1375 opac/webapp/controllers.py:1399
+msgid "Obrigatório um pid."
+msgstr ""
+
+#: opac/webapp/controllers.py:1357
+msgid "Obrigatório um aop_pid."
+msgstr ""
+
+#: opac/webapp/controllers.py:1422
+msgid "Parámetro obrigatório: issue_iid."
+msgstr ""
+
+#: opac/webapp/controllers.py:1594
+msgid "Parâmetro email deve ser uma string"
+msgstr ""
+
+#: opac/webapp/controllers.py:1605
+msgid "Parâmetro email deve ser uma inteiro"
+msgstr ""
+
+#: opac/webapp/controllers.py:1617 opac/webapp/controllers.py:1631
+>>>>>>> Stashed changes
 #, python-format
 msgid "Usuário deve ser do tipo %s"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:1705
 msgid "Compartilhamento de link SciELO"
 msgstr ""
 
 #: opac/webapp/controllers.py:1707
+=======
+#: opac/webapp/controllers.py:1691
+msgid "Compartilhamento de link SciELO"
+msgstr ""
+
+#: opac/webapp/controllers.py:1693
+>>>>>>> Stashed changes
 #, python-format
 msgid "O usuário %s compartilha este link: %s, da SciELO"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:1716 opac/webapp/controllers.py:1757
 #: opac/webapp/controllers.py:1781
 msgid "Mensagem enviada!"
@@ -460,11 +625,35 @@ msgid "conteúdo"
 msgstr ""
 
 #: opac/webapp/controllers.py:1741
+=======
+#: opac/webapp/controllers.py:1702 opac/webapp/controllers.py:1743
+#: opac/webapp/controllers.py:1767
+msgid "Mensagem enviada!"
+msgstr ""
+
+#: opac/webapp/controllers.py:1720
+msgid "[Erro] Erro informado pelo usuário no site SciELO"
+msgstr ""
+
+#: opac/webapp/controllers.py:1723
+msgid "aplicação"
+msgstr ""
+
+#: opac/webapp/controllers.py:1725
+msgid "conteúdo"
+msgstr ""
+
+#: opac/webapp/controllers.py:1727
+>>>>>>> Stashed changes
 #: opac/webapp/templates/includes/error_form.html:36
 msgid "acessibilidade"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:1747
+=======
+#: opac/webapp/controllers.py:1733
+>>>>>>> Stashed changes
 #, python-format
 msgid ""
 "O usuário <b>%s</b> com e-mail: <b>%s</b>, informa que existe um erro na "
@@ -472,20 +661,36 @@ msgid ""
 " %s"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:1769
 msgid "Contato de usuário via site SciELO"
 msgstr ""
 
 #: opac/webapp/controllers.py:1772
+=======
+#: opac/webapp/controllers.py:1755
+msgid "Contato de usuário via site SciELO"
+msgstr ""
+
+#: opac/webapp/controllers.py:1758
+>>>>>>> Stashed changes
 #, python-format
 msgid "O usuário %s, com e-mail: %s, entra em contato com a seguinte mensagem:"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/controllers.py:1805
 msgid "Obrigatório um slug_name."
 msgstr ""
 
 #: opac/webapp/controllers.py:1841
+=======
+#: opac/webapp/controllers.py:1791
+msgid "Obrigatório um slug_name."
+msgstr ""
+
+#: opac/webapp/controllers.py:1827
+>>>>>>> Stashed changes
 msgid "Obrigatório url_seg para get_aop_issues"
 msgstr ""
 
@@ -704,8 +909,13 @@ msgid "Redes sociais"
 msgstr ""
 
 #: opac/webapp/admin/views.py:610 opac/webapp/admin/views.py:819
+<<<<<<< Updated upstream
 #: opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:30
+=======
+#: opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:33
+>>>>>>> Stashed changes
 msgid "Título"
 msgstr ""
 
@@ -894,8 +1104,13 @@ msgstr ""
 msgid "Mês final"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/admin/views.py:721 opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:25
+=======
+#: opac/webapp/admin/views.py:721 opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:28
+>>>>>>> Stashed changes
 #: opac/webapp/templates/issue/grid.html:63
 #: opac/webapp/templates/news/includes/issue_last_row.html:5
 msgid "Ano"
@@ -960,6 +1175,7 @@ msgid "Autores"
 msgstr ""
 
 #: opac/webapp/admin/views.py:834
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:71
 #: opac/webapp/templates/article/includes/levelMenu.html:73
 #: opac/webapp/templates/article/includes/levelMenu.html:75
@@ -971,6 +1187,19 @@ msgstr ""
 #: opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:29
 #: opac/webapp/templates/issue/toc.html:222
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:132
+#: opac/webapp/templates/article/includes/levelMenu.html:134
+#: opac/webapp/templates/article/includes/levelMenu.html:136
+#: opac/webapp/templates/article/includes/levelMenu.html:169
+#: opac/webapp/templates/article/includes/levelMenu.html:365
+#: opac/webapp/templates/article/includes/levelMenu.html:386
+#: opac/webapp/templates/article/includes/levelMenu_abstracts.html:5
+#: opac/webapp/templates/article/includes/levelMenu_abstracts.html:25
+#: opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:32
+#: opac/webapp/templates/issue/toc.html:226
+>>>>>>> Stashed changes
 msgid "Resumo"
 msgstr ""
 
@@ -1081,12 +1310,21 @@ msgstr ""
 msgid "10 últimos periódicos inseridos na coleção %s"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/main/views.py:338 opac/webapp/main/views.py:1952
 msgid "Página não encontrada"
 msgstr ""
 
 #: opac/webapp/main/views.py:367 opac/webapp/main/views.py:464
 #: opac/webapp/main/views.py:1615
+=======
+#: opac/webapp/main/views.py:445 opac/webapp/main/views.py:1990
+msgid "Página não encontrada"
+msgstr ""
+
+#: opac/webapp/main/views.py:474 opac/webapp/main/views.py:567
+#: opac/webapp/main/views.py:1653
+>>>>>>> Stashed changes
 #, python-format
 msgid "Requsição inválida ao tentar acessar o artigo com pid: %s"
 msgstr ""
@@ -1103,6 +1341,7 @@ msgstr ""
 msgid "Número não encontrado"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/main/views.py:412 opac/webapp/main/views.py:448
 #: opac/webapp/main/views.py:1147 opac/webapp/main/views.py:1267
 #: opac/webapp/main/views.py:1314 opac/webapp/main/views.py:1550
@@ -1111,6 +1350,20 @@ msgid "Artigo não encontrado"
 msgstr ""
 
 #: opac/webapp/main/views.py:590
+=======
+#: opac/webapp/main/views.py:518 opac/webapp/main/views.py:553
+#: opac/webapp/main/views.py:1196 opac/webapp/main/views.py:1315
+#: opac/webapp/main/views.py:1356 opac/webapp/main/views.py:1591
+#: opac/webapp/main/views.py:1657 opac/webapp/main/views.py:1685
+msgid "Artigo não encontrado"
+msgstr ""
+
+#: opac/webapp/main/views.py:693 opac/webapp/main/views.py:1166
+#: opac/webapp/main/views.py:1432
+#: opac/webapp/templates/article/includes/meta.html:5
+#: opac/webapp/templates/article/includes/meta.html:101
+#: opac/webapp/templates/includes/metric_modal.html:89
+>>>>>>> Stashed changes
 msgid "Artigo sem título"
 msgstr ""
 
@@ -1150,7 +1403,11 @@ msgstr ""
 msgid "Artigos ahead of print não encontrados"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/main/views.py:1259 opac/webapp/main/views.py:1546
+=======
+#: opac/webapp/main/views.py:1307 opac/webapp/main/views.py:1587
+>>>>>>> Stashed changes
 msgid "Issue não encontrado"
 msgstr ""
 
@@ -1166,6 +1423,7 @@ msgstr ""
 msgid "Artigo inexistente"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/main/views.py:1326 opac/webapp/main/views.py:1497
 msgid "Recurso não encontrado"
 msgstr ""
@@ -1201,10 +1459,52 @@ msgid "PDF não encontrado"
 msgstr ""
 
 #: opac/webapp/main/views.py:1577
+=======
+#: opac/webapp/main/views.py:1368
+msgid "Erro inesperado: artigo sem idioma"
+msgstr ""
+
+#: opac/webapp/main/views.py:1370 opac/webapp/main/views.py:1538
+msgid "Recurso não encontrado"
+msgstr ""
+
+#: opac/webapp/main/views.py:1403
+msgid "HTML do Artigo não encontrado ou indisponível"
+msgstr ""
+
+#: opac/webapp/main/views.py:1407 opac/webapp/main/views.py:1522
+#: opac/webapp/main/views.py:1540
+msgid "Erro inesperado"
+msgstr ""
+
+#: opac/webapp/main/views.py:1450 opac/webapp/main/views.py:1454
+#: opac/webapp/main/views.py:1459
+msgid "PDF do Artigo não encontrado"
+msgstr ""
+
+#: opac/webapp/main/views.py:1463 opac/webapp/main/views.py:1560
+msgid "Recurso do Artigo não encontrado. Caminho inválido!"
+msgstr ""
+
+#: opac/webapp/main/views.py:1489
+msgid "Formato não suportado"
+msgstr ""
+
+#: opac/webapp/main/views.py:1502
+msgid "Parâmetros insuficientes para obter o EPDF do artigo"
+msgstr ""
+
+#: opac/webapp/main/views.py:1520
+msgid "PDF não encontrado"
+msgstr ""
+
+#: opac/webapp/main/views.py:1617
+>>>>>>> Stashed changes
 #, python-format
 msgid "Este PDF não existe em %s. Consulte %s"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/main/views.py:1594
 msgid "PDF do artigo não foi encontrado"
 msgstr ""
@@ -1219,6 +1519,22 @@ msgstr ""
 
 #: opac/webapp/main/views.py:1777 opac/webapp/main/views.py:1823
 #: opac/webapp/main/views.py:2001
+=======
+#: opac/webapp/main/views.py:1634
+msgid "PDF do artigo não foi encontrado"
+msgstr ""
+
+#: opac/webapp/main/views.py:1780
+msgid "Formato de exportação não suportado."
+msgstr ""
+
+#: opac/webapp/main/views.py:1787
+msgid "Artigo não encontrado."
+msgstr ""
+
+#: opac/webapp/main/views.py:1815 opac/webapp/main/views.py:1861
+#: opac/webapp/main/views.py:2039
+>>>>>>> Stashed changes
 msgid "Requisição inválida."
 msgstr ""
 
@@ -1227,8 +1543,13 @@ msgstr ""
 msgid "Mensagem"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/base.html:89 opac/webapp/templates/base.html:200
 #: opac/webapp/templates/collection/includes/nav.html:50
+=======
+#: opac/webapp/templates/base.html:93 opac/webapp/templates/base.html:196
+#: opac/webapp/templates/collection/includes/nav.html:65
+>>>>>>> Stashed changes
 msgid "Reportar erro"
 msgstr ""
 
@@ -1264,6 +1585,7 @@ msgstr ""
 msgid "Menu de acessibilidade"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:19
 msgid "Entre uma ou mais palavras"
@@ -1276,6 +1598,25 @@ msgstr ""
 
 #: opac/webapp/templates/base.html:125
 #: opac/webapp/templates/collection/includes/levelMenu_search.html:26
+=======
+#: opac/webapp/templates/base.html:106
+msgid "Ir para o conteúdo principal"
+msgstr ""
+
+#: opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:20
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:22
+msgid "Entre uma ou mais palavras"
+msgstr ""
+
+#: opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:27
+msgid "Todos os índices"
+msgstr ""
+
+#: opac/webapp/templates/base.html:122
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:29
+>>>>>>> Stashed changes
 msgid "Autor"
 msgstr ""
 
@@ -1430,16 +1771,30 @@ msgstr ""
 msgid "Texto completo em"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:157
 #: opac/webapp/templates/article/includes/floating_menu.html:26
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:52
+#: opac/webapp/templates/includes/footer.html:28
+#: opac/webapp/templates/macros/images.html:46
+msgid "Página inicial da coleção"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/alternative_header.html:162
+>>>>>>> Stashed changes
 #: opac/webapp/templates/issue/includes/alternative_header.html:7
 #: opac/webapp/templates/journal/includes/alternative_header.html:8
 #: opac/webapp/templates/journal/includes/alternative_header.html:133
 msgid "Abrir menu"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:160
 #: opac/webapp/templates/article/includes/header.html:55
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:165
+>>>>>>> Stashed changes
 #: opac/webapp/templates/issue/includes/alternative_header.html:9
 #: opac/webapp/templates/journal/includes/alternative_header.html:10
 #: opac/webapp/templates/journal/includes/alternative_header.html:148
@@ -1448,11 +1803,17 @@ msgstr ""
 msgid "Ir para a homepage da coleção: "
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:199
 #: opac/webapp/templates/article/includes/alternative_header.html:237
 #: opac/webapp/templates/article/includes/alternative_header.html:278
 #: opac/webapp/templates/article/includes/header.html:76
 #: opac/webapp/templates/article/includes/header.html:119
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:204
+#: opac/webapp/templates/article/includes/alternative_header.html:242
+#: opac/webapp/templates/article/includes/alternative_header.html:283
+>>>>>>> Stashed changes
 #: opac/webapp/templates/collection/includes/journal_list_row.html:46
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_row.html:7
 #: opac/webapp/templates/issue/includes/alternative_header.html:121
@@ -1465,12 +1826,19 @@ msgstr ""
 msgid "Submissão de manuscritos"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:203
 #: opac/webapp/templates/article/includes/alternative_header.html:241
 #: opac/webapp/templates/article/includes/alternative_header.html:282
 #: opac/webapp/templates/article/includes/header.html:80
 #: opac/webapp/templates/article/includes/header.html:123
 #: opac/webapp/templates/collection/includes/journal_list_row.html:49
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:208
+#: opac/webapp/templates/article/includes/alternative_header.html:246
+#: opac/webapp/templates/article/includes/alternative_header.html:287
+#: opac/webapp/templates/collection/includes/journal_list_row.html:47
+>>>>>>> Stashed changes
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_row.html:16
 #: opac/webapp/templates/issue/includes/alternative_header.html:127
 #: opac/webapp/templates/journal/about.html:41
@@ -1483,12 +1851,19 @@ msgstr ""
 msgid "Sobre o periódico"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:206
 #: opac/webapp/templates/article/includes/alternative_header.html:244
 #: opac/webapp/templates/article/includes/alternative_header.html:285
 #: opac/webapp/templates/article/includes/header.html:83
 #: opac/webapp/templates/article/includes/header.html:126
 #: opac/webapp/templates/collection/includes/journal_list_row.html:47
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:211
+#: opac/webapp/templates/article/includes/alternative_header.html:249
+#: opac/webapp/templates/article/includes/alternative_header.html:290
+#: opac/webapp/templates/collection/includes/journal_list_row.html:49
+>>>>>>> Stashed changes
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_row.html:10
 #: opac/webapp/templates/issue/includes/alternative_header.html:132
 #: opac/webapp/templates/journal/includes/alternative_header.html:111
@@ -1500,12 +1875,19 @@ msgstr ""
 msgid "Corpo Editorial"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:209
 #: opac/webapp/templates/article/includes/alternative_header.html:247
 #: opac/webapp/templates/article/includes/alternative_header.html:288
 #: opac/webapp/templates/article/includes/header.html:86
 #: opac/webapp/templates/article/includes/header.html:129
 #: opac/webapp/templates/collection/includes/journal_list_row.html:48
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:214
+#: opac/webapp/templates/article/includes/alternative_header.html:252
+#: opac/webapp/templates/article/includes/alternative_header.html:293
+#: opac/webapp/templates/collection/includes/journal_list_row.html:50
+>>>>>>> Stashed changes
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_row.html:13
 #: opac/webapp/templates/issue/includes/alternative_header.html:137
 #: opac/webapp/templates/journal/includes/alternative_header.html:114
@@ -1517,12 +1899,19 @@ msgstr ""
 msgid "Instruções aos autores"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/alternative_header.html:212
 #: opac/webapp/templates/article/includes/alternative_header.html:250
 #: opac/webapp/templates/article/includes/alternative_header.html:291
 #: opac/webapp/templates/article/includes/header.html:92
 #: opac/webapp/templates/article/includes/header.html:132
 #: opac/webapp/templates/collection/includes/journal_list_row.html:50
+=======
+#: opac/webapp/templates/article/includes/alternative_header.html:217
+#: opac/webapp/templates/article/includes/alternative_header.html:255
+#: opac/webapp/templates/article/includes/alternative_header.html:296
+#: opac/webapp/templates/collection/includes/journal_list_row.html:51
+>>>>>>> Stashed changes
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_row.html:19
 #: opac/webapp/templates/issue/includes/alternative_header.html:142
 #: opac/webapp/templates/journal/includes/alternative_header.html:117
@@ -1534,41 +1923,35 @@ msgstr ""
 msgid "Contato"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/floating_menu.html:7
-#: opac/webapp/templates/article/includes/floating_menu.html:66
-msgid "Ir para o topo"
-msgstr ""
-
-#: opac/webapp/templates/article/includes/floating_menu.html:13
-#: opac/webapp/templates/article/includes/floating_menu.html:73
-msgid "PDFs"
+#: opac/webapp/templates/article/includes/floating_menu.html:14
+msgid "Abrir menu de ferramentas do artigo"
 msgstr ""
 
 #: opac/webapp/templates/article/includes/floating_menu.html:27
-msgid "Fechar menu"
+msgid "Ferramentas do artigo"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/floating_menu.html:32
-#: opac/webapp/templates/article/includes/floating_menu.html:87
+#: opac/webapp/templates/article/includes/floating_menu.html:56
 msgid "Figuras e tabelas"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/floating_menu.html:39
-#: opac/webapp/templates/article/includes/floating_menu.html:94
+#: opac/webapp/templates/article/includes/floating_menu.html:67
+#: opac/webapp/templates/article/includes/floating_menu.html:72
 msgid "Versões e traduções"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/floating_menu.html:46
-#: opac/webapp/templates/article/includes/floating_menu.html:101
+#: opac/webapp/templates/article/includes/floating_menu.html:78
+#: opac/webapp/templates/article/includes/floating_menu.html:83
 msgid "Como citar este artigo"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/floating_menu.html:53
-#: opac/webapp/templates/article/includes/floating_menu.html:108
-#: opac/webapp/templates/article/includes/modal/related_article.html:6
+#: opac/webapp/templates/article/includes/floating_menu.html:89
+#: opac/webapp/templates/article/includes/floating_menu.html:94
+#: opac/webapp/templates/article/includes/modal/related_article.html:14
 msgid "Artigos relacionados"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/header.html:89
 #: opac/webapp/templates/journal/includes/header.html:45
 #: opac/webapp/templates/journal/includes/header.html:88
@@ -1578,6 +1961,20 @@ msgstr ""
 
 #: opac/webapp/templates/article/includes/levelMenu.html:14
 #: opac/webapp/templates/article/includes/levelMenu.html:271
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:8
+#: opac/webapp/templates/article/includes/levelMenu.html:326
+msgid "Navegação do artigo"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:13
+#: opac/webapp/templates/article/includes/levelMenu.html:331
+msgid "Página inicial do periódico"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:23
+#: opac/webapp/templates/article/includes/levelMenu.html:340
+>>>>>>> Stashed changes
 #: opac/webapp/templates/issue/toc.html:37
 #: opac/webapp/templates/issue/toc.html:91
 #: opac/webapp/templates/issue/toc.html:106
@@ -1587,79 +1984,201 @@ msgstr ""
 msgid "Sumário"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/levelMenu.html:28
+#: opac/webapp/templates/article/includes/levelMenu.html:35
+#: opac/webapp/templates/article/includes/levelMenu.html:55
 msgid "Anterior"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:33
 #: opac/webapp/templates/journal/includes/levelMenu.html:144
 #: opac/webapp/templates/journal/includes/levelMenu.html:148
 #: opac/webapp/templates/journal/includes/levelMenu.html:152
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:36
+#: opac/webapp/templates/article/includes/levelMenu.html:80
+msgid "(indisponível)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:45
+msgid "Artigo anterior (abre em nova aba)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:51
+msgid "Artigo anterior"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:67
+#: opac/webapp/templates/journal/includes/levelMenu.html:139
+>>>>>>> Stashed changes
 msgid "Atual"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/levelMenu.html:47
+#: opac/webapp/templates/article/includes/levelMenu.html:78
+#: opac/webapp/templates/article/includes/levelMenu.html:98
 msgid "Seguinte"
 msgstr ""
 
 #: opac/webapp/templates/article/includes/levelMenu.html:89
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:91
 #: opac/webapp/templates/article/includes/levelMenu.html:93
 #: opac/webapp/templates/article/includes/levelMenu.html:144
 #: opac/webapp/templates/article/includes/levelMenu.html:360
 #: opac/webapp/templates/article/includes/levelMenu.html:381
+=======
+msgid "Próximo artigo (abre em nova aba)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:95
+msgid "Próximo artigo"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:107
+msgid "Ações do artigo"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:125
+msgid "Conteúdo:"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:149
+#: opac/webapp/templates/article/includes/levelMenu.html:151
+#: opac/webapp/templates/article/includes/levelMenu.html:153
+#: opac/webapp/templates/article/includes/levelMenu.html:208
+#: opac/webapp/templates/article/includes/levelMenu.html:433
+#: opac/webapp/templates/article/includes/levelMenu.html:454
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:6
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:27
 #: opac/webapp/templates/issue/toc.html:234
 msgid "Texto"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:121
 #: opac/webapp/templates/article/includes/levelMenu.html:335
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:185
+#: opac/webapp/templates/article/includes/levelMenu.html:402
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_abstracts.html:38
 msgid "Resumo "
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:157
 #: opac/webapp/templates/article/includes/levelMenu.html:394
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:221
+#: opac/webapp/templates/article/includes/levelMenu.html:467
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_texts.html:40
 msgid "Texto "
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:179
 #: opac/webapp/templates/article/includes/levelMenu.html:199
 #: opac/webapp/templates/article/includes/levelMenu.html:219
 #: opac/webapp/templates/article/includes/levelMenu.html:425
 #: opac/webapp/templates/article/includes/levelMenu.html:460
 #: opac/webapp/templates/article/includes/levelMenu.html:486
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:248
+#: opac/webapp/templates/article/includes/levelMenu.html:273
+#: opac/webapp/templates/article/includes/levelMenu.html:513
+#: opac/webapp/templates/article/includes/levelMenu.html:565
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:12
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:47
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:73
 msgid "Download PDF (Espanhol)"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:181
 #: opac/webapp/templates/article/includes/levelMenu.html:201
 #: opac/webapp/templates/article/includes/levelMenu.html:221
 #: opac/webapp/templates/article/includes/levelMenu.html:427
 #: opac/webapp/templates/article/includes/levelMenu.html:462
 #: opac/webapp/templates/article/includes/levelMenu.html:488
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:250
+#: opac/webapp/templates/article/includes/levelMenu.html:275
+#: opac/webapp/templates/article/includes/levelMenu.html:515
+#: opac/webapp/templates/article/includes/levelMenu.html:567
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:14
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:49
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:75
 msgid "Download PDF (Inglês)"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/article/includes/levelMenu.html:183
 #: opac/webapp/templates/article/includes/levelMenu.html:203
 #: opac/webapp/templates/article/includes/levelMenu.html:223
 #: opac/webapp/templates/article/includes/levelMenu.html:429
 #: opac/webapp/templates/article/includes/levelMenu.html:464
 #: opac/webapp/templates/article/includes/levelMenu.html:490
+=======
+#: opac/webapp/templates/article/includes/levelMenu.html:252
+#: opac/webapp/templates/article/includes/levelMenu.html:277
+#: opac/webapp/templates/article/includes/levelMenu.html:517
+#: opac/webapp/templates/article/includes/levelMenu.html:569
+>>>>>>> Stashed changes
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:16
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:51
 #: opac/webapp/templates/article/includes/levelMenu_pdf.html:77
 msgid "Download PDF (Português)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:256
+#: opac/webapp/templates/article/includes/levelMenu.html:281
+#: opac/webapp/templates/article/includes/levelMenu.html:521
+#: opac/webapp/templates/article/includes/levelMenu.html:573
+#: opac/webapp/templates/article/includes/modal/related_article.html:37
+#: opac/webapp/templates/collection/includes/nav.html:50
+#: opac/webapp/templates/collection/includes/nav.html:89
+#: opac/webapp/templates/collection/includes/nav.html:95
+#: opac/webapp/templates/collection/includes/nav.html:101
+#: opac/webapp/templates/collection/includes/nav.html:107
+#: opac/webapp/templates/collection/includes/nav.html:113
+#: opac/webapp/templates/collection/includes/nav.html:119
+#: opac/webapp/templates/collection/includes/nav.html:125
+#: opac/webapp/templates/collection/includes/nav.html:131
+#: opac/webapp/templates/collection/includes/nav.html:137
+#: opac/webapp/templates/collection/includes/nav.html:149
+msgid "(abre em nova aba)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:293
+msgid "ePDF (Espanhol)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:295
+msgid "ePDF (Inglês)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:297
+msgid "ePDF (Português)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:591
+msgid "Opções de ePDF"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:601
+msgid "Download ePDF (Espanhol)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:603
+msgid "Download ePDF (Inglês)"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/levelMenu.html:605
+msgid "Download ePDF (Português)"
 msgstr ""
 
 #: opac/webapp/templates/article/includes/recent_articles_row.html:6
@@ -1702,30 +2221,91 @@ msgstr ""
 msgid "Este documento possui uma errata"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/modal/download.html:6
+#: opac/webapp/templates/article/includes/modal/download.html:14
 msgid "Versão para download de PDF"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/modal/how_cite.html:25
+#: opac/webapp/templates/article/includes/modal/download.html:19
+#: opac/webapp/templates/article/includes/modal/how_cite.html:36
+#: opac/webapp/templates/article/includes/modal/related_article.html:21
+#: opac/webapp/templates/article/includes/modal/translate_version.html:21
+msgid "Fechar"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/download.html:37
+msgid "Baixar PDF em"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/download.html:37
+msgid "abre em nova janela"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/download.html:64
+msgid "Visualizar o texto no ReadCube"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/download.html:65
+msgid "Visualizar"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/download.html:65
+msgid "o texto"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:30
 msgid "Como citar"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/modal/how_cite.html:51
-msgid "Outros formatos de citação e exportação"
+#: opac/webapp/templates/article/includes/modal/how_cite.html:43
+msgid ""
+"Escolha um formato para exportar ou selecione um estilo de citação. O "
+"conteúdo abaixo pode ser atualizado após a seleção."
 msgstr ""
 
 #: opac/webapp/templates/article/includes/modal/how_cite.html:53
+#: opac/webapp/templates/article/includes/modal/how_cite.html:61
+msgid "Baixar em"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:72
+msgid "Outros formatos de citação e exportação"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/how_cite.html:80
 msgid ""
 "Enter references manager format or citation style (e.g., \"APA\", "
 "\"AMA\", \"MLA\", \"Vancouver\")"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/modal/translate_version.html:6
+#: opac/webapp/templates/article/includes/modal/related_article.html:27
+msgid "Lista de links para artigos relacionados. Os links abrem em nova aba."
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/translate_version.html:14
 msgid "Versões e tradução automática"
 msgstr ""
 
-#: opac/webapp/templates/article/includes/modal/translate_version.html:13
+#: opac/webapp/templates/article/includes/modal/translate_version.html:28
+msgid ""
+"Escolha a versão original do texto ou utilize um serviço de tradução "
+"automática."
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/translate_version.html:36
 msgid "Versão original do texto"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/translate_version.html:49
+msgid "Nenhuma versão disponível."
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/translate_version.html:59
+msgid "Tradução automática"
+msgstr ""
+
+#: opac/webapp/templates/article/includes/modal/translate_version.html:67
+#: opac/webapp/templates/article/includes/modal/translate_version.html:75
+msgid "(abre serviço externo de tradução)"
 msgstr ""
 
 #: opac/webapp/templates/collection/about.html:23
@@ -1880,7 +2460,11 @@ msgid "Lista em arquivo CSV"
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/header.html:82
+<<<<<<< Updated upstream
 #: opac/webapp/templates/collection/includes/nav.html:40
+=======
+#: opac/webapp/templates/collection/includes/nav.html:55
+>>>>>>> Stashed changes
 msgid "Sobre o"
 msgstr ""
 
@@ -1918,6 +2502,13 @@ msgstr ""
 #: opac/webapp/templates/collection/includes/journal_list_row.html:44
 #: opac/webapp/templates/collection/includes/tmpl_journal_list_row.html:3
 msgid "Homepage"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/journal_list_row.html:48
+#: opac/webapp/templates/journal/includes/header.html:50
+#: opac/webapp/templates/journal/includes/header.html:93
+#: opac/webapp/templates/journal/includes/journal_info.html:100
+msgid "Política editorial"
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/levelMenu.html:13
@@ -1991,6 +2582,7 @@ msgstr ""
 msgid "Outras redes sociais"
 msgstr ""
 
+<<<<<<< Updated upstream
 #: opac/webapp/templates/collection/includes/nav.html:14
 msgid "Acessar site coleção"
 msgstr ""
@@ -2010,6 +2602,39 @@ msgid "SciELO.org - Rede SciELO"
 msgstr ""
 
 #: opac/webapp/templates/collection/includes/nav.html:125
+=======
+#: opac/webapp/templates/collection/includes/nav.html:7
+msgid "Abrir menu principal"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:11
+msgid "Menu"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:17
+msgid "Menu principal"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:25
+msgid "Acessar site coleção"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:41
+#: opac/webapp/templates/collection/includes/nav.html:112
+msgid "Busca"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:73
+#: opac/webapp/templates/collection/includes/nav.html:79
+msgid "Acessar versão anterior"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:88
+msgid "SciELO.org - Rede SciELO"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:148
+>>>>>>> Stashed changes
 msgid "Blog SciELO em Perspectiva"
 msgstr ""
 
