@@ -16,7 +16,7 @@
                 <a
                   rel="noreferrer"
                   target="_blank"
-                  href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, lang=article.pdfs[0].lang, format='pdf') }}">
+                  href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}?format=pdf&lang={{ article.pdfs[0].lang }}">
                   {% trans %}Texto completo em{% endtrans %} PDF
                 </a>
               </p>

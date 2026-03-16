@@ -34,7 +34,7 @@
                 {% endif %}
               </a>
           {% else %}
-              <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}" class="dropdown-item">
+              <a href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract') }}?lang={{ abstract['language'] }}" class="dropdown-item">
                 {% trans %}Resumo {% endtrans %}
                 {% if abstract['language'] == 'es' %}
                   ({% trans %}Espanhol{% endtrans %})

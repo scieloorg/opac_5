@@ -225,9 +225,7 @@
                           <li class="nav-item me-4">
                             <strong>{% trans %}Resumo{% endtrans %}:</strong>
                             {% for lang in article.abstract_languages|sort %}
-                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, 
-                                   part='abstract',
-                                   lang=lang) }}">{{ lang }}</a>
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, part='abstract') }}?lang={{ lang }}">{{ lang }}</a>
                                {% endfor %}
                           </li>    
                         {% endif %}
@@ -237,7 +235,7 @@
                           <li class="nav-item me-4">
                             <strong>{% trans %}Texto{% endtrans %}:</strong>
                             {% for lang in article.article_text_languages|sort %}
-                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, lang=lang) }}">{{ lang }}</a>
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid) }}?lang={{ lang }}">{{ lang }}</a>
                             {% endfor %}
                           </li>
                         {% endif %}
@@ -247,7 +245,7 @@
                           <li class="nav-item me-4">
                             <strong>{% trans %}PDF{% endtrans %}:</strong>
                             {% for lang, url in article.article_pdf_languages|sort(attribute='0') %}
-                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=lang) }}">{{ lang }}</a>
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=article.aid) }}?format=pdf&lang={{ lang }}">{{ lang }}</a>
                             {% endfor %}
                           </li>
                         {% endif %}
@@ -257,7 +255,7 @@
                           <li class="nav-item">
                             <strong>{% trans %}ePDF{% endtrans %}:</strong>
                             {% for lang, url in article.article_pdf_languages|sort(attribute='0') %}
-                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=url, lang=lang) }}">{{ lang }}</a> 
+                              <a class="text-uppercase d-inline-block mx-1 my-1" href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=url) }}&lang={{ lang }}">{{ lang }}</a> 
                             {% endfor %}
                           </li>
                         {% endif %} 

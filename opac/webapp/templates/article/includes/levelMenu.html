@@ -46,7 +46,7 @@
               >
             {%- else -%}
               <a
-                href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=previous_article.aid, part=part, lang=article_lang) }}"
+                href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=previous_article.aid, part=part) }}?lang={{ article_lang }}"
                 class="btn scielo__btn-with-icon--left mb-0 pe-md-2"
                 aria-label="{% trans %}Artigo anterior{% endtrans %}"
               >
@@ -90,7 +90,7 @@
               >
             {%- else -%}
               <a
-                href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=next_article.aid, part=part, lang=article_lang) }}"
+                href="{{ url_for('.article_detail_v3', url_seg=journal.url_segment, article_pid_v3=next_article.aid, part=part) }}?lang={{ article_lang }}"
                 class="btn scielo__btn-with-icon--right mb-0 ps-md-2"
                 aria-label="{% trans %}Próximo artigo{% endtrans %}"
               >
@@ -179,7 +179,7 @@
                     </a>
                   {% else %}
                     <a
-                      href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}"
+                      href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract') }}?lang={{ abstract['language'] }}"
                       class="dropdown-item"
                     >
                       {% trans %}Resumo {% endtrans %}
@@ -241,7 +241,7 @@
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}"
+                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}?format=pdf&lang={{ article.pdfs[0].lang }}"
                     class="dropdown-item"
                   >
                     {% if pdf.lang == 'es' %}
@@ -266,7 +266,7 @@
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}"
+                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}?format=pdf&lang={{ pdf.lang }}"
                     class="dropdown-item"
                   >
                     {% if pdf.lang == 'es' %}
@@ -288,7 +288,7 @@
             {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
               {% for pdf in article.pdfs  %}
                 <li>
-                  <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
+                  <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url) }}&lang={{ pdf.lang }}" class="dropdown-item">
                     {% if pdf.lang == 'es' %}
                       {% trans %}ePDF (Espanhol){% endtrans %}
                     {% elif pdf.lang == 'en' %}
@@ -396,7 +396,7 @@
                     </a>
                   {% else %}
                     <a
-                      href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract', lang=abstract['language']) }}"
+                      href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, part='abstract') }}?lang={{ abstract['language'] }}"
                       class="dropdown-item"
                     >
                       {% trans %}Resumo {% endtrans %}
@@ -506,7 +506,7 @@
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=article.pdfs[0].lang) }}"
+                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}?format=pdf&lang={{ article.pdfs[0].lang }}"
                     class="dropdown-item"
                   >
                     {% if pdf.lang == 'es' %}
@@ -529,7 +529,7 @@
 
         {% if config['READCUBE_ENABLED'] and article.doi and article.pid %}
           {% if article and article.pdfs|length == 1 %}
-            <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=article.pdfs[0].url, lang=article.pdfs[0].lang) }}" class="btn mb-0">
+            <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=article.pdfs[0].url) }}&lang={{ article.pdfs[0].lang }}" class="btn mb-0">
               <span class="sci-ico-filePDF" aria-hidden="true"></span>
               <span>ePDF</span>
             </a>
@@ -558,7 +558,7 @@
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid, format='pdf', lang=pdf.lang) }}"
+                    href="{{ url_for('.article_detail_v3', url_seg=article.journal.url_segment, article_pid_v3=article.aid) }}?format=pdf&lang={{ pdf.lang }}"
                     class="dropdown-item"
                   >
                     {% if pdf.lang == 'es' %}
@@ -596,7 +596,7 @@
               <ul class="dropdown-menu" aria-labelledby="btnGroupDropArticleEPDFMobile">
                 {% for pdf in article.pdfs  %}
                   <li>
-                    <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url, lang=pdf.lang) }}" class="dropdown-item">
+                    <a href="{{ url_for('.article_epdf', doi=article.doi, pid=article.pid, pdf_path=pdf.url) }}&lang={{ pdf.lang }}" class="dropdown-item">
                       {% if pdf.lang == 'es' %}
                         {% trans %}Download ePDF (Espanhol){% endtrans %}
                       {% elif pdf.lang == 'en' %}
