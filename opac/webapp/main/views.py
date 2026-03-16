@@ -320,8 +320,9 @@ def collection_list():
     if not query_filter in allowed_filters:
         query_filter = ""
 
+    lang_internal = getattr(g, "ilang", None) or get_locale()
     journals_list = [
-        controllers.get_journal_json_data(journal)
+        controllers.get_journal_json_data(journal, lang_internal)
         for journal in controllers.get_journals(query_filter=query_filter)
     ]
 
@@ -985,7 +986,7 @@ def issue_toc(url_seg, url_seg_issue):
 
     # idioma da sessão
     language = session.get("lang", get_locale())
-
+    
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
     if not issue:
