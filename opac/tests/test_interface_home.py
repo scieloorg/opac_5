@@ -25,7 +25,7 @@ class HomeTestCase(BaseTestCase):
             with self.client as c:
                 # idioma em 'pt_br'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="pt_BR"),
+                    url_for("set_locale", ilang="pt_BR"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -36,7 +36,7 @@ class HomeTestCase(BaseTestCase):
 
                 # idioma em 'en'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="en"),
+                    url_for("set_locale", ilang="en"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -47,7 +47,7 @@ class HomeTestCase(BaseTestCase):
 
                 # idioma em 'es'
                 response = c.get(
-                    url_for("main.set_locale", lang_code="es"),
+                    url_for("set_locale", ilang="es"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
@@ -55,3 +55,90 @@ class HomeTestCase(BaseTestCase):
                 self.assertStatus(response, 200)
                 expected_anchor = "colección falsa"
                 self.assertIn(expected_anchor, response.data.decode("utf-8"))
+
+    def test_home_logo_shown_when_configured(self):
+        """
+        Verificamos se a home exibe o logo da coleção quando está configurado.
+        """
+
+        with current_app.app_context():
+            utils.makeOneCollection(
+                {
+                    "name_pt": "coleção falsa",
+                    "home_logo_pt": "http://example.com/logo_pt.png",
+                    "home_logo_en": "http://example.com/logo_en.png",
+                    "home_logo_es": "http://example.com/logo_es.png",
+                }
+            )
+
+            with self.client as c:
+                # idioma em 'pt_br'
+                response = c.get(
+                    url_for("set_locale", ilang="pt_BR"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+                self.assertStatus(response, 200)
+                self.assertIn(
+                    "http://example.com/logo_pt.png",
+                    response.data.decode("utf-8"),
+                )
+                self.assertNotIn(
+                    'id="collectionNameHome"', response.data.decode("utf-8")
+                )
+
+                # idioma em 'en'
+                response = c.get(
+                    url_for("set_locale", ilang="en"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+                self.assertStatus(response, 200)
+                self.assertIn(
+                    "http://example.com/logo_en.png",
+                    response.data.decode("utf-8"),
+                )
+
+    def test_home_logo_fallback_to_text_when_not_configured(self):
+        """
+        Verificamos se a home exibe o nome da coleção em texto quando não há logo configurado.
+        """
+
+        with current_app.app_context():
+            utils.makeOneCollection({"name_pt": "coleção falsa"})
+
+            with self.client as c:
+                response = c.get(
+                    url_for("set_locale", ilang="pt_BR"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+                self.assertStatus(response, 200)
+                self.assertIn(
+                    'id="collectionNameHome"', response.data.decode("utf-8")
+                )
+                self.assertIn("coleção falsa", response.data.decode("utf-8"))
+
+    def test_home_aria_label_uses_collection_name(self):
+        """
+        Verificamos se o aria-label usa o nome dinâmico da coleção.
+        """
+
+        with current_app.app_context():
+            utils.makeOneCollection({"name_pt": "coleção falsa"})
+
+            with self.client as c:
+                response = c.get(
+                    url_for("set_locale", ilang="pt_BR"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+                self.assertStatus(response, 200)
+                self.assertIn(
+                    'aria-label="Acessar site coleção coleção falsa"',
+                    response.data.decode("utf-8"),
+                )

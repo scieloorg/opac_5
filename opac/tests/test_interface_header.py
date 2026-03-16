@@ -18,16 +18,16 @@ class HeaderTestCase(BaseTestCase):
             utils.makeOneCollection()
             with self.client as c:
                 response = c.get(
-                    url_for("main.set_locale", lang_code="pt_BR"),
+                    url_for("set_locale", ilang="pt_BR"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
-                self.assertIn(b"lang-en", response.data)
-                self.assertIn(b"lang-es", response.data)
-                self.assertNotIn(b"lang-pt", response.data)
+                self.assertIn(b'lang="pt', response.data)
+                self.assertIn(b'href="/en/"', response.data)
+                self.assertIn(b'href="/es/"', response.data)
 
     def test_current_language_when_set_en(self):
         """
@@ -40,16 +40,16 @@ class HeaderTestCase(BaseTestCase):
             utils.makeOneCollection()
             with self.client as c:
                 response = c.get(
-                    url_for("main.set_locale", lang_code="en"),
+                    url_for("set_locale", ilang="en"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
-                self.assertIn(b"lang-pt", response.data)
-                self.assertIn(b"lang-es", response.data)
-                self.assertNotIn(b"lang-en", response.data)
+                self.assertIn(b'lang="en"', response.data)
+                self.assertIn(b'href="/pt/"', response.data)
+                self.assertIn(b'href="/es/"', response.data)
 
     def test_current_language_when_set_es(self):
         """
@@ -62,13 +62,13 @@ class HeaderTestCase(BaseTestCase):
             utils.makeOneCollection()
             with self.client as c:
                 response = c.get(
-                    url_for("main.set_locale", lang_code="es"),
+                    url_for("set_locale", ilang="es"),
                     headers={"Referer": "/"},
                     follow_redirects=True,
                 )
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
-                self.assertIn(b"lang-pt", response.data)
-                self.assertIn(b"lang-en", response.data)
-                self.assertNotIn(b"lang-es", response.data)
+                self.assertIn(b'lang="es"', response.data)
+                self.assertIn(b'href="/pt/"', response.data)
+                self.assertIn(b'href="/en/"', response.data)

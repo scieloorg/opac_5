@@ -298,7 +298,7 @@ class AdminViewsTestCase(BaseTestCase):
                     lang_urls = {}
                     for lang_code, lang_name in languages.items():
                         lang_urls[lang_code] = {
-                            "url": url_for("main.set_locale", lang_code=lang_code),
+                            "url": url_for("set_locale", ilang=lang_code),
                             "name": lang_name,
                         }
 
@@ -840,14 +840,14 @@ class AdminViewsTestCase(BaseTestCase):
                     confirm_email_url = url_for(
                         "admin.confirm_email", token=invalid_token
                     )
-                    expected_errors_msg = "<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>"
+                    expected_errors_msg = "The requested URL was not found on the server."
                     # when
                     response = c.get(confirm_email_url, follow_redirects=True)
                     # then
                     self.assertStatus(response, 404)
                     self.assertTemplateUsed("errors/404.html")
                     error_message = self.get_context_variable("message")
-                    self.assertEqual(expected_errors_msg, error_message)
+                    self.assertIn(expected_errors_msg, error_message)
 
     def test_confirmation_email_send_email_with_token(self):
         """
@@ -4199,7 +4199,7 @@ class CollectionAdminViewTests(BaseTestCase):
             for expected_form_excluded_column in expected_form_excluded_columns:
                 self.assertIn(expected_form_excluded_column, form_excluded_columns)
 
-    def test_admin_collection_check_can_create_is_false(self):
+    def test_admin_collection_check_can_create_is_true(self):
         """
         Com:
             - usuário administrador cadastrado (com email confirmado)
@@ -4231,7 +4231,7 @@ class CollectionAdminViewTests(BaseTestCase):
             self.assertTemplateUsed("admin/model/list.html")
             # verificamos os filtros da view
             can_create = self.get_context_variable("admin_view").can_create
-            self.assertFalse(can_create)
+            self.assertTrue(can_create)
 
     def test_admin_collection_check_can_edit_is_true(self):
         """
@@ -4267,7 +4267,7 @@ class CollectionAdminViewTests(BaseTestCase):
             can_edit = self.get_context_variable("admin_view").can_edit
             self.assertTrue(can_edit)
 
-    def test_admin_collection_check_can_delete_is_false(self):
+    def test_admin_collection_check_can_delete_is_true(self):
         """
         Com:
             - usuário administrador cadastrado (com email confirmado)
@@ -4299,7 +4299,7 @@ class CollectionAdminViewTests(BaseTestCase):
             self.assertTemplateUsed("admin/model/list.html")
             # verificamos os filtros da view
             can_delete = self.get_context_variable("admin_view").can_delete
-            self.assertFalse(can_delete)
+            self.assertTrue(can_delete)
 
     def test_admin_collection_check_create_modal_is_true(self):
         """

@@ -50,6 +50,13 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 
+# Idioma na URL: /pt/, /en/, /es/, etc. 
+class LangConverter(BaseConverter):
+    """Aceita qualquer código de idioma como primeiro segmento da URL (ex.: pt, en, es, fr)."""
+    part_isolating = True
+    regex = r"[a-zA-Z][a-zA-Z0-9_-]*"
+
+
 def configure_apm_agent(app):
     """Configura e inicia o agente de introspecção do APM."""
     from .utils import asbool
@@ -120,6 +127,7 @@ def create_app():
     )
 
     app.url_map.converters["regex"] = RegexConverter
+    app.url_map.converters["lang"] = LangConverter
 
     # Remove strict slash from Werkzeug
     app.url_map.strict_slashes = False
@@ -155,6 +163,8 @@ def create_app():
 
     # i18n
     babel.init_app(app)
+    from .main.views import get_locale
+    babel.localeselector(get_locale)
     # Debug Toolbar
     if app.config["DEBUG"]:
         # Toolbar
@@ -247,8 +257,19 @@ def create_app():
 
     from .main import main as main_bp
     from .main import restapi as rest_bp
+    from .main.views import redirect_to_lang_root, set_locale
 
-    app.register_blueprint(main_bp)
+    # Rotas na raiz (sem prefixo de idioma): redirecionamento e troca de idioma
+    app.add_url_rule("/", "redirect_to_lang_root", redirect_to_lang_root)
+    app.add_url_rule(
+        "/set_locale/<string:ilang>/",
+        "set_locale",
+        set_locale,
+        methods=["GET"],
+    )
+
+    # Blueprint principal com idioma no path: /pt/, /en/, /es/ (permite cache CDN sem cookie)
+    app.register_blueprint(main_bp, url_prefix="/<lang:lang>")
     app.register_blueprint(rest_bp)
 
     # Setup RQ Dashboard e Scheduler: - mover para um modulo proprio

@@ -2,7 +2,7 @@
 <!-- social share tags -->
 <meta property="og:url" content="{{ request.url }}"/>
 <meta property="og:type" content="article"/>
-<meta property="og:title" content="{{ article.title }}"/>
+<meta property="og:title" content="{{ article.title|default( _('Artigo sem título'), true)|escape }}"/>
 <meta property="og:description" content="{{ article.abstract|escape|truncate(100) }}"/>
 <meta property="og:image" content="{{ journal.logo_url|absolute_url(request.url_root) }}"/>
 <!-- social share tags -->
@@ -72,8 +72,17 @@
     {% endif -%}
 {% endif -%}
 
-{% if article.doi -%}
-    <meta name="citation_doi" content="{{ article.doi }}"></meta>
+{% set _doi_ns = namespace(value=article.doi or '') -%}
+{% if article.doi_with_lang and article_lang -%}
+    {% for doi in article.doi_with_lang -%}
+        {% if doi.language == article_lang -%}
+            {% set _doi_ns.value = doi.doi -%}
+        {% endif -%}
+    {% endfor -%}
+{% endif -%}
+{% if _doi_ns.value -%}
+    <meta name="citation_doi" content="{{ _doi_ns.value }}"></meta>
+    <meta name="dc.identifier" content="doi:{{ _doi_ns.value }}"/>
 {% endif -%}
 
 <meta name="citation_fulltext_world_readable" content=""></meta>
@@ -89,7 +98,7 @@
 
 {% if article.original_language == article_lang %}
     {% if article.title -%}
-        <meta name="citation_title" content="{{ article.title|escape }}"></meta>
+        <meta name="citation_title" content="{{ article.title|default( _('Artigo sem título'), true)|escape }}"></meta>
     {% endif -%}
 {%else -%}
     {%- if article.translated_titles -%}

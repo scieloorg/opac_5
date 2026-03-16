@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import flask
 from flask import url_for
 
 from . import utils
@@ -36,21 +35,17 @@ class TOCTestCase(BaseTestCase):
                 }
             )
 
-            header = {
-                "Referer": url_for(
-                    "main.issue_toc",
-                    url_seg=journal.url_segment,
-                    url_seg_issue=issue.url_segment,
-                )
-            }
-
-            set_locale_url = url_for("main.set_locale", lang_code="pt_BR")
-            response = c.get(set_locale_url, headers=header, follow_redirects=True)
+            # Acessa o TOC diretamente com idioma pt na URL (pull_lang define session["lang"] = pt_BR)
+            toc_url_pt = url_for(
+                "main.issue_toc",
+                url_seg=journal.url_segment,
+                url_seg_issue=issue.url_segment,
+                lang="pt",
+            )
+            response = c.get(toc_url_pt)
 
             self.assertEqual(200, response.status_code)
-
-            self.assertEqual(flask.session["lang"], "pt_BR")
-
+            self.assertIn(b'lang="pt', response.data)
             self.assertIn(
                 "Artigo Com Título Em Português", response.data.decode("utf-8")
             )
@@ -82,21 +77,17 @@ class TOCTestCase(BaseTestCase):
                 }
             )
 
-            header = {
-                "Referer": url_for(
-                    "main.issue_toc",
-                    url_seg=journal.url_segment,
-                    url_seg_issue=issue.url_segment,
-                )
-            }
-
-            set_locale_url = url_for("main.set_locale", lang_code="es")
-            response = c.get(set_locale_url, headers=header, follow_redirects=True)
+            # Acessa o TOC diretamente com idioma es na URL (pull_lang define session["lang"])
+            toc_url_es = url_for(
+                "main.issue_toc",
+                url_seg=journal.url_segment,
+                url_seg_issue=issue.url_segment,
+                lang="es",
+            )
+            response = c.get(toc_url_es)
 
             self.assertEqual(200, response.status_code)
-
-            self.assertEqual(flask.session["lang"], "es")
-
+            self.assertIn(b'lang="es"', response.data)
             self.assertIn(
                 "Título Del Artículo En Portugués", response.data.decode("utf-8")
             )
@@ -128,21 +119,17 @@ class TOCTestCase(BaseTestCase):
                 }
             )
 
-            header = {
-                "Referer": url_for(
-                    "main.issue_toc",
-                    url_seg=journal.url_segment,
-                    url_seg_issue=issue.url_segment,
-                )
-            }
-
-            set_locale_url = url_for("main.set_locale", lang_code="en")
-            response = c.get(set_locale_url, headers=header, follow_redirects=True)
+            # Acessa o TOC diretamente com idioma en na URL (pull_lang define session["lang"])
+            toc_url_en = url_for(
+                "main.issue_toc",
+                url_seg=journal.url_segment,
+                url_seg_issue=issue.url_segment,
+                lang="en",
+            )
+            response = c.get(toc_url_en)
 
             self.assertEqual(200, response.status_code)
-
-            self.assertEqual(flask.session["lang"], "en")
-
+            self.assertIn(b'lang="en"', response.data)
             self.assertIn("Article Title In Portuguese", response.data.decode("utf-8"))
 
     def test_the_title_of_the_article_list_without_translated(self):
@@ -168,21 +155,17 @@ class TOCTestCase(BaseTestCase):
                 }
             )
 
-            header = {
-                "Referer": url_for(
-                    "main.issue_toc",
-                    url_seg=journal.url_segment,
-                    url_seg_issue=issue.url_segment,
-                )
-            }
-
-            set_locale_url = url_for("main.set_locale", lang_code="en")
-            response = c.get(set_locale_url, headers=header, follow_redirects=True)
+            # Acessa o TOC diretamente com idioma en na URL
+            toc_url_en = url_for(
+                "main.issue_toc",
+                url_seg=journal.url_segment,
+                url_seg_issue=issue.url_segment,
+                lang="en",
+            )
+            response = c.get(toc_url_en)
 
             self.assertEqual(200, response.status_code)
-
-            self.assertEqual(flask.session["lang"], "en")
-
+            self.assertIn(b'lang="en"', response.data)
             self.assertIn("Article Y", response.data.decode("utf-8"))
 
     def test_the_title_of_the_article_list_without_unknow_language_for_article(self):
@@ -208,21 +191,17 @@ class TOCTestCase(BaseTestCase):
                 }
             )
 
-            header = {
-                "Referer": url_for(
-                    "main.issue_toc",
-                    url_seg=journal.url_segment,
-                    url_seg_issue=issue.url_segment,
-                )
-            }
-
-            set_locale_url = url_for("main.set_locale", lang_code="es")
-            response = c.get(set_locale_url, headers=header, follow_redirects=True)
+            # Acessa o TOC diretamente com idioma es na URL
+            toc_url_es = url_for(
+                "main.issue_toc",
+                url_seg=journal.url_segment,
+                url_seg_issue=issue.url_segment,
+                lang="es",
+            )
+            response = c.get(toc_url_es)
 
             self.assertEqual(200, response.status_code)
-
-            self.assertEqual(flask.session["lang"], "es")
-
+            self.assertIn(b'lang="es"', response.data)
             self.assertIn("Article Y", response.data.decode("utf-8"))
 
     def test_the_title_of_the_article_list_with_and_without_translated(self):
@@ -257,23 +236,18 @@ class TOCTestCase(BaseTestCase):
                 {"issue": issue, "title": "Article Y", "translated_titles": []}
             )
 
-            header = {
-                "Referer": url_for(
-                    "main.issue_toc",
-                    url_seg=journal.url_segment,
-                    url_seg_issue=issue.url_segment,
-                )
-            }
-
-            set_locale_url = url_for("main.set_locale", lang_code="es")
-            response = c.get(set_locale_url, headers=header, follow_redirects=True)
+            # Acessa o TOC diretamente com idioma es na URL
+            toc_url_es = url_for(
+                "main.issue_toc",
+                url_seg=journal.url_segment,
+                url_seg_issue=issue.url_segment,
+                lang="es",
+            )
+            response = c.get(toc_url_es)
 
             self.assertEqual(200, response.status_code)
-
-            self.assertEqual(flask.session["lang"], "es")
-
+            self.assertIn(b'lang="es"', response.data)
             self.assertIn("Article Y", response.data.decode("utf-8"))
-
             self.assertIn(
                 "Título Del Artículo En Portugués", response.data.decode("utf-8")
             )
@@ -334,19 +308,112 @@ class TOCTestCase(BaseTestCase):
                     "main.issue_toc",
                     url_seg=journal.url_segment,
                     url_seg_issue=issue.url_segment,
+                    lang="pt",
                 )
             )
 
-            uris = [
-                url_for(
+            # Links do abstract podem ser path ou path + ?lang= (view exige lang na query)
+            for abstract_lang in ["en", "es", "pt"]:
+                path = url_for(
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
                     part="abstract",
                     lang=abstract_lang,
                 )
-                for abstract_lang in ["en", "es", "pt"]
-            ]
-            for uri in uris:
-                with self.subTest(uri):
-                    self.assertIn(uri, response.data.decode("utf-8"))
+                with self.subTest(abstract_lang):
+                    self.assertTrue(
+                        path in response.data.decode("utf-8")
+                        or (path + "?lang=" + abstract_lang) in response.data.decode("utf-8"),
+                        "Abstract link for lang=%s not found" % abstract_lang,
+                    )
+
+    def test_author_search_link_includes_orcid_when_authors_meta_has_orcid(self):
+        """
+        Teste para verificar se o link de busca do autor inclui o orcid
+        quando o artigo tem authors_meta com orcid.
+        """
+        journal = utils.makeOneJournal()
+
+        with self.client as c:
+            utils.makeOneCollection()
+
+            issue = utils.makeOneIssue({"journal": journal})
+
+            _article_data = {
+                "title": "Article Y",
+                "issue": issue,
+                "journal": journal,
+                "authors": ["Author One", "Author Two"],
+                "authors_meta": [
+                    {
+                        "name": "Author One",
+                        "affiliation": "University A",
+                        "orcid": "0000-0002-3430-5422",
+                    },
+                    {
+                        "name": "Author Two",
+                        "affiliation": "University B",
+                    },
+                ],
+            }
+            utils.makeOneArticle(_article_data)
+
+            response = c.get(
+                url_for(
+                    "main.issue_toc",
+                    url_seg=journal.url_segment,
+                    url_seg_issue=issue.url_segment,
+                    lang="pt",
+                )
+            )
+
+            response_data = response.data.decode("utf-8")
+
+            # Author with ORCID should have orcid OR au:(name) in the search query
+            self.assertIn(
+                "q=orcid:0000-0002-3430-5422 OR au:(Author One)",
+                response_data,
+            )
+            # Author without ORCID should only have au:name in the search query
+            self.assertIn("q=au:Author Two", response_data)
+            self.assertNotIn("orcid:Author Two", response_data)
+            self.assertNotIn("OR au:(Author Two)", response_data)
+            # Author search links should open in a new tab
+            self.assertIn('target="_blank"', response_data)
+
+    def test_author_search_link_without_orcid_when_no_authors_meta(self):
+        """
+        Teste para verificar se o link de busca do autor funciona sem orcid
+        quando o artigo não tem authors_meta (fallback para authors).
+        """
+        journal = utils.makeOneJournal()
+
+        with self.client as c:
+            utils.makeOneCollection()
+
+            issue = utils.makeOneIssue({"journal": journal})
+
+            _article_data = {
+                "title": "Article Z",
+                "issue": issue,
+                "journal": journal,
+                "authors": ["Simple Author"],
+            }
+            utils.makeOneArticle(_article_data)
+
+            response = c.get(
+                url_for(
+                    "main.issue_toc",
+                    url_seg=journal.url_segment,
+                    url_seg_issue=issue.url_segment,
+                    lang="pt",
+                )
+            )
+
+            response_data = response.data.decode("utf-8")
+
+            self.assertIn("q=au:Simple Author", response_data)
+            self.assertNotIn("orcid:", response_data)
+            # Author search links should open in a new tab
+            self.assertIn('target="_blank"', response_data)

@@ -140,6 +140,11 @@ build_i18n:
 test: make_messages compile_messages build_i18n
 	export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test
 
+# help: test_failfast                  - run local tests, stop at first failure
+.PHONY: test_failfast
+test_failfast: 
+	export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -f
+
 # help: coverage                       - perform test coverage checks
 .PHONY: coverage
 coverage:
