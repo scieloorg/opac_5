@@ -34,7 +34,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="error_type" id="error_type1" value="acessibility" checked>
                         <label class="form-check-label" for="error_type1">{% trans %}acessibilidade{% endtrans %}</label>
-                        <span class="form-text d-block mb-3">{% trans %}(por favor, considere responder ao {% endtrans %} <a target="_blank" href="{{ config.get('ACCESSIBILITY_BY_LANGUAGE').get(session.get('lang', config.get('BABEL_DEFAULT_LOCALE')))}}">{% trans %}nosso questionário para mapear o perfil dos usuários do site SciELO - link externo{% endtrans %}</a>)</span>
+                        <span class="form-text d-block mb-3">{% trans %}(por favor, considere responder ao {% endtrans %} <a target="_blank" href="{{ config.get('ACCESSIBILITY_BY_LANGUAGE').get(session.get('lang', config.get('BABEL_DEFAULT_LOCALE')))}}">{% trans %}nosso questionário para mapear o perfil dos usuários do site - link externo{% endtrans %}</a>)</span>
                     </div>
 
                     <div class="form-check">
