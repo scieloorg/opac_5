@@ -248,6 +248,7 @@ var Article = {
 			});
 		},200);
 
+
 		$(window).scroll(function() {
 			var t = $(window).scrollTop(),
 				$floatingMenuCtt = '.scielo__floatingMenuCttJs3';
@@ -262,24 +263,11 @@ var Article = {
 			}
 			
 
-			if(t > articleTextP.top) {
-
-				$(".articleMenu").addClass("fixed").width(articleMenuW);
-
-				if(t > (articleTextH + articleTextP.top - articleMenuH - 46)) {
-					$(".articleMenu").addClass("fixedBottom");
-
-				} else {
-					$(".articleMenu").removeClass("fixedBottom");
-				}
-			} else
-				$(".articleMenu").removeClass("fixed");
-
 			Article.ArticleStructureSelect(t);
 
-			$(".alternativeHeader").stop(false,false);
+			
 		});
-
+			
 		
 
 
