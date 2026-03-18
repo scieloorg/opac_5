@@ -430,8 +430,8 @@ var Article = {
 
 			if(typeof t == "undefined") return true;
 
-			ctt += '<li '+(idx == 0 ? 'class="selected"' : '')+'>';
-			ctt += '	<a href="#articleSection'+idx+'">'+t+'</a>';
+			ctt += '<li '+(idx == 0 ? 'class="selected list-group-item active"' : 'class="list-group-item"')+'>';
+			ctt += '	<a href="#articleSection'+idx+'" class="list-group-item-action d-block" aria-current="location">'+t+'</a>';
 
 			if(h.length > 1) {
 				var iidx = 0;
@@ -444,8 +444,8 @@ var Article = {
 						$(this).before("<a name='as"+idx+"-heading"+iidx+"'></a>");
 					}
 
-					ctt += '<li>';
-					ctt += '	<a href="#as'+idx+'-heading'+iidx+'">'+$(this).text()+'</a>';
+					ctt += '<li class="list-group-item">';
+					ctt += '	<a href="#as'+idx+'-heading'+iidx+'" class="list-group-item-action d-block">'+$(this).text()+'</a>';
 					ctt += '</li>';
 
 					iidx++;
@@ -476,20 +476,27 @@ var Article = {
 	},
 	ArticleStructureSelect: function(pos) {
 		var structure = $(".articleMenu"),
-			idx = 0;
-		for(var i=0,l=Article.TopBinder.length;i<l;i++) {
-			if(i == l-1 && pos >= Article.TopBinder[i]-100) {
-				structure.find("li").removeClass("selected");
-				structure.find("li:eq("+i+")").addClass("selected");
+			currentIndex = 0,
+			current;
+	
+		for (var i = 0, l = Article.TopBinder.length; i < l; i++) {
+			if (i == l - 1 && pos >= Article.TopBinder[i] - 100) {
+				currentIndex = i;
 				break;
-			} else {
-				if(pos <= (Article.TopBinder[i]-100)) {
-					structure.find("li").removeClass("selected");
-					structure.find("li:eq("+(i-1)+")").addClass("selected");
-					break;
-				}
+			}
+	
+			if (pos <= (Article.TopBinder[i] - 100)) {
+				currentIndex = (i > 0) ? (i - 1) : 0;
+				break;
 			}
 		}
+	
+		structure.find("li").removeClass("selected active");
+		structure.find("a").removeAttr("aria-current");
+	
+		current = structure.find("li:eq(" + currentIndex + ")");
+		current.addClass("selected active");
+		current.find("a").attr("aria-current", "location");
 	},
 	Bindings: function(ctn) {
 		if(typeof ctn == "undefined") ctn = ".article";
