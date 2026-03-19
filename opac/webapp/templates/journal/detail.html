@@ -60,13 +60,13 @@
         </div>
 
         {# last issue #}
-        {% if journal.last_issue %}
+        {% if last_issue and last_issue.url_segment %}
 
             <div class="col-12 col-lg-6">
               
-                {% if journal.last_issue.cover_url %}
+                {% if last_issue.cover_url %}
                 <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
-                  <img src="{{ latest_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
+                  <img src="{{ last_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
                 </a>
                 {% endif %}
                 <span class="text">
@@ -240,16 +240,16 @@
           {# analytics #}
 
         {# last issue #}
-        {% if journal.last_issue %}
+        {% if last_issue and last_issue.url_segment %}
 
         <!--
           <div class="block lastIssue">
         -->
             <div class="col-12 col-sm-6">
               
-                {% if journal.last_issue.cover_url %}
+                {% if last_issue.cover_url %}
                 <a href="{{ url_for('.issue_toc', url_seg=journal.url_segment, url_seg_issue=last_issue.url_segment) }}">
-                  <img src="{{ latest_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
+                  <img src="{{ last_issue.cover_url }}" class="image" alt="{% trans %}Capa do número mais recente{% endtrans %}" /> <!-- a imagem é opcional -->
                 </a>
                 {% endif %}
                 <span class="text">

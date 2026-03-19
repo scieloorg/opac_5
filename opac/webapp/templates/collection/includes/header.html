@@ -1,4 +1,5 @@
 {% import 'macros/collection.html' as coll_macro %}
+{% import 'macros/images.html' as img_macro %}
 
 <link rel="stylesheet" href="../../../static/css/jquery.typeahead.css">
 <style>
@@ -78,7 +79,7 @@
             <div class="d-none d-lg-block mt-4 text-end">
               <a href="{{ url_for('.about_collection') }}" class="onlineSubmission d-none d-lg-block">
                 <span class="material-icons-outlined">info</span>
-                {% trans %}Sobre o{% endtrans %} SciELO {{ coll_macro.get_collection_name() }}
+                {% trans %}Sobre{% endtrans %} {{ coll_macro.get_collection_name() }}
               </a>
             </div>
           </div>
@@ -90,12 +91,16 @@
       </div>
       <div class="row">
         <div class="col text-center">
-          <a href="/" alt="{{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Acessar site coleção Brasil{% endtrans %}">
-            <span class="visually-hidden">Logo SciELO</span>
-            <h2 class="scielo__logo-scielo-caption mt-1">
-              <small id="collectionNameHome">{{ coll_macro.get_collection_name() }}</small>
-            </h2>
-          </a>
+          {%- set logo_url = img_macro.get_home_logo(g.collection, session.lang)|default('')|trim -%}
+          {%- if logo_url -%}
+            {{ img_macro.render_logo(logo_url, coll_macro.get_collection_name()) }}
+          {%- else -%}
+            <a href="/">
+              <h2 class="scielo__logo-scielo-caption mt-1">
+                <small id="collectionNameHome">{{ coll_macro.get_collection_name() }}</small>
+              </h2>
+            </a>
+          {%- endif -%}
         </div>
       </div>
      

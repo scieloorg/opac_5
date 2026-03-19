@@ -38,11 +38,16 @@
                 {% include "collection/includes/nav.html" %}
             </div>
             <div class="col col-md-3">
-                <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
+                {%- set header_logo_url = cimages.get_header_logo(g.collection, session.lang)|default('')|trim -%}
+                {%- if header_logo_url -%}
+                  {{ cimages.render_logo(header_logo_url, coll_macro.get_collection_name(), img_class='img-fluid scielo__logo-img mt-1 ms-5') }}
+                {%- else -%}
+                  <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
                     <div class="scielo__logo-scielo-collection mt-1 ms-5">
                       <small id="collectionNameInternal">{{ coll_macro.get_collection_name() }}</small>
                     </div>
-                </a>
+                  </a>
+                {%- endif -%}
             </div>
             <div class="d-none d-md-block d-lg-none col col-md-5 d-print-none">
                 <div class="dropdown mt-3">
