@@ -33,7 +33,7 @@ jobs:
 
       # 🔐 Scan único (policy)
       - name: Trivy Image Scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: infrascielo/opac_5:${{ env.VERSION }}
           severity: HIGH,CRITICAL
