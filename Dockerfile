@@ -11,7 +11,7 @@ ENV OPAC_VCS_REF ${OPAC_VCS_REF}
 ENV OPAC_WEBAPP_VERSION ${OPAC_WEBAPP_VERSION}
 
 LABEL org.label-schema.build-date=$OPAC_BUILD_DATE \
-      org.label-schema.name="OPAC WebApp - development build" \
+      org.label-schema.name="OPAC WebApp" \
       org.label-schema.description="OPAC WebApp main app" \
       org.label-schema.url="https://github.com/scieloorg/opac/" \
       org.label-schema.vcs-ref=$OPAC_VCS_REF \
@@ -30,8 +30,7 @@ WORKDIR /app
 RUN pip install --upgrade pip
 
 RUN pip --no-cache-dir install -U pip && \
-    pip --no-cache-dir install -r /app/requirements.txt && \
-    pip --no-cache-dir install -r /app/requirements.dev.txt
+    pip --no-cache-dir install -r /app/requirements.txt
 
 RUN sed -i 's/\r//' start_worker.sh \
     && sed -i 's/\r//' start_scheduler.sh \
