@@ -3,21 +3,59 @@
  * version 0.5
  * Copyright (c) 2019 Breno Novelli
  * 
- * Modificado 2025 - SciELO - Ramon Cordini
+ * Modificado 2025/2026 - SciELO - Ramon Cordini
+ * Modificado para exibição em modal
  */
 
-(function() {
-  /**
-   * Content
-   */
-  
-   // Tecla que será usada para complementar o atalho do teclado.
+ (function() {
   const accessKey = 4;
-
-  // Definição dos textos para tradução
   const translateAcessibilityBar = window.accessibilityTranslations;
 
-  // Definições dos botões
+  // ===== MODAL PATCH - Dynamic Modal Creation =====
+  function createAccessibilityModal() {
+    if (document.getElementById("accessibilityModal")) return;
+  
+    const modalWrapper = document.createElement("div");
+    modalWrapper.innerHTML = `
+      <div 
+        class="modal fade" 
+        id="accessibilityModal" 
+        tabindex="-1"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="accessibilityModalLabel">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:380px; margin: 0 auto;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 
+                id="accessibilityModalLabel" 
+                class="modal-title"
+              >
+                ${translateAcessibilityBar.accessibilityMenu}
+              </h5>
+              <button 
+                type="button" 
+                class="btn-close" 
+                data-bs-dismiss="modal" 
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div id="accessibilityBarModal" class="d-flex flex-column gap-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  
+    document.body.appendChild(modalWrapper.firstElementChild);
+  }
+  
+
+  // Create modal before anything else uses it
+  createAccessibilityModal();
+  
+
   const btns = {
     btnHighContrast: {
       active: false,
@@ -31,8 +69,8 @@
       active: true,
       dataAccessibility: "dark",
       class: "setAccessibility",
-      icon: "dark_mode", // Aqui vai o conteúdo que aparecerá no botão
-      iconClass: "material-icons-outlined", // Ou 'material-icons-outlined'
+      icon: "dark_mode",
+      iconClass: "material-icons-outlined",
       text: translateAcessibilityBar.darkMode,
     },
     btnIncFont: {
@@ -83,18 +121,13 @@
       iconClass: "material-icons-outlined",
       text: translateAcessibilityBar.reset,
     },
-  }
+  };
+
+  // ===== MODAL PATCH =====
+  const accessibilityBar = document.getElementById("accessibilityBarModal");
 
   /**
-   * Creating the bar
-   */
-
-  const accessibilityBar = document.createElement("div");
-  accessibilityBar.id = "accessibilityBar";
-  document.body.insertBefore(accessibilityBar, document.body.firstChild);
-
-  /**
-   * Creating main button
+   * Creating main floating button
    */
   let btnAccessibilityBar;
 
@@ -102,62 +135,65 @@
     btnAccessibilityBar = document.createElement("button");
     btnAccessibilityBar.id = "universalAccessBtn";
     btnAccessibilityBar.type = "button";
+    btnAccessibilityBar.className = "btn btn-primary position-fixed bottom-0 end-0 m-3 rounded-circle shadow";
     btnAccessibilityBar.accessKey = accessKey;
-    accessibilityBar.appendChild(btnAccessibilityBar);
 
     const icon = document.createElement("i");
-    btnAccessibilityBar.appendChild(icon);
     icon.classList.add("material-icons-outlined", "mt-1");
     icon.textContent = "accessibility_new";
+    btnAccessibilityBar.appendChild(icon);
 
     const spanText = document.createElement("span");
-    const spanTextNode = document.createTextNode(translateAcessibilityBar.accessibilityMenu);
-    spanText.appendChild(spanTextNode);
+    spanText.textContent = translateAcessibilityBar.accessibilityMenu;
+    spanText.className = "visually-hidden";
     btnAccessibilityBar.appendChild(spanText);
+
+    document.body.appendChild(btnAccessibilityBar);
   }
   createMainButton();
 
   /**
-   * Creating anothers button
+   * Creating settings buttons (inside modal)
    */
-
   function createButtons(el) {
+    if (!accessibilityBar) return;
+
     const button = document.createElement("button");
     button.type = "button";
-    button.classList.add(el.class);
-    button.setAttribute('data-accessibility', el.dataAccessibility);
+    button.classList.add(el.class, "btn", "btn-secondary", "text-start");
+    button.setAttribute("data-accessibility", el.dataAccessibility);
     accessibilityBar.appendChild(button);
 
     const wrapIcon = document.createElement("strong");
+    wrapIcon.classList.add("me-2");
     button.appendChild(wrapIcon);
 
     if (el.icon === "FontAwesome") {
       const icon = document.createElement("i");
-      wrapIcon.appendChild(icon);
       icon.classList.add(...el.iconClass);
+      wrapIcon.appendChild(icon);
     } else if (el.iconClass && typeof el.iconClass === "string") {
       const icon = document.createElement("i");
       icon.className = el.iconClass;
       icon.textContent = el.icon;
       wrapIcon.appendChild(icon);
     } else {
-      const textIcon = document.createTextNode(el.icon);
-      wrapIcon.appendChild(textIcon);
+      wrapIcon.textContent = el.icon;
     }
 
     const textButton = document.createTextNode(el.text);
     button.appendChild(textButton);
   }
-  Object.keys(btns).forEach(function (item) {
-    if(btns[item].active){
+
+  Object.keys(btns).forEach(function(item) {
+    if (btns[item].active) {
       createButtons(btns[item]);
     }
-   });
- 
+  });
 
-  const html = document.documentElement; //<html> for font-size settings
-  const body = document.body; //<body> for the adjusts classes
-  const btnAccessibility = document.querySelectorAll(".setAccessibility"); // Getting settings buttons
+  const html = document.documentElement;
+  const body = document.body;
+  const btnAccessibility = document.querySelectorAll(".setAccessibility");
 
   if (btnAccessibilityBar) {
     setTimeout(function() {
@@ -166,72 +202,59 @@
   }
 
   /**
-   * ReadingLine
+   * Skip link
    */
+  const skipLink = document.createElement("a");
+  skipLink.href = "#content";
+  skipLink.textContent = translateAcessibilityBar.skipLinkText;
+  skipLink.className = "skip-link visually-hidden-focusable";
+  skipLink.setAttribute("aria-label", translateAcessibilityBar.skipLinkText);
+  document.body.insertBefore(skipLink, document.body.firstChild);
 
+  /**
+   * Reading + Marker lines
+   */
   const readingLine = document.createElement("div");
   readingLine.id = "readingLine";
   document.body.insertBefore(readingLine, document.body.firstChild);
-
-  html.addEventListener("mousemove", function(e) {
-    if (body.classList.contains("accessibility_readingLine")) {
-      let linePositionY = e.pageY - 20;
-      // console.log(linePositionY);
-      const elReadingLine = document.querySelector("#readingLine"); // Toggle button
-      elReadingLine.style.top = `${linePositionY}px`;
-    }
-  });
-
-  /**
-   * MarkerLine
-   */
 
   const markerLine = document.createElement("div");
   markerLine.id = "markerLine";
   document.body.insertBefore(markerLine, document.body.firstChild);
 
   html.addEventListener("mousemove", function(e) {
+    const y = e.pageY - 20;
+    if (body.classList.contains("accessibility_readingLine")) {
+      readingLine.style.top = `${y}px`;
+    }
     if (body.classList.contains("accessibility_markerLine")) {
-      let linePositionY = e.pageY - 20;
-      // console.log(linePositionY);
-      const elmarkerLine = document.querySelector("#markerLine"); // Toggle button
-      elmarkerLine.style.top = `${linePositionY}px`;
+      markerLine.style.top = `${y}px`;
     }
   });
 
+  // ===== MODAL PATCH (BS4 + BS5 SAFE) =====
+  btnAccessibilityBar.addEventListener("click", () => {
+    const modalEl = document.getElementById("accessibilityModal");
+    if (!modalEl) return;
 
-    /**
-     * Criar skip-link
-     */
+    // Bootstrap 5 (no getOrCreateInstance)
+    if (window.bootstrap && bootstrap.Modal) {
+      try {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+        return;
+      } catch (e) {}
+    }
 
-    const skipLink = document.createElement("a");
-    skipLink.href = "#content";    // destino do skip-link
-    skipLink.textContent = translateAcessibilityBar.skipLinkText; // texto do link
-    skipLink.className = "skip-link visually-hidden-focusable"; // classes para estilo e foco
-    skipLink.setAttribute("aria-label", translateAcessibilityBar.skipLinkText); // opcional, reforço de acessibilidade
-    
-    // Inserir antes do primeiro elemento do body
-    document.body.insertBefore(skipLink, document.body.firstChild);
+    // Bootstrap 4 (jQuery)
+    if (window.jQuery) {
+      jQuery(modalEl).modal('show');
+    }
+  });
 
-
-
-
-  /*
-=== === === === === === === === === === === === === === === === === ===
-=== === === === === === === === openBar === === === === === === === ===
-=== === === === === === === === === === === === === === === === === ===
-*/
-
-  btnAccessibilityBar.addEventListener("click", () =>
-    accessibilityBar.classList.toggle("active")
-  );
-
-  /*
-=== === === === === === === === === === === === === === === === === ===
-=== === === === === ===  toggleAccessibilities  === === === === === ===
-=== === === === === === === === === === === === === === === === === ===
-*/
-
+  /**
+   * Toggle Accessibilities
+   */
   function toggleAccessibilities(action) {
     switch (action) {
       case "contrast":
@@ -241,11 +264,7 @@
         window.toggleDark();
         break;
       case "incFont":
-        window.toggleFontSize(action);
-        break;
       case "oriFont":
-        window.toggleFontSize(action);
-        break;
       case "decFont":
         window.toggleFontSize(action);
         break;
@@ -262,10 +281,7 @@
         body.classList.remove("accessibility_readingLine");
         body.classList.remove("accessibility_markerLine");
         break;
-      default:
-        break;
     }
-    accessibilityBar.classList.toggle("active");
   }
 
   btnAccessibility.forEach(button =>
@@ -274,182 +290,106 @@
     )
   );
 
-  /*
-=== === === === === === === === === === === === === === === === === ===
-=== === === === === === ===  FontSize   === === === === === === === ===
-=== === === === === === === === === === === === === === === === === ===
-*/
-
+  /**
+   * Font Size
+   */
   const htmlFontSize = parseFloat(
     getComputedStyle(document.documentElement).getPropertyValue("font-size")
   );
+
   let FontSize = {
     storage: "fontSizeState",
-    cssClass: "fontSize",
     currentState: null,
-    check: checkFontSize,
-    getState: getFontSizeState,
-    setState: setFontSizeState,
-    toggle: toggleFontSize,
-    updateView: updateViewFontSize
+    getState() {
+      return sessionStorage.getItem(this.storage)
+        ? parseFloat(sessionStorage.getItem(this.storage))
+        : 100;
+    },
+    setState(state) {
+      sessionStorage.setItem(this.storage, "" + state);
+      this.currentState = state;
+      this.updateView();
+    },
+    updateView() {
+      if (this.currentState === null) this.currentState = this.getState();
+      html.style.fontSize =
+        (this.currentState / 100) * htmlFontSize + "px";
+    },
+    toggle(action) {
+      if (this.currentState === null) this.currentState = this.getState();
+      switch (action) {
+        case "incFont":
+          if (this.currentState < 200) this.setState(this.currentState + 20);
+          else alert("Limite atingido!");
+          break;
+        case "decFont":
+          if (this.currentState > 40) this.setState(this.currentState - 20);
+          else alert("Limite atingido!");
+          break;
+        case "oriFont":
+          this.setState(100);
+          break;
+      }
+    },
   };
 
-  window.toggleFontSize = function(action) {
-    FontSize.toggle(action);
-  };
+  FontSize.updateView();
+  window.toggleFontSize = action => FontSize.toggle(action);
 
-  FontSize.check();
-
-  function checkFontSize() {
-    this.updateView();
-  }
-
-  function getFontSizeState() {
-    return sessionStorage.getItem(this.storage)
-      ? sessionStorage.getItem(this.storage)
-      : 100;
-  }
-
-  function setFontSizeState(state) {
-    sessionStorage.setItem(this.storage, "" + state);
-    this.currentState = state;
-    this.updateView();
-  }
-
-  function updateViewFontSize() {
-    if (this.currentState === null) this.currentState = this.getState();
-
-    this.currentState
-      ? (html.style.fontSize = (this.currentState / 100) * htmlFontSize + "px")
-      : "";
-
-    this.currentState
-      ? body.classList.add(this.cssClass + this.currentState)
-      : "";
-  }
-
-  function toggleFontSize(action) {
-    switch (action) {
-      case "incFont":
-        if (parseFloat(this.currentState) < 200) {
-          body.classList.remove(this.cssClass + this.currentState);
-          this.setState(parseFloat(this.currentState) + 20);
-        } else {
-          alert("Limite atingido!");
-        }
-        break;
-      case "oriFont":
-        body.classList.remove(this.cssClass + this.currentState);
-        this.setState(100);
-        break;
-      case "decFont":
-        if (parseFloat(this.currentState) > 40) {
-          body.classList.remove(this.cssClass + this.currentState);
-          this.setState(parseFloat(this.currentState) - 20);
-        } else {
-          alert("Limite atingido!");
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
-  /*
-=== === === === === === === === === === === === === === === === === ===
-=== === === === === ===  HighConstrast  === === === === === === === ===
-=== === === === === === === === === === === === === === === === === ===
-*/
+  /**
+   * Contrast
+   */
   let Contrast = {
     storage: "contrastState",
     cssClass: "contrast",
     currentState: null,
-    check: checkContrast,
-    getState: getContrastState,
-    setState: setContrastState,
-    toggle: toggleContrast,
-    updateView: updateViewContrast
+    getState() {
+      return sessionStorage.getItem(this.storage) === "true";
+    },
+    setState(state) {
+      sessionStorage.setItem(this.storage, "" + state);
+      this.currentState = state;
+      this.updateView();
+    },
+    updateView() {
+      if (this.currentState === null) this.currentState = this.getState();
+      body.classList.toggle(this.cssClass, this.currentState);
+    },
+    toggle() {
+      this.setState(!this.currentState);
+      if (Dark.currentState) Dark.setState(false);
+    },
   };
 
-  window.toggleContrast = function() {
-    Contrast.toggle();
-  };
+  Contrast.updateView();
+  window.toggleContrast = () => Contrast.toggle();
 
-  Contrast.check();
-
-  function checkContrast() {
-    this.updateView();
-  }
-
-  function getContrastState() {
-    return sessionStorage.getItem(this.storage) === "true";
-  }
-
-  function setContrastState(state) {
-    sessionStorage.setItem(this.storage, "" + state);
-    this.currentState = state;
-    this.updateView();
-  }
-
-  function updateViewContrast() {
-    if (this.currentState === null) this.currentState = this.getState();
-
-    this.currentState
-      ? body.classList.add(this.cssClass)
-      : body.classList.remove(this.cssClass);
-  }
-
-  function toggleContrast() {
-    this.setState(!this.currentState);
-    Dark.currentState === true ? Dark.setState(false) : null;
-  }
-
-  /*
-=== === === === === === === === === === === === === === === === === ===
-=== === === === === === ===   DarkMode  === === === === === === === ===
-=== === === === === === === === === === === === === === === === === ===
-*/
+  /**
+   * Dark Mode
+   */
   let Dark = {
     storage: "darkState",
     cssClass: "scielo__theme--dark",
     currentState: null,
-    check: checkDark,
-    getState: getDarkState,
-    setState: setDarkState,
-    toggle: toggleDark,
-    updateView: updateViewDark
+    getState() {
+      return sessionStorage.getItem(this.storage) === "true";
+    },
+    setState(state) {
+      sessionStorage.setItem(this.storage, "" + state);
+      this.currentState = state;
+      this.updateView();
+    },
+    updateView() {
+      if (this.currentState === null) this.currentState = this.getState();
+      body.classList.toggle(this.cssClass, this.currentState);
+    },
+    toggle() {
+      this.setState(!this.currentState);
+      if (Contrast.currentState) Contrast.setState(false);
+    },
   };
 
-  window.toggleDark = function() {
-    Dark.toggle();
-  };
+  Dark.updateView();
+  window.toggleDark = () => Dark.toggle();
 
-  Dark.check();
-
-  function checkDark() {
-    this.updateView();
-  }
-
-  function getDarkState() {
-    return sessionStorage.getItem(this.storage) === "true";
-  }
-
-  function setDarkState(state) {
-    sessionStorage.setItem(this.storage, "" + state);
-    this.currentState = state;
-    this.updateView();
-  }
-
-  function updateViewDark() {
-    if (this.currentState === null) this.currentState = this.getState();
-
-    this.currentState
-      ? body.classList.add(this.cssClass)
-      : body.classList.remove(this.cssClass);
-  }
-
-  function toggleDark() {
-    this.setState(!this.currentState);
-    Contrast.currentState === true ? Contrast.setState(false) : null;
-  }
 })();
