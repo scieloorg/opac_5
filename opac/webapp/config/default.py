@@ -197,6 +197,11 @@ import ast
         - OPAC_SITE_LICENSE_NAME: Nome da licença (default: "Creative Common - by 4.0")
         - OPAC_SITE_LICENSE_URL: URL da licença (default: https://creativecommons.org/licenses/by-nc/4.0/)
         - OPAC_SITE_LICENSE_IMG_URL: Imagem da licença (default: https://licensebuttons.net/l/by/4.0/88x31.png)
+
+      - Migration & Legacy Site
+        - PREVIOUS_WEBSITE_URI: URL do site anterior/clássico (ex: 'https://old.scielo.br'). 
+                                Quando configurado, se um recurso não for encontrado (404), 
+                                o usuário será redirecionado para a mesma URL no site clássico.
 """
 
 PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -640,6 +645,7 @@ APM_INSTRUMENT = os.environ.get("OPAC_APM_INSTRUMENT", "True") == "True"
 APM_VERIFY_SERVER_CERT = os.environ.get("OPAC_APM_APM_VERIFY_SERVER_CERT", "True") == "True"
 
 # Caso queira apresentar na home do website que o atual tem versão anterior
+# e redirecionar automaticamente para o site clássico quando um recurso não for encontrado (404)
 PREVIOUS_WEBSITE_URI = os.environ.get("PREVIOUS_WEBSITE_URI", "")
 
 # Caso queira apresentar na home do website qualquer mensagem de texto
