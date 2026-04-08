@@ -4,8 +4,7 @@
 <details class="scielo__accessibleMenu" id="scieloMainMenu">
   <summary
     id="scieloMainMenuSummary"
-    aria-controls="scieloMainMenuNav"
-    aria-expanded="false">
+    aria-controls="scieloMainMenuNav">
     <span class="menu-icon" aria-hidden="true"></span>
     <span>{% trans %}Menu{% endtrans %}</span>
   </summary>
@@ -167,25 +166,15 @@
     const summary = document.getElementById('scieloMainMenuSummary');
     if (!summary) return;
 
-    function syncExpanded() {
-      summary.setAttribute('aria-expanded', details.open ? 'true' : 'false');
-    }
-
-    syncExpanded();
-
-    details.addEventListener('toggle', syncExpanded);
-
     document.addEventListener('click', function (event) {
       if (!details.contains(event.target) && details.open) {
         details.open = false;
-        syncExpanded();
       }
     });
 
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && details.open) {
         details.open = false;
-        syncExpanded();
         summary.focus();
       }
     });
