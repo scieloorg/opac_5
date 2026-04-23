@@ -218,13 +218,13 @@ def get_journals(
 
     if query_filter not in ["current", "no-current", ""]:
         raise ValueError("Parámetro: 'query_filter' é inválido!")
-    elif query_filter == "no-current":
-        filters = {
-            "current_status__in": ["deceased", "suspended"],
-        }
-    else:
+    elif query_filter == "current":
         filters = {
             "current_status__in": ["current"],
+        }
+    elif query_filter == "no-current":
+        filters = {
+            "current_status__in": ["deceased", "suspended", "interrupted", "finished"],
         }
 
     if not title_query or title_query.strip() == "":
