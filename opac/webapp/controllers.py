@@ -224,7 +224,9 @@ def get_journals(
         }
     elif query_filter == "no-current":
         filters = {
-            "current_status__in": ["deceased", "suspended", "interrupted", "finished"],
+            "current_status__in": [
+                status for status in JOURNAL_STATUS.keys() if status != "current"
+            ],
         }
 
     if not title_query or title_query.strip() == "":
