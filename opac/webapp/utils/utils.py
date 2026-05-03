@@ -24,6 +24,7 @@ from opac_schema.v1.models import AuditLogEntry, Pages
 from tenacity import (retry, retry_if_exception_type, stop_after_attempt,
                       wait_exponential)
 from webapp import models
+from webapp.choices import LANGUAGE_TRANSLATIONS
 from webapp.admin.forms import EmailForm
 from webapp.main.errors import internal_server_error, page_not_found
 from webapp.utils.page_migration import MigratedPage, PageMigration
@@ -790,3 +791,86 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
 
     return extract_section(content, class_name)
 
+
+
+# ============================================================================
+# Funções de Internacionalização de Idiomas
+# ============================================================================
+
+def get_language_name(lang_code, interface_lang='en'):
+    """
+    Retorna o nome do idioma traduzido de acordo com o idioma da interface.
+
+    Args:
+        lang_code (str): Código ISO 639-1 do idioma (ex: 'de', 'fr', 'ru')
+        interface_lang (str): Idioma da interface ('pt', 'en' ou 'es')
+
+    Returns:
+        str: Nome do idioma traduzido ou código ISO em maiúsculo se não encontrado
+
+    Exemplos:
+        >>> get_language_name('de', 'pt')
+        'Alemão'
+        >>> get_language_name('de', 'en')
+        'German'
+        >>> get_language_name('fr', 'es')
+        'Francés'
+        >>> get_language_name('xx', 'pt')
+        'XX'
+    """
+
+    if not lang_code:
+        return ''
+
+    lang_code = lang_code.lower()
+    interface_lang = interface_lang.lower()
+
+    # Se o código não está no dicionário, retorna em maiúsculo
+    if lang_code not in LANGUAGE_TRANSLATIONS:
+        return lang_code.upper()
+
+    # Se o idioma da interface não está disponível, usa inglês como fallback
+    if interface_lang not in LANGUAGE_TRANSLATIONS[lang_code]:
+        interface_lang = 'en'
+
+    # Retorna a tradução (lazy_gettext precisa ser convertido para string)
+    translation = LANGUAGE_TRANSLATIONS[lang_code].get(interface_lang, lang_code.upper())
+    return str(translation)
+
+
+def get_language_code_upper(lang_code):
+    """
+    Retorna o código ISO do idioma em maiúsculo.
+
+    Args:
+        lang_code (str): Código ISO 639-1 do idioma
+
+    Returns:
+        str: Código em maiúsculo (ex: 'DE', 'FR', 'RU')
+
+    Exemplos:
+        >>> get_language_code_upper('de')
+        'DE'
+        >>> get_language_code_upper('fr')
+        'FR'
+    """
+    return lang_code.upper() if lang_code else ''
+
+
+def register_language_filters(app):
+    """
+    Registra os filtros Jinja2 para tradução de idiomas.
+
+    Args:
+        app: Instância do Flask app
+
+    Uso nos templates:
+        {{ 'de'|language_name('pt') }}  -> 'Alemão'
+        {{ 'de'|language_code_upper }}  -> 'DE'
+    """
+    app.jinja_env.filters['language_name'] = get_language_name
+    app.jinja_env.filters['language_code_upper'] = get_language_code_upper
+
+    # Também disponibiliza como função global nos templates
+    app.jinja_env.globals['get_language_name'] = get_language_name
+    app.jinja_env.globals['get_language_code_upper'] = get_language_code_upper
