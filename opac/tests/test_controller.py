@@ -72,6 +72,57 @@ class JournalControllerTestCase(BaseTestCase):
         """
         self.assertEqual(len(controllers.get_journals()), 0)
 
+    def test_get_journals_all_filter_returns_current_and_no_current(self):
+        """
+        Testando a função controllers.get_journals() com query_filter="" (ALL)
+        deve retornar tanto periódicos correntes quanto não correntes.
+        """
+        journal_current = self._make_one({"current_status": "current"})
+        journal_deceased = self._make_one({"current_status": "deceased"})
+        journal_suspended = self._make_one({"current_status": "suspended"})
+
+        result = list(controllers.get_journals(query_filter=""))
+        result_ids = [j.id for j in result]
+
+        self.assertIn(journal_current.id, result_ids)
+        self.assertIn(journal_deceased.id, result_ids)
+        self.assertIn(journal_suspended.id, result_ids)
+
+    def test_get_journals_current_filter_returns_only_current(self):
+        """
+        Testando a função controllers.get_journals() com query_filter="current"
+        deve retornar somente periódicos com current_status="current".
+        """
+        journal_current = self._make_one({"current_status": "current"})
+        journal_deceased = self._make_one({"current_status": "deceased"})
+
+        result = list(controllers.get_journals(query_filter="current"))
+        result_ids = [j.id for j in result]
+
+        self.assertIn(journal_current.id, result_ids)
+        self.assertNotIn(journal_deceased.id, result_ids)
+
+    def test_get_journals_no_current_filter_returns_all_non_current(self):
+        """
+        Testando a função controllers.get_journals() com query_filter="no-current"
+        deve retornar todos os periódicos não correntes (deceased, suspended,
+        interrupted, finished).
+        """
+        journal_current = self._make_one({"current_status": "current"})
+        journal_deceased = self._make_one({"current_status": "deceased"})
+        journal_suspended = self._make_one({"current_status": "suspended"})
+        journal_interrupted = self._make_one({"current_status": "interrupted"})
+        journal_finished = self._make_one({"current_status": "finished"})
+
+        result = list(controllers.get_journals(query_filter="no-current"))
+        result_ids = [j.id for j in result]
+
+        self.assertNotIn(journal_current.id, result_ids)
+        self.assertIn(journal_deceased.id, result_ids)
+        self.assertIn(journal_suspended.id, result_ids)
+        self.assertIn(journal_interrupted.id, result_ids)
+        self.assertIn(journal_finished.id, result_ids)
+
     def test_get_journals_grouped_by_study_area(self):
         """
         Testando se o retorno da função controllers.get_journals_by_study_area()
