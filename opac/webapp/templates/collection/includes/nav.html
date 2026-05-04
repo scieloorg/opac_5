@@ -1,147 +1,182 @@
-{% import 'macros/collection.html' as coll_macro %}
 {% import 'macros/images.html' as img_macro %}
+{% import 'macros/collection.html' as coll_macro %}
 
-<details class="scielo__accessibleMenu">
-  <summary>
-      <span class="menu-icon"></span>
-      <span>Menu</span>
+<details class="scielo__accessibleMenu" id="scieloMainMenu">
+  <summary
+    id="scieloMainMenuSummary"
+    aria-controls="scieloMainMenuNav">
+    <span class="menu-icon" aria-hidden="true"></span>
+    <span>{% trans %}Menu{% endtrans %}</span>
   </summary>
-  <nav style="max-height: 780px;">
+
+  <nav
+    id="scieloMainMenuNav"
+    aria-labelledby="scieloMainMenuSummary">
     <ul>
       <li class="logo">
         {%- set menu_logo_url = img_macro.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
         {%- if menu_logo_url -%}
           {{ img_macro.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
         {%- else -%}
-          <a href="/" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
+          <a href="/" title="{% trans %}Ir para a página inicial da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"
+          ><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
         {%- endif -%}
       </li>
       <li>
-        <a href="{{ url_for('.index') }}" alt="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Acessar site coleção{% endtrans %} {{ coll_macro.get_collection_name() }}">
+        <a
+          href="{{ url_for('.index') }}"
+          aria-label="{% trans %}Acessar site da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}">
           <strong>{{ coll_macro.get_collection_name() }}</strong>
         </a>
         <ul>
-            <li>
-              <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
-                {% trans %}Lista alfabética de periódicos{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
-                {% trans %}Lista temática de periódicos{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{config.OPAC_COLLECTION}}">
-                {% trans %}Busca{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a target="_blank" href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}">
-                {% trans %}Métricas{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('.about_collection') }}">
-                {% trans %}Sobre{% endtrans %} {{ coll_macro.get_collection_name() }}
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('.about_collection') }}">
-                {% trans %}Contatos{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="#" id="floatingBtnErrorHamburguerMenu" class="floatingBtnErrorHamburguerMenu">
-                {% trans %}Reportar erro{% endtrans %}
-              </a>
-            </li>
-
-            {% if config.get('PREVIOUS_WEBSITE_URI') %}
-              {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
-              <li>
-                <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-                  {% trans %}Acessar versão anterior{% endtrans %}
-                </a>
-              </li>  
-              {% else %}
-              <li>
-                <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-                  {% trans %}Acessar versão anterior{% endtrans %}
-                </a>
-              </li>  
-              {% endif %}
-            {% endif %}
-
-        </ul>
-      </li>
-      <li>
-        <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
-          <strong>{% trans %}SciELO.org - Rede SciELO{% endtrans %}</strong>
-        </a>
-        <ul>
           <li>
-            <a target="_blank" href="{{ config.URL_SCIELO_ORG }}">
-              {% trans %}Coleções nacionais e temáticas{% endtrans %}
-            </a>
-          </li>
-          <li>
-            <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_title }}">
+            <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
               {% trans %}Lista alfabética de periódicos{% endtrans %}
             </a>
           </li>
           <li>
-            <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_subject }}">
-              {% trans %}Lista de periódicos por assunto{% endtrans %}
+            <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
+              {% trans %}Lista temática de periódicos{% endtrans %}
             </a>
           </li>
           <li>
-            <a target="_blank" href="{{ config.URL_SEARCH }}">
+            <a href="{{ config.URL_SEARCH }}?q=*&lang={% if session.lang %}{{ session.lang[:2] }}{% endif %}&filter[in][]={{ config.OPAC_COLLECTION }}">
               {% trans %}Busca{% endtrans %}
             </a>
           </li>
           <li>
-            <a target="_blank" href="{{ config.METRICS_URL }}">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="{{ config.METRICS_URL }}/?collection={{ config.OPAC_COLLECTION }}">
               {% trans %}Métricas{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
             </a>
           </li>
           <li>
-            <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.oai_and_rss }}">
-              {% trans %}Acesso OAI e RSS{% endtrans %}
+            <a href="{{ url_for('.about_collection') }}">
+              {% trans %}Sobre o{% endtrans %} SciELO {{ coll_macro.get_collection_name() }}
             </a>
           </li>
           <li>
-            <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
-              {% trans %}Sobre a Rede SciELO{% endtrans %}
-            </a>
-          </li>
-          <li>
-            <a target="_blank" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.contact }}">
+            <a href="{{ url_for('.about_collection') }}#contact">
               {% trans %}Contatos{% endtrans %}
+            </a>
+          </li>
+          <li>
+            <a href="#" id="floatingBtnErrorHamburguerMenu" class="floatingBtnErrorHamburguerMenu">
+              {% trans %}Reportar erro{% endtrans %}
+            </a>
+          </li>
+
+          {% if config.get('PREVIOUS_WEBSITE_URI') %}
+            {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
+              <li>
+                <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+                  {% trans %}Acessar versão anterior{% endtrans %}
+                </a>
+              </li>
+            {% else %}
+              <li>
+                <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+                  {% trans %}Acessar versão anterior{% endtrans %}
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+        </ul>
+      </li>
+
+      <li>
+        <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}">
+          <strong>{% trans %}SciELO.org - Rede SciELO{% endtrans %}</strong>
+          <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+        </a>
+        <ul>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}">
+              {% trans %}Coleções nacionais e temáticas{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_title }}">
+              {% trans %}Lista alfabética de periódicos{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.journals_by_subject }}">
+              {% trans %}Lista de periódicos por assunto{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SEARCH }}">
+              {% trans %}Busca{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.METRICS_URL }}">
+              {% trans %}Métricas{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.oai_and_rss }}">
+              {% trans %}Acesso OAI e RSS{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.about_network }}">
+              {% trans %}Sobre a Rede SciELO{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+            </a>
+          </li>
+          <li>
+            <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_SCIELO_ORG }}{{ g.scielo_org.contact }}">
+              {% trans %}Contatos{% endtrans %}
+              <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
             </a>
           </li>
         </ul>
       </li>
+
       <li>
         {% if session.lang == 'pt_BR' %}
-          <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}">
-        {% else  %}
-          <a target="_blank" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
+          <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_BLOG_SCIELO }}">
+        {% else %}
+          <a target="_blank" rel="noopener noreferrer" href="{{ config.URL_BLOG_SCIELO }}/{{ session.lang }}/">
         {% endif %}
             <strong>{% trans %}Blog SciELO em Perspectiva{% endtrans %}</strong>
+            <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
           </a>
       </li>
     </ul>
   </nav>
 </details>
 
-<script type="text/javascript">
-  document.addEventListener("click", function(event) {
-      const details = document.querySelector("details");
-      
-      if (!details.contains(event.target)) {
-          details.removeAttribute("open");
-      }
-  });
+<script>
+  (function () {
+    const details = document.getElementById('scieloMainMenu');
+    if (!details) return;
 
+    const summary = document.getElementById('scieloMainMenuSummary');
+    if (!summary) return;
+
+    document.addEventListener('click', function (event) {
+      if (!details.contains(event.target) && details.open) {
+        details.open = false;
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && details.open) {
+        details.open = false;
+        summary.focus();
+      }
+    });
+  })();
 </script>

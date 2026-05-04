@@ -17,7 +17,7 @@ services:
         user: redis
         restart: always
         volumes:
-            - ../data_opac_prod/redis-cache-data-dev:/data
+            - ../data_opac_prod/redis-cache-data:/data
             - /etc/localtime:/etc/localtime:ro
 
     opac_mongo:

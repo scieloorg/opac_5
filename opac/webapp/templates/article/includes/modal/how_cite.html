@@ -14,49 +14,83 @@
     word-break: break-word; 
 }
 </style>
-
-<div class="modal fade ModalDefault" id="ModalHowcite" tabindex="-1" role="dialog" aria-hidden="true"
-  style="display: none;">
+<div
+  class="modal fade ModalDefault"
+  id="ModalHowcite"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="ModalHowciteTitle"
+  aria-describedby="ModalHowciteDesc">
   <div class="modal-dialog">
     <div class="modal-content">
-      
+
       <div class="modal-header">
-        <h2 class="h4 modal-title">
+        <h2 class="h4 modal-title" id="ModalHowciteTitle">
           {% trans %}Como citar{% endtrans %}
         </h2>
-        <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="{% trans %}Fechar{% endtrans %}">
+        </button>
       </div>
 
       <div class="modal-body">
+        <!-- Descrição curta para leitores de tela -->
+        <p id="ModalHowciteDesc" class="visually-hidden">
+          {% trans %}Escolha um formato para exportar ou selecione um estilo de citação. O conteúdo abaixo pode ser atualizado após a seleção.{% endtrans %}
+        </p>
 
         <div class="container">
           <div class="row">
             <div class="col-sm-3" style="text-align: center;">
-              <a href="{{ url_for('main.article_cite_export_format', article_id=article.id) }}?format=ris" class="btn hidden-sm">
-                <span class="glyphicon glyphicon-download" aria-hidden="true"></span> RIS
+              <a
+                href="{{ url_for('main.article_cite_export_format', article_id=article.id) }}?format=ris"
+                class="btn hidden-sm">
+                <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                <span class="visually-hidden">{% trans %}Baixar em{% endtrans %}</span> RIS
               </a>
             </div>
+
             <div class="col-sm-3" style="text-align: center;">
-              <a href="{{ url_for('main.article_cite_export_format', article_id=article.id) }}?format=bib" class="btn hidden-sm">
-                <span class="glyphicon glyphicon-download" aria-hidden="true"></span> BIBTEX
+              <a
+                href="{{ url_for('main.article_cite_export_format', article_id=article.id) }}?format=bib">
+                <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                <span class="visually-hidden">{% trans %}Baixar em{% endtrans %}</span> BIBTEX
               </a>
             </div>
           </div>
         </div>
 
         <br>
-        
-        <div id='initial_csl'></div>
 
-        <label id="select_label">{% trans %}Outros formatos de citação e exportação{% endtrans %}:</label>
-        <select id="select_csl" class="js-data-example-ajax" style="width: 100%">
-          <option value="" selected="selected">{% trans %}Enter references manager format or citation style (e.g., "APA", "AMA", "MLA", "Vancouver"){% endtrans %}</option>
+        <div id="initial_csl"></div>
+
+        <label id="select_label" for="select_csl">
+          {% trans %}Outros formatos de citação e exportação{% endtrans %}:
+        </label>
+
+        <select
+          id="select_csl"
+          class="js-data-example-ajax"
+          style="width: 100%">
+          <option value="" selected="selected">
+            {% trans %}Enter references manager format or citation style (e.g., "APA", "AMA", "MLA", "Vancouver"){% endtrans %}
+          </option>
         </select>
-        
+
         <br>
         <br>
-      
-        <pre id="citation_text" style="display:none;"></pre>
+
+        <pre
+          id="citation_text"
+          style="display:none;"
+          tabindex="0"
+          aria-live="polite"
+          aria-atomic="true">
+        </pre>
 
       </div>
     </div>
