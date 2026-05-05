@@ -27,7 +27,8 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'about', groups: [ 'about' ] }
     ];
 
-    config.removeButtons = 'NewPage,Preview,Scayt,HiddenField,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,CreateDiv,Flash,Smiley,SpecialChar,PageBreak,Iframe,About,Templates,Save,Print';
+    config.removeButtons = 'NewPage,Preview,Scayt,HiddenField,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,CreateDiv,Flash,Smiley,SpecialChar,PageBreak,Iframe,About,Templates,Save,Print,ExportPdf';
+    config.removePlugins = 'exportpdf';
 
     config.height = 500;
 
