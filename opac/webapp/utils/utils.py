@@ -16,7 +16,7 @@ from citeproc import (Citation, CitationItem, CitationStylesBibliography,
                       CitationStylesStyle, formatter)
 from citeproc.source.json import CiteProcJSON
 from citeproc_styles import get_style_filepath
-from flask import current_app, render_template
+from flask import current_app, has_app_context, render_template
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from legendarium.urlegendarium import URLegendarium
@@ -41,6 +41,7 @@ REGEX_EMAIL = re.compile(
     re.IGNORECASE,
 )  # RFC 2822 (simplified)
 logger = logging.getLogger(__name__)
+DEFAULT_FETCH_DATA_TIMEOUT = 10
 
 
 class RetryableError(Exception):
@@ -705,7 +706,15 @@ def render_citation(csl_json, style="apa", formatter=formatter.html, validate=Fa
     wait=wait_exponential(multiplier=1, min=1, max=5),
     stop=stop_after_attempt(5),
 )
-def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
+def _get_fetch_data_timeout(timeout=None):
+    if timeout is not None:
+        return timeout
+    if has_app_context():
+        return current_app.config.get("FETCH_DATA_TIMEOUT", DEFAULT_FETCH_DATA_TIMEOUT)
+    return int(os.environ.get("OPAC_FETCH_DATA_TIMEOUT", DEFAULT_FETCH_DATA_TIMEOUT))
+
+
+def fetch_data(url, headers=None, json=False, timeout=None, verify=True):
     """
     Get the resource with HTTP
     Retry: Wait 2^x * 1 second between each retry starting with 4 seconds,
@@ -714,6 +723,7 @@ def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
         url: URL address
         headers: HTTP headers
         json: True|False
+        timeout: HTTP request timeout in seconds.
         verify: Verify the SSL.
     Returns:
         Return a requests.response object.
@@ -723,6 +733,7 @@ def fetch_data(url, headers=None, json=False, timeout=4, verify=True):
 
     try:
         logger.info("Fetching the URL: %s" % url)
+        timeout = _get_fetch_data_timeout(timeout)
         response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
         logger.error("Erro fetching the content: %s, retry..., erro: %s" % (url, exc))
@@ -789,4 +800,3 @@ def fetch_and_extract_section(collection_acronym, journal_acronym, language):
     content = fetch_data(url=url)
 
     return extract_section(content, class_name)
-

@@ -110,6 +110,7 @@ ALERT_MSG_ES=Nuevo portal puede contener incorrecciones
 |        OPAC_SSM_PORT  	|         80  	|          80, 8000           	|       21/11/2021           	|        Dominio/FQDN da conexão com SSM.    |
 |        OPAC_SSM_MEDIA_PATH  	|         '/media/assets/'  	|          '/media/assets/', '/media/files/'           	|       21/11/2021           	|        Path da pasta media do assests no SSM.    |
 |        OPAC_SSM_XML_URL_REWRITE  	|         True  	|          True/False            	|       21/11/2021           	|        Troca o scheme + authority da URL armazenada em Article.xml por `OPAC_SSM_SCHEME + '://' + OPAC_SSM_DOMAIN + ':' + OPAC_SSM_PORT`.    |
+|        OPAC_FETCH_DATA_TIMEOUT  	|         10  	|          10, 30, 60            	|       04/05/2026           	|        Timeout em segundos para requisicoes feitas por fetch_data, incluindo SSM/Kernel.    |
 |        OPAC_SERVER_NAME  	|         None  	|          www.scielo.br, www.scielosp.org            	|       21/11/2021           	|        Nome: IP do servidor    |
 |        OPAC_SESSION_COOKIE_DOMAIN  	|         OPAC_SERVER_NAME  	|          www.scielo.br, www.scielosp.org            	|       21/11/2021           	|        O dominio para a cookie da sessão     |
 |        OPAC_SESSION_COOKIE_HTTPONLY  	|         True  	|          True/False            	|       21/11/2021           	|        Seta a flag: httponly da cookie.     |

@@ -118,6 +118,9 @@ import ast
         - OPAC_SSM_MEDIA_PATH: Path da pasta media do assests no SSM. Ex. '/media/assets/' -  (default: '/media/assets/')
         - OPAC_SSM_XML_URL_REWRITE: Troca o scheme + authority da URL armazenada em Article.xml por `OPAC_SSM_SCHEME + '://' + OPAC_SSM_DOMAIN + ':' + OPAC_SSM_PORT`. Variável booleana: 'False' (default: 'True')
 
+      - Requisições HTTP:
+        - OPAC_FETCH_DATA_TIMEOUT: timeout em segundos para requisições feitas por fetch_data, incluindo SSM/Kernel. (default: 10)
+
       - Cookie de Sessão: (http://flask.pocoo.org/docs/0.12/config/#builtin-configuration-values)
         - OPAC_SERVER_NAME: Nome:IP do servidor - (default: None)
         - OPAC_SESSION_COOKIE_DOMAIN: o dominio para a cookie da sessão (default: OPAC_SERVER_NAME)
@@ -495,6 +498,7 @@ SSM_PORT = os.environ.get("OPAC_SSM_PORT", "443")
 SSM_MEDIA_PATH = os.environ.get("OPAC_SSM_MEDIA_PATH", "/media/assets/")
 SSM_XML_URL_REWRITE = os.environ.get("OPAC_SSM_XML_URL_REWRITE", "True") == "True"
 SSM_ARTICLE_ASSETS_OR_RENDITIONS_URL_REWRITE = SSM_XML_URL_REWRITE
+FETCH_DATA_TIMEOUT = int(os.environ.get("OPAC_FETCH_DATA_TIMEOUT", 10))
 
 HTML_GENERATOR_VERSION = os.environ.get("HTML_GENERATOR_VERSION", "3.0")
 
@@ -692,5 +696,4 @@ SITE_LICENSE_IMG_MINI_URL = os.environ.get("OPAC_SITE_LICENSE_IMG_MINI_URL") or 
 # Lê a variável e compara com 'True', 'true', '1', etc.
 ANALYTICS_AGENT_DARKVISITORS_ENABLED = os.environ.get('OPAC_ANALYTICS_AGENT_DARKVISITORS_ENABLED', 'False').lower() in ('true', '1', 't', 'yes', 'y')
 ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY = os.environ.get("OPAC_ANALYTICS_AGENT_DARKVISITORS_PROJECT_KEY")
-
 

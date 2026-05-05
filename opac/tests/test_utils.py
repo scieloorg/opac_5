@@ -3,6 +3,7 @@
 from unittest.mock import Mock, patch
 
 import webapp
+from flask import current_app
 from webapp import utils as wutils
 
 from . import utils
@@ -10,6 +11,28 @@ from .base import BaseTestCase
 
 
 class UtilsTestCase(BaseTestCase):
+    @patch("requests.get")
+    def test_fetch_data_uses_configured_timeout(self, mocked_requests_get):
+        original_timeout = current_app.config.get("FETCH_DATA_TIMEOUT")
+        current_app.config["FETCH_DATA_TIMEOUT"] = 30
+        mocked_response = Mock()
+        mocked_response.content = b"content"
+        mocked_response.raise_for_status.return_value = None
+        mocked_requests_get.return_value = mocked_response
+
+        try:
+            content = wutils.fetch_data("https://kernel.scielo.br/documents/abc")
+        finally:
+            current_app.config["FETCH_DATA_TIMEOUT"] = original_timeout
+
+        self.assertEqual(b"content", content)
+        mocked_requests_get.assert_called_once_with(
+            "https://kernel.scielo.br/documents/abc",
+            headers=None,
+            timeout=30,
+            verify=True,
+        )
+
     # Issue
     def test_get_prev_issue(self):
         """
