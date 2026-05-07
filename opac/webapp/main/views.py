@@ -669,6 +669,54 @@ def about_journal(url_seg):
     return render_template("journal/about.html", **context)
 
 
+@main.route("/j/<string:url_seg>/update_policy/", methods=["GET"])
+@cache.cached(key_prefix=cache_key_with_lang)
+def update_policy(url_seg):
+    language = session.get("lang", get_locale())
+    journal = controllers.get_journal_by_url_seg(url_seg)
+
+    if not journal:
+        abort(404, _("Periódico não encontrado"))
+
+    if not journal.is_public:
+        abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
+
+    page = controllers.get_update_policy_page_by_journal_acron_lang(
+        journal.acronym, language
+    )
+
+    if not page:
+        abort(404, _("Página não encontrada"))
+
+    controllers.set_last_issue_and_issue_count(journal)
+
+    latest_issue = journal.last_issue
+
+    if latest_issue:
+        latest_issue_legend = descriptive_short_format(
+            title=journal.title,
+            short_title=journal.short_title,
+            pubdate=str(latest_issue.year),
+            volume=latest_issue.volume,
+            number=latest_issue.number,
+            suppl=latest_issue.suppl_text,
+            language=language[:2].lower(),
+        )
+    else:
+        latest_issue_legend = None
+
+    context = {
+        "journal": journal,
+        "latest_issue_legend": latest_issue_legend,
+        "last_issue": latest_issue,
+        "journal_study_areas": [
+            STUDY_AREAS.get(study_area.upper()) for study_area in journal.study_areas
+        ],
+        "page": page,
+    }
+    return render_template("journal/update_policy.html", **context)
+
+
 @main.route(
     "/journals/search/alpha/ajax/",
     methods=[
