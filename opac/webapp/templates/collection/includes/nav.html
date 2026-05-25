@@ -1,17 +1,29 @@
 {% import 'macros/images.html' as img_macro %}
 {% import 'macros/collection.html' as coll_macro %}
 
-<details class="scielo__accessibleMenu" id="scieloMainMenu">
-  <summary
-    id="scieloMainMenuSummary"
-    aria-controls="scieloMainMenuNav">
-    <span class="menu-icon" aria-hidden="true"></span>
+
+<div class="scielo__accessibleMenu2 position-relative d-inline-block mt-3" id="scieloMainMenu">
+  <button
+    type="button"
+    id="scieloMainMenuToggle"
+    class="scielo__accessibleMenu2__toggle btn btn-sm mt-1 mb-0 btn-secondary d-inline-flex align-items-center gap-2"
+    aria-controls="scieloMainMenuNav2"
+    aria-expanded="false">
+
+    <span class="material-icons-outlined" aria-hidden="true">
+      menu
+    </span>
     <span>{% trans %}Menu{% endtrans %}</span>
-  </summary>
+    
+  </button>
 
   <nav
-    id="scieloMainMenuNav"
-    aria-labelledby="scieloMainMenuSummary">
+    id="scieloMainMenuNav2"
+    class="scielo__accessibleMenu2__nav position-absolute top-100 start-0 mt-2 bg-white border rounded-3 shadow p-3"
+    style="min-width: 320px; z-index: 1040;"
+    aria-label="Menu principal"
+    hidden>
+
     <ul>
       <li class="logo">
         {%- set menu_logo_url = img_macro.get_menu_logo(g.collection, session.lang)|default('')|trim -%}
@@ -156,27 +168,120 @@
       </li>
     </ul>
   </nav>
-</details>
-
+</div>
 <script>
-  (function () {
-    const details = document.getElementById('scieloMainMenu');
-    if (!details) return;
+  document.addEventListener('DOMContentLoaded', function () {
+    const wrapper = document.getElementById('scieloMainMenu');
+    const toggle = document.getElementById('scieloMainMenuToggle');
+    const panel = document.getElementById('scieloMainMenuNav2');
 
-    const summary = document.getElementById('scieloMainMenuSummary');
-    if (!summary) return;
+    if (!wrapper || !toggle || !panel) return;
+
+    const icon = toggle.querySelector('.material-icons-outlined');
+    const focusableSelector = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+
+    function setIcon(iconName) {
+      if (icon) {
+        icon.textContent = iconName;
+      }
+    }
+
+    function getFocusableItems() {
+      return Array.prototype.slice.call(panel.querySelectorAll(focusableSelector))
+        .filter(function (item) {
+          return item.offsetParent !== null;
+        });
+    }
+
+    function openMenu() {
+      panel.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+      wrapper.classList.add('is-open');
+      setIcon('close');
+
+      const focusableItems = getFocusableItems();
+      if (focusableItems.length) {
+        focusableItems[0].focus();
+      }
+    }
+
+    function closeMenu(options) {
+      const settings = options || {};
+
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      wrapper.classList.remove('is-open');
+      setIcon('menu');
+
+      if (settings.restoreFocus) {
+        toggle.focus();
+      }
+    }
+
+    function isMenuOpen() {
+      return toggle.getAttribute('aria-expanded') === 'true';
+    }
+
+    toggle.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (isMenuOpen()) {
+        closeMenu({ restoreFocus: true });
+      } else {
+        openMenu();
+      }
+    });
+
+    panel.addEventListener('click', function (event) {
+      event.stopPropagation();
+    });
 
     document.addEventListener('click', function (event) {
-      if (!details.contains(event.target) && details.open) {
-        details.open = false;
+      if (isMenuOpen() && !wrapper.contains(event.target)) {
+        closeMenu();
       }
     });
 
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && details.open) {
-        details.open = false;
-        summary.focus();
+      if (!isMenuOpen()) return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu({ restoreFocus: true });
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusableItems = getFocusableItems();
+      if (!focusableItems.length) return;
+
+      const firstItem = focusableItems[0];
+      const lastItem = focusableItems[focusableItems.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstItem) {
+        event.preventDefault();
+        toggle.focus();
+        return;
+      }
+
+      if (!event.shiftKey && document.activeElement === toggle) {
+        event.preventDefault();
+        firstItem.focus();
+        return;
+      }
+
+      if (!event.shiftKey && document.activeElement === lastItem) {
+        closeMenu();
       }
     });
-  })();
+  });
 </script>
