@@ -1979,6 +1979,7 @@ def router_counter_dicts():
         limit = 100
 
     journal_id = request.args.get("journal_id", type=str)
+    journal_acronym = request.args.get("journal", type=str)
 
     results = {
         "dictionary_date": end_date,
@@ -1989,7 +1990,12 @@ def router_counter_dicts():
     }
 
     articles = controllers.get_articles_by_date_range(
-        begin_date, end_date, page, limit, journal_id=journal_id
+        begin_date,
+        end_date,
+        page,
+        limit,
+        journal_id=journal_id,
+        journal_acronym=journal_acronym,
     )
     for a in articles.items:
         results["documents"].update(get_article_counter_data(a))
