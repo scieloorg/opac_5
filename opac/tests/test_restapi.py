@@ -570,6 +570,60 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
 
 class RestAPICounterDictTestCase(BaseTestCase):
 
+    def test_counter_dict_filter_by_journal_acronym(self):
+        """Test that counter_dict returns only articles for the given journal acronym."""
+        with current_app.app_context():
+            journal_a = makeOneJournal({"_id": "1111-1111", "acronym": "jrn-a"})
+            journal_b = makeOneJournal({"_id": "2222-2222", "acronym": "jrn-b"})
+
+            now = datetime.datetime.now()
+            makeOneArticle({
+                "_id": "art-a1",
+                "aid": "art-a1",
+                "journal": journal_a,
+                "updated": now,
+            })
+            makeOneArticle({
+                "_id": "art-b1",
+                "aid": "art-b1",
+                "journal": journal_b,
+                "updated": now,
+            })
+
+            with self.client as client:
+                response = client.get(
+                    url_for("restapi.router_counter_dicts", journal="jrn-a"),
+                    follow_redirects=True,
+                )
+                self.assertEqual(response.status_code, 200)
+                data = response.get_json()
+                self.assertEqual(data["total"], 1)
+                self.assertIn("art-a1", data["documents"])
+                self.assertNotIn("art-b1", data["documents"])
+
+    def test_counter_dict_filter_by_nonexistent_journal_acronym(self):
+        """Test that counter_dict returns no articles for a non-existent journal acronym."""
+        with current_app.app_context():
+            journal_a = makeOneJournal({"_id": "1111-1111", "acronym": "jrn-a"})
+
+            now = datetime.datetime.now()
+            makeOneArticle({
+                "_id": "art-a1",
+                "aid": "art-a1",
+                "journal": journal_a,
+                "updated": now,
+            })
+
+            with self.client as client:
+                response = client.get(
+                    url_for("restapi.router_counter_dicts", journal="unknown"),
+                    follow_redirects=True,
+                )
+                self.assertEqual(response.status_code, 200)
+                data = response.get_json()
+                self.assertEqual(data["total"], 0)
+                self.assertEqual(data["documents"], {})
+
     def test_counter_dict_filter_by_journal_id(self):
         """Test that counter_dict returns only articles for the given journal_id."""
         with current_app.app_context():
