@@ -1863,6 +1863,7 @@ def get_article_counter_data(article):
             "pid_v3": article.scielo_pids.get("v3", ""),
             "publication_date": article.publication_date,
             "default_language": article.original_language,
+            "status": article.is_public,
             "create": article.created,
             "update": article.updated,
         }
