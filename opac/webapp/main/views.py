@@ -908,9 +908,7 @@ def issue_toc(url_seg, url_seg_issue):
     articles = controllers.get_articles_by_iid(issue.iid, is_public=True)
 
     # obtém todas as seções
-    sections = sorted(
-        {s.upper() for s in articles.item_frequencies("section", normalize=True).keys()}
-    )
+    sections = sorted({s.upper() for s in articles.distinct("section") if s})
 
     # obtém os documentos da seção selecionada
     try:
