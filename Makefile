@@ -53,7 +53,7 @@ opac_version:
 .PHONY: venv
 venv:
 	@rm -Rf venv
-	@python3 -m venv venv --prompt opac
+	@python3.11 -m venv venv --prompt opac
 	@/bin/bash -c "source venv/bin/activate && pip install pip --upgrade && pip install -r requirements.dev.txt && pip install -r requirements.txt"
 	@echo "Enter virtual environment using:\n\n\t$ source venv/bin/activate\n"
 
