@@ -21,11 +21,11 @@ else
 endif
 
 COMPOSE_FILES := docker-compose.yml docker-compose-dev.yml
+compose ?= docker-compose-dev.yml
 
-ifeq ($(filter $(COMPOSE_FILES),$(compose)),)
-  @echo "Arquivo docker-compose inválido:" $(compose)
+ifneq ($(filter $(COMPOSE_FILES),$(compose)),)
 else
-  DOCKER_COMPOSE_FILE := $(compose) 
+  $(error Arquivo docker-compose inválido: '$(compose)'. Valores aceitos: $(COMPOSE_FILES))
 endif
 
 ifeq ($(compose),docker-compose.yml)
@@ -224,6 +224,11 @@ logs_tail:
 .PHONY: stop
 stop:
 	$(DOCKER_COMPOSE) -f $(compose) stop
+
+# help: down           	               - stop and remove containers and networks
+.PHONY: down
+down:
+	$(DOCKER_COMPOSE) -f $(compose) down
 
 # help: ps           	               - show the containers Process Status
 .PHONY: ps
