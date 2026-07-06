@@ -25,9 +25,16 @@ class HeaderTestCase(BaseTestCase):
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
-                self.assertIn(b"lang-en", response.data)
-                self.assertIn(b"lang-es", response.data)
-                self.assertNotIn(b"lang-pt", response.data)
+                self.assertIn(
+                    url_for("main.set_locale", lang_code="en").encode(), response.data
+                )
+                self.assertIn(
+                    url_for("main.set_locale", lang_code="es").encode(), response.data
+                )
+                self.assertNotIn(
+                    url_for("main.set_locale", lang_code="pt_BR").encode(),
+                    response.data,
+                )
 
     def test_current_language_when_set_en(self):
         """
@@ -47,9 +54,16 @@ class HeaderTestCase(BaseTestCase):
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
-                self.assertIn(b"lang-pt", response.data)
-                self.assertIn(b"lang-es", response.data)
-                self.assertNotIn(b"lang-en", response.data)
+                self.assertIn(
+                    url_for("main.set_locale", lang_code="pt_BR").encode(),
+                    response.data,
+                )
+                self.assertIn(
+                    url_for("main.set_locale", lang_code="es").encode(), response.data
+                )
+                self.assertNotIn(
+                    url_for("main.set_locale", lang_code="en").encode(), response.data
+                )
 
     def test_current_language_when_set_es(self):
         """
@@ -69,6 +83,13 @@ class HeaderTestCase(BaseTestCase):
                 self.assertStatus(response, 200)
 
                 self.assertTemplateUsed("collection/index.html")
-                self.assertIn(b"lang-pt", response.data)
-                self.assertIn(b"lang-en", response.data)
-                self.assertNotIn(b"lang-es", response.data)
+                self.assertIn(
+                    url_for("main.set_locale", lang_code="pt_BR").encode(),
+                    response.data,
+                )
+                self.assertIn(
+                    url_for("main.set_locale", lang_code="en").encode(), response.data
+                )
+                self.assertNotIn(
+                    url_for("main.set_locale", lang_code="es").encode(), response.data
+                )

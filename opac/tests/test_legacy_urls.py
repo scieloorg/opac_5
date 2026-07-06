@@ -216,17 +216,14 @@ class LegacyURLTestCase(BaseTestCase):
 
                 self.assertStatus(response, 301)
 
-    @patch("requests.get")
-    def test_article_pdf(self, mocked_requests_get):
+    @patch("webapp.utils.utils.fetch_data")
+    def test_article_pdf(self, mock_fetch_data):
         """
         Testa o acesso ao PDF pela URL antiga verificando em todas as versões do pid
         campo ``scielo_pids``.
         URL testa: scielo.php?script=sci_pdf&pid=ISSN + ID DO número + ID DO ARTIGO
         """
-        mocked_response = Mock()
-        mocked_response.status_code = 200
-        mocked_response.content = b"<pdf>"
-        mocked_requests_get.return_value = mocked_response
+        mock_fetch_data.return_value = b"<pdf>"
 
         with current_app.app_context():
             journal = utils.makeOneJournal({"print_issn": "0000-0000"})
@@ -240,6 +237,7 @@ class LegacyURLTestCase(BaseTestCase):
                     "journal": journal.id,
                     "issue": issue.id,
                     "original_language": "en",
+                    "languages": ["en"],
                     "pid": "0000-00000000000000001",
                     "pdfs": [
                         {
@@ -259,18 +257,15 @@ class LegacyURLTestCase(BaseTestCase):
 
                 self.assertStatus(response, 200)
 
-    @patch("requests.get")
-    def test_article_pdf_with_tlng(self, mocked_requests_get):
+    @patch("webapp.utils.utils.fetch_data")
+    def test_article_pdf_with_tlng(self, mock_fetch_data):
         """
         Testa o acesso ao PDF pela URL antiga verificando em todas as versões do pid
         campo ``scielo_pids`` e considerando o idioma do PDF e garante que o redirect para o a URL PID v3 está correta.
         URL testa: scielo.php?script=sci_pdf&pid=ISSN + ID DO número + ID DO ARTIGO&tlng=LANG CODE ["pt", "es", "en"]
         """
 
-        mocked_response = Mock()
-        mocked_response.status_code = 200
-        mocked_response.content = b"<es_content>"
-        mocked_requests_get.return_value = mocked_response
+        mock_fetch_data.return_value = b"<es_content>"
 
         with current_app.app_context():
             journal = utils.makeOneJournal({"print_issn": "0000-0000"})
@@ -285,6 +280,7 @@ class LegacyURLTestCase(BaseTestCase):
                     "journal": journal.id,
                     "issue": issue.id,
                     "original_language": "en",
+                    "languages": ["en", "pt", "es"],
                     "pid": "0000-00000000000000001",
                     "pdfs": [
                         {
@@ -331,18 +327,15 @@ class LegacyURLTestCase(BaseTestCase):
                 self.assertEqual(urlparse(response.location).path, expectedPath)
                 self.assertEqual(urlparse(response.location).query, expectedQuery)
 
-    @patch("requests.get")
-    def test_article_pdf_without_tlng(self, mocked_requests_get):
+    @patch("webapp.utils.utils.fetch_data")
+    def test_article_pdf_without_tlng(self, mock_fetch_data):
         """
         Testa o acesso ao PDF pela URL antiga sem o tlng, considera o idioma original
         quando não existe o tlng.
         URL testa: scielo.php?script=sci_pdf&pid=ISSN + ID DO número + ID DO ARTIGO
         """
 
-        mocked_response = Mock()
-        mocked_response.status_code = 200
-        mocked_response.content = b"<en_content>"
-        mocked_requests_get.return_value = mocked_response
+        mock_fetch_data.return_value = b"<en_content>"
 
         with current_app.app_context():
             journal = utils.makeOneJournal({"print_issn": "0000-0000"})
@@ -357,6 +350,7 @@ class LegacyURLTestCase(BaseTestCase):
                     "journal": journal.id,
                     "issue": issue.id,
                     "original_language": "en",
+                    "languages": ["en", "pt", "es"],
                     "pid": "0000-00000000000000001",
                     "pdfs": [
                         {
@@ -403,18 +397,15 @@ class LegacyURLTestCase(BaseTestCase):
                 self.assertEqual(urlparse(response.location).path, expectedPath)
                 self.assertEqual(urlparse(response.location).query, expectedQuery)
 
-    @patch("requests.get")
-    def test_article_pdf_when_dont_have_the_pdf_translation(self, mocked_requests_get):
+    @patch("webapp.utils.utils.fetch_data")
+    def test_article_pdf_when_dont_have_the_pdf_translation(self, mock_fetch_data):
         """
         Testa o acesso ao PDF pela URL antiga verificando em todas as versões do pid
         campo ``scielo_pids`` e retornando o primeiro encontrado quando não existe a traduçã
         URL testa: scielo.php?script=sci_pdf&pid=ISSN + ID DO número + ID DO ARTIGO&tlng=LANG CODE ["pt", "es", "en"]
         """
 
-        mocked_response = Mock()
-        mocked_response.status_code = 200
-        mocked_response.content = b"<content>"
-        mocked_requests_get.return_value = mocked_response
+        mock_fetch_data.return_value = b"<content>"
 
         with current_app.app_context():
             journal = utils.makeOneJournal({"print_issn": "0000-0000"})
@@ -429,6 +420,7 @@ class LegacyURLTestCase(BaseTestCase):
                     "journal": journal.id,
                     "issue": issue.id,
                     "original_language": "en",
+                    "languages": ["en", "pt", "es"],
                     "pid": "0000-00000000000000001",
                     "pdfs": [
                         {
@@ -468,8 +460,7 @@ class LegacyURLTestCase(BaseTestCase):
 
                 response = c.get(url, follow_redirects=True)
 
-                self.assertStatus(response, 200)
-                self.assertEqual(response.data, b"<content>")
+                self.assertStatus(response, 404)
 
     @patch("requests.get")
     def test_article_pdf_looking_scielo_pids(self, mocked_requests_get):
@@ -612,7 +603,8 @@ class LegacyURLTestCase(BaseTestCase):
 
                 self.assertStatus(response, 301)
 
-    def test_article_text_with_lng(self):
+    @patch("webapp.main.views.render_html", return_value=("conteúdo do artigo", ["pt", "en"]))
+    def test_article_text_with_lng(self, mock_render_html):
         """
         Testa o acesso ao artigo pela URL antiga.
         URL testa: scielo.php?script=sci_arttext&pid=ISSN + ID DO número + ID  + idioma DO ARTIGO
@@ -631,6 +623,7 @@ class LegacyURLTestCase(BaseTestCase):
                     "journal": journal.id,
                     "issue": issue.id,
                     "pid": "0000-00002016000100251",
+                    "languages": ["pt", "en"],
                 }
             )
 
@@ -678,7 +671,8 @@ class LegacyURLTestCase(BaseTestCase):
 
                 self.assertStatus(response, 301)
 
-    def test_article_abstract(self):
+    @patch("webapp.main.views.render_html", return_value=("Texto do abstract", ["pt"]))
+    def test_article_abstract(self, mock_render_html):
         """
         Testa o acesso ao abstract do artigo pela URL antiga.
         URL testa: scielo.php?script=sci_abstract&pid=ISSN + ID DO número + ID DO ARTIGO
@@ -699,6 +693,7 @@ class LegacyURLTestCase(BaseTestCase):
                     "abstracts": [
                         {"language": "pt", "text": "Texto do abstract"},
                     ],
+                    "abstract_languages": ["pt"],
                 }
             )
 

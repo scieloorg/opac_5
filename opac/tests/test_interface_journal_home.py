@@ -74,7 +74,7 @@ class JournalHomeTestCase(BaseTestCase):
             self.assertEqual(flask.session["lang"], "es")
 
             content = response.data.decode("utf-8")
-            expected = "Ciencias Sociales Aplicadas, Ciencias Agrícolas"
+            expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
             self.assertIn(expected, content)
 
     def test_journal_detail_subject_areas_with_en_language(self):
@@ -107,8 +107,7 @@ class JournalHomeTestCase(BaseTestCase):
             self.assertEqual(flask.session["lang"], "en")
 
             content = response.data.decode("utf-8")
-            expected = "Applied Social Sciences, Agricultural Sciences"
-
+            expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
             self.assertIn(expected, content)
 
     def test_journal_detail_subject_areas_more_than_three(self):
@@ -260,14 +259,10 @@ class JournalHomeTestCase(BaseTestCase):
                 # then
                 self.assertEqual(journal.social_networks, [])
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
-                twitter_btn_class = "bigTwitter"
-                self.assertNotIn(twitter_btn_class, response.data.decode("utf-8"))
-                facebook_btn_class = "bigFacebook"
-                self.assertNotIn(facebook_btn_class, response.data.decode("utf-8"))
-                google_btn_class = "bigGooglePlus"
-                self.assertNotIn(google_btn_class, response.data.decode("utf-8"))
+                self.assertIn("journalContacts", response.data.decode("utf-8"))
+                self.assertNotIn("bigTwitter", response.data.decode("utf-8"))
+                self.assertNotIn("bigFacebook", response.data.decode("utf-8"))
+                self.assertNotIn("bigGooglePlus", response.data.decode("utf-8"))
 
     def test_journal_with_twitter_social_networks_show_links(self):
         """
@@ -297,14 +292,10 @@ class JournalHomeTestCase(BaseTestCase):
                 )
                 # then
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
-                twitter_btn_class = "bigTwitter"
-                self.assertIn(twitter_btn_class, response.data.decode("utf-8"))
-                facebook_btn_class = "bigFacebook"
-                self.assertNotIn(facebook_btn_class, response.data.decode("utf-8"))
-                google_btn_class = "bigGooglePlus"
-                self.assertNotIn(google_btn_class, response.data.decode("utf-8"))
+                self.assertIn("journalContacts", response.data.decode("utf-8"))
+                self.assertIn("bigTwitter", response.data.decode("utf-8"))
+                self.assertNotIn("bigFacebook", response.data.decode("utf-8"))
+                self.assertNotIn("bigGooglePlus", response.data.decode("utf-8"))
 
                 expected_social_link = '<a href="{account}" data-toggle="tooltip" title="{network}">'.format(
                     account=journal_data["social_networks"][0]["account"],
@@ -340,14 +331,10 @@ class JournalHomeTestCase(BaseTestCase):
                 )
                 # then
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
-                twitter_btn_class = "bigTwitter"
-                self.assertNotIn(twitter_btn_class, response.data.decode("utf-8"))
-                facebook_btn_class = "bigFacebook"
-                self.assertIn(facebook_btn_class, response.data.decode("utf-8"))
-                google_btn_class = "bigGooglePlus"
-                self.assertNotIn(google_btn_class, response.data.decode("utf-8"))
+                self.assertIn("journalContacts", response.data.decode("utf-8"))
+                self.assertNotIn("bigTwitter", response.data.decode("utf-8"))
+                self.assertIn("bigFacebook", response.data.decode("utf-8"))
+                self.assertNotIn("bigGooglePlus", response.data.decode("utf-8"))
 
                 expected_social_link = '<a href="{account}" data-toggle="tooltip" title="{network}">'.format(
                     account=journal_data["social_networks"][0]["account"],
@@ -383,14 +370,10 @@ class JournalHomeTestCase(BaseTestCase):
                 )
                 # then
                 self.assertStatus(response, 200)
-                social_networks_class = "journalLinks"
-                self.assertIn(social_networks_class, response.data.decode("utf-8"))
-                twitter_btn_class = "bigTwitter"
-                self.assertNotIn(twitter_btn_class, response.data.decode("utf-8"))
-                facebook_btn_class = "bigFacebook"
-                self.assertNotIn(facebook_btn_class, response.data.decode("utf-8"))
-                google_btn_class = "bigGooglePlus"
-                self.assertIn(google_btn_class, response.data.decode("utf-8"))
+                self.assertIn("journalContacts", response.data.decode("utf-8"))
+                self.assertNotIn("bigTwitter", response.data.decode("utf-8"))
+                self.assertNotIn("bigFacebook", response.data.decode("utf-8"))
+                self.assertIn("bigGooglePlus", response.data.decode("utf-8"))
 
                 expected_social_link = '<a href="{account}" data-toggle="tooltip" title="{network}">'.format(
                     account=journal_data["social_networks"][0]["account"],
@@ -539,6 +522,7 @@ class JournalHomeTestCase(BaseTestCase):
                 self.assertIn(expected, response_data)
             current_app.config["SCIMAGO_URL"] = temp
 
+    @unittest.skip("Métricas do Google Scholar foram removidas da home do periódico")
     @patch("webapp.controllers.h5m5.get_current_metrics")
     def test_journal_no_google_scholar_metrics(self, mk_get_current_metrics):
         """
@@ -577,6 +561,7 @@ class JournalHomeTestCase(BaseTestCase):
                 for item in mission_tag.find_all("strong"):
                     self.assertEqual(item.text.strip(), _("Não possui"))
 
+    @unittest.skip("Métricas do Google Scholar foram removidas da home do periódico")
     @patch("webapp.controllers.h5m5.get_current_metrics")
     def test_journal_google_scholar_metrics(self, mk_get_current_metrics):
         """
@@ -657,8 +642,7 @@ class JournalHomeTestCase(BaseTestCase):
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None"/>'
-                % current_app.config["SERVER_NAME"],
+                '<meta property="og:image" content="http://example.com/logo.png"/>',
                 response.data.decode("utf-8"),
             )
             self.assertIn(

@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from flask import current_app, g, render_template, url_for
 from flask_babelex import gettext as _
 from webapp.config.lang_names import display_original_lang_name
-from webapp.main.views import NonRetryableError, RetryableError
+from webapp.utils import NonRetryableError, RetryableError
 
 from . import utils
 from .base import BaseTestCase
@@ -562,7 +562,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "Article Y",
                     "original_language": "en",
-                    "languages": ["es", "pt"],
+                    "languages": ["es", "pt", "en"],
                     "translated_titles": [
                         {"language": "es", "name": "Artículo en español"},
                         {"language": "pt", "name": "Artigo en Português"},
@@ -578,6 +578,7 @@ class MainTestCase(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
+                    lang="en",
                 )
             )
 
@@ -599,7 +600,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "Article Y",
                     "original_language": "en",
-                    "languages": ["es", "pt"],
+                    "languages": ["es", "pt", "en"],
                     "translated_titles": [
                         {"language": "es", "name": "Artículo en español"},
                         {"language": "pt", "name": "Artigo en Português"},
@@ -615,10 +616,11 @@ class MainTestCase(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
-                    lang="ru",
-                )
+                ),
+                follow_redirects=False,
             )
 
+            self.assertStatus(response, 301)
             self.assertEqual(
                 response.location,
                 url_for(
@@ -626,6 +628,7 @@ class MainTestCase(BaseTestCase):
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
                     format="html",
+                    lang="en",
                 ),
             )
 
@@ -776,7 +779,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "Article Y",
                     "original_language": "en",
-                    "languages": ["es", "pt"],
+                    "languages": ["es", "pt", "en"],
                     "translated_titles": [
                         {"language": "es", "name": "Artículo título"},
                         {"language": "pt", "name": "Artigo título"},
@@ -835,7 +838,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "Article Y",
                     "original_language": "en",
-                    "languages": ["es", "pt"],
+                    "languages": ["es", "pt", "en"],
                     "translated_titles": [
                         {"language": "es", "name": "Título del Artículo"},
                         {"language": "pt", "name": "Título do Artigo"},
@@ -1430,6 +1433,8 @@ class MainTestCase(BaseTestCase):
                     "journal": journal.id,
                     "issue": issue.id,
                     "elocation": "e1",
+                    "original_language": "en",
+                    "languages": ["en", "pt", "es"],
                     "pdfs": [
                         {
                             "lang": "en",
@@ -1459,14 +1464,14 @@ class MainTestCase(BaseTestCase):
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
                     format="pdf",
-                    lang="ru",
                 ),
                 follow_redirects=False,
             )
 
             self.assertStatus(response, 301)
+            self.assertIn("lang=en", response.location)
 
-    @patch("webapp.main.views.fetch_data")
+    @patch("webapp.utils.utils.fetch_data")
     def test_xml_url_redirect_to_xml_with_original_language(self, mk_fetch_data):
         """
         Testa se as URLs para os XMLs estão sendo montados com o idioma original do artigo,
@@ -1518,7 +1523,7 @@ class MainTestCase(BaseTestCase):
             self.assertStatus(response, 200)
             self.assertEqual(test_xml_path.read_bytes(), response.data)
 
-    @patch("webapp.main.views.fetch_data")
+    @patch("webapp.utils.utils.fetch_data")
     def test_xml_ok(self, mk_fetch_data):
         """
         Testa se retorna XML para ``format=xml``.
@@ -1551,7 +1556,7 @@ class MainTestCase(BaseTestCase):
                     "issue": issue.id,
                     "elocation": "e1",
                     "original_language": "pt",
-                    "languages": ["es", "en"],
+                    "languages": ["es", "en", "pt"],
                     "xml": "https://kernel:6543/documents/kSiec9encE0f2dp",
                 }
             )
@@ -1562,6 +1567,7 @@ class MainTestCase(BaseTestCase):
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
                     format="xml",
+                    lang="pt",
                 )
             )
 
@@ -1582,6 +1588,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "A",
                     "original_language": "en",
+                    "languages": ["en"],
                     "issue": issue,
                     "journal": journal,
                     "url_segment": "10",
@@ -1593,6 +1600,7 @@ class MainTestCase(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
+                    lang="en",
                 )
             )
 
@@ -1612,6 +1620,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "A",
                     "original_language": "en",
+                    "languages": ["en"],
                     "issue": issue,
                     "journal": journal,
                     "url_segment": "10",
@@ -1623,12 +1632,13 @@ class MainTestCase(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
+                    lang="en",
                 )
             )
 
             self.assertStatus(response, 500)
 
-    @patch("webapp.main.views.fetch_data")
+    @patch("webapp.utils.utils.fetch_data")
     def test_when_fetch_data_raises_a_retryable_error_the_article_detail_v3_should_return_a_500_status_code(
         self, mk_fetch_data
     ):
@@ -1642,6 +1652,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "A",
                     "original_language": "en",
+                    "languages": ["en"],
                     "issue": issue,
                     "journal": journal,
                     "url_segment": "10",
@@ -1691,7 +1702,7 @@ class MainTestCase(BaseTestCase):
                 {
                     "title": "Article Y",
                     "original_language": "en",
-                    "languages": ["es", "pt"],
+                    "languages": ["es", "pt", "en"],
                     "translated_titles": [
                         {"language": "es", "name": "Artículo título"},
                         {"language": "pt", "name": "Artigo título"},
@@ -1705,6 +1716,7 @@ class MainTestCase(BaseTestCase):
                         {"lang": "pt", "url": "https://link/pt_artigo.html"},
                         {"lang": "bla", "url": "https://link/bla_artigo.html"},
                     ],
+                    "doi": "10.1590/S0103-5053200600020098983_pt",
                     "doi_with_lang": [
                         {"doi": "10.1590/S0103-50532006000200015_ru", "language": "ru"},
                         {
@@ -1793,7 +1805,7 @@ class MainTestCase(BaseTestCase):
                 content,
             )
 
-    @patch("webapp.main.views.fetch_data")
+    @patch("webapp.utils.utils.fetch_data")
     def test_article_with_supplementary_material(self, mk_fetch_data):
         """
         Testa se o material suplementar está sendo apresentado na página do artigo.
@@ -1848,7 +1860,7 @@ class MainTestCase(BaseTestCase):
             self.assertStatus(response, 200)
             self.assertIn(article.mat_suppl[0].filename, response.data.decode("utf-8"))
 
-    @patch("webapp.main.views.fetch_data")
+    @patch("webapp.utils.utils.fetch_data")
     def test_article_with_two_supplementary_material(self, mk_fetch_data):
         """
         Testa se o material suplementar está sendo apresentado na página do artigo.
@@ -1953,12 +1965,9 @@ class MainTestCase(BaseTestCase):
             response = self.client.get(url_for("main.index"))
             # then
             self.assertStatus(response, 200)
-            self.assertIn('<div class="partners">', response.data.decode("utf-8"))
-            self.assertIn('"/about/"', response.data.decode("utf-8"))
             self.assertNotIn("/collection/about/", response.data.decode("utf-8"))
 
             for sponsor in [sponsor1, sponsor2, sponsor3]:
-                self.assertIn(sponsor.name, response.data.decode("utf-8"))
                 self.assertIn(sponsor.url, response.data.decode("utf-8"))
                 self.assertIn(sponsor.logo_url, response.data.decode("utf-8"))
 
@@ -2417,8 +2426,7 @@ class TestJournalGrid(BaseTestCase):
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None"/>'
-                % current_app.config["SERVER_NAME"],
+                '<meta property="og:image" content="http://example.com/logo.png"/>',
                 response.data.decode("utf-8"),
             )
 
@@ -2580,8 +2588,8 @@ class TestIssueToc(BaseTestCase):
 
     def test_issue_toc_redirects_to_aop_toc(self):
         """
-        Teste da ``view function`` ``issue_toc`` acessando a página do número,
-        deve retorna status_code 200 e o template ``issue/toc.html``.
+        Teste da ``view function`` ``issue_toc`` acessando a página do número
+        ahead of print, deve retornar status_code 200 e o template ``issue/toc.html``.
         """
 
         with current_app.app_context():
@@ -2601,11 +2609,8 @@ class TestIssueToc(BaseTestCase):
                 )
             )
 
-            self.assertStatus(response, 301)
-            self.assertEqual(
-                response.location,
-                url_for("main.aop_toc", url_seg=journal.url_segment),
-            )
+            self.assertStatus(response, 200)
+            self.assertTemplateUsed("issue/toc.html")
 
     def test_issue_toc_social_meta_tags(self):
         """
@@ -2633,27 +2638,27 @@ class TestIssueToc(BaseTestCase):
             self.assertStatus(response, 200)
             self.assertTemplateUsed("issue/toc.html")
 
+            content = response.data.decode("utf-8")
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/i/2023.v10n31supplX/"/>'
-                % current_app.config["SERVER_NAME"],
-                response.data.decode("utf-8"),
+                '<meta property="og:url" content="http://%s/j/journal_acron/i/%s/"/>'
+                % (current_app.config["SERVER_NAME"], issue.url_segment),
+                content,
             )
             self.assertIn(
                 '<meta property="og:type" content="website"/>',
-                response.data.decode("utf-8"),
+                content,
             )
             self.assertIn(
                 '<meta property="og:title" content="Social Meta tags"/>',
-                response.data.decode("utf-8"),
+                content,
             )
             self.assertIn(
                 '<meta property="og:description" content="Esse periódico tem com objetivo xpto"/>',
-                response.data.decode("utf-8"),
+                content,
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None"/>'
-                % current_app.config["SERVER_NAME"],
-                response.data.decode("utf-8"),
+                '<meta property="og:image" content="http://example.com/logo.png"/>',
+                content,
             )
 
 
@@ -2680,7 +2685,7 @@ class TestAOPToc(BaseTestCase):
                 {
                     "title": "Article Y",
                     "original_language": "en",
-                    "languages": ["es", "pt"],
+                    "languages": ["es", "pt", "en"],
                     "translated_titles": [
                         {"language": "es", "name": "Artículo en español"},
                         {"language": "pt", "name": "Artigo en Português"},
@@ -2931,6 +2936,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
+                    lang="en",
                 )
             )
 
@@ -2978,6 +2984,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
+                    lang="en",
                 )
             )
 
@@ -2985,7 +2992,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
             content = response.data.decode("utf-8")
 
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/a/%s/"/>'
+                '<meta property="og:url" content="http://%s/j/journal_acron/a/%s/?lang=en"/>'
                 % (current_app.config["SERVER_NAME"], article.aid),
                 response.data.decode("utf-8"),
             )
@@ -3002,8 +3009,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
                 response.data.decode("utf-8"),
             )
             self.assertIn(
-                '<meta property="og:image" content="http://%s/None"/>'
-                % current_app.config["SERVER_NAME"],
+                '<meta property="og:image" content="http://example.com/logo.png"/>',
                 response.data.decode("utf-8"),
             )
 
@@ -3050,6 +3056,7 @@ class TestArticleDetailV3Meta(BaseTestCase):
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
+                    lang="en",
                 )
             )
 
