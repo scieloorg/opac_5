@@ -850,44 +850,42 @@ class ArticleControllerTestCase(BaseTestCase):
         ]
         articles_attribs = articles_attribs or default_attribs
         articles = []
-        for article_attribs in articles_attribs:
-            article_attribs.update({"issue": issue})
+        for index, article_attribs in enumerate(articles_attribs, start=1):
+            article_attribs.update({"issue": issue, "order": str(index)})
             articles.append(self._make_one(article_attribs))
         return articles
 
     def test_get_article_returns_next_article(self):
         """
-        Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        Teste da função controllers.get_article para retornar o artigo atual
+        e o próximo artigo na navegação.
         """
         articles = self._make_same_issue_articles()
-        article = articles[1]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             articles[0].original_language,
             gs_abstract=False,
-            goto="next",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "es")
+        self.assertEqual(articles[0].id, result.id)
+        self.assertEqual(articles[1].id, nav["next_article"].id)
+        self.assertEqual(lang, "pt")
 
     def test_get_article_returns_previous_article(self):
         """
-        Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        Teste da função controllers.get_article para retornar o artigo atual
+        e o artigo anterior na navegação.
         """
         articles = self._make_same_issue_articles()
-        article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[1].id,
             articles[1].journal.url_segment,
             articles[1].original_language,
             gs_abstract=False,
-            goto="previous",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "pt")
+        self.assertEqual(articles[1].id, result.id)
+        self.assertEqual(articles[0].id, nav["previous_article"].id)
+        self.assertEqual(lang, "es")
 
     def test_get_article_returns_article(self):
         """
@@ -896,7 +894,7 @@ class ArticleControllerTestCase(BaseTestCase):
         """
         articles = self._make_same_issue_articles()
         article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             "pt",
@@ -912,48 +910,46 @@ class ArticleControllerTestCase(BaseTestCase):
         """
         articles = self._make_same_issue_articles()
         article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             None,
             gs_abstract=False,
         )
         self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "pt")
+        self.assertIsNone(lang)
 
     def test_get_article_returns_next_article_which_has_abstract(self):
         """
-        Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        Teste da função controllers.get_article para retornar o artigo atual
+        e o próximo artigo com resumo na navegação.
         """
         articles = self._make_same_issue_articles()
-        article = articles[1]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
-            "en",
+            "pt",
             gs_abstract=True,
-            goto="next",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "es")
+        self.assertEqual(articles[0].id, result.id)
+        self.assertEqual(articles[1].id, nav["next_article"].id)
+        self.assertEqual(lang, "pt")
 
     def test_get_article_returns_previous_article_which_has_abstract(self):
         """
-        Teste da função controllers.get_article para retornar um objeto:
-        ``Article``.
+        Teste da função controllers.get_article para retornar o artigo atual
+        e o artigo anterior com resumo na navegação.
         """
         articles = self._make_same_issue_articles()
-        article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[1].id,
             articles[1].journal.url_segment,
-            "en",
+            "es",
             gs_abstract=True,
-            goto="previous",
         )
-        self.assertEqual(article.id, result.id)
-        self.assertEqual(lang, "pt")
+        self.assertEqual(articles[1].id, result.id)
+        self.assertEqual(articles[0].id, nav["previous_article"].id)
+        self.assertEqual(lang, "es")
 
     def test_get_article_returns_article_which_has_abstract(self):
         """
@@ -962,7 +958,7 @@ class ArticleControllerTestCase(BaseTestCase):
         """
         articles = self._make_same_issue_articles()
         article = articles[0]
-        lang, result = controllers.get_article(
+        lang, result, nav = controllers.get_article(
             articles[0].id,
             articles[0].journal.url_segment,
             "pt",
@@ -971,116 +967,65 @@ class ArticleControllerTestCase(BaseTestCase):
         self.assertEqual(article.id, result.id)
         self.assertEqual(lang, "pt")
 
-    def test_goto_article_returns_next_article(self):
+    def test_get_article_navigation_no_next_on_last_article(self):
         articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[0], "next").id, articles[1].id
+        lang, result, nav = controllers.get_article(
+            articles[-1].id,
+            articles[-1].journal.url_segment,
+            articles[-1].original_language,
+            gs_abstract=False,
         )
+        self.assertEqual(articles[-1].id, result.id)
+        self.assertIsNone(nav["next_article"])
 
-    def test_goto_article_returns_no_next(self):
+    def test_get_article_navigation_no_previous_on_first_article(self):
         articles = self._make_same_issue_articles()
-        with self.assertRaises(controllers.PreviousOrNextArticleNotFoundError):
-            controllers.goto_article(articles[-1], "next")
-
-    def test_goto_article_returns_previous_article(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[-1], "previous").id, articles[-2].id
+        lang, result, nav = controllers.get_article(
+            articles[0].id,
+            articles[0].journal.url_segment,
+            articles[0].original_language,
+            gs_abstract=False,
         )
+        self.assertEqual(articles[0].id, result.id)
+        self.assertIsNone(nav["previous_article"])
 
-    def test_goto_article_returns_no_previous(self):
-        articles = self._make_same_issue_articles()
-        with self.assertRaises(controllers.PreviousOrNextArticleNotFoundError):
-            controllers.goto_article(articles[0], "previous")
-
-    def test_goto_article_returns_next_article_with_abstract(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[0], "next", True).id, articles[1].id
-        )
-
-    def test_goto_article_returns_no_next_because_next_has_no_abstract(self):
+    def test_get_article_navigation_skips_next_without_abstract(self):
         attribs = [
             {
                 "abstract": "texto",
-                "abstract": "resumo",
                 "abstracts": [{"language": "x", "text": "Resumo"}],
+                "abstract_languages": ["x"],
             },
             {},
         ]
         articles = self._make_same_issue_articles(attribs)
-        with self.assertRaises(controllers.PreviousOrNextArticleNotFoundError):
-            controllers.goto_article(articles[0], "next", True)
-
-    def test_goto_article_returns_previous_article_with_abstract(self):
-        articles = self._make_same_issue_articles()
-        self.assertEqual(
-            controllers.goto_article(articles[-1], "previous", True).id, articles[-2].id
+        lang, result, nav = controllers.get_article(
+            articles[0].id,
+            articles[0].journal.url_segment,
+            "x",
+            gs_abstract=True,
         )
+        self.assertEqual(articles[0].id, result.id)
+        self.assertIsNone(nav["next_article"])
 
-    def test_goto_article_returns_no_previous_because_previous_has_no_abstract(self):
+    def test_get_article_navigation_skips_previous_without_abstract(self):
         attribs = [
             {},
-            {"abstract": "resumo", "abstracts": [{"language": "x", "text": "Resumo"}]},
-        ]
-        articles = self._make_same_issue_articles(attribs)
-        with self.assertRaises(controllers.ArticleNotFoundError):
-            controllers.goto_article(articles[-1], "previous", True)
-
-    def test_goto_article_returns_no_previous_because_previous_has_no_abstract(self):
-        attribs = [
-            {},
-            {"abstract": "resumo", "abstracts": [{"language": "x", "text": "Resumo"}]},
-        ]
-        articles = self._make_same_issue_articles(attribs)
-        with self.assertRaises(ValueError) as exc:
-            controllers.goto_article(articles[-1], "prev", True)
-        self.assertIn("Expected: next or previous", str(exc.exception))
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list(self):
-        a = self._make_one({"abstracts": []})
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list2(self):
-        a = self._make_one({"abstracts": None})
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list3(self):
-        # nao existe nem o campo `abstracts`
-        a = self._make_one()
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_empty_list3(self):
-        a = self._make_one()
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(articles, [])
-
-    def test__articles_or_abstracts_sorted_by_order_or_date_returns_one(self):
-        abstracts = [{"language": "en", "text": "Texto"}]
-        abstract_languages = ["en"]
-        a = self._make_one(
             {
-                "abstract": "Texto",
                 "abstract": "resumo",
-                "abstracts": abstracts,
-                "abstract_languages": abstract_languages,
-            }
+                "abstracts": [{"language": "x", "text": "Resumo"}],
+                "abstract_languages": ["x"],
+            },
+        ]
+        articles = self._make_same_issue_articles(attribs)
+        lang, result, nav = controllers.get_article(
+            articles[-1].id,
+            articles[-1].journal.url_segment,
+            "x",
+            gs_abstract=True,
         )
-        articles = controllers._articles_or_abstracts_sorted_by_order_or_date(
-            a.issue.id, gs_abstract=True
-        )
-        self.assertEqual(len(articles), 1)
+        self.assertEqual(articles[-1].id, result.id)
+        self.assertIsNone(nav["previous_article"])
 
     def test_get_articles_by_aid(self):
         """
@@ -1399,9 +1344,9 @@ class ArticleControllerTestCase(BaseTestCase):
         )
 
         expected = [
+            "012ijs9y24",
             "2183ikos90",
             "9298wjso89",
-            "012ijs9y24",
         ]
 
         articles = [
@@ -1705,17 +1650,14 @@ class ArticleControllerTestCase(BaseTestCase):
 
     def test_get_article_by_aid_raises_article_lang_not_found_error(self):
         article = self._make_one()
-        with self.assertRaises(controllers.ArticleLangNotFoundError) as exc:
+        with self.assertRaises(controllers.ArticleNotFoundError):
             controllers.get_article_by_aid(
                 article.id, article.journal.url_segment, "xx"
             )
-        self.assertEqual(
-            str([article.original_language] + article.languages), str(exc.exception)
-        )
 
     def test_get_article_by_aid_raises_article_abstract_not_found_error(self):
         article = self._make_one()
-        with self.assertRaises(controllers.ArticleAbstractNotFoundError) as exc:
+        with self.assertRaises(controllers.ArticleNotFoundError):
             controllers.get_article_by_aid(
                 article.id, article.journal.url_segment, "zz", True
             )

@@ -33,6 +33,7 @@ class TestArticleDetailV3Abstract(BaseTestCase):
                 "abstracts": [
                     {"language": "en", "text": "Abstract in English"},
                 ],
+                "abstract_languages": ["en"],
                 "url_segment": "10-11",
                 "translated_titles": [
                     {"language": "es", "name": "Artículo en español"},
@@ -59,7 +60,7 @@ class TestArticleDetailV3Abstract(BaseTestCase):
             return response
 
     def test_abstract_pid_v3_returns_404_and_displays_invalid_part_value_message(self):
-        expected = "Não existe &#39;abst&#39;. No seu lugar use &#39;abstract&#39;"
+        expected = "Não existe 'abst'. No seu lugar use 'abstract'"
         response = self._get_response(part="abst")
         self.assertStatus(response, 404)
         result = response.data.decode("utf-8")
@@ -90,13 +91,13 @@ class TestArticleDetailV3Abstract(BaseTestCase):
             ["en", "es", "pt"],
         )
         expected = "texto do documento"
-        response = self._get_response(part=None)
+        response = self._get_response(part=None, abstract_lang="en")
         result = response.data.decode("utf-8")
         mock_render_html.assert_called_once_with(self.article, "en", False)
         self.assertIn(expected, result)
 
     def test_abstract_pid_v3_returns_404_because_lang_is_missing(self):
-        expected = "Não existe &#39;False&#39;. No seu lugar use &#39;abstract&#39;"
+        expected = "Não existe 'False'. No seu lugar use 'abstract'"
         response = self._get_response(part=False)
         self.assertStatus(response, 404)
         result = response.data.decode("utf-8")
@@ -105,7 +106,7 @@ class TestArticleDetailV3Abstract(BaseTestCase):
     def test_abstract_pid_v3_returns_404_and_displays_invalid_part_value_message_if_part_is_False(
         self,
     ):
-        expected = "Não existe &#39;False&#39;. No seu lugar use &#39;abstract&#39;"
+        expected = "Não existe 'False'. No seu lugar use 'abstract'"
         response = self._get_response(part=False)
         self.assertStatus(response, 404)
         result = response.data.decode("utf-8")

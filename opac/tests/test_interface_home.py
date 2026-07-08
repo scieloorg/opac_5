@@ -139,6 +139,6 @@ class HomeTestCase(BaseTestCase):
 
                 self.assertStatus(response, 200)
                 self.assertIn(
-                    'aria-label="Acessar site coleção coleção falsa"',
+                    'aria-label="Acessar site da coleção coleção falsa"',
                     response.data.decode("utf-8"),
                 )

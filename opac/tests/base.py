@@ -67,6 +67,9 @@ class BaseTestCase(TestCase):
 
     def setUp(self):
         dbsql.create_all()
+        from webapp import cache
+
+        cache.clear()
         super(BaseTestCase, self).setUp()
 
     def tearDown(self):

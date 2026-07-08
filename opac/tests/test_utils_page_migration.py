@@ -389,11 +389,12 @@ class UtilsMigratedPageTestCase(BaseTestCase):
         for result, expected in zip(results, expected_items):
             self.assertEqual(result, expected)
 
+    @patch.object(page_migration, "delete_file")
     @patch("webapp.utils.page_migration.downloaded_file")
     @patch("webapp.utils.page_migration.confirm_file_location")
     @patch.object(wutils, "migrate_page_create_image")
     def test_create_images_from_downloaded_files(
-        self, mocked_create_item, mocked_confirm_file_location, mocked_downloaded_file
+        self, mocked_create_item, mocked_confirm_file_location, mocked_downloaded_file, mocked_delete_file
     ):
         self.page.content = """
             <img src="/img/revistas/img1.jpg"/>
@@ -432,6 +433,7 @@ class UtilsMigratedPageTestCase(BaseTestCase):
             self.assertEqual(result, expected)
         self.assertEqual(results, expected_items)
 
+    @patch.object(page_migration, "delete_file")
     @patch.object(page_migration, "downloaded_file")
     @patch.object(page_migration, "confirm_file_location")
     @patch.object(wutils, "migrate_page_create_file")
@@ -440,6 +442,7 @@ class UtilsMigratedPageTestCase(BaseTestCase):
         mocked_create_file_function,
         mocked_confirm_file_location,
         mocked_downloaded_file,
+        mocked_delete_file,
     ):
         self.page.content = """
             <a href="/img/revistas/img1.jpg"/>

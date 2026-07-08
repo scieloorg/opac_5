@@ -56,7 +56,7 @@ def makeOneSponsor(attrib=None):  # noqa
         "order": attrib.get("order", 0),
         "name": name,
         "url": attrib.get("url", None),
-        "logo_url": attrib.get("logo_url", None),
+        "logo_url": attrib.get("logo_url", "http://example.com/logo.png"),
     }
     return models.Sponsor(**collection).save()
 
@@ -91,6 +91,7 @@ def makeOneJournal(attrib=None):  # noqa
         "created": attrib.get("created", datetime.datetime.now()),
         "updated": attrib.get("updated", datetime.datetime.now()),
         "acronym": attrib.get("acronym", "journal_acron"),
+        "logo_url": attrib.get("logo_url", "http://example.com/logo.png"),
         "mission": attrib.get(
             "mission",
             [

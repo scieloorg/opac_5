@@ -14,40 +14,61 @@ from .utils import makeOneArticle, makeOneJournal
 FIXTURES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
-class RestAPIJournalTestCase(BaseTestCase):
+class RestAPIAuthMixin:
+    API_EMAIL = "restapi-user@opac.org"
+    API_PASSWORD = "restapi-test-password"
+
+    def setUp(self):
+        super().setUp()
+        self._api_token = None
+
+    def _get_api_token(self, client):
+        if self._api_token is None:
+            from webapp.utils.utils import create_user
+
+            create_user(self.API_EMAIL, self.API_PASSWORD, True)
+            response = client.post(
+                url_for("restapi.authenticate"),
+                auth=(self.API_EMAIL, self.API_PASSWORD),
+            )
+            self._api_token = response.get_json()["token"]
+        return self._api_token
+
+    def _api_post(self, client, endpoint, data, follow_redirects=True, **query):
+        query["token"] = self._get_api_token(client)
+        return client.post(
+            url_for(endpoint, **query),
+            data=json.dumps(data),
+            follow_redirects=follow_redirects,
+            content_type="application/json",
+        )
+
+
+class RestAPIJournalTestCase(RestAPIAuthMixin, BaseTestCase):
     def load_json_fixture(self, filename):
         with open(os.path.join(FIXTURES_PATH, filename)) as f:
             return json.load(f)
 
     def setUp(self):
+        super().setUp()
         self.journal_dict = self.load_json_fixture("journal_payload.json")
 
     def test_add_journal_by_api(self):
         with current_app.app_context():
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
     def test_add_journal_by_api_without_data(self):
         with current_app.app_context():
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps({}),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", {})
 
             self.assertEqual(response.status_code, 500)
             self.assertEqual(
                 response.data,
-                b'{"error":"The journal is mandatory to mount the URL","failed":true}\n',
+                b'{"error":"\'is_public\'","failed":true}\n',
             )
 
     def test_add_journal_by_api_without_id(self):
@@ -55,12 +76,7 @@ class RestAPIJournalTestCase(BaseTestCase):
 
         with current_app.app_context():
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
             self.assertEqual(response.status_code, 500)
             self.assertEqual(
                 response.data,
@@ -72,12 +88,7 @@ class RestAPIJournalTestCase(BaseTestCase):
 
         with current_app.app_context():
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
             self.assertEqual(response.status_code, 500)
             self.assertEqual(
                 response.data,
@@ -85,12 +96,13 @@ class RestAPIJournalTestCase(BaseTestCase):
             )
 
 
-class RestAPIIssueTestCase(BaseTestCase):
+class RestAPIIssueTestCase(RestAPIAuthMixin, BaseTestCase):
     def load_json_fixture(self, filename):
         with open(os.path.join(FIXTURES_PATH, filename)) as f:
             return json.load(f)
 
     def setUp(self):
+        super().setUp()
         self.journal_dict = self.load_json_fixture("journal_payload.json")
         self.issue_dict = self.load_json_fixture("issue_payload.json")
 
@@ -98,26 +110,14 @@ class RestAPIIssueTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps(self.issue_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", self.issue_dict, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -128,26 +128,14 @@ class RestAPIIssueTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps({}),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", {}, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 500)
             self.assertEqual(response.data, b'{"error":"\'id\'","failed":true}\n')
@@ -156,24 +144,14 @@ class RestAPIIssueTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue"),
-                    data=json.dumps({}),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", {})
 
             self.assertEqual(response.status_code, 400)
             self.assertEqual(
@@ -181,12 +159,13 @@ class RestAPIIssueTestCase(BaseTestCase):
             )
 
 
-class RestAPIAricleTestCase(BaseTestCase):
+class RestAPIAricleTestCase(RestAPIAuthMixin, BaseTestCase):
     def load_json_fixture(self, filename):
         with open(os.path.join(FIXTURES_PATH, filename)) as f:
             return json.load(f)
 
     def setUp(self):
+        super().setUp()
         self.journal_dict = self.load_json_fixture("journal_payload.json")
         self.issue_dict = self.load_json_fixture("issue_payload.json")
         self.article_dict = self.load_json_fixture("article_payload.json")
@@ -195,26 +174,14 @@ class RestAPIAricleTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps(self.issue_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", self.issue_dict, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -223,20 +190,14 @@ class RestAPIAricleTestCase(BaseTestCase):
 
             # article
             with self.client as client:
-                response = client.post(
-                    # Using query string to send the params:
-                    # ``issue_id``, ``article_id``, ``order``, ``article_url``,
-                    url_for("restapi.article")
-                    + "?issue_id=%s&article_id=%s&order=%s&article_url=%s"
-                    % (
-                        self.issue_dict.get("id"),
-                        "id_test",
-                        1,
-                        "http://minio.scielo.org/documentstore/example.xml",
-                    ),
-                    data=json.dumps(self.article_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
+                response = self._api_post(
+                    client,
+                    "restapi.article",
+                    self.article_dict,
+                    issue_id=self.issue_dict.get("id"),
+                    article_id="id_test",
+                    order=1,
+                    article_url="http://minio.scielo.org/documentstore/example.xml",
                 )
 
             self.assertEqual(response.status_code, 200)
@@ -249,26 +210,14 @@ class RestAPIAricleTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps(self.issue_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", self.issue_dict, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -277,20 +226,14 @@ class RestAPIAricleTestCase(BaseTestCase):
 
             # article
             with self.client as client:
-                response = client.post(
-                    # Using query string to send the params:
-                    # ``issue_id``, ``article_id``, ``order``, ``article_url``,
-                    url_for("restapi.article")
-                    + "?issue_id=%s&article_id=%s&order=%s&article_url=%s"
-                    % (
-                        self.issue_dict.get("id"),
-                        "id_test",
-                        1,
-                        "http://minio.scielo.org/documentstore/example.xml",
-                    ),
-                    data=json.dumps({}),
-                    follow_redirects=True,
-                    content_type="application/json",
+                response = self._api_post(
+                    client,
+                    "restapi.article",
+                    {},
+                    issue_id=self.issue_dict.get("id"),
+                    article_id="id_test",
+                    order=1,
+                    article_url="http://minio.scielo.org/documentstore/example.xml",
                 )
 
             self.assertEqual(response.status_code, 200)
@@ -303,26 +246,14 @@ class RestAPIAricleTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps(self.issue_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", self.issue_dict, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -331,19 +262,13 @@ class RestAPIAricleTestCase(BaseTestCase):
 
             # article
             with self.client as client:
-                response = client.post(
-                    # Using query string to send the params:
-                    # ``issue_id``, ``article_id``, ``order``, ``article_url``,
-                    url_for("restapi.article")
-                    + "?article_id=%s&order=%s&article_url=%s"
-                    % (
-                        "id_test",
-                        1,
-                        "http://minio.scielo.org/documentstore/example.xml",
-                    ),
-                    data=json.dumps(self.article_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
+                response = self._api_post(
+                    client,
+                    "restapi.article",
+                    self.article_dict,
+                    article_id="id_test",
+                    order=1,
+                    article_url="http://minio.scielo.org/documentstore/example.xml",
                 )
 
             self.assertEqual(response.status_code, 400)
@@ -357,26 +282,14 @@ class RestAPIAricleTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps(self.issue_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", self.issue_dict, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -385,19 +298,13 @@ class RestAPIAricleTestCase(BaseTestCase):
 
             # article
             with self.client as client:
-                response = client.post(
-                    # Using query string to send the params:
-                    # ``issue_id``, ``article_id``, ``order``, ``article_url``,
-                    url_for("restapi.article")
-                    + "?issue_id=%s&order=%s&article_url=%s"
-                    % (
-                        self.issue_dict.get("id"),
-                        1,
-                        "http://minio.scielo.org/documentstore/example.xml",
-                    ),
-                    data=json.dumps({}),
-                    follow_redirects=True,
-                    content_type="application/json",
+                response = self._api_post(
+                    client,
+                    "restapi.article",
+                    {},
+                    issue_id=self.issue_dict.get("id"),
+                    order=1,
+                    article_url="http://minio.scielo.org/documentstore/example.xml",
                 )
 
             self.assertEqual(response.status_code, 400)
@@ -411,26 +318,14 @@ class RestAPIAricleTestCase(BaseTestCase):
         with current_app.app_context():
             # journal
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.journal"),
-                    data=json.dumps(self.journal_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.journal", self.journal_dict)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"failed":false,"id":"1678-4464"}\n')
 
             # issue
             with self.client as client:
-                response = client.post(
-                    url_for("restapi.issue")
-                    + "?journal_id="
-                    + self.journal_dict.get("id"),
-                    data=json.dumps(self.issue_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
-                )
+                response = self._api_post(client, "restapi.issue", self.issue_dict, journal_id=self.journal_dict.get("id"))
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -439,19 +334,13 @@ class RestAPIAricleTestCase(BaseTestCase):
 
             # article
             with self.client as client:
-                response = client.post(
-                    # Using query string to send the params:
-                    # ``issue_id``, ``article_id``, ``order``, ``article_url``,
-                    url_for("restapi.article")
-                    + "?issue_id=%s&article_id=%s&article_url=%s"
-                    % (
-                        self.issue_dict.get("id"),
-                        "id_test",
-                        "http://minio.scielo.org/documentstore/example.xml",
-                    ),
-                    data=json.dumps(self.article_dict),
-                    follow_redirects=True,
-                    content_type="application/json",
+                response = self._api_post(
+                    client,
+                    "restapi.article",
+                    self.article_dict,
+                    issue_id=self.issue_dict.get("id"),
+                    article_id="id_test",
+                    article_url="http://minio.scielo.org/documentstore/example.xml",
                 )
 
             self.assertEqual(response.status_code, 400)
@@ -462,9 +351,10 @@ class RestAPIAricleTestCase(BaseTestCase):
                 models.Article.objects.get(_id="id_test")
 
 
-class RestAPIIssueSyncTestCase(BaseTestCase):
+class RestAPIIssueSyncTestCase(RestAPIAuthMixin, BaseTestCase):
 
     def setUp(self):
+        super().setUp()
         # Exemplos de dados para os testes
         self.issue_id = "0001-3765-2000-v72-n1"
         self.articles_id_payload = [
@@ -483,14 +373,10 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
         mock_delete_articles_by_iid.return_value = ["article_to_remove"]
 
         with self.client as client:
-            resp = client.post(
-                url_for("restapi.issue_sync"),
-                data=json.dumps({
+            resp = self._api_post(client, "restapi.issue_sync", {
                     "issue_id": self.issue_id,
                     "articles_id": self.articles_id_payload
-                }),
-                content_type="application/json"
-            )
+                }, follow_redirects=False)
             data = resp.get_json()
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(data.get("failed"), False)
@@ -505,14 +391,10 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
         mock_delete_articles_by_iid.return_value = []
 
         with self.client as client:
-            resp = client.post(
-                url_for("restapi.issue_sync"),
-                data=json.dumps({
+            resp = self._api_post(client, "restapi.issue_sync", {
                     "issue_id": self.issue_id,
                     "articles_id": self.articles_id_payload
-                }),
-                content_type="application/json"
-            )
+                }, follow_redirects=False)
             data = resp.get_json()
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(data.get("failed"), False)
@@ -520,32 +402,21 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
 
     def test_sync_missing_issue_id_or_articles_id(self):
         with self.client as client:
-            resp = client.post(
-                url_for("restapi.issue_sync"),
-                data=json.dumps({}),
-                content_type="application/json"
-            )
+            resp = self._api_post(client, "restapi.issue_sync", {}, follow_redirects=False)
             data = resp.get_json()
             self.assertEqual(resp.status_code, 400)
             self.assertEqual(data.get("failed"), True)
             self.assertIn("missing param", data.get("error"))
 
         with self.client as client:
-            resp = client.post(
-                url_for("restapi.issue_sync"),
-                data=json.dumps({"issue_id": self.issue_id}),
-                content_type="application/json"
-            )
+            resp = self._api_post(client, "restapi.issue_sync", {"issue_id": self.issue_id}, follow_redirects=False)
             data = resp.get_json()
-            self.assertEqual(resp.status_code, 400)
+            self.assertEqual(resp.status_code, 404)
             self.assertEqual(data.get("failed"), True)
+            self.assertEqual(data.get("error"), "issue not found")
 
         with self.client as client:
-            resp = client.post(
-                url_for("restapi.issue_sync"),
-                data=json.dumps({"articles_id": self.articles_id_payload}),
-                content_type="application/json"
-            )
+            resp = self._api_post(client, "restapi.issue_sync", {"articles_id": self.articles_id_payload}, follow_redirects=False)
             data = resp.get_json()
             self.assertEqual(resp.status_code, 400)
             self.assertEqual(data.get("failed"), True)
@@ -554,14 +425,10 @@ class RestAPIIssueSyncTestCase(BaseTestCase):
     def test_sync_issue_not_found(self, mock_get_issue_by_iid):
         mock_get_issue_by_iid.return_value = None
         with self.client as client:
-            resp = client.post(
-                url_for("restapi.issue_sync"),
-                data=json.dumps({
+            resp = self._api_post(client, "restapi.issue_sync", {
                     "issue_id": "not-found",
                     "articles_id": self.articles_id_payload
-                }),
-                content_type="application/json"
-            )
+                }, follow_redirects=False)
             data = resp.get_json()
             self.assertEqual(resp.status_code, 404)
             self.assertEqual(data.get("failed"), True)

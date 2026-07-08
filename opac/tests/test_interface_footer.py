@@ -23,7 +23,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("collection/index.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
@@ -44,7 +44,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("collection/list_journal.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
@@ -71,7 +71,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("journal/detail.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
@@ -98,7 +98,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("journal/detail.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
@@ -127,7 +127,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("issue/grid.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
@@ -160,7 +160,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertTemplateUsed("issue/toc.html")
 
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
@@ -188,7 +188,7 @@ class FooterTestCase(BaseTestCase):
                 self.assertTemplateUsed("journal/detail.html")
 
                 # Collection license
-                self.assertIn(b"/static/img/oa_logo_32.png", response.data)
+                self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
                     'href="%s"' % url_for("main.about_collection"),
                     response.data.decode("utf-8"),
