@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block body_class %}journal update-policy{% endblock %}
+{% block content %}
+  {% include "journal/includes/header.html" %}
+  {% include "journal/includes/journal_info.html" %}
+  {% include "journal/includes/levelMenu.html" %}
+
+  {% block main_content %}
+
+    <!-- Only on mobile -->
+    <section class="d-flex d-sm-none breadcrumb mt-3 mb-5 py-0 py-1">
+      <div class="container px-0">
+        <div class="row">
+          <div class="col ps-0">
+
+            <ol class="breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item"><a href="{{ url_for('.collection_list') }}?status=current"><span class="material-icons-outlined">navigate_before</span> {% trans %}Periódicos{% endtrans %}</a></li>
+            </ol>
+
+          </div>
+          <div class="col-3 pt-3">
+
+            <!-- share -->
+            {% include "includes/share.html" %}
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Only on Desktop -->
+    <section class="d-none d-sm-flex breadcrumb mt-3 mb-5 py-0 py-1">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+
+            <ol class="breadcrumb mb-0 ps-0">
+              <li class="breadcrumb-item"><a href="{{ url_for('.index') }}" alt="{% trans %}Home{% endtrans %}"><span class="material-icons-outlined">home</span></a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('.collection_list') }}?status=current">{% trans %}Periódicos{% endtrans %}</a></li>
+              <li class="breadcrumb-item"><a href="{{ url_for('.journal_detail', url_seg=journal.url_segment) }}">{{ journal.title }}</a></li>
+              <li class="breadcrumb-item">{% trans %}Política de atualização{% endtrans %}</li>
+            </ol>
+
+          </div>
+          <div class="col-3 pt-3">
+
+            <!-- share -->
+            {% include "includes/share.html" %}
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="journalContent">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12 content journalSecundary">
+
+                <div class="row">
+                    <div class="col-12">
+
+                      {% if page and page.content %}
+                          {{ page.content|safe }}
+                        {% else %}
+                          {% trans %}Conteúdo não cadastrado{% endtrans %}
+                        {% endif %}
+
+                    </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    {% include "includes/page_updated_at_info.html" %}
+                  </div>
+                </div>
+            </div>
+
+          </div>
+        </div>
+    </section>
+
+  {% endblock %}
+
+  {% include "journal/includes/contact_footer.html" %}
+
+  {% include "includes/footer.html" %}
+
+{% endblock %}

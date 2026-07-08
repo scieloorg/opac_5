@@ -2283,6 +2283,79 @@ class TestJournaDetail(BaseTestCase):
         self.assertIn(unpublish_reason, response.data.decode("utf-8"))
 
 
+class TestUpdatePolicy(BaseTestCase):
+    def test_update_policy_returns_200_when_page_exists(self):
+        """
+        Teste da ``view function`` ``update_policy``, deve retornar uma página
+        que usa o template ``journal/update_policy.html`` quando a página
+        de política de atualização existe.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            utils.makeOnePage(
+                {
+                    "name": "update_policy",
+                    "slug_name": "update-policy",
+                    "language": "pt_BR",
+                    "journal": journal.acronym,
+                }
+            )
+
+            response = self.client.get(
+                url_for("main.update_policy", url_seg=journal.url_segment)
+            )
+
+            self.assertStatus(response, 200)
+            self.assertTemplateUsed("journal/update_policy.html")
+
+    def test_update_policy_returns_404_when_no_page(self):
+        """
+        Teste da ``view function`` ``update_policy``, deve retornar 404
+        quando não existe página de política de atualização cadastrada.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+
+            response = self.client.get(
+                url_for("main.update_policy", url_seg=journal.url_segment)
+            )
+
+            self.assertStatus(response, 404)
+
+    def test_update_policy_returns_404_when_journal_not_found(self):
+        """
+        Teste da ``view function`` ``update_policy``, deve retornar 404
+        quando o periódico não existe.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+
+            response = self.client.get(
+                url_for("main.update_policy", url_seg="unknown-journal")
+            )
+
+            self.assertStatus(response, 404)
+
+    def test_update_policy_returns_404_when_journal_not_public(self):
+        """
+        Teste da ``view function`` ``update_policy``, deve retornar 404
+        quando o periódico não é público.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal(
+                {"is_public": False, "unpublish_reason": "Motivo"}
+            )
+
+            response = self.client.get(
+                url_for("main.update_policy", url_seg=journal.url_segment)
+            )
+
+            self.assertStatus(response, 404)
+
+
 class TestJournalGrid(BaseTestCase):
     def test_issue_grid(self):
         """

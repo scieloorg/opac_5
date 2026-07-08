@@ -153,6 +153,13 @@ def create_app():
     app.jinja_env.filters["datetimefilter"] = custom_filters.datetimefilter
     app.jinja_env.filters["absolute_url"] = custom_filters.make_absolute_url
 
+    # Registrando funções globais no Jinja2
+    from webapp import controllers as ctrl
+
+    app.jinja_env.globals[
+        "get_update_policy_page"
+    ] = ctrl.get_update_policy_page_by_journal_acron_lang
+
     # i18n
     babel.init_app(app)
     # Debug Toolbar
