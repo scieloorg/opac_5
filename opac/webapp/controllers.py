@@ -19,8 +19,8 @@ import tweepy
 import unicodecsv
 import xlsxwriter
 from flask import current_app, url_for
-from flask_babelex import gettext as _
-from flask_babelex import lazy_gettext as __
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as __
 from flask_mongoengine import Pagination
 from legendarium.formatter import descriptive_very_short_format
 from mongoengine import Q

@@ -4,7 +4,7 @@ import traceback
 import unittest
 
 from flask import abort, current_app
-from flask_babelex import lazy_gettext as __
+from flask_babel import lazy_gettext as __
 from werkzeug.exceptions import HTTPException
 
 from .base import BaseTestCase

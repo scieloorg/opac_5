@@ -1,20 +1,17 @@
 {% extends 'admin/opac_base.html' %}
+
 {% block body %}
-  {{ super() }}
-  <div class="row-fluid">
-
-    <div class="col-md-5 col-md-offset-4">
-
-        <div class="panel panel-default">
-          <div class="panel-heading">{% trans %}Recuperar a senha{% endtrans %}</div>
-          <div class="panel-body">
-            <form method="POST" action="{{ url_for('.reset_with_token', token=token) }}" class="form-horizontal">
-              {% include "admin/includes/forms.html" %}
-              <button class="btn btn-primary pull-right" type="submit">{% trans %}Enviar{% endtrans %}</button>
-            </form>
-          </div>
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card mb-3">
+        <div class="card-header">{% trans %}Recuperar a senha{% endtrans %}</div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('.reset_with_token', token=token) }}">
+            {% include "admin/includes/forms.html" %}
+            <button class="btn btn-primary float-right" type="submit">{% trans %}Enviar{% endtrans %}</button>
+          </form>
         </div>
-
+      </div>
     </div>
   </div>
 {% endblock body %}

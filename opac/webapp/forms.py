@@ -2,7 +2,7 @@
 
 import re
 
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
 from flask_wtf import FlaskForm
 from wtforms import HiddenField, StringField, TextAreaField
 from wtforms.validators import URL, DataRequired, Email, ValidationError

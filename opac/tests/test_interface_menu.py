@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from flask import current_app, url_for
-from flask_babelex import lazy_gettext as __
+from flask_babel import lazy_gettext as __
 
 from . import utils
 from .base import BaseTestCase

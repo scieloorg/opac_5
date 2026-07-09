@@ -4,7 +4,7 @@ import os
 from unittest.mock import Mock, patch
 
 from flask import current_app, url_for
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
 from opac_schema.v1 import models
 
 from .base import BaseTestCase

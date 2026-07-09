@@ -90,7 +90,7 @@ class AdminViewsTestCase(BaseTestCase):
                     login_url = url_for("admin.login_view")
                     login_credentials = {"email": "foo@example.com", "password": "123"}
                     expected_errors_msg = {
-                        "password": '<span class="help-block">Usuário inválido</span>',
+                        "password": '<div class="invalid-feedback d-block">Usuário inválido</div>',
                     }
                     # when
                     response = c.post(login_url, data=login_credentials)
@@ -124,8 +124,8 @@ class AdminViewsTestCase(BaseTestCase):
                         "password": "123",
                     }
                     expected_errors_msg = {
-                        "email": '<span class="help-block">Invalid email address.</span>',
-                        "password": '<span class="help-block">Usuário inválido</span>',
+                        "email": '<div class="invalid-feedback d-block">Invalid email address.</div>',
+                        "password": '<div class="invalid-feedback d-block">Usuário inválido</div>',
                     }
                     # when
                     response = c.post(login_url, data=login_credentials)
@@ -161,7 +161,7 @@ class AdminViewsTestCase(BaseTestCase):
                         "password": "",  # senha inválida
                     }
                     expected_errors_msg = {
-                        "password": '<span class="help-block">This field is required.</span>',
+                        "password": '<div class="invalid-feedback d-block">This field is required.</div>',
                     }
                     # when
                     response = c.post(login_url, data=login_credentials)
@@ -194,7 +194,7 @@ class AdminViewsTestCase(BaseTestCase):
                         "password": "123",
                     }
                     expected_page_header = (
-                        "<h1>OPAC Admin <small>da coleção: %s</small></h1>"
+                        "<h1>OPAC Admin <small class=\"text-muted\">da coleção: %s</small></h1>"
                         % current_app.config["OPAC_COLLECTION"].upper()
                     )
 
@@ -233,7 +233,7 @@ class AdminViewsTestCase(BaseTestCase):
                         "password": "123",
                     }
                     logged_page_header = (
-                        "<h1>OPAC Admin <small>da coleção: %s</small></h1>"
+                        "<h1>OPAC Admin <small class=\"text-muted\">da coleção: %s</small></h1>"
                         % current_app.config["OPAC_COLLECTION"].upper()
                     )
 
@@ -4284,7 +4284,7 @@ class CollectionAdminViewTests(BaseTestCase):
         }
         create_user(admin_user["email"], admin_user["password"], True)
         login_url = url_for("admin.login_view")
-        collection_edit_url = url_for("collection.edit_view")
+        collection_edit_url = url_for("collection.edit_view", id=collection.id)
 
         with self.client as client:
             login_response = client.post(
@@ -4294,7 +4294,7 @@ class CollectionAdminViewTests(BaseTestCase):
 
             edit_response = client.get(collection_edit_url)
             self.assertStatus(edit_response, 200)
-            self.assertTemplateUsed("admin/model/modals/edit.html")
+            self.assertTemplateUsed("admin/model/edit.html")
             self.assertIn(sponsor.name, edit_response.data.decode("utf-8"))
 
     def test_admin_collection_check_can_delete_is_false(self):

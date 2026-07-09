@@ -2,12 +2,16 @@
 
 import logging
 
+from webapp.flask_compat import apply_flask_23_compat
+
+apply_flask_23_compat()
+
 import flask_admin
 import rq_dashboard
 import rq_scheduler_dashboard
 from elasticapm.contrib.flask import ElasticAPM
 from flask import Flask, flash, redirect, request, url_for
-from flask_babelex import Babel, lazy_gettext
+from flask_babel import Babel, lazy_gettext
 from flask_caching import Cache
 from flask_htmlmin import HTMLMIN
 from flask_login import LoginManager, current_user
@@ -45,6 +49,8 @@ logger = logging.getLogger(__name__)
 
 
 class RegexConverter(BaseConverter):
+    part_isolating = False
+
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
@@ -158,7 +164,9 @@ def create_app():
     app.jinja_env.filters["absolute_url"] = custom_filters.make_absolute_url
 
     # i18n
-    babel.init_app(app)
+    from .main.views import get_locale
+
+    babel.init_app(app, locale_selector=get_locale)
     # Debug Toolbar
     if app.config["DEBUG"]:
         # Toolbar
@@ -185,12 +193,16 @@ def create_app():
 
     from .models import File, Image, User
 
+    from flask_admin.theme import BootstrapTheme
+
     admin = flask_admin.Admin(
         app,
         "OPAC admin",
         index_view=views.AdminIndexView(),
-        template_mode="bootstrap3",
-        base_template="admin/opac_base.html",
+        theme=BootstrapTheme(
+            folder="bootstrap4",
+            base_template="admin/opac_base.html",
+        ),
     )
 
     admin.add_view(

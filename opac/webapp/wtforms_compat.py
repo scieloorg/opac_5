@@ -44,11 +44,9 @@ def apply_wtforms_compat():
         return
 
     from flask_admin.contrib.sqla import fields as sqla_fields
-    from flask_admin.form import fields as admin_fields
     from flask_mongoengine.wtf import fields as me_fields
 
     for cls in (
-        admin_fields.Select2Field,
         sqla_fields.QuerySelectField,
         sqla_fields.QuerySelectMultipleField,
         me_fields.QuerySetSelectField,

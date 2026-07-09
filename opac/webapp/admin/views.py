@@ -21,9 +21,9 @@ from flask_admin.contrib import mongoengine, sqla
 from flask_admin.contrib.mongoengine.tools import parse_like_term
 from flask_admin.form import Select2Field
 from flask_admin.model.form import InlineFormAdmin
-from flask_babelex import gettext as _
-from flask_babelex import lazy_gettext as __
-from jinja2 import Markup
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as __
+from markupsafe import Markup
 from legendarium.formatter import descriptive_short_format
 from mongoengine import (
     EmailField,
