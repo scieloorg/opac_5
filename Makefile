@@ -140,10 +140,20 @@ build_i18n:
 test: make_messages compile_messages build_i18n
 	export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test
 
-# help: coverage                       - perform test coverage checks
+# help: coverage                       - run tests with coverage (terminal + htmlcov/ + coverage.xml)
 .PHONY: coverage
 coverage:
 	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && flask --app opac.app test
+
+# help: coverage_html                  - rebuild HTML report from the last .coverage data
+.PHONY: coverage_html
+coverage_html:
+	@coverage html
+	@echo "HTML report: file://$(CURDIR)/htmlcov/index.html"
+
+# help: test_coverage                  - alias de coverage (compatibilidade com README antigo)
+.PHONY: test_coverage
+test_coverage: coverage
 
 ##############
 ## flask cli #

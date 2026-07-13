@@ -209,12 +209,128 @@ class MainTestCase(BaseTestCase):
         self.assertIn("Cadernos de Saúde Pública", body)
         self.assertIn("Title", body)
 
+    def test_download_journal_list_xls(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Revista XLS",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="xls",
+            )
+        )
+
+        self.assertStatus(response, 200)
+        self.assertEqual(response.mimetype, "application/vnd.ms-excel")
+        self.assertTrue(response.data.startswith(b"PK"))
+        self.assertIn(
+            "attachment; filename=",
+            response.headers.get("Content-Disposition", ""),
+        )
+
+    def test_download_journal_list_all_list_types_csv(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Revista Tipos",
+                "current_status": "current",
+                "is_public": True,
+                "study_areas": ["Health Sciences"],
+                "index_at": ["SCI"],
+                "publisher_name": "Editora Z",
+            }
+        )
+
+        for list_type in ("alpha", "areas", "wos", "publisher"):
+            response = self.client.get(
+                url_for(
+                    "main.download_journal_list",
+                    list_type=list_type,
+                    extension="csv",
+                )
+            )
+            self.assertStatus(response, 200)
+            self.assertEqual(response.mimetype, "text/csv")
+            self.assertIn("Revista Tipos", response.data.decode("utf-8"))
+
+    def test_download_journal_list_with_query_param(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Match Query Journal",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+        utils.makeOneJournal(
+            {
+                "title": "Other Journal",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="csv",
+                query="Match",
+            )
+        )
+
+        self.assertStatus(response, 200)
+        body = response.data.decode("utf-8")
+        self.assertIn("Match Query Journal", body)
+        self.assertNotIn("Other Journal", body)
+
+    def test_download_journal_list_accepts_uppercase_params(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal({"title": "Upper", "current_status": "current"})
+
+        csv_response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="ALPHA",
+                extension="CSV",
+            )
+        )
+        self.assertStatus(csv_response, 200)
+        self.assertEqual(csv_response.mimetype, "text/csv")
+
+        xls_response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="Areas",
+                extension="XLS",
+            )
+        )
+        self.assertStatus(xls_response, 200)
+        self.assertEqual(xls_response.mimetype, "application/vnd.ms-excel")
+
     def test_download_journal_list_invalid_extension(self):
         response = self.client.get(
             url_for(
                 "main.download_journal_list",
                 list_type="alpha",
                 extension="pdf",
+            )
+        )
+        self.assertStatus(response, 401)
+
+    def test_download_journal_list_invalid_list_type(self):
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="invalid",
+                extension="csv",
             )
         )
         self.assertStatus(response, 401)

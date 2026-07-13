@@ -606,6 +606,50 @@ class JournalControllerTestCase(BaseTestCase):
             ["Revista Saúde Pública", "42", "10", "2", "2024", "True"],
         )
 
+    def test_get_journal_generator_for_csv_without_last_issue_and_inactive(self):
+        """Sem last_issue e status não corrente: campos vazios e Is active?=False."""
+        self._make_one(
+            {
+                "title": "Revista Inativa",
+                "current_status": "deceased",
+                "issue_count": 0,
+            }
+        )
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+
+        self.assertEqual(
+            rows[1],
+            ["Revista Inativa", "0", "", "", "", "False"],
+        )
+
+    def test_get_journal_generator_for_csv_last_issue_with_empty_fields(self):
+        """last_issue presente com volume/number/year falsy usa string vazia."""
+        last_issue = utils.getLastIssue()
+        last_issue.volume = None
+        last_issue.number = None
+        last_issue.year = None
+        self._make_one(
+            {
+                "title": "Sem dados de fascículo",
+                "current_status": "current",
+                "last_issue": last_issue,
+            }
+        )
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+
+        self.assertEqual(rows[1][0], "Sem dados de fascículo")
+        self.assertEqual(rows[1][2], "")
+        self.assertEqual(rows[1][3], "")
+        self.assertEqual(rows[1][4], "")
+
     def test_get_journal_generator_for_csv_areas_includes_study_areas(self):
         self._make_one(
             {
@@ -652,6 +696,55 @@ class JournalControllerTestCase(BaseTestCase):
         self.assertEqual(publisher_rows[0][0], "Publisher")
         self.assertEqual(publisher_rows[1][0], "Editora São Paulo")
         self.assertEqual(publisher_rows[1][1], "Indexada WoS")
+
+    def test_get_journal_generator_for_csv_respects_title_query(self):
+        self._make_one({"title": "Alpha Journal", "current_status": "current"})
+        self._make_one({"title": "Beta Journal", "current_status": "current"})
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha",
+            title_query="Beta",
+            extension="csv",
+        )
+        text = data.decode("utf-8")
+        self.assertIn("Beta Journal", text)
+        self.assertNotIn("Alpha Journal", text)
+
+    def test_get_journal_generator_for_csv_empty_list_returns_headers_only(self):
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][0], "Title")
+
+    def test_get_journal_generator_for_csv_invalid_list_type_raises(self):
+        with self.assertRaises(ValueError) as ctx:
+            controllers.get_journal_generator_for_csv(
+                list_type="invalid", extension="csv"
+            )
+        self.assertIn("list_type", str(ctx.exception))
+
+    def test_get_journal_generator_for_csv_xls_all_list_types(self):
+        """Cobre o ramo XLSX para alpha/areas/wos/publisher."""
+        last_issue = utils.getLastIssue({"volume": "1", "number": "1", "year": "2020"})
+        self._make_one(
+            {
+                "title": "Planilha Completa",
+                "current_status": "current",
+                "study_areas": ["Health Sciences"],
+                "index_at": ["SCI"],
+                "publisher_name": "Editora Teste",
+                "last_issue": last_issue,
+            }
+        )
+
+        for list_type in ("alpha", "areas", "wos", "publisher"):
+            data = controllers.get_journal_generator_for_csv(
+                list_type=list_type, extension="xls"
+            )
+            self.assertIsInstance(data, bytes, list_type)
+            self.assertTrue(data.startswith(b"PK"), list_type)
 
     def test_get_journal_generator_for_csv_xls_returns_xlsx_bytes(self):
         self._make_one({"title": "Planilha XLS", "current_status": "current"})

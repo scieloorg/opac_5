@@ -1,0 +1,29 @@
+# Cobertura do OPAC — escopo: Python sob opac/webapp/
+# Usado por: make coverage / FLASK_COVERAGE=1 flask --app opac.app test
+
+[run]
+branch = True
+source = opac/webapp
+omit =
+    */webapp/static/*
+    */webapp/templates/*
+    */webapp/translations/*
+    */webapp/media/*
+    */webapp/config/templates/*
+
+[report]
+show_missing = True
+skip_empty = True
+precision = 1
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+
+[html]
+directory = htmlcov
+title = OPAC webapp coverage
+
+[xml]
+output = coverage.xml

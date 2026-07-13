@@ -759,7 +759,9 @@ def download_journal_list(list_type, extension):
             mimetype = "text/csv"
         query = request.args.get("query", "", type=str)
         data = controllers.get_journal_generator_for_csv(
-            list_type=list_type, title_query=query, extension=extension.lower()
+            list_type=list_type.lower(),
+            title_query=query,
+            extension=extension.lower(),
         )
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filename = "journals_%s_%s.%s" % (list_type, timestamp, extension)
@@ -1282,12 +1284,11 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
                 break
 
         website = request.url
-        if website:
-            parsed_url = urlparse(request.url)
-            if current_app.config["FORCE_USE_HTTPS_GOOGLE_TAGS"]:
-                website = "{}://{}".format("https", parsed_url.netloc)
-            else:
-                website = "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
+        parsed_url = urlparse(request.url)
+        if current_app.config["FORCE_USE_HTTPS_GOOGLE_TAGS"]:
+            website = "{}://{}".format("https", parsed_url.netloc)
+        else:
+            website = "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
         if citation_pdf_url:
             citation_pdf_url = "{}{}".format(website, citation_pdf_url)
         try:

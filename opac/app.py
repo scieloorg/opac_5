@@ -20,7 +20,8 @@ if FLASK_COVERAGE:
         raise RuntimeError(msg)
     COV = None
     if FLASK_COVERAGE:
-        COV = coverage.coverage(branch=True, include="opac/webapp/*")
+        # Lê .coveragerc na raiz do repo (branch=True, source=opac/webapp)
+        COV = coverage.Coverage()
         COV.start()
 else:
     COV = None
@@ -204,12 +205,19 @@ def test(pattern=None, failfast=False):
         COV.stop()
         COV.save()
         print("Coverage Summary:")
-        COV.report()
-        # basedir = os.path.abspath(os.path.dirname(__file__))
-        # covdir = 'tmp/coverage'
-        # COV.html_report(directory=covdir)
-        # print('HTML version: file://%s/index.html' % covdir)
-        COV.erase()
+        COV.report(show_missing=True)
+        # coverage 7: html_report/xml_report retornam o % total, não o path
+        COV.html_report()
+        COV.xml_report()
+        html_dir = os.path.abspath(
+            getattr(COV.config, "html_dir", None) or "htmlcov"
+        )
+        xml_path = os.path.abspath(
+            getattr(COV.config, "xml_output", None) or "coverage.xml"
+        )
+        print("HTML report: file://%s/index.html" % html_dir)
+        print("XML report:  %s" % xml_path)
+        # Mantém .coverage / htmlcov / coverage.xml para inspeção e ratchet (não chama erase)
 
     if result.wasSuccessful():
         return sys.exit()

@@ -286,7 +286,7 @@ def generate_thumbnail(input_filename):
     except IOError as e:
         logger.error("%s" % e)
     except Exception as e:
-        logger.exception("Unexpected error", e)
+        logger.exception("Unexpected error: %s", e)
     else:
         return image_path
 
