@@ -177,6 +177,48 @@ class MainTestCase(BaseTestCase):
 
         self.assertIn("Nenhum periódico encontrado", response.data.decode("utf-8"))
 
+    def test_download_journal_list_csv_with_unicode(self):
+        """
+        Download CSV da lista de periódicos deve servir text/csv em UTF-8
+        preservando acentos no título.
+        """
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Cadernos de Saúde Pública",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="csv",
+            )
+        )
+
+        self.assertStatus(response, 200)
+        self.assertEqual(response.mimetype, "text/csv")
+        self.assertIn(
+            "attachment; filename=",
+            response.headers.get("Content-Disposition", ""),
+        )
+        body = response.data.decode("utf-8")
+        self.assertIn("Cadernos de Saúde Pública", body)
+        self.assertIn("Title", body)
+
+    def test_download_journal_list_invalid_extension(self):
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="pdf",
+            )
+        )
+        self.assertStatus(response, 401)
+
     @unittest.skip("Revisar/Refazer, agora a lista é carregada com ajax")
     def test_collection_list_theme(self):
         """

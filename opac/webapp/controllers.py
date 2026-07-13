@@ -15,8 +15,8 @@ from collections import OrderedDict
 from datetime import datetime
 from uuid import uuid4
 
+import csv
 import tweepy
-import unicodecsv
 import xlsxwriter
 from flask import current_app, url_for
 from flask_babel import gettext as _
@@ -498,15 +498,14 @@ def get_journal_generator_for_csv(
     journals = get_journals(title_query, is_public, order_by=order_by)
 
     if extension == "csv":
-        csv_file = io.BytesIO()
-        csv_writer = unicodecsv.writer(csv_file, encoding="utf-8")
+        csv_file = io.StringIO()
+        csv_writer = csv.writer(csv_file)
         csv_writer.writerow(csv_headers)
 
         for journal in journals:
             csv_writer.writerow(format_csv_row(list_type, journal))
-        csv_file.seek(0)
 
-        return csv_file.getvalue()
+        return csv_file.getvalue().encode("utf-8")
     else:
         output = io.BytesIO()
 
