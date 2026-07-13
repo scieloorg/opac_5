@@ -135,6 +135,15 @@ class CustomFilterConverter(FilterConverter):
         CustomFilterInList,
         CustomFilterNotInList,
     )
+    string_filters = (
+        CustomFilterLike,
+        CustomFilterNotLike,
+        CustomFilterEqual,
+        CustomFilterNotEqual,
+        CustomFilterEmpty,
+        CustomFilterInList,
+        CustomFilterNotInList,
+    )
     embedded_filters = (
         CustomFilterLike,
         CustomFilterNotLike,
@@ -149,6 +158,12 @@ class CustomFilterConverter(FilterConverter):
     @filters.convert("ReferenceField")
     def conv_reference(self, column, name):
         return [f(column, name) for f in self.reference_filters]
+
+    @filters.convert("StringField")
+    @filters.convert("URLField")
+    @filters.convert("EmailField")
+    def conv_string(self, column, name):
+        return [f(column, name) for f in self.string_filters]
 
     @filters.convert("EmbeddedDocumentField")
     def conv_embedded(self, column, name):

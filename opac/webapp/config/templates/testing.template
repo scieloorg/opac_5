@@ -94,15 +94,18 @@ MONGODB_PORT = os.environ.get('OPAC_MONGODB_PORT', 27017)
 MONGODB_USER = os.environ.get('OPAC_MONGODB_USER', None)
 MONGODB_PASS = os.environ.get('OPAC_MONGODB_PASS', None)
 
-MONGODB_SETTINGS = {
-    'db': MONGODB_NAME,
-    'host': MONGODB_HOST,
-    'port': int(MONGODB_PORT),
-}
+MONGODB_SETTINGS = [
+    {
+        'db': MONGODB_NAME,
+        'host': MONGODB_HOST,
+        'port': int(MONGODB_PORT),
+        'alias': 'default',
+    }
+]
 
 # if MONGODB_USER and MONGODB_PASS:
-#     MONGODB_SETTINGS['username'] = MONGODB_USER
-#     MONGODB_SETTINGS['password'] = MONGODB_PASS
+#     MONGODB_SETTINGS[0]['username'] = MONGODB_USER
+#     MONGODB_SETTINGS[0]['password'] = MONGODB_PASS
 
 
 # Configurações do banco de dados SQL

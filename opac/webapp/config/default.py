@@ -12,7 +12,7 @@ import ast
       - http://flask.pocoo.org/docs/0.10/config/#builtin-configuration-values
       - https://pythonhosted.org/flask-mail/#configuring-flask-mail
       - http://flask-sqlalchemy.pocoo.org/2.1/config/
-      - https://flask-mongoengine.readthedocs.org/en/latest/#configuration
+      - https://flask-mongoengine-3.readthedocs.io/en/latest/flask_config.html
 
   Para ajustar configurações, pode definir as variáveis de ambiente (ver abaixo) no seu host,
   ou copie o template que melhor se ajuste a seu ambiente, e apontando o caminho absoluto
@@ -279,15 +279,18 @@ MONGODB_PORT = os.environ.get("OPAC_MONGODB_PORT", 27017)
 MONGODB_USER = os.environ.get("OPAC_MONGODB_USER", None)
 MONGODB_PASS = os.environ.get("OPAC_MONGODB_PASS", None)
 
-MONGODB_SETTINGS = {
-    "db": MONGODB_NAME,
-    "host": MONGODB_HOST,
-    "port": int(MONGODB_PORT),
-}
+MONGODB_SETTINGS = [
+    {
+        "db": MONGODB_NAME,
+        "host": MONGODB_HOST,
+        "port": int(MONGODB_PORT),
+        "alias": "default",
+    }
+]
 
 if MONGODB_USER and MONGODB_PASS:
-    MONGODB_SETTINGS["username"] = MONGODB_USER
-    MONGODB_SETTINGS["password"] = MONGODB_PASS
+    MONGODB_SETTINGS[0]["username"] = MONGODB_USER
+    MONGODB_SETTINGS[0]["password"] = MONGODB_PASS
 
 
 # Configurações do banco de dados SQL

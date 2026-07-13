@@ -94,8 +94,13 @@ class CustomFiltersTestCase(BaseTestCase):
 
         result = filter_converter.convert("ReferenceField", Issue.journal, "journal")
         expected = [f(Issue.journal, "journal") for f in filtes_reference_field]
-
-        self.assertListEqual([vars(i) for i in expected], [vars(i) for i in result])
+        # Flask-Admin 2.2 normaliza `column` para string internamente.
+        self.assertListEqual([i.name for i in expected], [i.name for i in result])
+        self.assertListEqual([i.options for i in expected], [i.options for i in result])
+        self.assertListEqual(
+            [i.__class__.__name__ for i in expected],
+            [i.__class__.__name__ for i in result],
+        )
 
     def test_filters_list_field(self):
         filter_converter = CustomFilterConverter()
@@ -103,8 +108,12 @@ class CustomFiltersTestCase(BaseTestCase):
 
         result = filter_converter.convert("ListField", Journal.index_at, "index_at")
         expected = [f(Journal.index_at, "index_at") for f in filtes_list_field]
-
-        self.assertListEqual([vars(i) for i in expected], [vars(i) for i in result])
+        self.assertListEqual([i.name for i in expected], [i.name for i in result])
+        self.assertListEqual([i.options for i in expected], [i.options for i in result])
+        self.assertListEqual(
+            [i.__class__.__name__ for i in expected],
+            [i.__class__.__name__ for i in result],
+        )
 
     def test_custom_filter_not_equal(self):
         journal = makeOneJournal({"title": "title-%s" % str(uuid4().hex)})

@@ -90,7 +90,7 @@ def load_user(user_id):
     Retora usuário pelo id.
     Necessário para o login manager.
     """
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 class File(db.Model):

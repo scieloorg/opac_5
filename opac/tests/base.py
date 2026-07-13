@@ -28,7 +28,8 @@ class MongoInstance(object):
 
     def __init__(self):
         self._tmpdir = tempfile.mkdtemp()
-        self.mongo_settings = current_app.config["MONGODB_SETTINGS"]
+        settings = current_app.config["MONGODB_SETTINGS"]
+        self.mongo_settings = settings[0] if isinstance(settings, list) else settings
 
         # XXX: wait for the instance to be ready
         #      Mongo is ready in a glance, we just wait to be able to open a
@@ -75,5 +76,9 @@ class BaseTestCase(TestCase):
     def tearDown(self):
         dbsql.session.remove()
         dbsql.drop_all()
-        mongo_db_name = current_app.config["MONGODB_SETTINGS"]["db"]
+        mongo_settings = current_app.config["MONGODB_SETTINGS"]
+        if isinstance(mongo_settings, list):
+            mongo_db_name = mongo_settings[0]["db"]
+        else:
+            mongo_db_name = mongo_settings["db"]
         self.conn.drop_database(mongo_db_name)
