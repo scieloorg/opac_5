@@ -1585,7 +1585,7 @@ def get_user_by_id(id):
     if not isinstance(id, int):
         raise ValueError(__("Parâmetro email deve ser uma inteiro"))
 
-    return dbsql.session.query(User).get(id)
+    return dbsql.session.get(User, id)
 
 
 def set_user_email_confirmed(user):

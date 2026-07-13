@@ -239,10 +239,10 @@ def create_app():
     )
     admin.add_view(views.NewsAdminView(News, name=lazy_gettext("Notícias")))
     admin.add_view(
-        views.FileAdminView(File, dbsql.session, category=lazy_gettext("Ativos"))
+        views.FileAdminView(File, dbsql, category=lazy_gettext("Ativos"))
     )
     admin.add_view(
-        views.ImageAdminView(Image, dbsql.session, category=lazy_gettext("Ativos"))
+        views.ImageAdminView(Image, dbsql, category=lazy_gettext("Ativos"))
     )
     admin.add_view(views.PagesAdminView(Pages, name=lazy_gettext("Páginas")))
     admin.add_view(
@@ -255,7 +255,7 @@ def create_app():
     admin.add_view(
         views.UserAdminView(
             User,
-            dbsql.session,
+            dbsql,
             category=lazy_gettext("Gestão"),
             name=lazy_gettext("Usuário"),
         )
