@@ -4263,6 +4263,40 @@ class CollectionAdminViewTests(BaseTestCase):
             can_edit = self.get_context_variable("admin_view").can_edit
             self.assertTrue(can_edit)
 
+    def test_admin_collection_edit_view_renders_with_sponsors(self):
+        """
+        Com:
+            - usuário administrador cadastrado (com email confirmado)
+            - uma coleção com financiadores associados
+        Quando:
+            - acessamos a pagina de edição da coleção
+        Verificamos:
+            - que o formulário é renderizado sem erro
+        """
+        collection = makeOneCollection()
+        sponsor = makeOneSponsor({"order": 1, "name": "Financiador QA"})
+        collection.sponsors = [sponsor]
+        collection.save()
+
+        admin_user = {
+            "email": "admin@opac.org",
+            "password": "foobarbaz",
+        }
+        create_user(admin_user["email"], admin_user["password"], True)
+        login_url = url_for("admin.login_view")
+        collection_edit_url = url_for("collection.edit_view")
+
+        with self.client as client:
+            login_response = client.post(
+                login_url, data=admin_user, follow_redirects=True
+            )
+            self.assertStatus(login_response, 200)
+
+            edit_response = client.get(collection_edit_url)
+            self.assertStatus(edit_response, 200)
+            self.assertTemplateUsed("admin/model/modals/edit.html")
+            self.assertIn(sponsor.name, edit_response.data.decode("utf-8"))
+
     def test_admin_collection_check_can_delete_is_false(self):
         """
         Com:

@@ -112,6 +112,10 @@ def configure_apm_agent(app):
 
 
 def create_app():
+    from .wtforms_compat import apply_wtforms_compat
+
+    apply_wtforms_compat()
+
     app = Flask(
         __name__,
         static_url_path="/static",
