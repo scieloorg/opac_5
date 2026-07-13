@@ -1,15 +1,15 @@
 {% extends 'admin/opac_base.html' %}
+
 {% block body %}
-  {{ super() }}
-  <div class="row-fluid">
-    <div class="col-md-5 col-md-offset-4">
-        <div class="panel panel-danger">
-          <div class="panel-heading">{% trans %}Email não confirmado!{% endtrans %}</div>
-          <div class="panel-body">
-            {% trans %}Você <strong>deve</strong> confirmar seu email.<br>
-            <strong>Por favor entre em contato com o administrador.</strong>{% endtrans %}
-          </div>
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card border-danger mb-3">
+        <div class="card-header bg-danger text-white">{% trans %}Email não confirmado!{% endtrans %}</div>
+        <div class="card-body">
+          {% trans %}Você <strong>deve</strong> confirmar seu email.<br>
+          <strong>Por favor entre em contato com o administrador.</strong>{% endtrans %}
         </div>
+      </div>
     </div>
   </div>
 {% endblock body %}

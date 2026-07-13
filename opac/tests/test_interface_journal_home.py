@@ -5,7 +5,7 @@ from unittest.mock import patch
 import flask
 from bs4 import BeautifulSoup
 from flask import current_app, url_for
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
 
 from . import utils
 from .base import BaseTestCase

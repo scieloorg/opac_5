@@ -143,21 +143,60 @@ test: make_messages compile_messages build_i18n
 # help: coverage                       - perform test coverage checks
 .PHONY: coverage
 coverage:
-	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && flask --app opac/app.py test
+	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && flask --app opac.app test
 
-##########
-# cache  #
-##########
+##############
+## flask cli #
+##############
+
+FLASK_APP_CMD = flask --app opac.app
+FLASK_DOCKER = $(DOCKER_COMPOSE) -f $(compose) exec opac_webapp $(FLASK_APP_CMD)
+FLASK_DOCKER_IT = $(DOCKER_COMPOSE) -f $(compose) exec -it opac_webapp $(FLASK_APP_CMD)
 
 # help: invalidate_cache               - invalidate cache
 .PHONY: invalidate_cache
-invalidate_cache:
-	flask --app opac/app.py invalidate_cache
+invalidate_cache: up
+	$(FLASK_DOCKER_IT) invalidate_cache
 
 # help: invalidate_cache_forced        - invalidate cache forced
 .PHONY: invalidate_cache_forced
-invalidate_cache_forced:
-	flask --app opac/app.py invalidate_cache --force_clear true
+invalidate_cache_forced: up
+	$(FLASK_DOCKER) invalidate_cache --force_clear true
+
+# help: reset_dbsql                    - reset SQLite database (use FORCE_DELETE=true to force)
+.PHONY: reset_dbsql
+reset_dbsql: up
+	$(FLASK_DOCKER) reset_dbsql $(if $(FORCE_DELETE),--force_delete true,)
+
+# help: create_tables_dbsql            - create SQLite tables (use FORCE_DELETE=true to force)
+.PHONY: create_tables_dbsql
+create_tables_dbsql: up
+	$(FLASK_DOCKER) create_tables_dbsql $(if $(FORCE_DELETE),--force_delete true,)
+
+# help: create_superuser               - create a superuser interactively
+.PHONY: create_superuser
+create_superuser: up
+	$(FLASK_DOCKER_IT) create_superuser
+
+# help: setup_scheduler_tasks          - setup scheduler tasks (optional CRON_STRING)
+.PHONY: setup_scheduler_tasks
+setup_scheduler_tasks: up
+	$(FLASK_DOCKER) setup_scheduler_tasks $(if $(CRON_STRING),--cron_string "$(CRON_STRING)",)
+
+# help: clear_scheduler_tasks          - clear scheduler tasks
+.PHONY: clear_scheduler_tasks
+clear_scheduler_tasks: up
+	$(FLASK_DOCKER) clear_scheduler_tasks
+
+# help: send_audit_log_emails          - send audit log notification emails
+.PHONY: send_audit_log_emails
+send_audit_log_emails: up
+	$(FLASK_DOCKER) send_audit_log_emails
+
+# help: create_empty_sqlite            - create empty SQLite database interactively
+.PHONY: create_empty_sqlite
+create_empty_sqlite: up
+	$(FLASK_DOCKER_IT) create_empty_sqlite
 
 #################
 ## static files #

@@ -25,7 +25,8 @@ from flask import (
     session,
     url_for,
 )
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
+from flask_babel import refresh as babel_refresh
 from legendarium.formatter import descriptive_short_format
 from lxml import etree
 from opac_schema.v1.models import Article, Collection, Issue, Journal
@@ -72,6 +73,12 @@ def add_collection_to_g():
 
 
 @main.before_app_request
+def reset_babel_locale():
+    """Recalcula o locale a cada request (session pode ter mudado)."""
+    babel_refresh()
+
+
+@main.before_app_request
 def add_langs():
     session["langs"] = current_app.config.get("LANGUAGES")
 
@@ -110,7 +117,7 @@ def add_scielo_org_config_to_g():
     setattr(g, "scielo_org", scielo_org_links)
 
 
-@babel.localeselector
+
 def get_locale():
     langs = current_app.config.get("LANGUAGES")
     lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
@@ -140,6 +147,7 @@ def set_locale(lang_code):
 
     # salvar o lang code na sessão
     session["lang"] = lang_code
+    babel_refresh()
     if referrer:
         return redirect(referrer)
     else:

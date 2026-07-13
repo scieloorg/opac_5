@@ -1,0 +1,30 @@
+/* OPAC admin — complementos ao tema Bootstrap 4 do Flask-Admin 2 */
+
+.opac-admin-dashboard h1 {
+  margin-bottom: 0.25rem;
+}
+
+.opac-admin-dashboard h1 small {
+  font-size: 45%;
+}
+
+.opac-admin-stat-card .card-body h1,
+.opac-admin-stat-card .card-body h2 {
+  margin: 0;
+}
+
+.opac-admin-stat-card .card-body h1 small,
+.opac-admin-stat-card .card-body h2 small {
+  font-size: 40%;
+  font-weight: normal;
+}
+
+.opac-admin-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.opac-admin-footer a {
+  margin: 0 0.25rem;
+}

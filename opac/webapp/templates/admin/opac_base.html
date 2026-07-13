@@ -1,61 +1,63 @@
 {% extends 'admin/base.html' %}
-{% block brand %}
-  <a class="navbar-brand" href="{{url_for('admin.index')}}">{{ admin_view.admin.name }}</a>
+
+{% block head_css %}
+  {{ super() }}
+  <link href="{{ url_for('static', filename='css/admin/opac-admin.css') }}" rel="stylesheet">
 {% endblock %}
+
+{% block brand %}
+  <a class="navbar-brand" href="{{ url_for('admin.index') }}">{{ admin_view.admin.name }}</a>
+{% endblock %}
+
 {% block access_control %}
-  <ul class="nav navbar-nav navbar-right">
+  <ul class="navbar-nav ml-auto">
     {% if current_user.is_authenticated %}
-      <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-          {{ current_user.email }} <span class="caret"></span>
+      <li class="nav-item dropdown">
+        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          {{ current_user.email }}
         </a>
-        <ul class="dropdown-menu">
-          <li><a href="{{ url_for('admin.reset') }}">{% trans %}Recuperar a senha{% endtrans %}</a></li>
-          <li><a href="{{ url_for('admin.logout_view') }}">{% trans %}Terminar sessão{% endtrans %}</a></li>
-        </ul>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a class="dropdown-item" href="{{ url_for('admin.reset') }}">{% trans %}Recuperar a senha{% endtrans %}</a>
+          <a class="dropdown-item" href="{{ url_for('admin.logout_view') }}">{% trans %}Terminar sessão{% endtrans %}</a>
+        </div>
       </li>
     {% else %}
-      <li><a href="{{ url_for('admin.login_view') }}">{% trans %}Iniciar sessão{% endtrans %}</a></li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin.login_view') }}">{% trans %}Iniciar sessão{% endtrans %}</a>
+      </li>
     {% endif %}
   </ul>
 {% endblock %}
 
 {% block tail %}
-  <div class="text-center"><a href="{{ url_for('main.index') }}" class="bigpopup">Visualizar Site</center>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <hr>
-        <p class="text-center text-capitalize">
+  <div class="opac-admin-footer text-center">
+    <a href="{{ url_for('main.index') }}" class="bigpopup">{% trans %}Visualizar Site{% endtrans %}</a>
+    <div class="container mt-3">
+      <p class="text-center text-capitalize mb-0">
+        <small>
+          {% for k, v in config.LANGUAGES.items() %}
+            <a href="{{ url_for('main.set_locale', lang_code=k) }}">
+              {% if k == session['lang'] %}
+                <strong>{{ v }}</strong>
+              {% else %}
+                {{ v }}
+              {% endif %}
+            </a>
+            {% if not loop.last %}|{% endif %}
+          {% endfor %}
+        </small>
+      </p>
+      {% if config.BUILD_DATE or config.VCS_REF or config.WEBAPP_VERSION %}
+        <p class="text-center mb-0 mt-2">
           <small>
-            {% for k,v in config.LANGUAGES.items() %}
-              <a href="{{ url_for('main.set_locale', lang_code=k) }}">
-                {% if k == session['lang'] %}
-                  <strong>{{ v }}</strong>
-                {% else %}
-                  {{ v }}
-                {% endif %}
-              </a>
-              {% if not loop.last %}|{% endif %}
-            {% endfor %}
+            {% if config.BUILD_DATE %}{{ config.BUILD_DATE }} | {% endif %}
+            {% if config.VCS_REF %}{{ config.VCS_REF }} | {% endif %}
+            {% if config.WEBAPP_VERSION %}{{ config.WEBAPP_VERSION }}{% endif %}
           </small>
         </p>
-        <hr>
-      </div>
+      {% endif %}
     </div>
   </div>
-  {% if config.BUILD_DATE or config.VCS_REF or config.WEBAPP_VERSION %}
-    <div class="container">
-      <div class="text-center">
-        <small>
-          {% if config.BUILD_DATE %}{{config.BUILD_DATE}} | {% endif %}
-          {% if config.VCS_REF %} {{config.VCS_REF}} | {% endif %}
-          {% if config.WEBAPP_VERSION %} {{ config.WEBAPP_VERSION }}{% endif %}
-        </small>
-      </div>
-    </div>
-  {% endif %}
-  <script src="{{ url_for('static', filename='js/jquery.popupwindows.js') }}"> </script>
-  <script src="{{ url_for('static', filename='js/admin/common.js') }}"> </script>
-
+  <script src="{{ url_for('static', filename='js/jquery.popupwindows.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin/common.js') }}"></script>
 {% endblock %}

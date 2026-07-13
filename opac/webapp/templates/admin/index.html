@@ -1,24 +1,29 @@
 {% extends 'admin/opac_base.html' %}
+
 {% block body %}
-{{ super() }}
-  <div class="container">
-    <div class="row">
-      <div class="page-header">
-        <h1>OPAC Admin <small>{% trans %}da coleção{% endtrans %}: {{config.OPAC_COLLECTION|upper}}</small></h1>
+  <div class="opac-admin-dashboard">
+    <div class="row mb-4">
+      <div class="col-12">
+        <h1>OPAC Admin <small class="text-muted">{% trans %}da coleção{% endtrans %}: {{ config.OPAC_COLLECTION|upper }}</small></h1>
       </div>
+    </div>
+
+    <div class="row">
       <div class="col-md-4">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">{% trans %}Periódicos{% endtrans %}:</h3>
+        <div class="card opac-admin-stat-card mb-3">
+          <div class="card-header">
+            <h5 class="mb-0">{% trans %}Periódicos{% endtrans %}:</h5>
           </div>
-          <div class="panel-body">
-            <h1>{{counts.journals_public_count}} <small>{% trans %}Publicados{% endtrans %}</small></h1>
-            <h2>{{counts.journals_total_count}} <small>{% trans %}Total{% endtrans %}</small></h2>
+          <div class="card-body">
+            <h1>{{ counts.journals_public_count }} <small>{% trans %}Publicados{% endtrans %}</small></h1>
+            <h2>{{ counts.journals_total_count }} <small>{% trans %}Total{% endtrans %}</small></h2>
           </div>
           {% if counts.journals_total_count > 0 %}
-            <div class="panel-footer">
+            <div class="card-footer">
               <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="{{counts.journals_public_count}}" aria-valuemin="0" aria-valuemax="100" style="width: {{ 100 * (counts.journals_public_count / counts.journals_total_count)|round(2, 'floor') }}%;">
+                <div class="progress-bar" role="progressbar"
+                     aria-valuenow="{{ counts.journals_public_count }}" aria-valuemin="0" aria-valuemax="100"
+                     style="width: {{ 100 * (counts.journals_public_count / counts.journals_total_count)|round(2, 'floor') }}%;">
                   {{ 100 * (counts.journals_public_count / counts.journals_total_count)|round(2, 'floor') }}% {% trans %}Publicados{% endtrans %}
                 </div>
               </div>
@@ -26,19 +31,22 @@
           {% endif %}
         </div>
       </div>
+
       <div class="col-md-4">
-        <div class="panel panel-info">
-          <div class="panel-heading">
-            <h3 class="panel-title">{% trans %}Fascícluos{% endtrans %}:</h3>
+        <div class="card opac-admin-stat-card mb-3 border-info">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">{% trans %}Fascícluos{% endtrans %}:</h5>
           </div>
-          <div class="panel-body">
-            <h1>{{counts.issues_public_count}} <small>{% trans %}Publicados{% endtrans %}</small></h1>
-            <h2>{{counts.issues_total_count}} <small>{% trans %}Total{% endtrans %}</small></h2>
+          <div class="card-body">
+            <h1>{{ counts.issues_public_count }} <small>{% trans %}Publicados{% endtrans %}</small></h1>
+            <h2>{{ counts.issues_total_count }} <small>{% trans %}Total{% endtrans %}</small></h2>
           </div>
           {% if counts.issues_total_count > 0 %}
-            <div class="panel-footer">
+            <div class="card-footer">
               <div class="progress">
-                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{counts.issues_public_count}}" aria-valuemin="0" aria-valuemax="100" style="width: {{ 100 * (counts.issues_public_count / counts.issues_total_count)|round(2, 'floor') }}%;">
+                <div class="progress-bar bg-info" role="progressbar"
+                     aria-valuenow="{{ counts.issues_public_count }}" aria-valuemin="0" aria-valuemax="100"
+                     style="width: {{ 100 * (counts.issues_public_count / counts.issues_total_count)|round(2, 'floor') }}%;">
                   {{ 100 * (counts.issues_public_count / counts.issues_total_count)|round(2, 'floor') }}% {% trans %}Publicados{% endtrans %}
                 </div>
               </div>
@@ -46,56 +54,64 @@
           {% endif %}
         </div>
       </div>
+
       <div class="col-md-4">
-        <div class="panel panel-success">
-          <div class="panel-heading">
-            <h3 class="panel-title">{% trans %}Artigos{% endtrans %}:</h3>
+        <div class="card opac-admin-stat-card mb-3 border-success">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">{% trans %}Artigos{% endtrans %}:</h5>
           </div>
-          <div class="panel-body">
-            <h1>{{counts.articles_public_count}} <small>{% trans %}Publicados{% endtrans %}</small></h1>
-            <h2>{{counts.articles_total_count}} <small>{% trans %}Total{% endtrans %}</small></h2>
+          <div class="card-body">
+            <h1>{{ counts.articles_public_count }} <small>{% trans %}Publicados{% endtrans %}</small></h1>
+            <h2>{{ counts.articles_total_count }} <small>{% trans %}Total{% endtrans %}</small></h2>
           </div>
           {% if counts.articles_total_count > 0 %}
-            <div class="panel-footer">
+            <div class="card-footer">
               <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{counts.articles_public_count}}" aria-valuemin="0" aria-valuemax="100" style="width: {{ 100 * (counts.articles_public_count / counts.articles_total_count)|round(2, 'floor') }}%;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     aria-valuenow="{{ counts.articles_public_count }}" aria-valuemin="0" aria-valuemax="100"
+                     style="width: {{ 100 * (counts.articles_public_count / counts.articles_total_count)|round(2, 'floor') }}%;">
                   {{ 100 * (counts.articles_public_count / counts.articles_total_count)|round(2, 'floor') }}% {% trans %}Publicados{% endtrans %}
                 </div>
               </div>
             </div>
           {% endif %}
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">{% trans %}News{% endtrans %}:</h3>
-        </div>
-        <div class="panel-body">
-          <h2>{{counts.news_total_count}} <small>{% trans %}Total{% endtrans %}</small></h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="panel panel-info">
-        <div class="panel-heading">
-          <h3 class="panel-title">{% trans %}Sponsors{% endtrans %}:</h3>
-        </div>
-        <div class="panel-body">
-          <h2>{{counts.sponsors_total_count}} <small>{% trans %}Total{% endtrans %}</small></h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="panel panel-success">
-        <div class="panel-heading">
-          <h3 class="panel-title">{% trans %}Press Releases{% endtrans %}:</h3>
-        </div>
-        <div class="panel-body">
-          <h2>{{counts.pressrelease_total_count}} <small>{% trans %}Total{% endtrans %}</small></h2>
         </div>
       </div>
     </div>
 
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card opac-admin-stat-card mb-3">
+          <div class="card-header">
+            <h5 class="mb-0">{% trans %}News{% endtrans %}:</h5>
+          </div>
+          <div class="card-body">
+            <h2>{{ counts.news_total_count }} <small>{% trans %}Total{% endtrans %}</small></h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card opac-admin-stat-card mb-3 border-info">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">{% trans %}Sponsors{% endtrans %}:</h5>
+          </div>
+          <div class="card-body">
+            <h2>{{ counts.sponsors_total_count }} <small>{% trans %}Total{% endtrans %}</small></h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card opac-admin-stat-card mb-3 border-success">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">{% trans %}Press Releases{% endtrans %}:</h5>
+          </div>
+          <div class="card-body">
+            <h2>{{ counts.pressrelease_total_count }} <small>{% trans %}Total{% endtrans %}</small></h2>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock body %}

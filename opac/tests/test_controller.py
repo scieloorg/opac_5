@@ -2,7 +2,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from flask_babelex import lazy_gettext as __
+from flask_babel import lazy_gettext as __
 from webapp import controllers, dbsql
 from webapp import utils as ut
 from werkzeug.security import check_password_hash

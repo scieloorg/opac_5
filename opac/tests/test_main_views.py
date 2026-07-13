@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlparse
 import flask
 from bs4 import BeautifulSoup
 from flask import current_app, g, render_template, url_for
-from flask_babelex import gettext as _
+from flask_babel import gettext as _
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import NonRetryableError, RetryableError
 
