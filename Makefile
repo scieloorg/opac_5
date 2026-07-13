@@ -161,17 +161,17 @@ invalidate_cache: up
 # help: invalidate_cache_forced        - invalidate cache forced
 .PHONY: invalidate_cache_forced
 invalidate_cache_forced: up
-	$(FLASK_DOCKER) invalidate_cache --force_clear true
+	$(FLASK_DOCKER) invalidate_cache --force-clear
 
 # help: reset_dbsql                    - reset SQLite database (use FORCE_DELETE=true to force)
 .PHONY: reset_dbsql
 reset_dbsql: up
-	$(FLASK_DOCKER) reset_dbsql $(if $(FORCE_DELETE),--force_delete true,)
+	$(FLASK_DOCKER) reset_dbsql $(if $(FORCE_DELETE),--force-delete,)
 
 # help: create_tables_dbsql            - create SQLite tables (use FORCE_DELETE=true to force)
 .PHONY: create_tables_dbsql
 create_tables_dbsql: up
-	$(FLASK_DOCKER) create_tables_dbsql $(if $(FORCE_DELETE),--force_delete true,)
+	$(FLASK_DOCKER) create_tables_dbsql $(if $(FORCE_DELETE),--force-delete,)
 
 # help: create_superuser               - create a superuser interactively
 .PHONY: create_superuser
