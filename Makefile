@@ -43,7 +43,7 @@ endif
 # help: help                           - display this makefile's help information
 .PHONY: help
 help:
-	@grep "^# help\:" Makefile | grep -v grep | sed 's/\# help\: //' | sed 's/\# help\://'
+	@grep "^# help\:" Makefile | grep -v grep | sed 's/\# help\: //' | sed 's/\# help\://' | sort -f
 
 # help: opac_version                   - OPAC version.
 opac_version:
@@ -57,10 +57,18 @@ venv:
 	@/bin/bash -c "source venv/bin/activate && pip install pip --upgrade && pip install -r requirements.dev.txt && pip install -r requirements.txt"
 	@echo "Enter virtual environment using:\n\n\t$ source venv/bin/activate\n"
 
-# help: clean                          - clean all files using .gitignore rules
-.PHONY: clean
-clean:
-	@git clean -X -f -d 
+# help: gitclean                       - clean ignored files using .gitignore rules
+.PHONY: gitclean
+gitclean:
+	@git clean -X -f -d
+
+# help: clear                          - remove .pyc, __pycache__ and the venv directory
+.PHONY: clear
+clear:
+	@find . -type f -name '*.pyc' -delete
+	@find . -type d -name '__pycache__' -exec rm -rf {} +
+	@rm -Rf venv
+	@echo "Removed .pyc, __pycache__ and venv."
 
 # help: scrub                          - clean all files, even untracked files
 .PHONY: scrub
