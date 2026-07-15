@@ -96,20 +96,24 @@ class MainTestCase(BaseTestCase):
 
     def test_change_set_locale(self):
         """
-        Teste para alterar o idioma da interface, nesse teste a URL:
-        '/set_locale/<string:lang_code>' deve criar uma variável na sessão com
-        o valor informado.
+        ``/set_locale/<lang_code>`` redireciona com ``ilang`` na query string
+        (sem gravar idioma na session).
         """
 
         with self.client as c:
-            response = c.get(url_for("main.set_locale", lang_code="es"))
+            response = c.get(
+                url_for("main.set_locale", lang_code="es"),
+                headers={"Referer": "/"},
+                follow_redirects=False,
+            )
             self.assertEqual(302, response.status_code)
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertIn("ilang=es", response.location)
+            self.assertNotIn("lang", flask.session)
 
     def test_redirect_when_change_set_locale(self):
         """
         Teste para verificar se o redirecionamento da ``view function``
-        ``set_locale`` retorna para a página esperada.
+        ``set_locale`` retorna para a página esperada com ``ilang``.
         """
 
         with self.client as c:
@@ -121,6 +125,7 @@ class MainTestCase(BaseTestCase):
             self.assertStatus(response, 200)
 
             self.assertTemplateUsed("collection/list_journal.html")
+            self.assertEqual(flask.g.lang, "es")
 
     def test_change_set_locale_with_unknow_lang(self):
         """

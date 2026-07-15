@@ -2,7 +2,7 @@
 {% block body_class %}portal collection{% endblock %}
 {% block content %}
   
-    {% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')) %}
+    {% with html_lang=g.lang %}
       {% if config.get('ALERT_MSG') %}
 
       <div class="alert alert-warning alert-dismissible text-center" style="display:none;">

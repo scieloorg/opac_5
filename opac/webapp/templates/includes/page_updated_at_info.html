@@ -2,7 +2,7 @@
 {% if page_updated_at %}
   <p class="page-updated-at">
     <small>
-    {% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')) %}
+    {% with html_lang=g.lang %}
       {% if html_lang == 'pt_BR' %}
         (Atualizado: {{ page_updated_at.strftime('%d/%m/%Y') }})
       {% elif html_lang == 'en' %}

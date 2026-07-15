@@ -39,7 +39,7 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "pt_BR")
+            self.assertEqual(flask.g.lang, "pt_BR")
             content = response.data.decode("utf-8")
             expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
             self.assertIn(expected, content)
@@ -71,7 +71,7 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertEqual(flask.g.lang, "es")
 
             content = response.data.decode("utf-8")
             expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
@@ -104,7 +104,7 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "en")
+            self.assertEqual(flask.g.lang, "en")
 
             content = response.data.decode("utf-8")
             expected = "Ciências Sociais Aplicadas, Ciências Agrárias"
@@ -145,7 +145,7 @@ class JournalHomeTestCase(BaseTestCase):
 
                     self.assertEqual(200, response.status_code)
 
-                    self.assertEqual(flask.session["lang"], lang)
+                    self.assertEqual(flask.g.lang, lang)
 
                     content = response.data.decode("utf-8")
                     self.assertIn(expected, content)
@@ -174,7 +174,7 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "pt_BR")
+            self.assertEqual(flask.g.lang, "pt_BR")
 
             self.assertIn(
                 "Esse periódico tem com objetivo xpto", response.data.decode("utf-8")
@@ -203,7 +203,7 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertEqual(flask.g.lang, "es")
 
             self.assertIn(
                 "Esta revista tiene como objetivo xpto", response.data.decode("utf-8")
@@ -232,7 +232,7 @@ class JournalHomeTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "en")
+            self.assertEqual(flask.g.lang, "en")
 
             self.assertIn("This journal is aiming xpto", response.data.decode("utf-8"))
 
@@ -629,7 +629,7 @@ class JournalHomeTestCase(BaseTestCase):
             self.assertEqual(200, response.status_code)
 
             self.assertIn(
-                '<meta property="og:url" content="http://%s/j/journal_acron/"/>'
+                '<meta property="og:url" content="http://%s/j/journal_acron/?ilang=en"/>'
                 % current_app.config["SERVER_NAME"],
                 response.data.decode("utf-8"),
             )

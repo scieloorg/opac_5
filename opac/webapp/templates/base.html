@@ -1,7 +1,7 @@
 {% import 'macros/collection.html' as coll_macro %}
 <!DOCTYPE html>
 
-{% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')).replace('_', '-')  %}
+{% with html_lang=g.lang.replace('_', '-')  %}
   <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="{{ html_lang }}" {% block ie7_extra_namespaces %}{% endblock %} > <![endif]-->
   <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="{{ html_lang }}"        {% block ie8_extra_namespaces %}{% endblock %}> <![endif]-->
   <!--[if IE 8]>         <html class="no-js lt-ie9" lang="{{ html_lang }}"               {% block ie9_extra_namespaces %}{% endblock %}> <![endif]-->
@@ -146,7 +146,7 @@
       // Garante que o valor do campo share_url é a URL corrente.
       $('#share_url').val(window.location.href);
 
-      //moment.locale('{{ session.lang }}');
+      //moment.locale('{{ g.lang }}');
 
       //$("#date").text(moment().format("L HH:mm:ss ZZ"));
 

@@ -78,7 +78,7 @@ class LocaleCoverageTests(BaseTestCase):
                 follow_redirects=False,
             )
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.location, "/about/#section-id")
+            self.assertEqual(response.location, "/about/?ilang=en#section-id")
 
     def test_set_locale_without_referrer_redirects_home(self):
         with self.client as client:
@@ -87,7 +87,11 @@ class LocaleCoverageTests(BaseTestCase):
                 follow_redirects=False,
             )
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.location, "/")
+            self.assertIn("ilang=en", response.location)
+            self.assertTrue(
+                response.location == "/?ilang=en"
+                or response.location.endswith("/?ilang=en")
+            )
 
 
 class IndexAndCollectionCoverageTests(MainViewsCoverageMixin, BaseTestCase):
@@ -296,10 +300,9 @@ class JournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                     "original_language": "en",
                 }
             )
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "pt_BR"
             response = self.client.get(
-                url_for("main.journal_feed", url_seg=journal.url_segment)
+                url_for("main.journal_feed", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
             )
             self.assertStatus(response, 200)
             self.assertIn("lang=en", response.data.decode("utf-8"))
@@ -315,10 +318,9 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
         mock_fetch.return_value = "<p>about content</p>"
         with current_app.app_context():
             journal = utils.makeOneJournal({"old_information_page": True})
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "pt_BR"
             response = self.client.get(
-                url_for("main.about_journal", url_seg=journal.url_segment)
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
             )
             self.assertStatus(response, 200)
             self.assertIn("about content", response.data.decode("utf-8"))
@@ -329,10 +331,9 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
         mock_get_page.side_effect = [None, page]
         with current_app.app_context():
             journal = utils.makeOneJournal({"old_information_page": True})
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "es"
             response = self.client.get(
-                url_for("main.about_journal", url_seg=journal.url_segment)
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "es"},
             )
             self.assertStatus(response, 200)
 
@@ -342,10 +343,9 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
         mock_get_page.return_value = page
         with current_app.app_context():
             journal = utils.makeOneJournal({"old_information_page": True})
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "en"
             response = self.client.get(
-                url_for("main.about_journal", url_seg=journal.url_segment)
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "en"},
             )
             self.assertStatus(response, 200)
 
@@ -557,14 +557,13 @@ class IssueTocCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                     "htmls": [{"lang": "en", "url": "http://example.com/a.html"}],
                 }
             )
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "pt_BR"
             response = self.client.get(
                 url_for(
                     "main.issue_feed",
                     url_seg=journal.url_segment,
                     url_seg_issue=issue.url_segment,
-                )
+                ),
+                query_string={"ilang": "pt_BR"},
             )
             self.assertStatus(response, 200)
 
@@ -1309,19 +1308,18 @@ class RemainingMainViewsCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             response = self.client.get(url_for("main.aop_toc", url_seg=journal.url_segment))
             self.assertStatus(response, 404)
 
-    def test_issue_feed_keeps_session_language_when_present(self):
+    def test_issue_feed_keeps_ilang_when_present(self):
         with current_app.app_context():
             journal, issue, _article = self._make_article_bundle(
                 {"languages": ["en"], "original_language": "en"}
             )
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "en"
             response = self.client.get(
                 url_for(
                     "main.issue_feed",
                     url_seg=journal.url_segment,
                     url_seg_issue=issue.url_segment,
-                )
+                ),
+                query_string={"ilang": "en"},
             )
             self.assertStatus(response, 200)
             self.assertIn("lang=en", response.data.decode("utf-8"))
