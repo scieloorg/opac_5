@@ -4290,6 +4290,78 @@ class CollectionAdminViewTests(BaseTestCase):
             self.assertTemplateUsed("admin/model/edit.html")
             self.assertIn(sponsor.name, edit_response.data.decode("utf-8"))
 
+    def test_admin_collection_edit_requires_only_acronym_and_name(self):
+        """
+        Com:
+            - usuário administrador cadastrado (com email confirmado)
+            - uma coleção existente
+        Quando:
+            - salvamos a edição informando apenas acrônimo e nome
+              (about, sponsors e logos vazios)
+        Verificamos:
+            - que a atualização é aceita
+            - que os campos opcionais permanecem vazios
+        """
+        collection = makeOneCollection(
+            {
+                "acronym": "scl",
+                "name": "SciELO Brasil",
+                "home_logo_pt": "http://example.com/logo.png",
+            }
+        )
+
+        admin_user = {
+            "email": "admin@opac.org",
+            "password": "foobarbaz",
+        }
+        create_user(admin_user["email"], admin_user["password"], True)
+        login_url = url_for("admin.login_view")
+        collection_edit_url = url_for("collection.edit_view", id=collection.id)
+
+        with self.client as client:
+            login_response = client.post(
+                login_url, data=admin_user, follow_redirects=True
+            )
+            self.assertStatus(login_response, 200)
+
+            edit_response = client.post(
+                collection_edit_url,
+                data={
+                    "acronym": "scl",
+                    "name": "Coleção Atualizada",
+                    "name_pt": "",
+                    "name_es": "",
+                    "name_en": "",
+                    "address1": "",
+                    "address2": "",
+                    "about": "",
+                    "sponsors": "",
+                    "home_logo_pt": "",
+                    "home_logo_es": "",
+                    "home_logo_en": "",
+                    "header_logo_pt": "",
+                    "header_logo_es": "",
+                    "header_logo_en": "",
+                    "logo_drop_menu": "",
+                    "menu_logo_pt": "",
+                    "menu_logo_es": "",
+                    "menu_logo_en": "",
+                    "logo_footer": "",
+                },
+                follow_redirects=True,
+            )
+            self.assertStatus(edit_response, 200)
+            response_text = edit_response.data.decode("utf-8")
+            self.assertNotIn("Not a valid choice", response_text)
+            self.assertNotIn("Invalid scheme", response_text)
+            self.assertNotIn("Falha ao atualizar registro", response_text)
+
+            collection.reload()
+            self.assertEqual(collection.name, "Coleção Atualizada")
+            self.assertEqual(collection.acronym, "scl")
+            self.assertFalse(collection.about)
+            self.assertIsNone(collection.home_logo_pt)
+
     def test_admin_collection_check_can_delete_is_false(self):
         """
         Com:

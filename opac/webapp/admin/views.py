@@ -18,11 +18,13 @@ from flask import (
 )
 from flask_admin.actions import action
 from flask_admin.contrib import mongoengine, sqla
+from flask_admin.contrib.mongoengine.form import CustomModelConverter
 from flask_admin.contrib.mongoengine.tools import parse_like_term
 from flask_admin.form import Select2Field
 from flask_admin.model.form import InlineFormAdmin
 from flask_babel import gettext as _
 from flask_babel import lazy_gettext as __
+from flask_mongoengine.wtf.fields import NoneStringField
 from markupsafe import Markup
 from legendarium.formatter import descriptive_short_format
 from mongoengine import (
@@ -48,6 +50,7 @@ from webapp.utils import (
     get_timed_serializer,
     migrate_page_content,
 )
+from wtforms import validators as wtf_validators
 from wtforms.fields import SelectField
 
 ACTION_PUBLISH_CONFIRMATION_MSG = _(
@@ -70,6 +73,25 @@ ACTION_HIDE_FULL_TEXT_CONFIRMATION_MSG = _(
 )
 
 logger = logging.getLogger(__name__)
+
+
+class OpacModelConverter(CustomModelConverter):
+    """
+    Flask-Admin 2.x converts URLField to a plain StringField, so empty values
+    become "" and fail mongoengine URL validation. Also ListField of
+    ReferenceField defaults to allow_blank=False, treating empty selection as
+    "Not a valid choice". Restore NoneStringField and optional blanks.
+    """
+
+    def conv_URL(self, model, field, kwargs):
+        kwargs["validators"].append(wtf_validators.URL())
+        self._string_common(model, field, kwargs)
+        return NoneStringField(**kwargs)
+
+    def conv_List(self, model, field, kwargs):
+        if isinstance(field.field, ReferenceField):
+            kwargs.setdefault("allow_blank", not field.required)
+        return super().conv_List(model, field, kwargs)
 
 
 class AdminIndexView(admin.AdminIndexView):
@@ -391,6 +413,7 @@ class OpacBaseAdminView(mongoengine.ModelView):
         ReferenceField,
     )
     filter_converter = CustomFilterConverter()
+    model_form_converter = OpacModelConverter
     object_id_converter = str
 
     def _search(self, query, search_term):
