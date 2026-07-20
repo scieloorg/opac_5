@@ -1,10 +1,14 @@
 # coding: utf-8
 
+import os
+import tempfile
 from unittest.mock import Mock, patch
 
 import webapp
 from flask import current_app
+from PIL import Image
 from webapp import utils as wutils
+from webapp.utils.utils import thumbgen_filename
 
 from . import utils
 from .base import BaseTestCase
@@ -443,3 +447,79 @@ class UtilsTestCase(BaseTestCase):
             '<a href="http://www.scielo.br/avaliacao/avaliacao_en.htm"></a>',
             new_content,
         )
+
+    def test_generate_thumbnail_success(self):
+        image_root = tempfile.mkdtemp()
+        original_image_root = current_app.config.get("IMAGE_ROOT")
+        original_h = current_app.config.get("THUMBNAIL_HEIGHT")
+        original_w = current_app.config.get("THUMBNAIL_WIDTH")
+        current_app.config["IMAGE_ROOT"] = image_root
+        current_app.config["THUMBNAIL_HEIGHT"] = 50
+        current_app.config["THUMBNAIL_WIDTH"] = 50
+
+        source_path = os.path.join(image_root, "sample.png")
+        Image.new("RGB", (200, 200), color="red").save(source_path)
+
+        try:
+            thumb_path = wutils.generate_thumbnail(source_path)
+            expected = os.path.join(image_root, thumbgen_filename(source_path))
+            self.assertEqual(expected, thumb_path)
+            self.assertTrue(os.path.isfile(thumb_path))
+            with Image.open(thumb_path) as thumb:
+                self.assertLessEqual(max(thumb.size), 50)
+        finally:
+            current_app.config["IMAGE_ROOT"] = original_image_root
+            current_app.config["THUMBNAIL_HEIGHT"] = original_h
+            current_app.config["THUMBNAIL_WIDTH"] = original_w
+
+    @patch("webapp.utils.utils.Image")
+    def test_generate_thumbnail_uses_lanczos(self, mocked_image_module):
+        image_root = tempfile.mkdtemp()
+        original_image_root = current_app.config.get("IMAGE_ROOT")
+        original_h = current_app.config.get("THUMBNAIL_HEIGHT")
+        original_w = current_app.config.get("THUMBNAIL_WIDTH")
+        current_app.config["IMAGE_ROOT"] = image_root
+        current_app.config["THUMBNAIL_HEIGHT"] = 100
+        current_app.config["THUMBNAIL_WIDTH"] = 100
+
+        mocked_img = Mock()
+        mocked_image_module.open.return_value = mocked_img
+        mocked_image_module.Resampling.LANCZOS = Image.Resampling.LANCZOS
+
+        try:
+            result = wutils.generate_thumbnail("/tmp/fake.png")
+            mocked_img.thumbnail.assert_called_once_with(
+                (100, 100), Image.Resampling.LANCZOS
+            )
+            mocked_img.save.assert_called_once()
+            self.assertIsNotNone(result)
+        finally:
+            current_app.config["IMAGE_ROOT"] = original_image_root
+            current_app.config["THUMBNAIL_HEIGHT"] = original_h
+            current_app.config["THUMBNAIL_WIDTH"] = original_w
+
+    @patch("webapp.utils.utils.Image")
+    def test_generate_thumbnail_io_error_returns_none(self, mocked_image_module):
+        image_root = tempfile.mkdtemp()
+        original_image_root = current_app.config.get("IMAGE_ROOT")
+        current_app.config["IMAGE_ROOT"] = image_root
+        mocked_image_module.open.side_effect = IOError("cannot open")
+
+        try:
+            self.assertIsNone(wutils.generate_thumbnail("/tmp/missing.png"))
+        finally:
+            current_app.config["IMAGE_ROOT"] = original_image_root
+
+    @patch("webapp.utils.utils.Image")
+    def test_generate_thumbnail_unexpected_error_returns_none(
+        self, mocked_image_module
+    ):
+        image_root = tempfile.mkdtemp()
+        original_image_root = current_app.config.get("IMAGE_ROOT")
+        current_app.config["IMAGE_ROOT"] = image_root
+        mocked_image_module.open.side_effect = RuntimeError("boom")
+
+        try:
+            self.assertIsNone(wutils.generate_thumbnail("/tmp/broken.png"))
+        finally:
+            current_app.config["IMAGE_ROOT"] = original_image_root

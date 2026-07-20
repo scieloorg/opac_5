@@ -279,7 +279,7 @@ def generate_thumbnail(input_filename):
 
     try:
         img = Image.open(input_filename)
-        img.thumbnail(size)
+        img.thumbnail(size, Image.Resampling.LANCZOS)
         img.save(image_path)
     except KeyError as e:
         logger.error("%s" % e)
