@@ -5,8 +5,8 @@ from uuid import uuid4
 from flask_admin.contrib.mongoengine.tools import parse_like_term
 from flask_babel import lazy_gettext as __
 from mongoengine.queryset import Q
-from opac_schema.v1.models import Article, Issue, Journal
-from tests.utils import makeOneArticle, makeOneIssue, makeOneJournal
+from opac_schema.v1.models import Article, Issue, Journal, Pages
+from tests.utils import makeOneArticle, makeOneIssue, makeOneJournal, makeOnePage
 from webapp.admin.custom_filters import (
     CustomFilterConverter,
     CustomFilterEmpty,
@@ -16,6 +16,7 @@ from webapp.admin.custom_filters import (
     CustomFilterNotEqual,
     CustomFilterNotInList,
     CustomFilterNotLike,
+    _column_name,
     get_flt,
 )
 
@@ -23,6 +24,10 @@ from .base import BaseTestCase
 
 
 class CustomFiltersTestCase(BaseTestCase):
+    def test_column_name_accepts_field_and_str(self):
+        self.assertEqual(_column_name(Pages.name), "name")
+        self.assertEqual(_column_name("name"), "name")
+
     def test_flt_reference_journal(self):
         journal_fields = {
             "title": "title-%s" % str(uuid4().hex),
@@ -81,6 +86,15 @@ class CustomFiltersTestCase(BaseTestCase):
 
         self.assertEqual(expected.query, result.query)
 
+    def test_flt_string_column_name(self):
+        """Flask-Admin 2.2 may pass column as str (reproduces /admin/pages/ crash)."""
+        op, term = parse_like_term("page-%s" % str(uuid4().hex))
+
+        result = get_flt("name", term, op)
+
+        expected = Q(**{"name__%s" % op: term})
+        self.assertEqual(expected.query, result.query)
+
     def test_filters_reference_field(self):
         filter_converter = CustomFilterConverter()
         filtes_reference_field = (
@@ -94,13 +108,14 @@ class CustomFiltersTestCase(BaseTestCase):
 
         result = filter_converter.convert("ReferenceField", Issue.journal, "journal")
         expected = [f(Issue.journal, "journal") for f in filtes_reference_field]
-        # Flask-Admin 2.2 normaliza `column` para string internamente.
         self.assertListEqual([i.name for i in expected], [i.name for i in result])
         self.assertListEqual([i.options for i in expected], [i.options for i in result])
         self.assertListEqual(
             [i.__class__.__name__ for i in expected],
             [i.__class__.__name__ for i in result],
         )
+        # Field object must be preserved for ReferenceField filtering.
+        self.assertTrue(all(i.column is Issue.journal for i in result))
 
     def test_filters_list_field(self):
         filter_converter = CustomFilterConverter()
@@ -114,6 +129,59 @@ class CustomFiltersTestCase(BaseTestCase):
             [i.__class__.__name__ for i in expected],
             [i.__class__.__name__ for i in result],
         )
+
+    def test_filters_string_field_keeps_field_object(self):
+        filter_converter = CustomFilterConverter()
+        result = filter_converter.convert("StringField", Pages.name, "Nome")
+
+        self.assertTrue(result)
+        self.assertTrue(all(i.column is Pages.name for i in result))
+        self.assertIn(CustomFilterLike, [type(i) for i in result])
+
+    def test_custom_filter_like_with_string_column(self):
+        page_name = "page-%s" % str(uuid4().hex)
+        makeOnePage({"name": page_name})
+        custom_filter = CustomFilterLike(column="name", name=__("Nome"))
+
+        result = custom_filter.apply(Pages.objects, page_name)
+
+        term, data = parse_like_term(page_name)
+        expected = Pages.objects.filter(Q(**{"name__%s" % term: data}))
+
+        self.assertListEqual([_ for _ in expected], [_ for _ in result])
+
+    def test_custom_filter_like_via_converter_on_pages(self):
+        """End-to-end path used by PagesAdminView column_filters."""
+        page_name = "page-%s" % str(uuid4().hex)
+        makeOnePage({"name": page_name})
+
+        filters = CustomFilterConverter().convert("StringField", Pages.name, "Nome")
+        like_filter = next(f for f in filters if isinstance(f, CustomFilterLike))
+
+        result = like_filter.apply(Pages.objects, page_name)
+
+        term, data = parse_like_term(page_name)
+        expected = Pages.objects.filter(Q(**{"name__%s" % term: data}))
+        self.assertListEqual([_ for _ in expected], [_ for _ in result])
+
+    def test_custom_filter_equal_with_string_column(self):
+        page_name = "page-%s" % str(uuid4().hex)
+        makeOnePage({"name": page_name})
+        custom_filter = CustomFilterEqual(column="name", name=__("Nome"))
+
+        result = custom_filter.apply(Pages.objects, page_name)
+        expected = Pages.objects.filter(Q(name=page_name))
+
+        self.assertListEqual([_ for _ in expected], [_ for _ in result])
+
+    def test_custom_filter_empty_with_string_column(self):
+        makeOnePage({"name": "filled-%s" % str(uuid4().hex)})
+        custom_filter = CustomFilterEmpty(column="description", name=__("Descrição"))
+
+        result = custom_filter.apply(Pages.objects, "1")
+        expected = Pages.objects.filter(Q(description=None))
+
+        self.assertListEqual([_ for _ in expected], [_ for _ in result])
 
     def test_custom_filter_not_equal(self):
         journal = makeOneJournal({"title": "title-%s" % str(uuid4().hex)})
