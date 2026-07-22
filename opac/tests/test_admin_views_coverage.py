@@ -381,6 +381,46 @@ class SponsorCollectionCoverageTests(AdminViewsCoverageMixin, BaseTestCase):
         view.on_model_change(MagicMock(), model, True)
         self.assertTrue(model._id)
 
+    def test_collection_form_allows_blank_about_sponsors_and_logos(self):
+        from werkzeug.datastructures import MultiDict
+        from webapp.admin.views import OpacModelConverter
+
+        with current_app.app_context():
+            self._admin_context()
+            with current_app.test_request_context():
+                view = CollectionAdminView(Collection)
+                self.assertIs(view.model_form_converter, OpacModelConverter)
+
+                Form = view.scaffold_form()
+                form = Form(
+                    formdata=MultiDict(
+                        [
+                            ("acronym", "scl"),
+                            ("name", "SciELO"),
+                            ("about", ""),
+                            ("sponsors", ""),
+                            ("home_logo_pt", ""),
+                            ("home_logo_es", ""),
+                            ("home_logo_en", ""),
+                            ("header_logo_pt", ""),
+                            ("header_logo_es", ""),
+                            ("header_logo_en", ""),
+                            ("logo_drop_menu", ""),
+                            ("menu_logo_pt", ""),
+                            ("menu_logo_es", ""),
+                            ("menu_logo_en", ""),
+                            ("logo_footer", ""),
+                        ]
+                    )
+                )
+
+                self.assertTrue(form.about.allow_blank)
+                self.assertTrue(form.sponsors.allow_blank)
+                self.assertTrue(form.validate())
+                self.assertIsNone(form.about.data)
+                self.assertIsNone(form.sponsors.data)
+                self.assertIsNone(form.home_logo_pt.data)
+
 
 class ArticleFullTextCoverageTests(AdminViewsCoverageMixin, BaseTestCase):
     def test_set_full_text_unavailable_success_and_failure(self):
