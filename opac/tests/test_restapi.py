@@ -44,6 +44,88 @@ class RestAPIAuthMixin:
         )
 
 
+class RestAPIPressReleaseTestCase(RestAPIAuthMixin, BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.journal = makeOneJournal()
+        self.payload = {
+            "journal_id": self.journal.id,
+            "title": "Press release title",
+            "language": "pt_BR",
+            "doi": "10.1234/press.release",
+            "content": "Press release content",
+            "url": "https://pressreleases.scielo.org/?p=123",
+            "publication_date": "2026-07-14T15:00:32",
+        }
+
+    def test_add_press_release_with_feedparser_media_content(self):
+        self.payload["media_content"] = [
+            {
+                "url": "https://cdn.example.org/image.png",
+                "medium": "image",
+            }
+        ]
+
+        with current_app.app_context():
+            with self.client as client:
+                response = self._api_post(
+                    client, "restapi.pressrelease", self.payload
+                )
+
+            self.assertEqual(response.status_code, 200)
+            press_release = models.PressRelease.objects(url=self.payload["url"]).get()
+            self.assertEqual(
+                press_release.image_url, "https://cdn.example.org/image.png"
+            )
+
+    def test_add_press_release_uses_original_wordpress_featured_image(self):
+        self.payload["media_content"] = [
+            {
+                "url": (
+                    "https://pressreleases-scielo.b-cdn.net/wp-content/"
+                    "uploads/2026/07/featured-image-300x170.png"
+                )
+            }
+        ]
+
+        with current_app.app_context():
+            with self.client as client:
+                response = self._api_post(
+                    client, "restapi.pressrelease", self.payload
+                )
+
+            self.assertEqual(response.status_code, 200)
+            press_release = models.PressRelease.objects(url=self.payload["url"]).get()
+            self.assertEqual(
+                press_release.image_url,
+                (
+                    "https://pressreleases-scielo.b-cdn.net/wp-content/"
+                    "uploads/2026/07/featured-image.png"
+                ),
+            )
+
+    def test_reprocessing_updates_image_without_creating_duplicate(self):
+        with current_app.app_context():
+            with self.client as client:
+                first_response = self._api_post(
+                    client, "restapi.pressrelease", self.payload
+                )
+                self.payload["media_content"] = {
+                    "url": "https://cdn.example.org/image.png"
+                }
+                second_response = self._api_post(
+                    client, "restapi.pressrelease", self.payload
+                )
+
+            self.assertEqual(first_response.status_code, 200)
+            self.assertEqual(second_response.status_code, 200)
+            records = models.PressRelease.objects(url=self.payload["url"])
+            self.assertEqual(records.count(), 1)
+            self.assertEqual(
+                records.get().image_url, "https://cdn.example.org/image.png"
+            )
+
+
 class RestAPIJournalTestCase(RestAPIAuthMixin, BaseTestCase):
     def load_json_fixture(self, filename):
         with open(os.path.join(FIXTURES_PATH, filename)) as f:

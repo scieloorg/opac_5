@@ -2229,9 +2229,11 @@ def pressrelease(*args):
         "doi": payload.get("doi"),
         "content": payload.get("content"),
         "url": payload.get("url"),
-        "image_url": payload.get("media_content"),
         "publication_date": payload.get("publication_date"),
     }
+    image_url = _get_press_release_image_url(payload)
+    if image_url:
+        data["image_url"] = image_url
 
     try:
         create_press_release_record(pr_model_data=data)
@@ -2239,6 +2241,50 @@ def pressrelease(*args):
         return jsonify({"failed": True, "error": str(e)}), 500
     else:
         return jsonify({"failed": False}), 200
+
+
+def _get_press_release_image_url(payload):
+    """Return a URL from the common WordPress/RSS media payload formats."""
+    media = (
+        payload.get("media_content")
+        or payload.get("media:content")
+        or payload.get("image_url")
+    )
+
+    if isinstance(media, str):
+        return _wordpress_original_image_url(media)
+
+    if isinstance(media, dict):
+        return _wordpress_original_image_url(media.get("url") or media.get("href"))
+
+    if isinstance(media, (list, tuple)):
+        for item in media:
+            if isinstance(item, str) and item:
+                return _wordpress_original_image_url(item)
+            if isinstance(item, dict):
+                url = item.get("url") or item.get("href")
+                if url:
+                    return _wordpress_original_image_url(url)
+
+    return None
+
+
+def _wordpress_original_image_url(url):
+    """Convert a generated WordPress thumbnail URL to its original file URL."""
+    if not url:
+        return None
+
+    parsed_url = urlparse(url)
+    if not (
+        parsed_url.hostname == "pressreleases.scielo.org"
+        or parsed_url.hostname == "pressreleases-scielo.b-cdn.net"
+    ):
+        return url
+
+    original_path = re.sub(
+        r"-\d+x\d+(?=\.[A-Za-z0-9]+$)", "", parsed_url.path
+    )
+    return parsed_url._replace(path=original_path).geturl()
 
 
 @restapi.route("/journal_last_issues", methods=["POST", "PUT"])

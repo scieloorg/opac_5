@@ -1544,7 +1544,23 @@ def create_news_record(news_model_data):
 
 def create_press_release_record(pr_model_data):
     try:
-        pr = PressRelease.objects(**pr_model_data)[:1]
+        # A URL identifica o post no WordPress. Procurar por todos os campos
+        # impedia a atualização quando, por exemplo, a imagem era adicionada
+        # posteriormente e acabava criando um novo registro.
+        if pr_model_data.get("url"):
+            lookup = {
+                "url": pr_model_data["url"],
+                "language": pr_model_data.get("language"),
+            }
+        elif pr_model_data.get("doi"):
+            lookup = {
+                "doi": pr_model_data["doi"],
+                "language": pr_model_data.get("language"),
+            }
+        else:
+            # Mantém o comportamento anterior para payloads legados sem URL/DOI.
+            lookup = pr_model_data
+        pr = PressRelease.objects(**lookup)[:1]
 
         if len(pr) == 0:  # On create add an id
             pr_model_data["_id"] = uuid4().hex
