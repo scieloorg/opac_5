@@ -158,15 +158,6 @@ def set_locale(lang_code):
     return redirect(url_for("main.index", ilang=lang_code))
 
 
-def get_lang_from_session():
-    """
-    Retorna o idioma da interface do request atual.
-
-    Nome legado: antes lia ``session["lang"]``; agora usa ``get_locale()``.
-    """
-    return get_locale()
-
-
 @main.route("/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def index():
@@ -254,7 +245,7 @@ def collection_list_thematic():
     if not thematic_filter in allowed_thematic_filters:
         thematic_filter = "areas"
 
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
     objects = controllers.get_journals_grouped_by(
         thematic_table[thematic_filter],
         title_query,
@@ -693,7 +684,7 @@ def journals_search_alpha_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     page = request.args.get("page", 1, type=int)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
 
     response_data = controllers.get_alpha_list_from_paginated_journals(
         title_query=query, query_filter=query_filter, page=page, lang=lang
@@ -711,7 +702,7 @@ def journals_search_by_theme_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     filter = request.args.get("filter", "areas", type=str)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
 
     if filter == "areas":
         objects = controllers.get_journals_grouped_by(

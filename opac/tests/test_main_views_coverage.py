@@ -8,11 +8,10 @@ from contextlib import contextmanager
 from io import BytesIO
 from unittest.mock import MagicMock, Mock, patch
 
-from flask import current_app, session, url_for
+from flask import current_app, url_for
 from opac_schema.v1.models import TranslatedSection
 from webapp.main.views import (
     add_collection_to_g,
-    get_lang_from_session,
     get_pdf_content,
     render_html,
     render_html_abstract,
@@ -60,12 +59,6 @@ class BeforeRequestCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                 del g.collection
             add_collection_to_g()
             self.assertEqual(g.collection, {})
-
-    def test_get_lang_from_session_without_session_key(self):
-        with current_app.test_request_context("/"):
-            session.clear()
-            result = get_lang_from_session()
-            self.assertEqual(result, current_app.config.get("BABEL_DEFAULT_LOCALE"))
 
 
 class LocaleCoverageTests(BaseTestCase):
