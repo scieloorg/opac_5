@@ -140,6 +140,9 @@ def create_app():
     app.config.from_object("webapp.config.default")  # Configuração basica
     app.config.from_envvar("OPAC_CONFIG", silent=True)  # configuração do ambiente
     app.logger.root.setLevel(app.config.get("LOG_LEVEL"))
+    
+    # PyMongo 4.x structured DEBUG logs flood stdout when root is DEBUG
+    logging.getLogger("pymongo").setLevel(logging.WARNING)
 
     configure_apm_agent(app)
 

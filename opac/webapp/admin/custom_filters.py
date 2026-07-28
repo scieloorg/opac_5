@@ -19,6 +19,11 @@ from opac_schema.v1.models import Issue, Journal
 from webapp import models
 
 
+def _column_name(column):
+    """Flask-Admin 2.2 may pass field name (str) instead of a MongoEngine field."""
+    return column if isinstance(column, str) else column.name
+
+
 def get_flt(column=None, value=None, term=""):
     flt = None
     search_fields = {
@@ -34,10 +39,12 @@ def get_flt(column=None, value=None, term=""):
         "use_licenses": ["license_code", "reference_url", "disclaimer"],
     }
 
+    col_name = _column_name(column)
+
     if isinstance(column, ReferenceField):
         criteria = None
         reference_values = None
-        for field in search_fields[column.name]:
+        for field in search_fields[col_name]:
             flt = {"%s__%s" % (field, term): value}
             q = Q(**flt)
 
@@ -51,12 +58,12 @@ def get_flt(column=None, value=None, term=""):
             reference_values = Journal.objects.filter(criteria)
         if isinstance(column.document_type_obj(), Issue):
             reference_values = Issue.objects.filter(criteria)
-        flt = {"%s__in" % column.name: reference_values}
+        flt = {"%s__in" % col_name: reference_values}
 
     elif isinstance(column, EmbeddedDocumentField):
         criteria = None
-        for field in search_fields[column.name]:
-            flt = {"%s__%s__%s" % (column.name, field, term): value}
+        for field in search_fields[col_name]:
+            flt = {"%s__%s__%s" % (col_name, field, term): value}
             q = Q(**flt)
 
             if criteria is None:
@@ -68,10 +75,10 @@ def get_flt(column=None, value=None, term=""):
         return criteria
 
     elif isinstance(column, ListField) and isinstance(column.field, StringField):
-        flt = {"%s__%s" % (column.name, term): value if value else []}
+        flt = {"%s__%s" % (col_name, term): value if value else []}
 
     else:
-        flt = {"%s__%s" % (column.name, term): value}
+        flt = {"%s__%s" % (col_name, term): value}
 
     return Q(**flt)
 
@@ -155,6 +162,34 @@ class CustomFilterConverter(FilterConverter):
     )
     list_filters = (CustomFilterLike, CustomFilterNotLike, CustomFilterEmpty)
 
+    def convert(self, type_name, column, name):
+        """
+        Preserve MongoEngine field objects for our custom converters.
+
+        Flask-Admin 2.2's FilterConverter.convert() passes column.name (str) to
+        registered converters. Built-in filters expect a string; our get_flt()
+        needs the field for ReferenceField / EmbeddedDocumentField / ListField.
+        """
+        filter_name = type_name.lower()
+        if filter_name not in self.converters:
+            return None
+
+        # Types handled by CustomFilter* (need field object metadata).
+        custom_field_types = {
+            "referencefield",
+            "stringfield",
+            "urlfield",
+            "emailfield",
+            "embeddeddocumentfield",
+            "listfield",
+        }
+        if filter_name in custom_field_types:
+            return self.converters[filter_name](column, name)
+
+        # Built-in Flask-Admin filters expect column as str.
+        col = column if isinstance(column, str) else column.name
+        return self.converters[filter_name](col, name)
+
     @filters.convert("ReferenceField")
     def conv_reference(self, column, name):
         return [f(column, name) for f in self.reference_filters]
@@ -190,5 +225,5 @@ class CustomFilterConverterSqla(sqla.filters.FilterConverter):
     @filters.convert("ChoiceType")
     def conv_choice(self, column, name, options):
         if not options:
-            options = self.choices[column.name]
+            options = self.choices[_column_name(column)]
         return [f(column, name, options) for f in self.choice_filters]

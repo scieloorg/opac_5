@@ -10,6 +10,28 @@
  (function() {
   const accessKey = 4;
   const translateAcessibilityBar = window.accessibilityTranslations;
+  const cookieMaxAge = 60 * 60 * 24 * 365;
+
+  function getCookie(name) {
+    const cookieName = `${encodeURIComponent(name)}=`;
+    const cookies = document.cookie ? document.cookie.split("; ") : [];
+    const cookie = cookies.find(item => item.indexOf(cookieName) === 0);
+
+    return cookie ? decodeURIComponent(cookie.substring(cookieName.length)) : null;
+  }
+
+  function setCookie(name, value) {
+    document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; path=/; max-age=${cookieMaxAge}; SameSite=Lax`;
+  }
+
+  function getStoredValue(storage, legacyStorage) {
+    const cookieValue = getCookie(storage);
+    if (cookieValue !== null) return cookieValue;
+
+    return legacyStorage && sessionStorage.getItem(legacyStorage)
+      ? sessionStorage.getItem(legacyStorage)
+      : null;
+  }
 
   // ===== MODAL PATCH - Dynamic Modal Creation =====
   function createAccessibilityModal() {
@@ -269,17 +291,17 @@
         window.toggleFontSize(action);
         break;
       case "readingLine":
-        body.classList.toggle("accessibility_readingLine");
+        ReadingLine.toggle();
         break;
       case "markerLine":
-        body.classList.toggle("accessibility_markerLine");
+        MarkerLine.toggle();
         break;
       case "reset":
         Dark.currentState === true ? Dark.setState(false) : null;
         Contrast.currentState === true ? Contrast.setState(false) : null;
         window.toggleFontSize("oriFont");
-        body.classList.remove("accessibility_readingLine");
-        body.classList.remove("accessibility_markerLine");
+        ReadingLine.setState(false);
+        MarkerLine.setState(false);
         break;
     }
   }
@@ -298,15 +320,17 @@
   );
 
   let FontSize = {
-    storage: "fontSizeState",
+    storage: "scieloAccessibilityFontSize",
+    legacyStorage: "fontSizeState",
     currentState: null,
     getState() {
-      return sessionStorage.getItem(this.storage)
-        ? parseFloat(sessionStorage.getItem(this.storage))
-        : 100;
+      const storedValue = getStoredValue(this.storage, this.legacyStorage);
+      const state = storedValue ? parseFloat(storedValue) : 100;
+
+      return Number.isNaN(state) ? 100 : state;
     },
     setState(state) {
-      sessionStorage.setItem(this.storage, "" + state);
+      setCookie(this.storage, "" + state);
       this.currentState = state;
       this.updateView();
     },
@@ -340,14 +364,15 @@
    * Contrast
    */
   let Contrast = {
-    storage: "contrastState",
+    storage: "scieloAccessibilityContrast",
+    legacyStorage: "contrastState",
     cssClass: "contrast",
     currentState: null,
     getState() {
-      return sessionStorage.getItem(this.storage) === "true";
+      return getStoredValue(this.storage, this.legacyStorage) === "true";
     },
     setState(state) {
-      sessionStorage.setItem(this.storage, "" + state);
+      setCookie(this.storage, "" + state);
       this.currentState = state;
       this.updateView();
     },
@@ -368,14 +393,15 @@
    * Dark Mode
    */
   let Dark = {
-    storage: "darkState",
+    storage: "scieloAccessibilityDarkMode",
+    legacyStorage: "darkState",
     cssClass: "scielo__theme--dark",
     currentState: null,
     getState() {
-      return sessionStorage.getItem(this.storage) === "true";
+      return getStoredValue(this.storage, this.legacyStorage) === "true";
     },
     setState(state) {
-      sessionStorage.setItem(this.storage, "" + state);
+      setCookie(this.storage, "" + state);
       this.currentState = state;
       this.updateView();
     },
@@ -391,5 +417,57 @@
 
   Dark.updateView();
   window.toggleDark = () => Dark.toggle();
+
+  /**
+   * Reading line
+   */
+  let ReadingLine = {
+    storage: "scieloAccessibilityReadingLine",
+    cssClass: "accessibility_readingLine",
+    currentState: null,
+    getState() {
+      return getStoredValue(this.storage) === "true";
+    },
+    setState(state) {
+      setCookie(this.storage, "" + state);
+      this.currentState = state;
+      this.updateView();
+    },
+    updateView() {
+      if (this.currentState === null) this.currentState = this.getState();
+      body.classList.toggle(this.cssClass, this.currentState);
+    },
+    toggle() {
+      this.setState(!this.currentState);
+    },
+  };
+
+  ReadingLine.updateView();
+
+  /**
+   * Marker line
+   */
+  let MarkerLine = {
+    storage: "scieloAccessibilityMarkerLine",
+    cssClass: "accessibility_markerLine",
+    currentState: null,
+    getState() {
+      return getStoredValue(this.storage) === "true";
+    },
+    setState(state) {
+      setCookie(this.storage, "" + state);
+      this.currentState = state;
+      this.updateView();
+    },
+    updateView() {
+      if (this.currentState === null) this.currentState = this.getState();
+      body.classList.toggle(this.cssClass, this.currentState);
+    },
+    toggle() {
+      this.setState(!this.currentState);
+    },
+  };
+
+  MarkerLine.updateView();
 
 })();
