@@ -96,20 +96,24 @@ class MainTestCase(BaseTestCase):
 
     def test_change_set_locale(self):
         """
-        Teste para alterar o idioma da interface, nesse teste a URL:
-        '/set_locale/<string:lang_code>' deve criar uma variável na sessão com
-        o valor informado.
+        ``/set_locale/<lang_code>`` redireciona com ``ilang`` na query string
+        (sem gravar idioma na session).
         """
 
         with self.client as c:
-            response = c.get(url_for("main.set_locale", lang_code="es"))
+            response = c.get(
+                url_for("main.set_locale", lang_code="es"),
+                headers={"Referer": "/"},
+                follow_redirects=False,
+            )
             self.assertEqual(302, response.status_code)
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertIn("ilang=es", response.location)
+            self.assertNotIn("lang", flask.session)
 
     def test_redirect_when_change_set_locale(self):
         """
         Teste para verificar se o redirecionamento da ``view function``
-        ``set_locale`` retorna para a página esperada.
+        ``set_locale`` retorna para a página esperada com ``ilang``.
         """
 
         with self.client as c:
@@ -121,6 +125,7 @@ class MainTestCase(BaseTestCase):
             self.assertStatus(response, 200)
 
             self.assertTemplateUsed("collection/list_journal.html")
+            self.assertEqual(flask.g.lang, "es")
 
     def test_change_set_locale_with_unknow_lang(self):
         """
@@ -176,6 +181,164 @@ class MainTestCase(BaseTestCase):
         self.assertTemplateUsed("collection/list_journal.html")
 
         self.assertIn("Nenhum periódico encontrado", response.data.decode("utf-8"))
+
+    def test_download_journal_list_csv_with_unicode(self):
+        """
+        Download CSV da lista de periódicos deve servir text/csv em UTF-8
+        preservando acentos no título.
+        """
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Cadernos de Saúde Pública",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="csv",
+            )
+        )
+
+        self.assertStatus(response, 200)
+        self.assertEqual(response.mimetype, "text/csv")
+        self.assertIn(
+            "attachment; filename=",
+            response.headers.get("Content-Disposition", ""),
+        )
+        body = response.data.decode("utf-8")
+        self.assertIn("Cadernos de Saúde Pública", body)
+        self.assertIn("Title", body)
+
+    def test_download_journal_list_xls(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Revista XLS",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="xls",
+            )
+        )
+
+        self.assertStatus(response, 200)
+        self.assertEqual(response.mimetype, "application/vnd.ms-excel")
+        self.assertTrue(response.data.startswith(b"PK"))
+        self.assertIn(
+            "attachment; filename=",
+            response.headers.get("Content-Disposition", ""),
+        )
+
+    def test_download_journal_list_all_list_types_csv(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Revista Tipos",
+                "current_status": "current",
+                "is_public": True,
+                "study_areas": ["Health Sciences"],
+                "index_at": ["SCI"],
+                "publisher_name": "Editora Z",
+            }
+        )
+
+        for list_type in ("alpha", "areas", "wos", "publisher"):
+            response = self.client.get(
+                url_for(
+                    "main.download_journal_list",
+                    list_type=list_type,
+                    extension="csv",
+                )
+            )
+            self.assertStatus(response, 200)
+            self.assertEqual(response.mimetype, "text/csv")
+            self.assertIn("Revista Tipos", response.data.decode("utf-8"))
+
+    def test_download_journal_list_with_query_param(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal(
+            {
+                "title": "Match Query Journal",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+        utils.makeOneJournal(
+            {
+                "title": "Other Journal",
+                "current_status": "current",
+                "is_public": True,
+            }
+        )
+
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="csv",
+                query="Match",
+            )
+        )
+
+        self.assertStatus(response, 200)
+        body = response.data.decode("utf-8")
+        self.assertIn("Match Query Journal", body)
+        self.assertNotIn("Other Journal", body)
+
+    def test_download_journal_list_accepts_uppercase_params(self):
+        utils.makeOneCollection()
+        utils.makeOneJournal({"title": "Upper", "current_status": "current"})
+
+        csv_response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="ALPHA",
+                extension="CSV",
+            )
+        )
+        self.assertStatus(csv_response, 200)
+        self.assertEqual(csv_response.mimetype, "text/csv")
+
+        xls_response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="Areas",
+                extension="XLS",
+            )
+        )
+        self.assertStatus(xls_response, 200)
+        self.assertEqual(xls_response.mimetype, "application/vnd.ms-excel")
+
+    def test_download_journal_list_invalid_extension(self):
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="alpha",
+                extension="pdf",
+            )
+        )
+        self.assertStatus(response, 401)
+
+    def test_download_journal_list_invalid_list_type(self):
+        response = self.client.get(
+            url_for(
+                "main.download_journal_list",
+                list_type="invalid",
+                extension="csv",
+            )
+        )
+        self.assertStatus(response, 401)
 
     @unittest.skip("Revisar/Refazer, agora a lista é carregada com ajax")
     def test_collection_list_theme(self):

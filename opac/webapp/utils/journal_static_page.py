@@ -85,8 +85,7 @@ class OldJournalPageFile(object):
         incompleta.
         """
         for parser in ["lxml", "html.parser"]:
-            if parser is not None:
-                self.tree = BeautifulSoup(self.file_content, parser)
+            self.tree = BeautifulSoup(self.file_content, parser)
             if self.middle_end_insertion_position is None:
                 self._info("Not found: end. FAILED {}".format(parser))
             elif self.middle_begin_insertion_position is None:

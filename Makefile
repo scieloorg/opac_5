@@ -43,7 +43,7 @@ endif
 # help: help                           - display this makefile's help information
 .PHONY: help
 help:
-	@grep "^# help\:" Makefile | grep -v grep | sed 's/\# help\: //' | sed 's/\# help\://'
+	@grep "^# help\:" Makefile | grep -v grep | sed 's/\# help\: //' | sed 's/\# help\://' | sort -f
 
 # help: opac_version                   - OPAC version.
 opac_version:
@@ -57,10 +57,18 @@ venv:
 	@/bin/bash -c "source venv/bin/activate && pip install pip --upgrade && pip install -r requirements.dev.txt && pip install -r requirements.txt"
 	@echo "Enter virtual environment using:\n\n\t$ source venv/bin/activate\n"
 
-# help: clean                          - clean all files using .gitignore rules
-.PHONY: clean
-clean:
-	@git clean -X -f -d 
+# help: gitclean                       - clean ignored files using .gitignore rules
+.PHONY: gitclean
+gitclean:
+	@git clean -X -f -d
+
+# help: clear                          - remove .pyc, __pycache__ and the venv directory
+.PHONY: clear
+clear:
+	@find . -type f -name '*.pyc' -delete
+	@find . -type d -name '__pycache__' -exec rm -rf {} +
+	@rm -Rf venv
+	@echo "Removed .pyc, __pycache__ and venv."
 
 # help: scrub                          - clean all files, even untracked files
 .PHONY: scrub
@@ -140,10 +148,20 @@ build_i18n:
 test: make_messages compile_messages build_i18n
 	export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test
 
-# help: coverage                       - perform test coverage checks
+# help: coverage                       - run tests with coverage (terminal + htmlcov/ + coverage.xml)
 .PHONY: coverage
 coverage:
 	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && flask --app opac.app test
+
+# help: coverage_html                  - rebuild HTML report from the last .coverage data
+.PHONY: coverage_html
+coverage_html:
+	@coverage html
+	@echo "HTML report: file://$(CURDIR)/htmlcov/index.html"
+
+# help: test_coverage                  - alias de coverage (compatibilidade com README antigo)
+.PHONY: test_coverage
+test_coverage: coverage
 
 ##############
 ## flask cli #
@@ -161,17 +179,17 @@ invalidate_cache: up
 # help: invalidate_cache_forced        - invalidate cache forced
 .PHONY: invalidate_cache_forced
 invalidate_cache_forced: up
-	$(FLASK_DOCKER) invalidate_cache --force_clear true
+	$(FLASK_DOCKER) invalidate_cache --force-clear
 
 # help: reset_dbsql                    - reset SQLite database (use FORCE_DELETE=true to force)
 .PHONY: reset_dbsql
 reset_dbsql: up
-	$(FLASK_DOCKER) reset_dbsql $(if $(FORCE_DELETE),--force_delete true,)
+	$(FLASK_DOCKER) reset_dbsql $(if $(FORCE_DELETE),--force-delete,)
 
 # help: create_tables_dbsql            - create SQLite tables (use FORCE_DELETE=true to force)
 .PHONY: create_tables_dbsql
 create_tables_dbsql: up
-	$(FLASK_DOCKER) create_tables_dbsql $(if $(FORCE_DELETE),--force_delete true,)
+	$(FLASK_DOCKER) create_tables_dbsql $(if $(FORCE_DELETE),--force-delete,)
 
 # help: create_superuser               - create a superuser interactively
 .PHONY: create_superuser

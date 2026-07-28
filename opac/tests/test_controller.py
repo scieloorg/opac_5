@@ -1,4 +1,6 @@
 # coding: utf-8
+import csv
+import io
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -568,6 +570,192 @@ class JournalControllerTestCase(BaseTestCase):
             controllers.get_journal_metrics(journal),
             {"total_h5_index": 58, "total_h5_median": 42, "h5_metric_year": 2020},
         )
+
+    def test_get_journal_generator_for_csv_alpha_returns_utf8_bytes(self):
+        """
+        Exportação CSV alfabética deve retornar bytes UTF-8 com cabeçalho e
+        título unicode preservado (sem depender de unicodecsv).
+        """
+        last_issue = utils.getLastIssue(
+            {"volume": "10", "number": "2", "year": "2024"}
+        )
+        self._make_one(
+            {
+                "title": "Revista Saúde Pública",
+                "current_status": "current",
+                "issue_count": 42,
+                "last_issue": last_issue,
+            }
+        )
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+
+        self.assertIsInstance(data, bytes)
+        text = data.decode("utf-8")
+        self.assertIn("Revista Saúde Pública", text)
+
+        rows = list(csv.reader(io.StringIO(text)))
+        self.assertEqual(
+            rows[0],
+            ["Title", "issues", "Last volume", "Last number", "Last year", "Is active?"],
+        )
+        self.assertEqual(
+            rows[1],
+            ["Revista Saúde Pública", "42", "10", "2", "2024", "True"],
+        )
+
+    def test_get_journal_generator_for_csv_without_last_issue_and_inactive(self):
+        """Sem last_issue e status não corrente: campos vazios e Is active?=False."""
+        self._make_one(
+            {
+                "title": "Revista Inativa",
+                "current_status": "deceased",
+                "issue_count": 0,
+            }
+        )
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+
+        self.assertEqual(
+            rows[1],
+            ["Revista Inativa", "0", "", "", "", "False"],
+        )
+
+    def test_get_journal_generator_for_csv_last_issue_with_empty_fields(self):
+        """last_issue presente com volume/number/year falsy usa string vazia."""
+        last_issue = utils.getLastIssue()
+        last_issue.volume = None
+        last_issue.number = None
+        last_issue.year = None
+        self._make_one(
+            {
+                "title": "Sem dados de fascículo",
+                "current_status": "current",
+                "last_issue": last_issue,
+            }
+        )
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+
+        self.assertEqual(rows[1][0], "Sem dados de fascículo")
+        self.assertEqual(rows[1][2], "")
+        self.assertEqual(rows[1][3], "")
+        self.assertEqual(rows[1][4], "")
+
+    def test_get_journal_generator_for_csv_areas_includes_study_areas(self):
+        self._make_one(
+            {
+                "title": "Ciências & Saúde",
+                "study_areas": ["Health Sciences", "Biological Sciences"],
+                "current_status": "current",
+            }
+        )
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="areas", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+
+        self.assertEqual(rows[0][0], "Areas")
+        self.assertIn("Health Sciences", rows[1][0])
+        self.assertIn("Biological Sciences", rows[1][0])
+        self.assertEqual(rows[1][1], "Ciências & Saúde")
+
+    def test_get_journal_generator_for_csv_wos_and_publisher(self):
+        self._make_one(
+            {
+                "title": "Indexada WoS",
+                "index_at": ["SCI", "SSCI"],
+                "publisher_name": "Editora São Paulo",
+                "current_status": "current",
+            }
+        )
+
+        wos_data = controllers.get_journal_generator_for_csv(
+            list_type="wos", extension="csv"
+        )
+        wos_rows = list(csv.reader(io.StringIO(wos_data.decode("utf-8"))))
+        self.assertEqual(wos_rows[0][0], "WoS")
+        self.assertIn("SCI", wos_rows[1][0])
+        self.assertEqual(wos_rows[1][1], "Indexada WoS")
+
+        publisher_data = controllers.get_journal_generator_for_csv(
+            list_type="publisher", extension="csv"
+        )
+        publisher_rows = list(
+            csv.reader(io.StringIO(publisher_data.decode("utf-8")))
+        )
+        self.assertEqual(publisher_rows[0][0], "Publisher")
+        self.assertEqual(publisher_rows[1][0], "Editora São Paulo")
+        self.assertEqual(publisher_rows[1][1], "Indexada WoS")
+
+    def test_get_journal_generator_for_csv_respects_title_query(self):
+        self._make_one({"title": "Alpha Journal", "current_status": "current"})
+        self._make_one({"title": "Beta Journal", "current_status": "current"})
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha",
+            title_query="Beta",
+            extension="csv",
+        )
+        text = data.decode("utf-8")
+        self.assertIn("Beta Journal", text)
+        self.assertNotIn("Alpha Journal", text)
+
+    def test_get_journal_generator_for_csv_empty_list_returns_headers_only(self):
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="csv"
+        )
+        rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][0], "Title")
+
+    def test_get_journal_generator_for_csv_invalid_list_type_raises(self):
+        with self.assertRaises(ValueError) as ctx:
+            controllers.get_journal_generator_for_csv(
+                list_type="invalid", extension="csv"
+            )
+        self.assertIn("list_type", str(ctx.exception))
+
+    def test_get_journal_generator_for_csv_xls_all_list_types(self):
+        """Cobre o ramo XLSX para alpha/areas/wos/publisher."""
+        last_issue = utils.getLastIssue({"volume": "1", "number": "1", "year": "2020"})
+        self._make_one(
+            {
+                "title": "Planilha Completa",
+                "current_status": "current",
+                "study_areas": ["Health Sciences"],
+                "index_at": ["SCI"],
+                "publisher_name": "Editora Teste",
+                "last_issue": last_issue,
+            }
+        )
+
+        for list_type in ("alpha", "areas", "wos", "publisher"):
+            data = controllers.get_journal_generator_for_csv(
+                list_type=list_type, extension="xls"
+            )
+            self.assertIsInstance(data, bytes, list_type)
+            self.assertTrue(data.startswith(b"PK"), list_type)
+
+    def test_get_journal_generator_for_csv_xls_returns_xlsx_bytes(self):
+        self._make_one({"title": "Planilha XLS", "current_status": "current"})
+
+        data = controllers.get_journal_generator_for_csv(
+            list_type="alpha", extension="xls"
+        )
+
+        self.assertIsInstance(data, bytes)
+        # Assinatura ZIP do formato XLSX
+        self.assertTrue(data.startswith(b"PK"))
 
 
 class IssueControllerTestCase(BaseTestCase):

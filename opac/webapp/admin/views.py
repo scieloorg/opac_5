@@ -999,7 +999,7 @@ class PagesAdminView(OpacBaseAdminView):
     form_excluded_columns = ("created_at", "updated_at")
 
     @admin.expose("/ajx/", methods=("GET", "POST"))
-    def save_ajax_view(self):
+    def save_ajax_view(self, **kwargs):
         """
         View to save page (time to time).
         """
@@ -1012,7 +1012,7 @@ class PagesAdminView(OpacBaseAdminView):
             return jsonify({"saved": True})
 
     @admin.expose("/preview/", methods=("GET",))
-    def preview(self):
+    def preview(self, **kwargs):
         """
         View to preview the page about the journal.
         """
@@ -1047,12 +1047,10 @@ class PagesAdminView(OpacBaseAdminView):
                 choices.STUDY_AREAS.get(study_area.upper())
                 for study_area in journal.study_areas
             ],
+            "content": page.content,
         }
-
-        if page:
-            context["content"] = page.content
-            if page.updated_at:
-                context["page_updated_at"] = page.updated_at
+        if page.updated_at:
+            context["page_updated_at"] = page.updated_at
 
         return render_template("journal/about.html", **context)
 
@@ -1133,21 +1131,20 @@ class PagesAdminView(OpacBaseAdminView):
 
         # percorremos os campos do MODELO (no banco) e do FORMULARIO e coletamos seus valores
         for field_name in fields_to_audit:
-            if field_name in fields_to_audit:
-                form_field_value = form._fields.get(field_name, None)
-                # pegamos o novo valor do campo que vem no FORMULARIO
-                form_field_value_data = (
-                    form_field_value.data if form_field_value else "[NO DATA]"
-                )
-                fields_data[field_name]["new_value"] = form_field_value_data
+            form_field_value = form._fields.get(field_name, None)
+            # pegamos o novo valor do campo que vem no FORMULARIO
+            form_field_value_data = (
+                form_field_value.data if form_field_value else "[NO DATA]"
+            )
+            fields_data[field_name]["new_value"] = form_field_value_data
 
-                # pegamos o antigo valor do campo que vem do MODELO no banco
-                if is_created:
-                    fields_data[field_name]["old_value"] = "[NO DATA]"
-                else:
-                    old_model = Pages.objects.get(pk=model._id)
-                    model_field_value_data = getattr(old_model, field_name, "[no data]")
-                    fields_data[field_name]["old_value"] = model_field_value_data
+            # pegamos o antigo valor do campo que vem do MODELO no banco
+            if is_created:
+                fields_data[field_name]["old_value"] = "[NO DATA]"
+            else:
+                old_model = Pages.objects.get(pk=model._id)
+                model_field_value_data = getattr(old_model, field_name, "[no data]")
+                fields_data[field_name]["old_value"] = model_field_value_data
 
         audit_payload["fields_data"] = fields_data
         audit_doc = AuditLogEntry(**audit_payload)

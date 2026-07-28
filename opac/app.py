@@ -20,7 +20,8 @@ if FLASK_COVERAGE:
         raise RuntimeError(msg)
     COV = None
     if FLASK_COVERAGE:
-        COV = coverage.coverage(branch=True, include="opac/webapp/*")
+        # Lê .coveragerc na raiz do repo (branch=True, source=opac/webapp)
+        COV = coverage.Coverage()
         COV.start()
 else:
     COV = None
@@ -66,7 +67,7 @@ def make_shell_context():
 
 
 @app.cli.command("invalidate_cache")
-@click.option("-f", "--force_clear", default=False)
+@click.option("-f", "--force-clear", "force_clear", is_flag=True, default=False)
 def invalidate_cache(force_clear=False):
     def clear_cache():
         keys_invalidated = cache.clear()
@@ -92,12 +93,12 @@ def invalidate_cache(force_clear=False):
 
 
 @app.cli.command("reset_dbsql")
-@click.option("-f", "--force_delete", default=False)
+@click.option("-f", "--force-delete", "force_delete", is_flag=True, default=False)
 def reset_dbsql(force_delete=False):
     """
     Remove todos os dados do banco de dados SQL.
     Por padrão: se o banco SQL já existe, o banco não sera modificado.
-    Utilize o parametro --force=True para forçar a remoção dos dados.
+    Utilize o parametro --force-delete para forçar a remoção dos dados.
 
     Uma vez removidos os dados, todas as tabelas serão criadas vazias.
     """
@@ -110,11 +111,11 @@ def reset_dbsql(force_delete=False):
         print("flask --app opac.app create_superuser")
     else:
         print("O banco já existe (em %s)." % db_path)
-        print("remova este arquivo manualmente ou utilize --force.")
+        print("remova este arquivo manualmente ou utilize --force-delete.")
 
 
 @app.cli.command("create_tables_dbsql")
-@click.option("-f", "--force_delete", "--force_delete", default=False)
+@click.option("-f", "--force-delete", "force_delete", is_flag=True, default=False)
 def create_tables_dbsql(force_delete=False):
     """Cria as tabelas necessárias no banco de dados SQL."""
 
@@ -176,12 +177,12 @@ def create_superuser():
 
 @app.cli.command("test")
 @click.option("-p", "--pattern", default=None)
-@click.option("-f", "--failfast", default=False)
+@click.option("-f", "--failfast", is_flag=True, default=False)
 def test(pattern=None, failfast=False):
     """Executa tests unitarios.
     Lembre de definir a variável: OPAC_CONFIG="path do arquivo de conf para testing"
     antes de executar este comando:
-    > export OPAC_CONFIG="/foo/bar/config.testing" && flask --app opac.app test --failfast=true
+    > export OPAC_CONFIG="/foo/bar/config.testing" && flask --app opac.app test --failfast
 
     Utilize -p para rodar testes específicos'
 
@@ -189,8 +190,6 @@ def test(pattern=None, failfast=False):
          export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -p "test_main_views"
          export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test -f
     """
-    failfast = True if failfast else False
-
     if COV and not FLASK_COVERAGE:
         os.environ["FLASK_COVERAGE"] = "1"
         os.execvp(sys.executable, [sys.executable] + sys.argv)
@@ -206,12 +205,19 @@ def test(pattern=None, failfast=False):
         COV.stop()
         COV.save()
         print("Coverage Summary:")
-        COV.report()
-        # basedir = os.path.abspath(os.path.dirname(__file__))
-        # covdir = 'tmp/coverage'
-        # COV.html_report(directory=covdir)
-        # print('HTML version: file://%s/index.html' % covdir)
-        COV.erase()
+        COV.report(show_missing=True)
+        # coverage 7: html_report/xml_report retornam o % total, não o path
+        COV.html_report()
+        COV.xml_report()
+        html_dir = os.path.abspath(
+            getattr(COV.config, "html_dir", None) or "htmlcov"
+        )
+        xml_path = os.path.abspath(
+            getattr(COV.config, "xml_output", None) or "coverage.xml"
+        )
+        print("HTML report: file://%s/index.html" % html_dir)
+        print("XML report:  %s" % xml_path)
+        # Mantém .coverage / htmlcov / coverage.xml para inspeção e ratchet (não chama erase)
 
     if result.wasSuccessful():
         return sys.exit()
@@ -275,14 +281,6 @@ def create_empty_sqlite_db():
         dbsql.create_all()
         print("✅ Banco SQLite criado com sucesso!")
 
-
-app.cli.add_command(test)
-app.cli.add_command(create_tables_dbsql)
-app.cli.add_command(create_superuser)
-app.cli.add_command(reset_dbsql)
-app.cli.add_command(clear_scheduler_tasks)
-app.cli.add_command(send_audit_log_emails)
-app.cli.add_command(create_empty_sqlite_db)
 
 if __name__ == "__main__":
     print(app.config["SERVER_NAME"])
