@@ -115,7 +115,7 @@ ALERT_MSG_ES=Nuevo portal puede contener incorrecciones
 |        OPAC_SESSION_COOKIE_DOMAIN  	|         OPAC_SERVER_NAME  	|          www.scielo.br, www.scielosp.org            	|       21/11/2021           	|        O dominio para a cookie da sessão     |
 |        OPAC_SESSION_COOKIE_HTTPONLY  	|         True  	|          True/False            	|       21/11/2021           	|        Seta a flag: httponly da cookie.     |
 |        OPAC_SESSION_COOKIE_NAME  	|         opac_session  	|          opac_session            	|       21/11/2021           	|        nome da cookie de sessão     |
-|        OPAC_SESSION_COOKIE_PATH  	|         None  	|          '/'            	|       21/11/2021           	|        path para a cookie de sessão     |
+|        OPAC_SESSION_COOKIE_PATH  	|         /admin  	|          /admin            	|       29/07/2026           	|        path para a cookie de sessão (somente admin)     |
 |        OPAC_SESSION_COOKIE_SECURE  	|         False  	|          True/False            	|       21/11/2021           	|        define se a cookie de sessão deve ser marcada como segura     |
 |        OPAC_SESSION_REFRESH_EACH_REQUEST  	|         False  	|          True/False            	|       21/11/2021           	|        Fazer refresh da cookie em cada request?     |
 |        OPAC_CACHE_ENABLED  	|         True  	|          True/False            	|       21/11/2021           	|         ativa/desativa o cache com redis    |

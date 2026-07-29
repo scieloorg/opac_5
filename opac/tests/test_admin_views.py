@@ -203,9 +203,18 @@ class AdminViewsTestCase(BaseTestCase):
                     create_user(credentials["email"], credentials["password"], True)
                     # create new user:
                     response = c.post(
-                        login_url, data=credentials, follow_redirects=True
+                        login_url, data=credentials, follow_redirects=False
                     )
-                    # then
+                    # then — session cookie scoped to /admin for CDN-friendly public pages
+                    self.assertStatus(response, 302)
+                    set_cookie = "; ".join(response.headers.getlist("Set-Cookie"))
+                    cookie_name = current_app.config.get(
+                        "SESSION_COOKIE_NAME", "opac_session"
+                    )
+                    self.assertIn("%s=" % cookie_name, set_cookie)
+                    self.assertIn("Path=/admin", set_cookie)
+
+                    response = c.get(response.headers["Location"], follow_redirects=True)
                     self.assertStatus(response, 200)
                     self.assertTemplateUsed("admin/index.html")
                     self.assertIn(expected_page_header, response.data.decode("utf-8"))

@@ -8,25 +8,23 @@
 
         <form action="" method="POST" id="error_form_id">
 
-            {{ g.error.csrf_token() }}
+            {{ form.url(value=url) }}
 
-            {{ g.error.url(value=url) }}
-
-            {{ g.error.page_title(value="") }}
+            {{ form.page_title(value="") }}
 
 
             <div class="modal-body">
 
                 <div class="mb-0">
                     <label class="form-label">{% trans %}Seu Nome{% endtrans %} *</label>
-                    {{ g.error.name(class="form-control valid", placeholder=_("Digite seu Nome")) }}
-                    <label class="form-label" id="{{g.error.name.name}}_error"></label>
+                    {{ form.name(class="form-control valid", placeholder=_("Digite seu Nome")) }}
+                    <label class="form-label" id="{{form.name.name}}_error"></label>
                 </div>
 
                 <div class="mb-0">
                   <label class="form-label">{% trans %}Seu e-mail{% endtrans %} *</label>
-                    {{ g.error.your_email(class="form-control valid", placeholder=_("Digite seu e-mail")) }}
-                  <label class="form-label" id="{{g.error.your_email.name}}_error"></label>
+                    {{ form.your_email(class="form-control valid", placeholder=_("Digite seu e-mail")) }}
+                  <label class="form-label" id="{{form.your_email.name}}_error"></label>
                 </div>
 
                 <div class="mb-0">
@@ -42,13 +40,13 @@
                         <label class="form-check-label" for="error_type2">{% trans %}outro tipo de erro{% endtrans %} *</label>
                         <span class="form-text d-block">* {% trans %}Caso o erro esteja no conteúdo de um documento e apresente-se também na versão em PDF do mesmo documento, por favor não utilize este formulário. Entre em contato com o periódico que publicou o documento e reporte o erro diretamente a ele.{% endtrans %}</span>
                     </div>
-                    <label class="form-label" id="{{g.error.error_type.name}}_error"></label>
+                    <label class="form-label" id="{{form.error_type.name}}_error"></label>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">{% trans %}Descrição do erro{% endtrans %}:</label>
-                    {{ g.error.message(class="form-control valid", placeholder=_("Digite sua mensagem"), rows="10") }}
-                    <label class="form-label" id="{{g.error.message.name}}_error"></label>
+                    {{ form.message(class="form-control valid", placeholder=_("Digite sua mensagem"), rows="10") }}
+                    <label class="form-label" id="{{form.message.name}}_error"></label>
                     <span class="form-text">{% trans %}Obs.: Link e título da página são enviados automaticamente{% endtrans %}.</span>
                 </div>
 
