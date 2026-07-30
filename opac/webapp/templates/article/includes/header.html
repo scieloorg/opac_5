@@ -43,7 +43,7 @@
             </div>
 
             <div class="col-6">
-                {%- set header_logo_url = cimages.get_header_logo(g.collection, session.lang)|default('')|trim -%}
+                {%- set header_logo_url = cimages.get_header_logo(g.collection, g.lang)|default('')|trim -%}
                 {%- if header_logo_url -%}
                     <a
                         href="/"

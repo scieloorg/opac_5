@@ -1,7 +1,7 @@
 {% import 'macros/collection.html' as coll_macro %}
 <!DOCTYPE html>
 
-{% with html_lang=session.get('lang', config.get('BABEL_DEFAULT_LOCALE')).replace('_', '-')  %}
+{% with html_lang=g.lang.replace('_', '-')  %}
   <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="{{ html_lang }}" {% block ie7_extra_namespaces %}{% endblock %} > <![endif]-->
   <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="{{ html_lang }}"        {% block ie8_extra_namespaces %}{% endblock %}> <![endif]-->
   <!--[if IE 8]>         <html class="no-js lt-ie9" lang="{{ html_lang }}"               {% block ie9_extra_namespaces %}{% endblock %}> <![endif]-->
@@ -17,7 +17,7 @@
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
     
-    <link href="{{ url_for('static', filename='css/bootstrap.css') }}?v=1.1.31" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}?v=1.1.32" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="{{ url_for('static', filename='js/vendor/html5-3.6-respond-1.1.0.min.js') }}"></script>
@@ -46,6 +46,55 @@
 
   </head>
   <body class="{% block body_class %}{% endblock %}" data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="0">
+    <script>
+      (function() {
+        function getCookie(name) {
+          const cookieName = encodeURIComponent(name) + "=";
+          const cookies = document.cookie ? document.cookie.split("; ") : [];
+          const cookie = cookies.find(function(item) {
+            return item.indexOf(cookieName) === 0;
+          });
+
+          return cookie ? decodeURIComponent(cookie.substring(cookieName.length)) : null;
+        }
+
+        function getStoredValue(storage, legacyStorage) {
+          const cookieValue = getCookie(storage);
+          if (cookieValue !== null) return cookieValue;
+
+          return legacyStorage && sessionStorage.getItem(legacyStorage)
+            ? sessionStorage.getItem(legacyStorage)
+            : null;
+        }
+
+        const fontSize = parseFloat(getStoredValue("scieloAccessibilityFontSize", "fontSizeState"));
+
+        if (!Number.isNaN(fontSize) && fontSize !== 100) {
+          const htmlFontSize = parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue("font-size")
+          );
+
+          document.documentElement.style.fontSize = (fontSize / 100) * htmlFontSize + "px";
+        }
+
+        document.body.classList.toggle(
+          "contrast",
+          getStoredValue("scieloAccessibilityContrast", "contrastState") === "true"
+        );
+        document.body.classList.toggle(
+          "scielo__theme--dark",
+          getStoredValue("scieloAccessibilityDarkMode", "darkState") === "true"
+        );
+        document.body.classList.toggle(
+          "accessibility_readingLine",
+          getStoredValue("scieloAccessibilityReadingLine") === "true"
+        );
+        document.body.classList.toggle(
+          "accessibility_markerLine",
+          getStoredValue("scieloAccessibilityMarkerLine") === "true"
+        );
+      })();
+    </script>
     <a name="top"></a>
 
     {% block content %}{% endblock %}
@@ -146,7 +195,7 @@
       // Garante que o valor do campo share_url é a URL corrente.
       $('#share_url').val(window.location.href);
 
-      //moment.locale('{{ session.lang }}');
+      //moment.locale('{{ g.lang }}');
 
       //$("#date").text(moment().format("L HH:mm:ss ZZ"));
 

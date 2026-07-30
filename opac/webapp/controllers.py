@@ -15,8 +15,8 @@ from collections import OrderedDict
 from datetime import datetime
 from uuid import uuid4
 
+import csv
 import tweepy
-import unicodecsv
 import xlsxwriter
 from flask import current_app, url_for
 from flask_babel import gettext as _
@@ -494,19 +494,23 @@ def get_journal_generator_for_csv(
         ] + common_headers
         order_by = "publisher_name"
         worksheet_name = _("Lista by Institution")
+    else:
+        raise ValueError(
+            'Parámetro "list_type" é inválido, deve ser: '
+            '"alpha", "areas", "wos" ou "publisher".'
+        )
 
     journals = get_journals(title_query, is_public, order_by=order_by)
 
     if extension == "csv":
-        csv_file = io.BytesIO()
-        csv_writer = unicodecsv.writer(csv_file, encoding="utf-8")
+        csv_file = io.StringIO()
+        csv_writer = csv.writer(csv_file)
         csv_writer.writerow(csv_headers)
 
         for journal in journals:
             csv_writer.writerow(format_csv_row(list_type, journal))
-        csv_file.seek(0)
 
-        return csv_file.getvalue()
+        return csv_file.getvalue().encode("utf-8")
     else:
         output = io.BytesIO()
 
@@ -872,8 +876,7 @@ def create_last_issue_for_journal(journal, last_issue):
 
 def journal_last_issues():
     for j in Journal.objects.filter(last_issue=None):
-        if not j.last_issue or not j.last_issue.url_segment:
-            set_last_issue_and_issue_count(j)
+        set_last_issue_and_issue_count(j)
         if j.last_issue and j.last_issue.url_segment:
             yield {"journal": j.jid, "last_issue": j.last_issue.url_segment}
 
@@ -967,9 +970,6 @@ def get_issue_by_acron_issue(jacron, year, issue_label):
 
     journal = get_journal_by_acron(jacron)
 
-    if not jacron and year and issue_label:
-        raise ValueError(__("Obrigatório um jacron e issue_label."))
-
     return Issue.objects.filter(
         journal=journal, year=int(year), label=issue_label
     ).first()
@@ -997,9 +997,6 @@ def get_issue_by_url_seg(url_seg, url_seg_issue):
     """
 
     journal = get_journal_by_url_seg(url_seg)
-
-    if not url_seg and url_seg_issue:
-        raise ValueError(__("Obrigatório um url_seg e url_seg_issue."))
 
     return Issue.objects.filter(
         journal=journal, url_segment=url_seg_issue, type__ne="pressrelease"
@@ -1518,7 +1515,7 @@ def delete_articles_by_iid(issue_id, keep_list=None):
         remove_articles = Article.objects(issue=issue_id, aid__nin=keep_list)
     else:
         # Busca todos os artigos do issue
-        remove_articles = Article.objects(issue_id=issue_id)
+        remove_articles = Article.objects(issue=issue_id)
 
     # Salva os IDs dos artigos antes de deletar
     removed_ids = [artigo.aid for artigo in remove_articles]
@@ -1706,6 +1703,8 @@ def send_email_error(
         _type = __("conteúdo")
     elif error_type == "acessibility":
         _type = __("acessibilidade")
+    else:
+        _type = __("conteúdo")
 
     msg = __(
         "O usuário <b>%s</b> com e-mail: <b>%s</b>,"

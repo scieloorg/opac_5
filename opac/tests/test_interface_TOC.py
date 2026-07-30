@@ -49,7 +49,7 @@ class TOCTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "pt_BR")
+            self.assertEqual(flask.g.lang, "pt_BR")
 
             self.assertIn(
                 "Artigo Com Título Em Português", response.data.decode("utf-8")
@@ -95,7 +95,7 @@ class TOCTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertEqual(flask.g.lang, "es")
 
             self.assertIn(
                 "Título Del Artículo En Portugués", response.data.decode("utf-8")
@@ -141,7 +141,7 @@ class TOCTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "en")
+            self.assertEqual(flask.g.lang, "en")
 
             self.assertIn("Article Title In Portuguese", response.data.decode("utf-8"))
 
@@ -181,7 +181,7 @@ class TOCTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "en")
+            self.assertEqual(flask.g.lang, "en")
 
             self.assertIn("Article Y", response.data.decode("utf-8"))
 
@@ -221,7 +221,7 @@ class TOCTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertEqual(flask.g.lang, "es")
 
             self.assertIn("Article Y", response.data.decode("utf-8"))
 
@@ -270,7 +270,7 @@ class TOCTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
 
-            self.assertEqual(flask.session["lang"], "es")
+            self.assertEqual(flask.g.lang, "es")
 
             self.assertIn("Article Y", response.data.decode("utf-8"))
 

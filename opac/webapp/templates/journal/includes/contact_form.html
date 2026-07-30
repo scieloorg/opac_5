@@ -6,26 +6,24 @@
     </div>
     <form name="contact_form_id" id="contact_form_id" class="validate">
 
-      {{ g.email_contact.csrf_token() }}
-
       <div class="modal-body">
 
         <div class="form-group">
           <label class="control-label">{% trans %}Seu Nome{% endtrans %}*</label>
-            {{ g.email_contact.name(class="form-control valid", placeholder="Digite seu Nome") }}
-            <label class="control-label" id="{{g.email_contact.name.name}}_error"></label>
+            {{ form.name(class="form-control valid", placeholder="Digite seu Nome") }}
+            <label class="control-label" id="{{form.name.name}}_error"></label>
         </div>
 
         <div class="form-group">
           <label class="control-label">{% trans %}Seu e-mail{% endtrans %}*</label>
-            {{ g.email_contact.your_email(class="form-control valid", placeholder="Digite seu e-mail") }}
-            <label class="control-label" id="{{g.email_contact.your_email.name}}_error"></label>
+            {{ form.your_email(class="form-control valid", placeholder="Digite seu e-mail") }}
+            <label class="control-label" id="{{form.your_email.name}}_error"></label>
         </div>
 
         <div class="form-group">
           <label class="control-label">{% trans %}Mensagem{% endtrans %}*</label>
-            {{ g.email_contact.message(class="form-control valid", placeholder="Digite sua mensagem", rows="10") }}
-            <label class="control-label" id="{{g.email_contact.message.name}}_error"></label>
+            {{ form.message(class="form-control valid", placeholder="Digite sua mensagem", rows="10") }}
+            <label class="control-label" id="{{form.message.name}}_error"></label>
         </div>
 
         <div class="form-group">
