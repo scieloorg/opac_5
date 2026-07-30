@@ -6,19 +6,18 @@
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <form name="share_form_id" id="share_form_id" class="validate">
-      {{ g.email_share.csrf_token() }}
-      {{ g.email_share.share_url(value=url) }}
+      {{ form.share_url(value=url) }}
       <div class="modal-body">
         
         <div class="form-group">
           <label class="control-label">{% trans %}Seu e-mail{% endtrans %}*</label>
-            {{ g.email_share.your_email(class="form-control valid") }}
-            <label class="control-label" id="{{g.email_share.your_email.name}}_error"></label>
+            {{ form.your_email(class="form-control valid") }}
+            <label class="control-label" id="{{form.your_email.name}}_error"></label>
         </div>
         <div class="form-group">
           <label class="control-label">{% trans %}Para{% endtrans %}*</label>
-          {{ g.email_share.recipients(class="form-control valid multipleMail") }}
-          <label class="control-label" id="{{g.email_share.recipients.name}}_error"></label>
+          {{ form.recipients(class="form-control valid multipleMail") }}
+          <label class="control-label" id="{{form.recipients.name}}_error"></label>
           <span class="text-muted">
             {% trans %}Utilize ; (ponto e vírgula) para inserir mais emails.{% endtrans %}
           </span>
@@ -35,11 +34,11 @@
           <div id="extraFields" style="display: none;">
             <div class="form-group">
               <label>{% trans %}Assunto{% endtrans %}</label>
-              {{ g.email_share.subject(class="form-control valid") }}
+              {{ form.subject(class="form-control valid") }}
             </div>
             <div class="form-group">
               <label>{% trans %}Comentário{% endtrans %}</label>
-              {{ g.email_share.comment(class="form-control") }}
+              {{ form.comment(class="form-control") }}
             </div>
             <a href="javascript:;" class="showBlock" data-rel="#showBlock" data-hide="#extraFields">
               {% trans %}Remover remetente, assunto e comentários{% endtrans %}

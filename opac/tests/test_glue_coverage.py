@@ -4,7 +4,6 @@ import importlib
 import os
 import sys
 import tempfile
-from contextlib import contextmanager
 from unittest.mock import MagicMock, Mock, patch
 
 from flask import Flask, current_app
@@ -449,18 +448,6 @@ class ModelsGlueCoverageTestCase(BaseTestCase):
 
 
 class FormsGlueCoverageTestCase(BaseTestCase):
-    @contextmanager
-    def _without_csrf(self):
-        previous = current_app.config.get("WTF_CSRF_ENABLED")
-        current_app.config["WTF_CSRF_ENABLED"] = False
-        try:
-            yield
-        finally:
-            if previous is None:
-                current_app.config.pop("WTF_CSRF_ENABLED", None)
-            else:
-                current_app.config["WTF_CSRF_ENABLED"] = previous
-
     def _valid_form_data(self, **overrides):
         data = {
             "your_email": "sender@example.com",
@@ -474,26 +461,23 @@ class FormsGlueCoverageTestCase(BaseTestCase):
 
     def test_email_share_form_valid_recipients(self):
         with self.app.test_request_context():
-            with self._without_csrf():
-                form = EmailShareForm(data=self._valid_form_data())
-                self.assertTrue(form.validate())
+            form = EmailShareForm(data=self._valid_form_data())
+            self.assertTrue(form.validate())
 
     def test_email_share_form_invalid_recipient_raises_validation_error(self):
         with self.app.test_request_context():
-            with self._without_csrf():
-                form = EmailShareForm(
-                    data=self._valid_form_data(recipients="not-an-email")
-                )
-                self.assertFalse(form.validate())
-                self.assertIn("recipients", form.errors)
+            form = EmailShareForm(
+                data=self._valid_form_data(recipients="not-an-email")
+            )
+            self.assertFalse(form.validate())
+            self.assertIn("recipients", form.errors)
 
     def test_email_share_form_ignores_empty_recipient_segments(self):
         with self.app.test_request_context():
-            with self._without_csrf():
-                form = EmailShareForm(
-                    data=self._valid_form_data(recipients="one@example.com;; ")
-                )
-                self.assertTrue(form.validate())
+            form = EmailShareForm(
+                data=self._valid_form_data(recipients="one@example.com;; ")
+            )
+            self.assertTrue(form.validate())
 
     def test_email_share_form_validate_recipients_direct_invalid(self):
         form = EmailShareForm()
@@ -501,6 +485,13 @@ class FormsGlueCoverageTestCase(BaseTestCase):
         field.data = "bad-email"
         with self.assertRaises(ValidationError):
             EmailShareForm.validate_recipients(form, field)
+
+    def test_public_forms_disable_csrf(self):
+        from webapp.forms import ContactForm, ErrorForm
+
+        self.assertFalse(EmailShareForm.Meta.csrf)
+        self.assertFalse(ContactForm.Meta.csrf)
+        self.assertFalse(ErrorForm.Meta.csrf)
 
 
 class ExceptionsGlueCoverageTestCase(BaseTestCase):

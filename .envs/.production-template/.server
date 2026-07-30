@@ -14,8 +14,8 @@ OPAC_SESSION_COOKIE_HTTPONLY=True
 # session cookie name (default: 'opac_session')
 OPAC_SESSION_COOKIE_NAME=opac_session
 
-# path to session cookie: (default: None -> ou seja a raiz /)
-OPAC_SESSION_COOKIE_PATH=None
+# path to session cookie: (default: /admin — only sent on admin paths)
+OPAC_SESSION_COOKIE_PATH=/admin
 
 # sets whether the session cookie should be marked as secure - (default: False)
 OPAC_SESSION_COOKIE_SECURE=False

@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 from uuid import uuid4
 
 import pytz
@@ -491,6 +492,28 @@ def utc_to_local(utc_dt):
     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
 
     return local_tz.normalize(local_dt)
+
+
+def is_same_origin_request(request):
+    """
+    Fail-closed same-origin check for anonymous AJAX form POSTs.
+
+    Prefers the Origin header; falls back to the Referer netloc. Requests
+    without either header are rejected.
+    """
+    expected = urlparse(request.host_url).netloc.lower()
+    if not expected:
+        return False
+
+    origin = request.headers.get("Origin")
+    if origin:
+        return urlparse(origin).netloc.lower() == expected
+
+    referer = request.headers.get("Referer")
+    if referer:
+        return urlparse(referer).netloc.lower() == expected
+
+    return False
 
 
 def is_recaptcha_valid(request):

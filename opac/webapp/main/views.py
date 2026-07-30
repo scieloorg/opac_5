@@ -121,13 +121,6 @@ def clear_legacy_language_cookie(response):
 
 
 @main.before_app_request
-def add_forms_to_g():
-    setattr(g, "email_share", forms.EmailShareForm())
-    setattr(g, "email_contact", forms.ContactForm())
-    setattr(g, "error", forms.ErrorForm())
-
-
-@main.before_app_request
 def add_scielo_org_config_to_g():
     language = get_locale()
     scielo_org_links = {
@@ -768,6 +761,9 @@ def contact(url_seg):
     if not request.headers.get("X-Requested-With"):
         abort(403, _("Requisição inválida, deve ser ajax."))
 
+    if not utils.is_same_origin_request(request):
+        abort(403, _("Requisição inválida, origem não permitida."))
+
     if utils.is_recaptcha_valid(request):
         form = forms.ContactForm(request.form)
 
@@ -813,7 +809,7 @@ def form_contact(url_seg):
     if not journal:
         abort(404, _("Periódico não encontrado"))
 
-    context = {"journal": journal}
+    context = {"journal": journal, "form": forms.ContactForm()}
     return render_template("journal/includes/contact_form.html", **context)
 
 
@@ -1707,6 +1703,12 @@ def email_share_ajax():
     if not request.headers.get("X-Requested-With"):
         abort(400, _("Requisição inválida."))
 
+    if not utils.is_same_origin_request(request):
+        abort(403, _("Requisição inválida, origem não permitida."))
+
+    if not utils.is_recaptcha_valid(request):
+        abort(400, _("Requisição inválida, captcha inválido."))
+
     form = forms.EmailShareForm(request.form)
 
     if form.validate():
@@ -1744,7 +1746,7 @@ def email_share_ajax():
 
 @main.route("/form_mail/", methods=["GET"])
 def email_form():
-    context = {"url": request.args.get("url")}
+    context = {"url": request.args.get("url"), "form": forms.EmailShareForm()}
     return render_template("email/email_form.html", **context)
 
 
@@ -1752,6 +1754,12 @@ def email_form():
 def email_error_ajax():
     if not request.headers.get("X-Requested-With"):
         abort(400, _("Requisição inválida."))
+
+    if not utils.is_same_origin_request(request):
+        abort(403, _("Requisição inválida, origem não permitida."))
+
+    if not utils.is_recaptcha_valid(request):
+        abort(400, _("Requisição inválida, captcha inválido."))
 
     form = forms.ErrorForm(request.form)
 
@@ -1792,7 +1800,7 @@ def email_error_ajax():
 
 @main.route("/error_mail/", methods=["GET"])
 def error_form():
-    context = {"url": request.args.get("url")}
+    context = {"url": request.args.get("url"), "form": forms.ErrorForm()}
     return render_template("includes/error_form.html", **context)
 
 
