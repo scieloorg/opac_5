@@ -443,3 +443,39 @@ class UtilsTestCase(BaseTestCase):
             '<a href="http://www.scielo.br/avaliacao/avaliacao_en.htm"></a>',
             new_content,
         )
+
+    # extract_section / normalize_policy_anchor (issue #516)
+    def test_extract_section_returns_none_when_section_not_found(self):
+        html = "<html><body><p>sem seção journalContent</p></body></html>"
+        self.assertIsNone(wutils.extract_section(html, "journalContent"))
+
+    def test_extract_section_adds_policy_anchor_for_legacy_item_2_id(self):
+        html = (
+            '<section class="journalContent">'
+            '<h1 id="about">Sobre o periódico</h1>'
+            '<h4 id="item-2">Política editorial</h4>'
+            "</section>"
+        )
+        result = wutils.extract_section(html, "journalContent")
+        self.assertIn('id="policy"', result)
+        self.assertIn('id="item-2"', result)
+
+    def test_extract_section_keeps_existing_policy_id_untouched(self):
+        html = (
+            '<section class="journalContent">'
+            '<h1 id="about">Sobre o periódico</h1>'
+            '<a id="policy" name="policy"> </a>'
+            "<h4>Política editorial</h4>"
+            "</section>"
+        )
+        result = wutils.extract_section(html, "journalContent")
+        self.assertEqual(result.count('id="policy"'), 1)
+
+    def test_extract_section_does_not_add_policy_anchor_when_no_legacy_id(self):
+        html = (
+            '<section class="journalContent">'
+            '<h1 id="about">Sobre o periódico</h1>'
+            "</section>"
+        )
+        result = wutils.extract_section(html, "journalContent")
+        self.assertNotIn("policy", result)
