@@ -9,6 +9,9 @@ from wtforms.validators import URL, DataRequired, Email, ValidationError
 
 
 class EmailShareForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     your_email = StringField("your_email", validators=[DataRequired(), Email()])
     recipients = StringField("recipients", validators=[DataRequired()])
     share_url = HiddenField("share_url", validators=[URL(), DataRequired()])
@@ -31,12 +34,18 @@ class EmailShareForm(FlaskForm):
 
 
 class ContactForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     name = StringField("name", validators=[DataRequired()])
     your_email = StringField("your_email", validators=[DataRequired(), Email()])
     message = TextAreaField("message", validators=[DataRequired()])
 
 
 class ErrorForm(FlaskForm):
+    class Meta:
+        csrf = False
+
     name = StringField("name", validators=[DataRequired()])
     your_email = StringField("your_email", validators=[DataRequired(), Email()])
     error_type = StringField("error_type", validators=[DataRequired()])

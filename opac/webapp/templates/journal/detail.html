@@ -52,8 +52,8 @@
           {# mission #}
           {% if journal.mission %}
             <h2 class="scielo__text-title--4">{% trans %}Nossa Missão{% endtrans %}</h2>
-            {% if session.lang %}
-                <p>{{ journal.get_mission_by_lang(session.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
+            {% if g.lang %}
+                <p>{{ journal.get_mission_by_lang(g.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
             {% endif %}
           {% endif %}
           {# mission #}
@@ -107,8 +107,8 @@
           
           <h2 class="scielo__text-title--4">
             Press-releases
-            {% if session.lang != "pt_BR" %}
-              <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ session.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
+            {% if g.lang != "pt_BR" %}
+              <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ g.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
             {% else %}
               <a href="{{ config.URL_BLOG_PRESSRELEASE }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
             {% endif %}
@@ -229,8 +229,8 @@
           {% if journal.mission %}
             <div class="col-12 col-sm-6">
                 <h2 class="scielo__text-title--4">{% trans %}Nossa Missão{% endtrans %}</h2>
-                {% if session.lang %}
-                    <p>{{ journal.get_mission_by_lang(session.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
+                {% if g.lang %}
+                    <p>{{ journal.get_mission_by_lang(g.lang[:2])|safe|default(_("Periódico sem missão cadastrada"), true) }}</p>
                 {% endif %}
             </div>
           {% endif %}
@@ -290,8 +290,8 @@
             -->
               <h2 class="scielo__text-title--4">
                 Press-releases
-                {% if session.lang != "pt_BR" %}
-                  <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ session.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
+                {% if g.lang != "pt_BR" %}
+                  <a href="{{ config.URL_BLOG_PRESSRELEASE }}/{{ g.lang }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
                 {% else %}
                   <a href="{{ config.URL_BLOG_PRESSRELEASE }}/blog/category/press-releases/{{ journal.acronym }}/feed/" target="_blank" data-toggle="tooltip" data-original-title="{% trans %}RSS dos Press Releases mais recentes desse periódico{% endtrans %}"><span class="material-icons-outlined">rss_feed</span></a>
                 {% endif %}

@@ -2,7 +2,7 @@
 export REDIS_URL=redis://$OPAC_RQ_REDIS_HOST:$OPAC_RQ_REDIS_PORT/0
 export APP_PATH="/app/opac/"
 
-cd /app/opac && python manager.py setup_scheduler_tasks
+cd /app/opac && flask --app opac.app setup_scheduler_tasks
 
 rqscheduler \
     --url=$REDIS_URL \

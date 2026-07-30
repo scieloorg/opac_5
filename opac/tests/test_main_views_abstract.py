@@ -9,12 +9,6 @@ from flask import current_app, g, url_for
 from . import utils
 from .base import BaseTestCase
 
-# from flask import render_template
-# from flask_babelex import gettext as _
-
-
-
-
 class TestArticleDetailV3Abstract(BaseTestCase):
     def _get_response(
         self, article_data=None, part="abstract", pid_v2=None, abstract_lang=None

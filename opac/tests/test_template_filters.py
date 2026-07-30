@@ -1,5 +1,8 @@
 # coding: utf-8
+import datetime
 import unittest
+
+from flask import current_app
 
 from .base import BaseTestCase
 
@@ -60,6 +63,62 @@ class TestMakeAbsoluteUrl(BaseTestCase):
         """Caminhos relativos complexos devem funcionar"""
         result = self.make_absolute_url('/static/images/journals/logo-v2.png', 'https://scielo.br')
         self.assertEqual(result, 'https://scielo.br/static/images/journals/logo-v2.png')
+
+    def test_empty_base_url_returns_relative_path(self):
+        """base_url vazio deve retornar apenas a URL relativa limpa"""
+        result = self.make_absolute_url('media/logo.png', '')
+        self.assertEqual(result, 'media/logo.png')
+
+
+class TestTransAlpha2(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        from webapp.main.custom_filters import trans_alpha2
+
+        self.trans_alpha2 = trans_alpha2
+
+    def test_known_language_code(self):
+        from webapp import choices
+
+        self.assertEqual(
+            self.trans_alpha2("en"),
+            choices.ISO3166_ALPHA2["en"],
+        )
+
+    def test_unknown_language_code(self):
+        self.assertEqual(self.trans_alpha2("zz"), "zz")
+
+    def test_none_value(self):
+        self.assertIsNone(self.trans_alpha2(None))
+
+    def test_empty_value(self):
+        self.assertEqual(self.trans_alpha2(""), "")
+
+
+class TestDatetimeFilter(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        from webapp.main.custom_filters import datetimefilter
+
+        self.datetimefilter = datetimefilter
+        self.utc_value = datetime.datetime(
+            2021, 3, 10, 15, 45, tzinfo=datetime.timezone.utc
+        )
+
+    def test_custom_format(self):
+        with current_app.app_context():
+            result = self.datetimefilter(self.utc_value, "%d/%m/%Y")
+        self.assertRegex(result, r"^\d{2}/\d{2}/\d{4}$")
+
+    def test_default_format(self):
+        with current_app.app_context():
+            result = self.datetimefilter(self.utc_value)
+        self.assertRegex(result, r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$")
+
+    def test_none_raises_attribute_error(self):
+        with current_app.app_context():
+            with self.assertRaises(AttributeError):
+                self.datetimefilter(None)
 
 
 if __name__ == '__main__':

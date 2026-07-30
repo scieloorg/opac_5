@@ -126,7 +126,7 @@ import ast
         - OPAC_SESSION_COOKIE_DOMAIN: o dominio para a cookie da sessão (default: OPAC_SERVER_NAME)
         - OPAC_SESSION_COOKIE_HTTPONLY: Seta a flag: httponly da cookie. (defaults to True)
         - OPAC_SESSION_COOKIE_NAME: nome da cookie de sessão (default: 'opac_session')
-        - OPAC_SESSION_COOKIE_PATH: path para a cookie de sessão: (default: None -> ou seja a raiz /)
+        - OPAC_SESSION_COOKIE_PATH: path para a cookie de sessão: (default: '/admin')
         - OPAC_SESSION_COOKIE_SECURE: define se a cookie de sessão deve ser marcada como segura - (default: False)
         - OPAC_SESSION_REFRESH_EACH_REQUEST: Fazer refresh da cookie em cada request? (Default: 'False')
 
@@ -524,7 +524,7 @@ SESSION_COOKIE_HTTPONLY = (
     os.environ.get("OPAC_SESSION_COOKIE_HTTPONLY", "True") == "True"
 )
 SESSION_COOKIE_NAME = os.environ.get("OPAC_SESSION_COOKIE_NAME", "opac_session")
-SESSION_COOKIE_PATH = os.environ.get("OPAC_SESSION_COOKIE_PATH", None)
+SESSION_COOKIE_PATH = os.environ.get("OPAC_SESSION_COOKIE_PATH", "/admin")
 SESSION_COOKIE_SECURE = os.environ.get("OPAC_SESSION_COOKIE_SECURE", "False") == "True"
 SESSION_REFRESH_EACH_REQUEST = (
     os.environ.get("OPAC_SESSION_REFRESH_EACH_REQUEST", "False") == "True"

@@ -22,7 +22,6 @@ from flask import (
     render_template,
     request,
     send_from_directory,
-    session,
     url_for,
 )
 from flask_babel import gettext as _
@@ -31,12 +30,18 @@ from legendarium.formatter import descriptive_short_format
 from lxml import etree
 from opac_schema.v1.models import Article, Collection, Issue, Journal
 from packtools import HTMLGenerator
-from webapp import babel, cache, controllers, forms
+from webapp import cache, controllers, forms
 from webapp.choices import STUDY_AREAS
 from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
+from webapp.utils.i18n import (
+    build_ilang_url,
+    canonical_interface_lang,
+    get_locale,
+    inject_ilang_into_url,
+)
 from webapp.main.errors import page_not_found, internal_server_error
 
 from . import helper
@@ -74,13 +79,21 @@ def add_collection_to_g():
 
 @main.before_app_request
 def reset_babel_locale():
-    """Recalcula o locale a cada request (session pode ter mudado)."""
+    """Recalcula o locale a cada request (ilang / Accept-Language podem mudar)."""
     babel_refresh()
 
 
 @main.before_app_request
 def add_langs():
-    session["langs"] = current_app.config.get("LANGUAGES")
+    """Expõe idiomas da interface em ``g`` (sem gravar na session)."""
+    g.languages = current_app.config.get("LANGUAGES")
+    g.lang = get_locale()
+
+
+@main.app_template_global()
+def url_for_ilang(lang_code):
+    """URL da página atual com ``ilang`` na query string."""
+    return build_ilang_url(lang_code)
 
 
 @main.after_request
@@ -89,26 +102,27 @@ def add_header(response):
         "CACHE_CONTROL_MAX_AGE_HEADER"
     )
     response.headers["x-content-type-options"] = "nosniff"
+    # Sem ilang válido o conteúdo pode variar pelo idioma do browser (CDN/Varnish).
+    if not canonical_interface_lang(request.args.get("ilang")):
+        vary = response.headers.get("Vary", "")
+        if "Accept-Language" not in vary:
+            response.headers["Vary"] = (
+                "%s, Accept-Language" % vary if vary else "Accept-Language"
+            )
     return response
 
 
 @main.after_request
-def add_language_code(response):
-    language = session.get("lang", get_locale())
-    response.set_cookie("language", language)
+def clear_legacy_language_cookie(response):
+    """Remove o cookie legado ``language`` quando o cliente ainda o envia."""
+    if request.cookies.get("language") is not None:
+        response.set_cookie("language", "", max_age=0, expires=0, path="/")
     return response
 
 
 @main.before_app_request
-def add_forms_to_g():
-    setattr(g, "email_share", forms.EmailShareForm())
-    setattr(g, "email_contact", forms.ContactForm())
-    setattr(g, "error", forms.ErrorForm())
-
-
-@main.before_app_request
 def add_scielo_org_config_to_g():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     scielo_org_links = {
         # if language doesnt exists set the 'en' to SciELO ORG links.
         key: url.get(language, "en")
@@ -117,58 +131,30 @@ def add_scielo_org_config_to_g():
     setattr(g, "scielo_org", scielo_org_links)
 
 
-
-def get_locale():
-    langs = current_app.config.get("LANGUAGES")
-    lang_from_headers = request.accept_languages.best_match(list(langs.keys()))
-
-    if "lang" not in list(session.keys()):
-        session["lang"] = lang_from_headers
-
-    if not lang_from_headers and not session["lang"]:
-        # Caso não seja possível detectar o idioma e não tenhamos a chave lang
-        # no seção, fixamos o idioma padrão.
-        session["lang"] = current_app.config.get("BABEL_DEFAULT_LOCALE")
-
-    return session["lang"]
-
-
 @main.route("/set_locale/<string:lang_code>/")
 def set_locale(lang_code):
+    """
+    Compatibilidade: redireciona para o referrer (ou home) com ``ilang`` na query.
+    Não grava idioma em session nem em cookie.
+    """
     langs = current_app.config.get("LANGUAGES")
 
     if lang_code not in list(langs.keys()):
         abort(400, _("Código de idioma inválido"))
 
+    fragment = request.args.get("hash")
     referrer = request.referrer
-    hash = request.args.get("hash")
-    if hash:
-        referrer += "#" + hash
-
-    # salvar o lang code na sessão
-    session["lang"] = lang_code
-    babel_refresh()
     if referrer:
-        return redirect(referrer)
-    else:
-        return redirect("/")
+        target = inject_ilang_into_url(referrer, lang_code, fragment=fragment)
+        return redirect(target)
 
-
-def get_lang_from_session():
-    """
-    Tenta retornar o idioma da seção, caso não consiga retorna
-    BABEL_DEFAULT_LOCALE.
-    """
-    try:
-        return session["lang"]
-    except KeyError:
-        return current_app.config.get("BABEL_DEFAULT_LOCALE")
+    return redirect(url_for("main.index", ilang=lang_code))
 
 
 @main.route("/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def index():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     news = controllers.get_latest_news_by_lang(language)
 
     tweets = controllers.get_collection_tweets()
@@ -252,7 +238,7 @@ def collection_list_thematic():
     if not thematic_filter in allowed_thematic_filters:
         thematic_filter = "areas"
 
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
     objects = controllers.get_journals_grouped_by(
         thematic_table[thematic_filter],
         title_query,
@@ -269,7 +255,7 @@ def collection_list_thematic():
 @main.route("/journals/feed/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def collection_list_feed():
-    language = session.get("lang", get_locale())
+    language = get_locale()
     collection = controllers.get_current_collection()
 
     title = "SciELO - %s - %s" % (
@@ -335,7 +321,7 @@ def collection_list_feed():
 @main.route("/about/<string:slug_name>", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang_with_qs)
 def about_collection(slug_name=None):
-    language = session.get("lang", get_locale())
+    language = get_locale()
 
     context = {}
     page = None
@@ -494,7 +480,7 @@ def journal_detail(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     # todo: ajustar para que seja só noticias relacionadas ao periódico
-    language = session.get("lang", get_locale())
+    language = get_locale()
     news = controllers.get_latest_news_by_lang(language)
 
     # Press releases
@@ -584,7 +570,7 @@ def journal_feed(url_seg):
         subtitle=utils.get_label_issue(last_issue),
     )
 
-    feed_language = session.get("lang", get_locale())
+    feed_language = get_locale()
     feed_language = feed_language[:2].lower()
 
     for article in articles:
@@ -615,7 +601,7 @@ def journal_feed(url_seg):
 @main.route("/journal/<string:url_seg>/about/", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
-    language = session.get("lang", get_locale())
+    language = get_locale()
     journal = controllers.get_journal_by_url_seg(url_seg)
     content = None
 
@@ -691,7 +677,7 @@ def journals_search_alpha_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     page = request.args.get("page", 1, type=int)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
 
     response_data = controllers.get_alpha_list_from_paginated_journals(
         title_query=query, query_filter=query_filter, page=page, lang=lang
@@ -709,7 +695,7 @@ def journals_search_by_theme_ajax():
     query = request.args.get("query", "", type=str)
     query_filter = request.args.get("query_filter", "", type=str)
     filter = request.args.get("filter", "areas", type=str)
-    lang = get_lang_from_session()[:2].lower()
+    lang = get_locale()[:2].lower()
 
     if filter == "areas":
         objects = controllers.get_journals_grouped_by(
@@ -759,7 +745,9 @@ def download_journal_list(list_type, extension):
             mimetype = "text/csv"
         query = request.args.get("query", "", type=str)
         data = controllers.get_journal_generator_for_csv(
-            list_type=list_type, title_query=query, extension=extension.lower()
+            list_type=list_type.lower(),
+            title_query=query,
+            extension=extension.lower(),
         )
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filename = "journals_%s_%s.%s" % (list_type, timestamp, extension)
@@ -772,6 +760,9 @@ def download_journal_list(list_type, extension):
 def contact(url_seg):
     if not request.headers.get("X-Requested-With"):
         abort(403, _("Requisição inválida, deve ser ajax."))
+
+    if not utils.is_same_origin_request(request):
+        abort(403, _("Requisição inválida, origem não permitida."))
 
     if utils.is_recaptcha_valid(request):
         form = forms.ContactForm(request.form)
@@ -818,7 +809,7 @@ def form_contact(url_seg):
     if not journal:
         abort(404, _("Periódico não encontrado"))
 
-    context = {"journal": journal}
+    context = {"journal": journal, "form": forms.ContactForm()}
     return render_template("journal/includes/contact_form.html", **context)
 
 
@@ -842,7 +833,7 @@ def issue_grid(url_seg):
         abort(404, JOURNAL_UNPUBLISH + _(journal.unpublish_reason))
 
     # idioma da sessão
-    language = session.get("lang", get_locale())
+    language = get_locale()
 
     # A ordenação padrão da função ``get_issues_by_jid``: "-year", "-volume", "-order"
     issues_data = controllers.get_issues_for_grid_by_jid(journal.id, is_public=True)
@@ -889,7 +880,7 @@ def issue_toc(url_seg, url_seg_issue):
     filter_section_enable = bool(current_app.config["FILTER_SECTION_ENABLE"])
 
     # idioma da sessão
-    language = session.get("lang", get_locale())
+    language = get_locale()
 
     # obtém o issue
     issue = controllers.get_issue_by_url_seg(url_seg, url_seg_issue)
@@ -1051,7 +1042,7 @@ def issue_feed(url_seg, url_seg_issue):
         subtitle=utils.get_label_issue(issue),
     )
 
-    feed_language = session.get("lang", get_locale())
+    feed_language = get_locale()
 
     for article in articles:
         # ######### TODO: Revisar #########
@@ -1282,12 +1273,11 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
                 break
 
         website = request.url
-        if website:
-            parsed_url = urlparse(request.url)
-            if current_app.config["FORCE_USE_HTTPS_GOOGLE_TAGS"]:
-                website = "{}://{}".format("https", parsed_url.netloc)
-            else:
-                website = "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
+        parsed_url = urlparse(request.url)
+        if current_app.config["FORCE_USE_HTTPS_GOOGLE_TAGS"]:
+            website = "{}://{}".format("https", parsed_url.netloc)
+        else:
+            website = "{}://{}".format(parsed_url.scheme, parsed_url.netloc)
         if citation_pdf_url:
             citation_pdf_url = "{}{}".format(website, citation_pdf_url)
         try:
@@ -1713,6 +1703,12 @@ def email_share_ajax():
     if not request.headers.get("X-Requested-With"):
         abort(400, _("Requisição inválida."))
 
+    if not utils.is_same_origin_request(request):
+        abort(403, _("Requisição inválida, origem não permitida."))
+
+    if not utils.is_recaptcha_valid(request):
+        abort(400, _("Requisição inválida, captcha inválido."))
+
     form = forms.EmailShareForm(request.form)
 
     if form.validate():
@@ -1750,7 +1746,7 @@ def email_share_ajax():
 
 @main.route("/form_mail/", methods=["GET"])
 def email_form():
-    context = {"url": request.args.get("url")}
+    context = {"url": request.args.get("url"), "form": forms.EmailShareForm()}
     return render_template("email/email_form.html", **context)
 
 
@@ -1758,6 +1754,12 @@ def email_form():
 def email_error_ajax():
     if not request.headers.get("X-Requested-With"):
         abort(400, _("Requisição inválida."))
+
+    if not utils.is_same_origin_request(request):
+        abort(403, _("Requisição inválida, origem não permitida."))
+
+    if not utils.is_recaptcha_valid(request):
+        abort(400, _("Requisição inválida, captcha inválido."))
 
     form = forms.ErrorForm(request.form)
 
@@ -1798,7 +1800,7 @@ def email_error_ajax():
 
 @main.route("/error_mail/", methods=["GET"])
 def error_form():
-    context = {"url": request.args.get("url")}
+    context = {"url": request.args.get("url"), "form": forms.ErrorForm()}
     return render_template("includes/error_form.html", **context)
 
 
