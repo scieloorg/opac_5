@@ -46,7 +46,7 @@
                 {%- set header_logo_url = cimages.get_header_logo(g.collection, g.lang)|default('')|trim -%}
                 {%- if header_logo_url -%}
                     <a
-                        href="/"
+                        href="{{ url_for('.index') }}"
                         title="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                         aria-label="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                     >
@@ -58,7 +58,7 @@
                     </a>
                 {%- else -%}
                     <a
-                        href="/"
+                        href="{{ url_for('.index') }}"
                         title="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                         aria-label="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                     >

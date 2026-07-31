@@ -16,10 +16,10 @@
         <ul class="nav nav-tabs">
             
             <li class="nav-item">
-                <a class="nav-link alpha-tab" href="{{ url_for('.collection_list') }}?status=current">{% trans %}Alfabética{% endtrans %}</a>
+                <a class="nav-link alpha-tab" href="{{ url_for('.collection_list', status='current') }}">{% trans %}Alfabética{% endtrans %}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active thematic-tab" href="{{ url_for('.collection_list_thematic') }}?status=current">{% trans %}Temática{% endtrans %}</a>
+                <a class="nav-link active thematic-tab" href="{{ url_for('.collection_list_thematic', status='current') }}">{% trans %}Temática{% endtrans %}</a>
             </li>
         </ul>
 
@@ -46,12 +46,12 @@
                                 </a> 
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list_thematic') }}?status=current">
+                                <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list_thematic', status='current') }}">
                                 <span class="lbl-corrente"><span class="material-icons" style="color: #1e7c32">fiber_manual_record</span>{% trans %}Ativos{% endtrans %}</span>
                                 </a> 
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'no-current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list_thematic') }}?status=no-current">
+                                <a class="ms-1 btn btn-sm btn-secondary {% if query_filter == 'no-current' %}active {% endif %} scielo__btn-with-icon--left" href="{{ url_for('.collection_list_thematic', status='no-current') }}">
                                 <span class="lbl-nao-corrente"><span class="material-icons" style="color: #c63800;">fiber_manual_record</span>{% trans %}Descontinuados{% endtrans %}</span>
                                 </a> 
                             </li>
@@ -180,7 +180,9 @@
 <script>
     function changeAreaFilter(event) {
         var currentPage = window.location.href.split('?')[0];
-        window.location = currentPage + "?status=" + "{{ query_filter }}" + "&filter=" + event.value;
+        var qs = "?status=" + "{{ query_filter }}" + "&filter=" + encodeURIComponent(event.value);
+        {% if g.lang %}qs += "&ilang={{ g.lang }}";{% endif %}
+        window.location = currentPage + qs;
     }
 </script>
 {% endblock %}
@@ -201,7 +203,7 @@
 
     $('.alpha-tab').click(function(event) {
 
-        window.location.href = "{{ url_for('.collection_list') }}?status=current";
+        window.location.href = "{{ url_for('.collection_list', status='current') }}";
 
     });
 

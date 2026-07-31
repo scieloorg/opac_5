@@ -47,7 +47,7 @@
           <div class="row">
             <div class="col-sm-3" style="text-align: center;">
               <a
-                href="{{ url_for('main.article_cite_export_format', article_id=article.id) }}?format=ris"
+                href="{{ url_for('main.article_cite_export_format', article_id=article.id, format='ris') }}"
                 class="btn hidden-sm">
                 <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
                 <span class="visually-hidden">{% trans %}Baixar em{% endtrans %}</span> RIS
@@ -56,7 +56,7 @@
 
             <div class="col-sm-3" style="text-align: center;">
               <a
-                href="{{ url_for('main.article_cite_export_format', article_id=article.id) }}?format=bib">
+                href="{{ url_for('main.article_cite_export_format', article_id=article.id, format='bib') }}">
                 <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
                 <span class="visually-hidden">{% trans %}Baixar em{% endtrans %}</span> BIBTEX
               </a>
