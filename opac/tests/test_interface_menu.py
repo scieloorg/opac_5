@@ -51,20 +51,21 @@ class MenuTestCase(BaseTestCase):
                     follow_redirects=True,
                 )
                 response = c.get(url_for("main.index"))
-                response_data = response.data.decode("utf-8")
+                response_data = response.data.decode("utf-8").replace("&amp;", "&")
                 self.assertStatus(response, 200)
-                self.assertIn(url_for("main.index"), response_data)
+                self.assertIn("ilang=pt_BR", response_data)
                 self.assertIn(
                     collection.name or __("NOME DA COLEÇÃO!!"),
                     response_data,
                 )
                 self.assertIn(
-                    url_for(".collection_list") + "?status=current",
+                    "/journals/alpha?status=current",
                     response_data,
                 )
+                self.assertIn("ilang=pt_BR", response_data)
                 self.assertIn(str(__("Lista alfabética de periódicos")), response_data)
                 self.assertIn(
-                    url_for(".collection_list_thematic") + "?status=current",
+                    "/journals/thematic?status=current",
                     response_data,
                 )
                 self.assertIn(str(__("Lista temática de periódicos")), response_data)
@@ -82,9 +83,9 @@ class MenuTestCase(BaseTestCase):
                     response_data,
                 )
                 self.assertIn(str(__("Métricas")), response_data)
-                self.assertIn(url_for(".about_collection"), response_data)
+                self.assertIn("/about/?ilang=pt_BR", response_data)
                 self.assertIn(str(__("Sobre o")), response_data)
-                self.assertIn(url_for(".about_collection") + "#contact", response_data)
+                self.assertIn("/about/?ilang=pt_BR#contact", response_data)
                 self.assertIn(str(__("Contatos")), response_data)
                 self.assertIn(current_app.config["URL_SCIELO_ORG"], response_data)
                 self.assertIn(str(__("SciELO.org - Rede SciELO")), response_data)

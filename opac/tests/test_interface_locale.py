@@ -202,6 +202,45 @@ class InterfaceLocaleTestCase(BaseTestCase):
         with current_app.test_request_context("/journals/?q=1"):
             self.assertEqual(url_for_ilang("es"), "/journals/?q=1&ilang=es")
 
+    def test_nav_links_preserve_ilang(self):
+        with self.client as client:
+            response = client.get("/?ilang=en")
+            self.assertStatus(response, 200)
+            html = response.data.decode("utf-8").replace("&amp;", "&")
+            self.assertIn("ilang=en", html)
+            # Lista alfabética: status e ilang na mesma query (um único ?)
+            self.assertRegex(
+                html,
+                r'href="[^"]*journals/alpha\?[^"]*status=current[^"]*ilang=en[^"]*"'
+                r'|href="[^"]*journals/alpha\?[^"]*ilang=en[^"]*status=current[^"]*"',
+            )
+            self.assertNotRegex(
+                html,
+                r'href="[^"]*journals/alpha[^"]*\?[^"]*\?',
+            )
+
+    def test_collection_list_links_preserve_ilang(self):
+        with self.client as client:
+            response = client.get("/journals/alpha?ilang=es&status=current")
+            self.assertStatus(response, 200)
+            html = response.data.decode("utf-8").replace("&amp;", "&")
+            self.assertRegex(
+                html,
+                r'href="[^"]*journals/thematic\?[^"]*status=current[^"]*ilang=es[^"]*"'
+                r'|href="[^"]*journals/thematic\?[^"]*ilang=es[^"]*status=current[^"]*"',
+            )
+            # Home logo / index also carries ilang
+            self.assertIn("ilang=es", html)
+            self.assertRegex(html, r'href="/\?ilang=es"|href="[^"]*/\?ilang=es"')
+
+    def test_switcher_still_changes_ilang_independently(self):
+        with self.client as client:
+            response = client.get("/?ilang=en")
+            self.assertStatus(response, 200)
+            html = response.data.decode("utf-8").replace("&amp;", "&")
+            self.assertIn("/?ilang=es", html)
+            self.assertIn("/?ilang=pt_BR", html)
+
     def test_does_not_clear_language_cookie_when_absent(self):
         with self.client as client:
             response = client.get("/")

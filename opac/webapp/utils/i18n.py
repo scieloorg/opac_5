@@ -3,7 +3,7 @@
 
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from flask import current_app, request
+from flask import current_app, g, request, url_for as flask_url_for
 
 # Map primary language tags (and common variants) to LANGUAGES keys.
 _PRIMARY_TO_CANONICAL = {
@@ -96,6 +96,23 @@ def build_ilang_url(lang_code):
     args = request.args.to_dict(flat=True)
     args["ilang"] = lang_code
     return "%s?%s" % (request.path, urlencode(args))
+
+
+def _is_static_endpoint(endpoint):
+    if not endpoint:
+        return False
+    return endpoint == "static" or endpoint.endswith(".static")
+
+
+def url_for_with_ilang(endpoint, **values):
+    """
+    Like ``flask.url_for``, but injects ``ilang`` from the current interface locale.
+
+    Skips static endpoints. Does not overwrite an explicit ``ilang`` kwarg.
+    """
+    if not _is_static_endpoint(endpoint) and "ilang" not in values:
+        values["ilang"] = getattr(g, "lang", None) or get_locale()
+    return flask_url_for(endpoint, **values)
 
 
 def inject_ilang_into_url(url, lang_code, fragment=None):

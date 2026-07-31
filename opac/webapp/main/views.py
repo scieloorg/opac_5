@@ -41,6 +41,7 @@ from webapp.utils.i18n import (
     canonical_interface_lang,
     get_locale,
     inject_ilang_into_url,
+    url_for_with_ilang,
 )
 from webapp.main.errors import page_not_found, internal_server_error
 
@@ -94,6 +95,12 @@ def add_langs():
 def url_for_ilang(lang_code):
     """URL da página atual com ``ilang`` na query string."""
     return build_ilang_url(lang_code)
+
+
+@main.app_template_global("url_for")
+def jinja_url_for(endpoint, **values):
+    """Jinja ``url_for`` that keeps interface language via ``ilang``."""
+    return url_for_with_ilang(endpoint, **values)
 
 
 @main.after_request

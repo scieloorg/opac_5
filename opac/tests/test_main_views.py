@@ -2288,8 +2288,10 @@ class PageTestCase(BaseTestCase):
 
             self.assertEqual(200, response.status_code)
             self.assertTemplateUsed("collection/about.html")
-            self.assertIn("Critérios SciELO", response.data.decode("utf-8"))
-            self.assertIn('"/about/"', response.data.decode("utf-8"))
+            html = response.data.decode("utf-8").replace("&amp;", "&")
+            self.assertIn("Critérios SciELO", html)
+            # Breadcrumb/nav link to about collection keeps interface language.
+            self.assertIn("/about/?ilang=", html)
             self.assertEqual(
                 self.get_context_variable("page").slug_name, page.slug_name
             )
