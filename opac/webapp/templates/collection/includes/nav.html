@@ -30,7 +30,7 @@
         {%- if menu_logo_url -%}
           {{ img_macro.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
         {%- else -%}
-          <a href="/" title="{% trans %}Ir para a página inicial da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"
+          <a href="{{ url_for('.index') }}" title="{% trans %}Ir para a página inicial da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"
           ><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
         {%- endif -%}
       </li>
@@ -42,12 +42,12 @@
         </a>
         <ul>
           <li>
-            <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
+            <a href="{{ url_for('.collection_list', status='current') }}" class="tab_link">
               {% trans %}Lista alfabética de periódicos{% endtrans %}
             </a>
           </li>
           <li>
-            <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
+            <a href="{{ url_for('.collection_list_thematic', status='current') }}" class="tab_link">
               {% trans %}Lista temática de periódicos{% endtrans %}
             </a>
           </li>

@@ -40,7 +40,7 @@
           <span class="material-icons-outlined scielo-ico-menu-opened">menu_open</span>
           </a>
           <h2 class="logo-svg">
-             <a href="/" title="Ir para a homepage da coleção: {{ coll_macro.get_collection_name() }}"></a>
+             <a href="{{ url_for('.index') }}" title="Ir para a homepage da coleção: {{ coll_macro.get_collection_name() }}"></a>
           </h2>
           <div class="scielo__mainMenu" id="mainMenu">
              <div class="row">
@@ -49,7 +49,7 @@
                    {%- if menu_logo_url -%}
                      {{ cimages.render_logo(menu_logo_url, coll_macro.get_collection_name(), img_class='img-fluid') }}
                    {%- else -%}
-                     <a href="/" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
+                     <a href="{{ url_for('.index') }}" aria-label="{% trans %}Página inicial da coleção{% endtrans %} {{ coll_macro.get_collection_name() }}"><div class="scielo__logo-scielo--small" aria-hidden="true"></div></a>
                    {%- endif -%}
                 </div>
              </div>
@@ -62,12 +62,12 @@
                       </a>
                       <ul>
                          <li>
-                            <a href="{{ url_for('.collection_list') }}?status=current" class="tab_link">
+                            <a href="{{ url_for('.collection_list', status='current') }}" class="tab_link">
                             Lista alfabética de periódicos
                             </a>
                          </li>
                          <li>
-                            <a href="{{ url_for('.collection_list_thematic') }}?status=current" class="tab_link">
+                            <a href="{{ url_for('.collection_list_thematic', status='current') }}" class="tab_link">
                             Lista temática de periódicos
                             </a>
                          </li>
@@ -162,7 +162,7 @@
         <a href="" class="menu" data-rel="#alternativeMainMenu" title="{% trans %}Abrir menu{% endtrans %}">{% trans %}Abrir menu{% endtrans %}</a>
         -->
         
-        <a href="/" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
+        <a href="{{ url_for('.index') }}" title="{% trans %}Ir para a homepage da coleção: {% endtrans %}{{ coll_macro.get_collection_name() }}">
           <div class="scielo__logo-scielo-collection mt-1">
             <small>{{ coll_macro.get_collection_name() }}</small>
           </div>

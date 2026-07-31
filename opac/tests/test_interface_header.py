@@ -1,9 +1,23 @@
 # coding: utf-8
 
-from flask import current_app, g, url_for
+import re
+
+from flask import current_app, g
 
 from . import utils
 from .base import BaseTestCase
+
+
+def _switcher_dropdown_html(html):
+    """Extract the language switcher dropdown menu markup."""
+    match = re.search(
+        r'<ul class="dropdown-menu dropdown-menu-end">(.*?)</ul>',
+        html,
+        re.DOTALL,
+    )
+    if match is None:
+        raise AssertionError("Language switcher dropdown not found in HTML")
+    return match.group(1)
 
 
 class HeaderTestCase(BaseTestCase):
@@ -21,10 +35,13 @@ class HeaderTestCase(BaseTestCase):
                 self.assertTemplateUsed("collection/index.html")
                 self.assertEqual(g.lang, "pt_BR")
                 html = response.data.decode("utf-8").replace("&amp;", "&")
-                self.assertIn("ilang=en", html)
-                self.assertIn("ilang=es", html)
+                switcher = _switcher_dropdown_html(html)
+                self.assertIn('href="/?ilang=en"', switcher)
+                self.assertIn('href="/?ilang=es"', switcher)
                 # Current language is shown as label, not as a switcher link.
-                self.assertNotIn('href="/?ilang=pt_BR"', html)
+                self.assertNotIn('href="/?ilang=pt_BR"', switcher)
+                # Nav/home links still keep the current interface language.
+                self.assertIn('href="/?ilang=pt_BR"', html)
 
     def test_current_language_when_set_en(self):
         """
@@ -40,9 +57,11 @@ class HeaderTestCase(BaseTestCase):
                 self.assertTemplateUsed("collection/index.html")
                 self.assertEqual(g.lang, "en")
                 html = response.data.decode("utf-8").replace("&amp;", "&")
-                self.assertIn("ilang=pt_BR", html)
-                self.assertIn("ilang=es", html)
-                self.assertNotIn('href="/?ilang=en"', html)
+                switcher = _switcher_dropdown_html(html)
+                self.assertIn('href="/?ilang=pt_BR"', switcher)
+                self.assertIn('href="/?ilang=es"', switcher)
+                self.assertNotIn('href="/?ilang=en"', switcher)
+                self.assertIn('href="/?ilang=en"', html)
 
     def test_current_language_when_set_es(self):
         """
@@ -58,6 +77,8 @@ class HeaderTestCase(BaseTestCase):
                 self.assertTemplateUsed("collection/index.html")
                 self.assertEqual(g.lang, "es")
                 html = response.data.decode("utf-8").replace("&amp;", "&")
-                self.assertIn("ilang=pt_BR", html)
-                self.assertIn("ilang=en", html)
-                self.assertNotIn('href="/?ilang=es"', html)
+                switcher = _switcher_dropdown_html(html)
+                self.assertIn('href="/?ilang=pt_BR"', switcher)
+                self.assertIn('href="/?ilang=en"', switcher)
+                self.assertNotIn('href="/?ilang=es"', switcher)
+                self.assertIn('href="/?ilang=es"', html)

@@ -289,22 +289,37 @@ def get_journal_json_data(journal, language="pt"):
         "title": "Interface - Comunica\\u00e7\\u00e3o, Sa\\u00fade, Educa\\u00e7\\u00e3o"
     },
     """
+    # Lazy import avoids circular import during webapp.main.views bootstrap.
+    from webapp.utils.i18n import url_for_with_ilang
+
     issn = next((issn for issn in [journal.scielo_issn, journal.eletronic_issn, journal.print_issn] if issn), "")
     j_data = {
         "id": journal.id,
         "title": journal.title,
         "links": {
-            "detail": url_for("main.journal_detail", url_seg=journal.url_segment),
-            "issue_grid": url_for("main.issue_grid", url_seg=journal.url_segment),
+            "detail": url_for_with_ilang(
+                "main.journal_detail", url_seg=journal.url_segment
+            ),
+            "issue_grid": url_for_with_ilang(
+                "main.issue_grid", url_seg=journal.url_segment
+            ),
             "submission": journal.online_submission_url
-            or url_for("main.about_journal", url_seg=journal.url_segment)
+            or url_for_with_ilang("main.about_journal", url_seg=journal.url_segment)
             + "#submission",
-            "instructions": url_for("main.about_journal", url_seg=journal.url_segment)
+            "instructions": url_for_with_ilang(
+                "main.about_journal", url_seg=journal.url_segment
+            )
             + "#instructions",
-            "about": url_for("main.about_journal", url_seg=journal.url_segment),
-            "contact": url_for("main.about_journal", url_seg=journal.url_segment)
+            "about": url_for_with_ilang(
+                "main.about_journal", url_seg=journal.url_segment
+            ),
+            "contact": url_for_with_ilang(
+                "main.about_journal", url_seg=journal.url_segment
+            )
             + "#contact",
-            "editors": url_for("main.about_journal", url_seg=journal.url_segment)
+            "editors": url_for_with_ilang(
+                "main.about_journal", url_seg=journal.url_segment
+            )
             + "#editors",
             "metrics": f"{current_app.config['METRICS_URL']}?journal={issn}&collection={current_app.config['OPAC_COLLECTION']}" if current_app.config['OPAC_SHOW_METRICS_URL_IN_JOURNAL_LIST'] else None,
         },
@@ -335,7 +350,7 @@ def get_journal_json_data(journal, language="pt"):
         }
 
     if journal.url_next_journal:
-        j_data["url_next_journal"] = url_for(
+        j_data["url_next_journal"] = url_for_with_ilang(
             "main.journal_detail", url_seg=journal.url_next_journal
         )
 
