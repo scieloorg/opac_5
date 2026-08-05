@@ -1687,9 +1687,8 @@ msgstr "Journal home page"
 #: opac/webapp/templates/journal/includes/header.html:50
 #: opac/webapp/templates/journal/includes/header.html:93
 #: opac/webapp/templates/journal/includes/journal_info.html:98
-#, fuzzy
 msgid "Política editorial"
-msgstr "Editorial Board"
+msgstr "Editorial Policy"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:8
 #: opac/webapp/templates/article/includes/levelMenu.html:326
