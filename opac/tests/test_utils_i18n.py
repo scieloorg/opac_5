@@ -168,6 +168,17 @@ class BuildIlangUrlTests(BaseTestCase):
             self.assertEqual(i18n.build_ilang_url("es"), "/about/?ilang=es")
 
 
+class IsStaticEndpointTests(BaseTestCase):
+    def test_falsy_endpoint_is_not_static(self):
+        self.assertFalse(i18n._is_static_endpoint(None))
+        self.assertFalse(i18n._is_static_endpoint(""))
+
+    def test_static_and_blueprint_static(self):
+        self.assertTrue(i18n._is_static_endpoint("static"))
+        self.assertTrue(i18n._is_static_endpoint("admin.static"))
+        self.assertFalse(i18n._is_static_endpoint("main.index"))
+
+
 class UrlForWithIlangTests(BaseTestCase):
     def test_injects_ilang_from_g_lang(self):
         with current_app.test_request_context("/?ilang=es"):

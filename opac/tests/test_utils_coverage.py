@@ -488,6 +488,12 @@ class UtilsCoverageTestCase(BaseTestCase):
 
             self.assertFalse(is_same_origin_request(request))
 
+    def test_is_same_origin_request_rejects_empty_host(self):
+        from webapp.utils.utils import is_same_origin_request
+
+        request = Mock(host_url="", headers={})
+        self.assertFalse(is_same_origin_request(request))
+
     def test_asbool_all_branches(self):
         self.assertFalse(asbool(None))
         self.assertTrue(asbool(True))
@@ -625,7 +631,7 @@ class UtilsCoverageTestCase(BaseTestCase):
     @patch("webapp.utils.utils.replace_link", return_value=None)
     def test_extract_section_returns_none_when_section_missing(self, mocked_replace):
         self.assertIsNone(extract_section("<html></html>", "missing"))
-        mocked_replace.assert_called_once()
+        mocked_replace.assert_not_called()
 
     @patch("webapp.utils.utils.fetch_data")
     def test_fetch_and_extract_section(self, mocked_fetch):

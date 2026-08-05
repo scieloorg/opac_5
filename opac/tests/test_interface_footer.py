@@ -25,7 +25,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -46,7 +46,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -73,7 +73,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -100,7 +100,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -129,7 +129,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -162,7 +162,7 @@ class FooterTestCase(BaseTestCase):
 
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
@@ -190,7 +190,7 @@ class FooterTestCase(BaseTestCase):
                 # Collection license
                 self.assertIn(b"logo-open-access.svg", response.data)
                 self.assertIn(
-                    'href="%s"' % url_for("main.about_collection"),
+                    'href="%s"' % url_for("main.about_collection", ilang="pt_BR"),
                     response.data.decode("utf-8"),
                 )
                 self.assertIn(b"Open Access", response.data)
