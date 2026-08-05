@@ -504,6 +504,21 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             )
             self.assertStatus(response, 400)
 
+    def test_email_share_ajax_rejects_foreign_origin(self):
+        with current_app.app_context():
+            response = self.client.post(
+                url_for("main.email_share_ajax"),
+                headers=ajax_headers(Origin="https://evil.example"),
+                data={
+                    "your_email": "sender@example.com",
+                    "recipients": "one@example.com",
+                    "share_url": "http://example.com/article",
+                    "subject": "Read this",
+                    "comment": "Nice article",
+                },
+            )
+            self.assertStatus(response, 403)
+
     def test_email_form_renders(self):
         with current_app.app_context():
             response = self.client.get(
@@ -548,6 +563,22 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                 },
             )
             self.assertStatus(response, 400)
+
+    def test_email_error_ajax_rejects_foreign_origin(self):
+        with current_app.app_context():
+            response = self.client.post(
+                url_for("main.email_error_ajax"),
+                headers=ajax_headers(Origin="https://evil.example"),
+                data={
+                    "name": "User",
+                    "your_email": "user@example.com",
+                    "error_type": "404",
+                    "url": "http://example.com/missing",
+                    "page_title": "Missing",
+                    "message": "Broken link",
+                },
+            )
+            self.assertStatus(response, 403)
 
     def test_error_form_renders(self):
         with current_app.app_context():

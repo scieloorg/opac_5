@@ -4,6 +4,7 @@ import importlib
 import os
 import sys
 import tempfile
+from contextlib import contextmanager
 from unittest.mock import MagicMock, Mock, patch
 
 from flask import Flask, current_app
@@ -448,6 +449,18 @@ class ModelsGlueCoverageTestCase(BaseTestCase):
 
 
 class FormsGlueCoverageTestCase(BaseTestCase):
+    @contextmanager
+    def _without_csrf(self):
+        previous = current_app.config.get("WTF_CSRF_ENABLED")
+        current_app.config["WTF_CSRF_ENABLED"] = False
+        try:
+            yield
+        finally:
+            if previous is None:
+                current_app.config.pop("WTF_CSRF_ENABLED", None)
+            else:
+                current_app.config["WTF_CSRF_ENABLED"] = previous
+
     def _valid_form_data(self, **overrides):
         data = {
             "your_email": "sender@example.com",

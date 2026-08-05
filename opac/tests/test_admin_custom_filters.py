@@ -6,7 +6,7 @@ from flask_admin.contrib.mongoengine.tools import parse_like_term
 from flask_babel import lazy_gettext as __
 from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentField, StringField
 from mongoengine.queryset import Q
-from opac_schema.v1.models import Article, Issue, Journal, News, Sponsor
+from opac_schema.v1.models import Article, Issue, Journal, News, Pages, Sponsor
 from tests.utils import makeOneArticle, makeOneIssue, makeOneJournal
 from webapp import models
 from webapp.admin.custom_filters import (
@@ -201,6 +201,12 @@ class CustomFiltersTestCase(BaseTestCase):
         self.assertListEqual(
             [i.__class__.__name__ for i in expected],
             [i.__class__.__name__ for i in result],
+        )
+
+    def test_convert_returns_none_for_unknown_type(self):
+        filter_converter = CustomFilterConverter()
+        self.assertIsNone(
+            filter_converter.convert("UnknownFieldType", Journal.title, "title")
         )
 
     def test_filters_embedded_document_field(self):
