@@ -1637,7 +1637,7 @@ msgstr ""
 #: opac/webapp/templates/journal/includes/header.html:93
 #: opac/webapp/templates/journal/includes/journal_info.html:98
 msgid "Política editorial"
-msgstr ""
+msgstr "Política Editorial"
 
 #: opac/webapp/templates/article/includes/levelMenu.html:8
 #: opac/webapp/templates/article/includes/levelMenu.html:326
