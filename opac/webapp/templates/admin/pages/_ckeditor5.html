@@ -1,0 +1,17 @@
+{% set admin_lang = session.get('lang', config.get('BABEL_DEFAULT_LOCALE', 'pt_BR')) %}
+{% set ck_lang_map = {'pt_BR': 'pt-br', 'pt': 'pt', 'en': 'en', 'es': 'es'} %}
+{% set ck_lang = ck_lang_map.get(admin_lang, 'pt-br') %}
+<link rel="stylesheet" href="/static/js/ckeditor5/ckeditor5.css">
+<style>
+    .ck-editor__editable_inline {
+        min-height: 500px;
+    }
+</style>
+<script src="/static/js/ckeditor5/ckeditor5.umd.js"></script>
+{% if ck_lang != 'en' %}
+<script src="/static/js/ckeditor5/translations/{{ ck_lang }}.umd.js"></script>
+{% endif %}
+<script>
+    window.OPAC_CKEDITOR_LANG = {{ ck_lang|tojson }};
+</script>
+<script src="/static/js/ckeditor5/opac-pages-editor.js"></script>
