@@ -444,6 +444,50 @@ class UtilsCoverageTestCase(BaseTestCase):
         self.assertTrue(is_recaptcha_valid(request))
         mocked_post.assert_called_once()
 
+    def test_is_same_origin_request_with_origin(self):
+        from webapp.utils.utils import is_same_origin_request
+
+        with current_app.test_request_context(
+            "/",
+            headers={"Origin": "http://localhost"},
+            base_url="http://localhost/",
+        ):
+            from flask import request
+
+            self.assertTrue(is_same_origin_request(request))
+
+    def test_is_same_origin_request_with_referer(self):
+        from webapp.utils.utils import is_same_origin_request
+
+        with current_app.test_request_context(
+            "/",
+            headers={"Referer": "http://localhost/j/foo"},
+            base_url="http://localhost/",
+        ):
+            from flask import request
+
+            self.assertTrue(is_same_origin_request(request))
+
+    def test_is_same_origin_request_rejects_foreign_origin(self):
+        from webapp.utils.utils import is_same_origin_request
+
+        with current_app.test_request_context(
+            "/",
+            headers={"Origin": "https://evil.example"},
+            base_url="http://localhost/",
+        ):
+            from flask import request
+
+            self.assertFalse(is_same_origin_request(request))
+
+    def test_is_same_origin_request_rejects_missing_headers(self):
+        from webapp.utils.utils import is_same_origin_request
+
+        with current_app.test_request_context("/", base_url="http://localhost/"):
+            from flask import request
+
+            self.assertFalse(is_same_origin_request(request))
+
     def test_asbool_all_branches(self):
         self.assertFalse(asbool(None))
         self.assertTrue(asbool(True))

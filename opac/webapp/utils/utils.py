@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 from uuid import uuid4
 
 import pytz
@@ -493,6 +494,28 @@ def utc_to_local(utc_dt):
     return local_tz.normalize(local_dt)
 
 
+def is_same_origin_request(request):
+    """
+    Fail-closed same-origin check for anonymous AJAX form POSTs.
+
+    Prefers the Origin header; falls back to the Referer netloc. Requests
+    without either header are rejected.
+    """
+    expected = urlparse(request.host_url).netloc.lower()
+    if not expected:
+        return False
+
+    origin = request.headers.get("Origin")
+    if origin:
+        return urlparse(origin).netloc.lower() == expected
+
+    referer = request.headers.get("Referer")
+    if referer:
+        return urlparse(referer).netloc.lower() == expected
+
+    return False
+
+
 def is_recaptcha_valid(request):
     """
     Verify if the response for the Google recaptcha is valid.
@@ -770,6 +793,23 @@ def replace_link(section):
     return section
 
 
+def normalize_policy_anchor(soup, section):
+    """
+    Períodicos migrados para o novo gerador de conteúdo (core.scielo.org)
+    entregam a seção "Política editorial" com o id semântico "policy", mas
+    períodicos ainda no fluxo antigo entregam essa mesma seção com o id
+    numérico legado "item-2". Garante que "#policy" funcione nos dois casos,
+    adicionando uma âncora extra sem remover o id legado.
+    """
+    if section.find(id="policy"):
+        return section
+    legacy_anchor = section.find(id="item-2")
+    if legacy_anchor:
+        policy_anchor = soup.new_tag("a", id="policy")
+        legacy_anchor.insert_before(policy_anchor)
+    return section
+
+
 def normalize_lang_portuguese(language):
     if language == "pt_BR":
         return "pt-br"
@@ -780,11 +820,11 @@ def normalize_lang_portuguese(language):
 def extract_section(html_content, class_name):
     soup = BeautifulSoup(html_content, "html.parser")
     section = soup.find("section", class_=class_name)
-    section = replace_link(section=section)
-    if section:
-        return str(section)
-    else:
+    if not section:
         return None
+    section = replace_link(section=section)
+    section = normalize_policy_anchor(soup, section)
+    return str(section)
 
 
 def fetch_and_extract_section(collection_acronym, journal_acronym, language):

@@ -43,10 +43,10 @@
             </div>
 
             <div class="col-6">
-                {%- set header_logo_url = cimages.get_header_logo(g.collection, session.lang)|default('')|trim -%}
+                {%- set header_logo_url = cimages.get_header_logo(g.collection, g.lang)|default('')|trim -%}
                 {%- if header_logo_url -%}
                     <a
-                        href="/"
+                        href="{{ url_for('.index') }}"
                         title="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                         aria-label="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                     >
@@ -58,7 +58,7 @@
                     </a>
                 {%- else -%}
                     <a
-                        href="/"
+                        href="{{ url_for('.index') }}"
                         title="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                         aria-label="{% trans %}Ir para a homepage da coleção:{% endtrans %} {{ coll_macro.get_collection_name() }}"
                     >
@@ -137,7 +137,7 @@
                   </li>
 
                   <li>
-                    <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#item2" class="dropdown-item">
+                    <a href="{{ url_for('.about_journal', url_seg=journal.url_segment) }}#policy" class="dropdown-item">
                       <span class="material-icons-outlined" aria-hidden="true">help_outline</span>
                       {% trans %}Política editorial{% endtrans %}
                     </a>

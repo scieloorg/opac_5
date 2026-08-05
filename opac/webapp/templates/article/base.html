@@ -180,6 +180,8 @@
 
   var howcite_initialized = false;
 
+  var citeCslBase = {{ url_for('main.article_cite_csl', article_id=article.id)|tojson }};
+
   $('#ModalHowcite').on('shown.bs.modal', function () {
 
     if (!howcite_initialized) {
@@ -189,7 +191,7 @@
 
       $.each(initial, function (key, value) {
         $.ajax({
-          url: "{{ url_for('main.article_cite_csl', article_id=article.id) }}?style=" + value,
+          url: citeCslBase + (citeCslBase.indexOf('?') >= 0 ? '&' : '?') + 'style=' + value,
           dataType: 'html',
           delay: 250,
           async: true
@@ -231,7 +233,7 @@
       var data = e.params.data;
 
       $.ajax({
-        url: "{{ url_for('main.article_cite_csl', article_id=article.id) }}?style=" + data.id,
+        url: citeCslBase + (citeCslBase.indexOf('?') >= 0 ? '&' : '?') + 'style=' + data.id,
         dataType: 'html',
         delay: 250
       })

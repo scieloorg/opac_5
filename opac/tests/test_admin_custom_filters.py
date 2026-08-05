@@ -19,6 +19,7 @@ from webapp.admin.custom_filters import (
     CustomFilterNotEqual,
     CustomFilterNotInList,
     CustomFilterNotLike,
+    _column_name,
     get_flt,
 )
 
@@ -38,6 +39,10 @@ class _UseLicensesDoc(Document):
 
 
 class CustomFiltersTestCase(BaseTestCase):
+    def test_column_name_accepts_field_and_str(self):
+        self.assertEqual(_column_name(Pages.name), "name")
+        self.assertEqual(_column_name("name"), "name")
+
     def test_flt_reference_journal(self):
         journal_fields = {
             "title": "title-%s" % str(uuid4().hex),
@@ -176,13 +181,14 @@ class CustomFiltersTestCase(BaseTestCase):
 
         result = filter_converter.convert("ReferenceField", Issue.journal, "journal")
         expected = [f(Issue.journal, "journal") for f in filtes_reference_field]
-        # Flask-Admin 2.2 normaliza `column` para string internamente.
         self.assertListEqual([i.name for i in expected], [i.name for i in result])
         self.assertListEqual([i.options for i in expected], [i.options for i in result])
         self.assertListEqual(
             [i.__class__.__name__ for i in expected],
             [i.__class__.__name__ for i in result],
         )
+        # Field object must be preserved for ReferenceField filtering.
+        self.assertTrue(all(i.column is Issue.journal for i in result))
 
     def test_filters_list_field(self):
         filter_converter = CustomFilterConverter()

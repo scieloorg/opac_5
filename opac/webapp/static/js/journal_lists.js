@@ -295,7 +295,8 @@ var JournalCategorizedList = {
 function open_download_url(target_url, query_input_selector) {
   var query = $(query_input_selector).val();
   if ($.trim(query) !== '') {
-    target_url += '?query=' + encodeURIComponent(query)
+    var sep = target_url.indexOf('?') >= 0 ? '&' : '?';
+    target_url += sep + 'query=' + encodeURIComponent(query)
   }
   window.location = target_url;
 }

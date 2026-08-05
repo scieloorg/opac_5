@@ -203,9 +203,18 @@ class AdminViewsTestCase(BaseTestCase):
                     create_user(credentials["email"], credentials["password"], True)
                     # create new user:
                     response = c.post(
-                        login_url, data=credentials, follow_redirects=True
+                        login_url, data=credentials, follow_redirects=False
                     )
-                    # then
+                    # then — session cookie scoped to /admin for CDN-friendly public pages
+                    self.assertStatus(response, 302)
+                    set_cookie = "; ".join(response.headers.getlist("Set-Cookie"))
+                    cookie_name = current_app.config.get(
+                        "SESSION_COOKIE_NAME", "opac_session"
+                    )
+                    self.assertIn("%s=" % cookie_name, set_cookie)
+                    self.assertIn("Path=/admin", set_cookie)
+
+                    response = c.get(response.headers["Location"], follow_redirects=True)
                     self.assertStatus(response, 200)
                     self.assertTemplateUsed("admin/index.html")
                     self.assertIn(expected_page_header, response.data.decode("utf-8"))
@@ -286,7 +295,7 @@ class AdminViewsTestCase(BaseTestCase):
         Quando:
             acesso a pagina de login
         Verificamos:
-            na pagina aparecem os links para trocar de idioma
+            na pagina aparecem os links para trocar de idioma (via ``ilang``)
         """
         with current_app.app_context():
             collection = makeOneCollection()
@@ -296,12 +305,6 @@ class AdminViewsTestCase(BaseTestCase):
                     # with
                     login_url = url_for("admin.login_view")
                     languages = current_app.config["LANGUAGES"]
-                    lang_urls = {}
-                    for lang_code, lang_name in languages.items():
-                        lang_urls[lang_code] = {
-                            "url": url_for("main.set_locale", lang_code=lang_code),
-                            "name": lang_name,
-                        }
 
                     # when
                     response = c.get(login_url, follow_redirects=True)
@@ -309,11 +312,10 @@ class AdminViewsTestCase(BaseTestCase):
                     # then
                     self.assertStatus(response, 200)
                     self.assertTemplateUsed("admin/auth/login.html")
-                    for lang_code, lang_data in lang_urls.items():
-                        lang_url = lang_data["url"]
-                        lang_name = lang_data["name"]
-                        self.assertIn(lang_url, response.data.decode("utf-8"))
-                        self.assertIn(lang_name, response.data.decode("utf-8"))
+                    html = response.data.decode("utf-8")
+                    for lang_code, lang_name in languages.items():
+                        self.assertIn("ilang=%s" % lang_code, html)
+                        self.assertIn(lang_name, html)
 
     @unittest.skip(
         "Falhou na chamada: get_context_variable depois de adicionar os withs"

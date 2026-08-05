@@ -1,7 +1,9 @@
 # Redis Cache Key Generation:
 import hashlib
 
-from flask import current_app, request, session
+from flask import g, request
+
+from webapp.utils.i18n import get_locale
 
 
 def _make_querystring_hash():
@@ -31,29 +33,28 @@ def _cache_key_format(lang_code, request_path, qs_hash=None):
     return cache_key
 
 
+def _interface_lang():
+    """Idioma da interface do request (g.lang se já definido, senão get_locale)."""
+    return getattr(g, "lang", None) or get_locale()
+
+
 def cache_key_with_lang():
     """
     Função chamada no decorator @cache.cached
     Retorna a chave para usar no cache (redis) usando:
-    - o códiog do idioma armazenado na sessão (ou o default se não tiver)
+    - o idioma da interface (ilang / Accept-Language / default)
     - o path do request
     """
-
-    default_lang = current_app.config.get("BABEL_DEFAULT_LOCALE")
-    language = session.get("lang", default_lang)
-    return _cache_key_format(language, request.path)
+    return _cache_key_format(_interface_lang(), request.path)
 
 
 def cache_key_with_lang_with_qs():
     """
     Função chamada no decorator @cache.cached
     Retorna a chave para usar no cache (redis) usando:
-    - o códiog do idioma armazenado na sessão (ou o default se não tiver)
+    - o idioma da interface (ilang / Accept-Language / default)
     - o path do request
     - o hash gerado a partir dos parametros da querystring
     """
-
-    default_lang = current_app.config.get("BABEL_DEFAULT_LOCALE")
-    language = session.get("lang", default_lang)
     qs_hash = _make_querystring_hash()
-    return _cache_key_format(language, request.path, qs_hash)
+    return _cache_key_format(_interface_lang(), request.path, qs_hash)

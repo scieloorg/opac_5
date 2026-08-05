@@ -91,11 +91,11 @@
       </div>
       <div class="row">
         <div class="col text-center">
-          {%- set logo_url = img_macro.get_home_logo(g.collection, session.lang)|default('')|trim -%}
+          {%- set logo_url = img_macro.get_home_logo(g.collection, g.lang)|default('')|trim -%}
           {%- if logo_url -%}
             {{ img_macro.render_logo(logo_url, coll_macro.get_collection_name()) }}
           {%- else -%}
-            <a href="/">
+            <a href="{{ url_for('.index') }}">
               <h2 class="scielo__logo-scielo-caption mt-1">
                 <small id="collectionNameHome">{{ coll_macro.get_collection_name() }}</small>
               </h2>

@@ -4,15 +4,13 @@
 import json
 import os
 import tempfile
-from contextlib import contextmanager
 from io import BytesIO
 from unittest.mock import MagicMock, Mock, patch
 
-from flask import current_app, session, url_for
+from flask import current_app, url_for
 from opac_schema.v1.models import TranslatedSection
 from webapp.main.views import (
     add_collection_to_g,
-    get_lang_from_session,
     get_pdf_content,
     render_html,
     render_html_abstract,
@@ -28,7 +26,15 @@ from .base import BaseTestCase
 from .test_restapi import RestAPIAuthMixin
 
 
-AJAX_HEADERS = {"X-Requested-With": "XMLHttpRequest"}
+def ajax_headers(**extra):
+    """XHR headers with Origin matching the test app SERVER_NAME."""
+    server_name = current_app.config.get("SERVER_NAME") or "localhost"
+    headers = {
+        "X-Requested-With": "XMLHttpRequest",
+        "Origin": "http://%s" % server_name,
+    }
+    headers.update(extra)
+    return headers
 
 
 class MainViewsCoverageMixin(object):
@@ -61,12 +67,6 @@ class BeforeRequestCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             add_collection_to_g()
             self.assertEqual(g.collection, {})
 
-    def test_get_lang_from_session_without_session_key(self):
-        with current_app.test_request_context("/"):
-            session.clear()
-            result = get_lang_from_session()
-            self.assertEqual(result, current_app.config.get("BABEL_DEFAULT_LOCALE"))
-
 
 class LocaleCoverageTests(BaseTestCase):
     def test_set_locale_appends_hash_to_referrer(self):
@@ -78,7 +78,7 @@ class LocaleCoverageTests(BaseTestCase):
                 follow_redirects=False,
             )
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.location, "/about/#section-id")
+            self.assertEqual(response.location, "/about/?ilang=en#section-id")
 
     def test_set_locale_without_referrer_redirects_home(self):
         with self.client as client:
@@ -87,7 +87,11 @@ class LocaleCoverageTests(BaseTestCase):
                 follow_redirects=False,
             )
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.location, "/")
+            self.assertIn("ilang=en", response.location)
+            self.assertTrue(
+                response.location == "/?ilang=en"
+                or response.location.endswith("/?ilang=en")
+            )
 
 
 class IndexAndCollectionCoverageTests(MainViewsCoverageMixin, BaseTestCase):
@@ -296,10 +300,9 @@ class JournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                     "original_language": "en",
                 }
             )
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "pt_BR"
             response = self.client.get(
-                url_for("main.journal_feed", url_seg=journal.url_segment)
+                url_for("main.journal_feed", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
             )
             self.assertStatus(response, 200)
             self.assertIn("lang=en", response.data.decode("utf-8"))
@@ -315,10 +318,9 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
         mock_fetch.return_value = "<p>about content</p>"
         with current_app.app_context():
             journal = utils.makeOneJournal({"old_information_page": True})
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "pt_BR"
             response = self.client.get(
-                url_for("main.about_journal", url_seg=journal.url_segment)
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
             )
             self.assertStatus(response, 200)
             self.assertIn("about content", response.data.decode("utf-8"))
@@ -329,10 +331,9 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
         mock_get_page.side_effect = [None, page]
         with current_app.app_context():
             journal = utils.makeOneJournal({"old_information_page": True})
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "es"
             response = self.client.get(
-                url_for("main.about_journal", url_seg=journal.url_segment)
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "es"},
             )
             self.assertStatus(response, 200)
 
@@ -342,10 +343,9 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
         mock_get_page.return_value = page
         with current_app.app_context():
             journal = utils.makeOneJournal({"old_information_page": True})
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "en"
             response = self.client.get(
-                url_for("main.about_journal", url_seg=journal.url_segment)
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "en"},
             )
             self.assertStatus(response, 200)
 
@@ -362,7 +362,7 @@ class JournalSearchAjaxCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             utils.makeOneJournal()
             response = self.client.get(
                 url_for("main.journals_search_alpha_ajax"),
-                headers=AJAX_HEADERS,
+                headers=ajax_headers(),
             )
             self.assertStatus(response, 200)
 
@@ -371,7 +371,7 @@ class JournalSearchAjaxCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             response = self.client.get(
                 url_for("main.journals_search_by_theme_ajax"),
                 query_string={"filter": "invalid"},
-                headers=AJAX_HEADERS,
+                headers=ajax_headers(),
             )
             self.assertStatus(response, 200)
             data = response.get_json()
@@ -385,40 +385,27 @@ class JournalSearchAjaxCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                 response = self.client.get(
                     url_for("main.journals_search_by_theme_ajax"),
                     query_string={"filter": filter_name},
-                    headers=AJAX_HEADERS,
+                    headers=ajax_headers(),
                 )
                 self.assertStatus(response, 200)
 
 
 class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
-    @contextmanager
-    def _without_csrf(self):
-        previous = current_app.config.get("WTF_CSRF_ENABLED")
-        current_app.config["WTF_CSRF_ENABLED"] = False
-        try:
-            yield
-        finally:
-            if previous is None:
-                current_app.config.pop("WTF_CSRF_ENABLED", None)
-            else:
-                current_app.config["WTF_CSRF_ENABLED"] = previous
-
     @patch("webapp.main.views.controllers.send_email_contact")
     @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=True)
     def test_contact_ajax_success(self, _recaptcha, mock_send):
         mock_send.return_value = (True, "sent")
         with current_app.app_context():
             journal = utils.makeOneJournal({"enable_contact": True, "editor_email": "e@x.com"})
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.contact", url_seg=journal.url_segment),
-                    headers=AJAX_HEADERS,
-                    data={
-                        "name": "User",
-                        "your_email": "user@example.com",
-                        "message": "Hello",
-                    },
-                )
+            response = self.client.post(
+                url_for("main.contact", url_seg=journal.url_segment),
+                headers=ajax_headers(),
+                data={
+                    "name": "User",
+                    "your_email": "user@example.com",
+                    "message": "Hello",
+                },
+            )
             self.assertStatus(response, 200)
             self.assertTrue(response.get_json()["sent"])
 
@@ -426,12 +413,11 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
     def test_contact_ajax_validation_error(self, _recaptcha):
         with current_app.app_context():
             journal = utils.makeOneJournal({"enable_contact": True})
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.contact", url_seg=journal.url_segment),
-                    headers=AJAX_HEADERS,
-                    data={"name": "", "your_email": "bad", "message": ""},
-                )
+            response = self.client.post(
+                url_for("main.contact", url_seg=journal.url_segment),
+                headers=ajax_headers(),
+                data={"name": "", "your_email": "bad", "message": ""},
+            )
             self.assertStatus(response, 200)
             self.assertFalse(response.get_json()["sent"])
 
@@ -441,10 +427,28 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             journal = utils.makeOneJournal({"enable_contact": True})
             response = self.client.post(
                 url_for("main.contact", url_seg=journal.url_segment),
-                headers=AJAX_HEADERS,
+                headers=ajax_headers(),
                 data={"name": "User", "your_email": "user@example.com", "message": "Hi"},
             )
             self.assertStatus(response, 400)
+
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=True)
+    def test_contact_ajax_invalid_origin(self, _recaptcha):
+        with current_app.app_context():
+            journal = utils.makeOneJournal({"enable_contact": True})
+            response = self.client.post(
+                url_for("main.contact", url_seg=journal.url_segment),
+                headers={
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Origin": "https://evil.example",
+                },
+                data={
+                    "name": "User",
+                    "your_email": "user@example.com",
+                    "message": "Hello",
+                },
+            )
+            self.assertStatus(response, 403)
 
     def test_form_contact_renders_template(self):
         with current_app.app_context():
@@ -454,36 +458,51 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             )
             self.assertStatus(response, 200)
             self.assertTemplateUsed("journal/includes/contact_form.html")
+            self.assertNotIn(b"csrf_token", response.data)
 
     @patch("webapp.main.views.controllers.send_email_share")
-    def test_email_share_ajax_success(self, mock_send):
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=True)
+    def test_email_share_ajax_success(self, _recaptcha, mock_send):
         mock_send.return_value = (True, "ok")
         with current_app.app_context():
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.email_share_ajax"),
-                    headers=AJAX_HEADERS,
-                    data={
-                        "your_email": "sender@example.com",
-                        "recipients": "one@example.com",
-                        "share_url": "http://example.com/article",
-                        "subject": "Read this",
-                        "comment": "Nice article",
-                    },
-                )
+            response = self.client.post(
+                url_for("main.email_share_ajax"),
+                headers=ajax_headers(),
+                data={
+                    "your_email": "sender@example.com",
+                    "recipients": "one@example.com",
+                    "share_url": "http://example.com/article",
+                    "subject": "Read this",
+                    "comment": "Nice article",
+                },
+            )
             self.assertStatus(response, 200)
             self.assertTrue(response.get_json()["sent"])
 
-    def test_email_share_ajax_validation_error(self):
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=True)
+    def test_email_share_ajax_validation_error(self, _recaptcha):
         with current_app.app_context():
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.email_share_ajax"),
-                    headers=AJAX_HEADERS,
-                    data={"your_email": "bad", "recipients": "bad", "share_url": "not-a-url"},
-                )
+            response = self.client.post(
+                url_for("main.email_share_ajax"),
+                headers=ajax_headers(),
+                data={"your_email": "bad", "recipients": "bad", "share_url": "not-a-url"},
+            )
             self.assertStatus(response, 200)
             self.assertFalse(response.get_json()["sent"])
+
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=False)
+    def test_email_share_ajax_invalid_captcha(self, _recaptcha):
+        with current_app.app_context():
+            response = self.client.post(
+                url_for("main.email_share_ajax"),
+                headers=ajax_headers(),
+                data={
+                    "your_email": "sender@example.com",
+                    "recipients": "one@example.com",
+                    "share_url": "http://example.com/article",
+                },
+            )
+            self.assertStatus(response, 400)
 
     def test_email_form_renders(self):
         with current_app.app_context():
@@ -491,26 +510,44 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                 url_for("main.email_form"), query_string={"url": "http://example.com"}
             )
             self.assertStatus(response, 200)
+            self.assertNotIn(b"csrf_token", response.data)
 
     @patch("webapp.main.views.controllers.send_email_error")
-    def test_email_error_ajax_success(self, mock_send):
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=True)
+    def test_email_error_ajax_success(self, _recaptcha, mock_send):
         mock_send.return_value = (True, "reported")
         with current_app.app_context():
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.email_error_ajax"),
-                    headers=AJAX_HEADERS,
-                    data={
-                        "name": "User",
-                        "your_email": "user@example.com",
-                        "error_type": "404",
-                        "url": "http://example.com/missing",
-                        "page_title": "Missing",
-                        "message": "Broken link",
-                    },
-                )
+            response = self.client.post(
+                url_for("main.email_error_ajax"),
+                headers=ajax_headers(),
+                data={
+                    "name": "User",
+                    "your_email": "user@example.com",
+                    "error_type": "404",
+                    "url": "http://example.com/missing",
+                    "page_title": "Missing",
+                    "message": "Broken link",
+                },
+            )
             self.assertStatus(response, 200)
             self.assertTrue(response.get_json()["sent"])
+
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=False)
+    def test_email_error_ajax_invalid_captcha(self, _recaptcha):
+        with current_app.app_context():
+            response = self.client.post(
+                url_for("main.email_error_ajax"),
+                headers=ajax_headers(),
+                data={
+                    "name": "User",
+                    "your_email": "user@example.com",
+                    "error_type": "404",
+                    "url": "http://example.com/missing",
+                    "page_title": "Missing",
+                    "message": "Broken link",
+                },
+            )
+            self.assertStatus(response, 400)
 
     def test_error_form_renders(self):
         with current_app.app_context():
@@ -518,6 +555,16 @@ class ContactAndEmailCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                 url_for("main.error_form"), query_string={"url": "http://example.com"}
             )
             self.assertStatus(response, 200)
+            self.assertNotIn(b"csrf_token", response.data)
+
+    def test_public_home_does_not_set_opac_session_cookie(self):
+        with current_app.app_context():
+            utils.makeOneCollection()
+            response = self.client.get("/")
+            self.assertStatus(response, 200)
+            set_cookie = "; ".join(response.headers.getlist("Set-Cookie"))
+            cookie_name = current_app.config.get("SESSION_COOKIE_NAME", "opac_session")
+            self.assertNotIn("%s=" % cookie_name, set_cookie)
 
 
 class IssueTocCoverageTests(MainViewsCoverageMixin, BaseTestCase):
@@ -557,14 +604,13 @@ class IssueTocCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                     "htmls": [{"lang": "en", "url": "http://example.com/a.html"}],
                 }
             )
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "pt_BR"
             response = self.client.get(
                 url_for(
                     "main.issue_feed",
                     url_seg=journal.url_segment,
                     url_seg_issue=issue.url_segment,
-                )
+                ),
+                query_string={"ilang": "pt_BR"},
             )
             self.assertStatus(response, 200)
 
@@ -1042,7 +1088,7 @@ class MiscRoutesCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             response = self.client.get(
                 url_for("main.scimago_ir"),
                 query_string={"q": "university"},
-                headers=AJAX_HEADERS,
+                headers=ajax_headers(),
             )
             self.assertStatus(response, 200)
             self.assertIn("institution.php", response.get_data(as_text=True))
@@ -1054,7 +1100,7 @@ class MiscRoutesCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             response = self.client.get(
                 url_for("main.scimago_ir"),
                 query_string={"q": "missing"},
-                headers=AJAX_HEADERS,
+                headers=ajax_headers(),
             )
             self.assertStatus(response, 200)
             self.assertEqual(response.get_data(as_text=True), "")
@@ -1255,34 +1301,21 @@ class RemainingMainViewsCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             journal = utils.makeOneJournal({"enable_contact": False})
             response = self.client.post(url_for("main.contact", url_seg=journal.url_segment))
             self.assertStatus(response, 403)
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.contact", url_seg=journal.url_segment),
-                    headers=AJAX_HEADERS,
-                    data={
-                        "name": "User",
-                        "your_email": "user@example.com",
-                        "message": "Hi",
-                    },
-                )
+            response = self.client.post(
+                url_for("main.contact", url_seg=journal.url_segment),
+                headers=ajax_headers(),
+                data={
+                    "name": "User",
+                    "your_email": "user@example.com",
+                    "message": "Hi",
+                },
+            )
             self.assertStatus(response, 403)
 
     def test_form_contact_journal_not_found(self):
         with current_app.app_context():
             response = self.client.get(url_for("main.form_contact", url_seg="missing"))
             self.assertStatus(response, 404)
-
-    @contextmanager
-    def _without_csrf(self):
-        previous = current_app.config.get("WTF_CSRF_ENABLED")
-        current_app.config["WTF_CSRF_ENABLED"] = False
-        try:
-            yield
-        finally:
-            if previous is None:
-                current_app.config.pop("WTF_CSRF_ENABLED", None)
-            else:
-                current_app.config["WTF_CSRF_ENABLED"] = previous
 
     def test_issue_toc_get_without_section_filter(self):
         with current_app.app_context():
@@ -1309,19 +1342,18 @@ class RemainingMainViewsCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             response = self.client.get(url_for("main.aop_toc", url_seg=journal.url_segment))
             self.assertStatus(response, 404)
 
-    def test_issue_feed_keeps_session_language_when_present(self):
+    def test_issue_feed_keeps_ilang_when_present(self):
         with current_app.app_context():
             journal, issue, _article = self._make_article_bundle(
                 {"languages": ["en"], "original_language": "en"}
             )
-            with self.client.session_transaction() as sess:
-                sess["lang"] = "en"
             response = self.client.get(
                 url_for(
                     "main.issue_feed",
                     url_seg=journal.url_segment,
                     url_seg_issue=issue.url_segment,
-                )
+                ),
+                query_string={"ilang": "en"},
             )
             self.assertStatus(response, 200)
             self.assertIn("lang=en", response.data.decode("utf-8"))
@@ -1580,18 +1612,18 @@ class RemainingMainViewsCoverageTests(MainViewsCoverageMixin, BaseTestCase):
                 current_app.config["COMMON_STYLE_LIST"] = previous
                 os.unlink(csl_file.name)
 
-    def test_email_endpoints_require_xhr_and_validation_error(self):
+    @patch("webapp.main.views.utils.is_recaptcha_valid", return_value=True)
+    def test_email_endpoints_require_xhr_and_validation_error(self, _recaptcha):
         with current_app.app_context():
             response = self.client.post(url_for("main.email_share_ajax"))
             self.assertStatus(response, 400)
             response = self.client.post(url_for("main.email_error_ajax"))
             self.assertStatus(response, 400)
-            with self._without_csrf():
-                response = self.client.post(
-                    url_for("main.email_error_ajax"),
-                    headers=AJAX_HEADERS,
-                    data={"name": "", "your_email": "bad"},
-                )
+            response = self.client.post(
+                url_for("main.email_error_ajax"),
+                headers=ajax_headers(),
+                data={"name": "", "your_email": "bad"},
+            )
             self.assertStatus(response, 200)
             self.assertFalse(response.get_json()["sent"])
 
@@ -1716,7 +1748,7 @@ class FinalMainViewsCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             response = self.client.get(
                 url_for("main.journals_search_by_theme_ajax"),
                 query_string={"filter": "areas"},
-                headers=AJAX_HEADERS,
+                headers=ajax_headers(),
             )
             self.assertStatus(response, 200)
 
