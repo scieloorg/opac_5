@@ -21,6 +21,7 @@ else
 endif
 
 COMPOSE_FILES := docker-compose.yml docker-compose-dev.yml
+MONGODB_AUTH_ARGS = --username="$(OPAC_MONGODB_USER)" --password="$(OPAC_MONGODB_PASS)" --authenticationDatabase="$(OPAC_MONGODB_AUTH_SOURCE)"
 compose ?= docker-compose-dev.yml
 
 ifneq ($(filter $(COMPOSE_FILES),$(compose)),)
@@ -321,7 +322,7 @@ docker_test: up
 # help: mongodb_backup                 - run mongo_dump to backup mongo database 
 .PHONY: mongodb_backup
 mongodb_backup: up
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump --db opac --out ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"`
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump $(MONGODB_AUTH_ARGS) --db opac --out ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"`
 
 # help: restore - Restaura o banco MongoDB e o SQLite
 .PHONY: restore
@@ -333,7 +334,7 @@ restore: up
 		exit 1; \
 	fi; \
 	echo "📦 Restaurando MongoDB de $$BACKUP_DATE..."; \
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/$$BACKUP_DATE --drop && \
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore $(MONGODB_AUTH_ARGS) --dir ../$(DATA_PATH)/backups/$$BACKUP_DATE --drop && \
 	echo "🗄  Restaurando opac.sqlite..."; \
 	if [ ! -f ../$(DATA_PATH)/backups/sqlite/opac.sqlite ]; then \
 		echo "❌ Arquivo ../$(DATA_PATH)/backups/sqlite/opac.sqlite não encontrado!"; \
