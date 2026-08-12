@@ -339,6 +339,10 @@
             if (editable) {
                 editable.style.minHeight = "500px";
             }
+
+            editor.model.document.on("change:data", function () {
+                editor.updateSourceElement();
+            });
         })
         .catch(function (error) {
             console.error("CKEditor 5 init failed", error);
