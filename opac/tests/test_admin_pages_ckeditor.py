@@ -48,6 +48,8 @@ class PagesCKEditor5Tests(AdminViewsCoverageMixin, BaseTestCase):
         self.assertIn('licenseKey: "GPL"', editor_js)
         self.assertIn("htmlSupport", editor_js)
         self.assertIn("ClassicEditor.create", editor_js)
+        self.assertIn("updateSourceElement", editor_js)
+        self.assertIn("change:data", editor_js)
         self.assertIn("OPAC_CKEDITOR_LANG", editor_js)
         for feature in (
             "Fullscreen",
@@ -93,6 +95,11 @@ class PagesCKEditor5Tests(AdminViewsCoverageMixin, BaseTestCase):
                     )
                     self.assertIn('window.OPAC_CKEDITOR_LANG = "pt-br"', body)
                     self.assertIn("/static/js/ckeditor5/opac-pages-editor.js", body)
+                    asset_v = current_app.config.get("VCS_REF") or current_app.config.get(
+                        "WEBAPP_VERSION"
+                    )
+                    if asset_v:
+                        self.assertIn("opac-pages-editor.js?v=%s" % asset_v, body)
                     self.assertIn('id="content"', body)
                     self.assertNotIn("/static/js/ckeditor/ckeditor.js", body)
 
