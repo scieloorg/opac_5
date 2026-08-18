@@ -21,7 +21,6 @@ else
 endif
 
 COMPOSE_FILES := docker-compose.yml docker-compose-dev.yml
-MONGODB_AUTH_ARGS = --username="$(OPAC_MONGODB_USER)" --password="$(OPAC_MONGODB_PASS)" --authenticationDatabase="$(OPAC_MONGODB_AUTH_SOURCE)"
 compose ?= docker-compose-dev.yml
 
 ifneq ($(filter $(COMPOSE_FILES),$(compose)),)
@@ -31,9 +30,21 @@ endif
 
 ifeq ($(compose),docker-compose.yml)
   DATA_PATH = data_opac_prod
+  MONGO_ENV_FILE = .envs/.production/.mongo
 else
   DATA_PATH = data_opac_dev
+  MONGO_ENV_FILE = .envs/.development/.mongo
 endif
+
+-include $(MONGO_ENV_FILE)
+MONGODB_AUTH_ARGS = --username="$(OPAC_MONGODB_USER)" --password="$(OPAC_MONGODB_PASS)" --authenticationDatabase="$(OPAC_MONGODB_AUTH_SOURCE)"
+
+define require_mongo_auth
+	@if [ -z "$(OPAC_MONGODB_USER)" ] || [ -z "$(OPAC_MONGODB_PASS)" ] || [ -z "$(OPAC_MONGODB_AUTH_SOURCE)" ]; then \
+		echo "❌ Define OPAC_MONGODB_USER, OPAC_MONGODB_PASS e OPAC_MONGODB_AUTH_SOURCE em $(MONGO_ENV_FILE)"; \
+		exit 1; \
+	fi
+endef
 
 # Do not remove this block. It is used by the 'help' rule when
 # constructing the help output.
@@ -322,11 +333,13 @@ docker_test: up
 # help: mongodb_backup                 - run mongo_dump to backup mongo database 
 .PHONY: mongodb_backup
 mongodb_backup: up
+	$(require_mongo_auth)
 	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump $(MONGODB_AUTH_ARGS) --db opac --out ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"`
 
 # help: restore - Restaura o banco MongoDB e o SQLite
 .PHONY: restore
 restore: up
+	$(require_mongo_auth)
 	@echo "♻️  Restaurando MongoDB e SQLite..."
 	@BACKUP_DATE=$(RESTORE_DATE); \
 	if [ -z "$$BACKUP_DATE" ]; then \
