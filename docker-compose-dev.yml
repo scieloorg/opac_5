@@ -50,6 +50,8 @@ services:
             - redis-cache:redis-cache
         ports:
             - "8000:8000"
+        env_file:
+            - ./.envs/.development/.mongo
         environment:
             - OPAC_DEBUG_MODE=True
             - OPAC_LOG_LEVEL=DEBUG
@@ -57,9 +59,6 @@ services:
             - OPAC_MONGODB_NAME=opac
             - OPAC_MONGODB_HOST=opac_mongo
             - OPAC_MONGODB_PORT=27017
-            - OPAC_MONGODB_USER=${OPAC_MONGODB_USER}
-            - OPAC_MONGODB_PASS=${OPAC_MONGODB_PASS}
-            - OPAC_MONGODB_AUTH_SOURCE=${OPAC_MONGODB_AUTH_SOURCE}
             - OPAC_DATABASE_DIR=/app/data
             - OPAC_MAIL_SERVER=mailhog
             - OPAC_MAIL_PORT=1025
@@ -118,14 +117,13 @@ services:
             - opac_mongo:opac-mongo
             - mailhog:mailhog
             - redis-cache:redis-cache
+        env_file:
+            - ./.envs/.development/.mongo
         environment:
             - OPAC_DEBUG_MODE=True
             - OPAC_MONGODB_NAME=opac
             - OPAC_MONGODB_HOST=opac_mongo
             - OPAC_MONGODB_PORT=27017
-            - OPAC_MONGODB_USER=${OPAC_MONGODB_USER}
-            - OPAC_MONGODB_PASS=${OPAC_MONGODB_PASS}
-            - OPAC_MONGODB_AUTH_SOURCE=${OPAC_MONGODB_AUTH_SOURCE}
             - OPAC_DATABASE_DIR=/app/data
             - OPAC_MAIL_SERVER=mailhog
             - OPAC_MAIL_PORT=1025
@@ -165,14 +163,13 @@ services:
             - opac_mongo:opac-mongo
             - mailhog:mailhog
             - redis-cache:redis-cache
+        env_file:
+            - ./.envs/.development/.mongo
         environment:
             - OPAC_DEBUG_MODE=True
             - OPAC_MONGODB_NAME=opac
             - OPAC_MONGODB_HOST=opac_mongo
             - OPAC_MONGODB_PORT=27017
-            - OPAC_MONGODB_USER=${OPAC_MONGODB_USER}
-            - OPAC_MONGODB_PASS=${OPAC_MONGODB_PASS}
-            - OPAC_MONGODB_AUTH_SOURCE=${OPAC_MONGODB_AUTH_SOURCE}
             - OPAC_DATABASE_DIR=/app/data
             - OPAC_MAIL_SERVER=mailhog
             - OPAC_MAIL_PORT=1025
