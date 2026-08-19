@@ -69,8 +69,9 @@ ALERT_MSG_ES=Nuevo portal puede contener incorrecciones
 |        OPAC_MONGODB_NAME  	|       opac    	|           opac, opac_spa, opac_mex         	|       21/11/2021           	|       nome do banco|
 |        OPAC_MONGODB_HOST  	|       localhost    	|           localhost, 127.0.0.1, 0.0.0.0         	|       21/11/2021           	|       host do banco|
 |        OPAC_MONGODB_PORT  	|       27017    	|           27017, 27018, 27019         	|       21/11/2021           	|       porta do banco|
-|        OPAC_MONGODB_USER  	|       None    	|           opac_user         	|       21/11/2021           	|       usuário para acessar o banco, essa variável é opcional|
-|        OPAC_MONGODB_PASS  	|        None   	|           12345         	|       21/11/2021           	|       password para acessar o banco|
+|        OPAC_MONGODB_USER  	|       None    	|           opac_user         	|       18/08/2026           	|       usuário do banco; obrigatório com MongoDB --auth (arquivo .mongo)|
+|        OPAC_MONGODB_PASS  	|        None   	|           12345         	|       18/08/2026           	|       senha do banco; obrigatória com MongoDB --auth (arquivo .mongo)|
+|        OPAC_MONGODB_AUTH_SOURCE  	|       OPAC_MONGODB_NAME    	|           opac         	|       18/08/2026           	|       database de autenticação; obrigatório no mongodump/mongorestore com --auth|
 |        OPAC_DATABASE_FILE  	|        opac.sqlite   	|           opac_spa.sqlite         	|       21/11/2021           	|       nome do arquivo (sqlite)|
 |        OPAC_DATABASE_DIR  	|        /tmp   	|           /app/database/, /app, /tmp         	|       21/11/2021           	|       pasta aonde fica o banco (sqlite)|
 |        OPAC_DATABASE_DIR  	|       sqlite:////tmp/opac.sqlite    	|           sqlite:////tmp/opac.sqlite         	|       21/11/2021           	|       URI do banco sql opcional|
@@ -153,6 +154,31 @@ ALERT_MSG_ES=Nuevo portal puede contener incorrecciones
 
 
 
+
+### MongoDB com autenticação (`--auth`)
+
+Com MongoDB em `--auth` (padrão nos arquivos `docker-compose.yml` e `docker-compose-dev.yml`), as variáveis `OPAC_MONGODB_USER`, `OPAC_MONGODB_PASS` e `OPAC_MONGODB_AUTH_SOURCE` são obrigatórias e devem ficar em um único arquivo — não exporte no shell e não repita a senha no Compose:
+
+- desenvolvimento: `.envs/.development/.mongo`
+- produção: `.envs/.production/.mongo` (cópia de `.envs/.production-template/.mongo`)
+
+O Docker Compose lê esse arquivo via `env_file`. O Makefile inclui o mesmo arquivo (`-include`), para que `mongodb_backup` e `restore` usem as mesmas credenciais.
+
+```bash
+mkdir -p .envs/.development .envs/.production
+cp .envs/.production-template/.mongo .envs/.development/.mongo
+cp .envs/.production-template/.mongo .envs/.production/.mongo
+```
+
+Preencha usuário, senha e `OPAC_MONGODB_AUTH_SOURCE` (o database em que o usuário foi criado). Depois:
+
+```bash
+make mongodb_backup
+# produção:
+make mongodb_backup compose=docker-compose.yml
+```
+
+Não é necessário `export` das variáveis no terminal.
 
 ### Instalação utilizando Docker para desenvolvimento
 

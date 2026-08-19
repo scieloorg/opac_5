@@ -527,6 +527,7 @@ class DefaultConfigGlueCoverageTestCase(BaseTestCase):
         env = {
             "OPAC_MONGODB_USER": "mongo-user",
             "OPAC_MONGODB_PASS": "mongo-pass",
+            "OPAC_MONGODB_AUTH_SOURCE": "opac_test",
         }
         original_settings = default_config.MONGODB_SETTINGS
         try:
@@ -537,6 +538,10 @@ class DefaultConfigGlueCoverageTestCase(BaseTestCase):
             )
             self.assertEqual(
                 "mongo-pass", default_config.MONGODB_SETTINGS[0]["password"]
+            )
+            self.assertEqual(
+                "opac_test",
+                default_config.MONGODB_SETTINGS[0]["authentication_source"],
             )
         finally:
             default_config.MONGODB_SETTINGS = original_settings

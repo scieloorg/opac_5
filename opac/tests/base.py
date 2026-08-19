@@ -37,9 +37,17 @@ class MongoInstance(object):
         for _ in range(3):
             time.sleep(0.1)
             try:
-                self._conn = pymongo.MongoClient(
-                    self.mongo_settings["host"], self.mongo_settings["port"]
-                )
+                client_kwargs = {
+                    "host": self.mongo_settings["host"],
+                    "port": self.mongo_settings["port"],
+                }
+                if self.mongo_settings.get("username"):
+                    client_kwargs["username"] = self.mongo_settings["username"]
+                    client_kwargs["password"] = self.mongo_settings["password"]
+                    client_kwargs["authSource"] = self.mongo_settings.get(
+                        "authentication_source", self.mongo_settings["db"]
+                    )
+                self._conn = pymongo.MongoClient(**client_kwargs)
             except pymongo.errors.ConnectionFailure:
                 continue
             else:

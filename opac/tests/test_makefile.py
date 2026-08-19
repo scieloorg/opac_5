@@ -71,7 +71,7 @@ MAKEFILE_TARGETS = (
 # Fragments that must appear in `make -n <target>` stdout (alphabetical keys).
 EXPECTED_FRAGMENTS = {
     "backup": ("mongodump", "opac.sqlite", "Backup completo"),
-    "backup_sqlite": ("BACKUP_DIR=", "opac.sqlite", "Backup do SQLite"),
+    "backup_sqlite": ("backups/sqlite", "opac.sqlite", "Backup do SQLite"),
     "build": ("-f docker-compose-dev.yml", "build"),
     "build_bundles": ("gulp",),
     "build_i18n": (
@@ -115,7 +115,7 @@ EXPECTED_FRAGMENTS = {
     "logs": ("logs -f",),
     "logs_tail": ("logs -f --tail=50",),
     "make_messages": ("pybabel extract", "messages.pot"),
-    "mongodb_backup": ("mongodump", "--db opac"),
+    "mongodb_backup": ("mongodump", "--username=", "--db opac"),
     "opac_version": ("Version file:",),
     "ps": ("-f docker-compose-dev.yml", "ps"),
     "pull_webapp": ("pull opac_webapp",),
@@ -319,6 +319,12 @@ class MakefileRecipesTestCase(unittest.TestCase):
         self._assert_fragments(
             result, "mongodb_backup", ("../data_opac_prod/backups/",)
         )
+
+    def test_makefile_includes_compose_specific_mongo_env_file(self):
+        makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
+        self.assertIn("MONGO_ENV_FILE = .envs/.production/.mongo", makefile)
+        self.assertIn("MONGO_ENV_FILE = .envs/.development/.mongo", makefile)
+        self.assertIn("-include $(MONGO_ENV_FILE)", makefile)
 
 
 if __name__ == "__main__":

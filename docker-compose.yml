@@ -21,13 +21,12 @@ services:
             - /etc/localtime:/etc/localtime:ro
 
     opac_mongo:
-        image: mongo:8.0
+        image: mongo:8.3.7
         container_name: opac_mongo_prod
         restart: always
         user: mongodb
         hostname: opac-mongo
-        ports:
-            - "27017:27017"
+        command: ["mongod", "--auth"]
         volumes:
             - ../data_opac_prod/db:/data/db:rw
             - ../data_opac_prod/backups:/data_opac_prod/backups:rw

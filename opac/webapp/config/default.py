@@ -49,8 +49,9 @@ import ast
         - OPAC_MONGODB_NAME:    nome do banco (default: 'opac')
         - OPAC_MONGODB_HOST:    host do banco (default: 'localhost')
         - OPAC_MONGODB_PORT:    porta do banco (default: 27017)
-        - OPAC_MONGODB_USER:    [opcional] usuário para acessar o banco (default: None)
-        - OPAC_MONGODB_PASS:    [opcional] password para acessar o banco (default: None)
+        - OPAC_MONGODB_USER:    usuário para acessar o banco (obrigatório com MongoDB --auth)
+        - OPAC_MONGODB_PASS:    password para acessar o banco (obrigatório com MongoDB --auth)
+        - OPAC_MONGODB_AUTH_SOURCE: banco de autenticação (default: OPAC_MONGODB_NAME)
 
       - Banco SQL:
         - OPAC_DATABASE_FILE:   nome do arquivo (sqlite) (default: 'opac.sqlite')
@@ -278,6 +279,7 @@ MONGODB_HOST = os.environ.get("OPAC_MONGODB_HOST", "localhost")
 MONGODB_PORT = os.environ.get("OPAC_MONGODB_PORT", 27017)
 MONGODB_USER = os.environ.get("OPAC_MONGODB_USER", None)
 MONGODB_PASS = os.environ.get("OPAC_MONGODB_PASS", None)
+MONGODB_AUTH_SOURCE = os.environ.get("OPAC_MONGODB_AUTH_SOURCE", None)
 
 MONGODB_SETTINGS = [
     {
@@ -291,6 +293,7 @@ MONGODB_SETTINGS = [
 if MONGODB_USER and MONGODB_PASS:
     MONGODB_SETTINGS[0]["username"] = MONGODB_USER
     MONGODB_SETTINGS[0]["password"] = MONGODB_PASS
+    MONGODB_SETTINGS[0]["authentication_source"] = MONGODB_AUTH_SOURCE or MONGODB_NAME
 
 
 # Configurações do banco de dados SQL
@@ -519,7 +522,10 @@ SSM_MEDIA_URI = "{scheme}://{domain}:{port}{path}".format(
 OPAC_SCHEME = os.environ.get("OPAC_OPAC_SCHEME", "https")
 SERVER_NAME = os.environ.get("OPAC_SERVER_NAME", None)
 OPAC_BASE_URI = "{scheme}://{domain}".format(scheme=OPAC_SCHEME, domain=SERVER_NAME)
-SESSION_COOKIE_DOMAIN = os.environ.get("OPAC_SESSION_COOKIE_DOMAIN", SERVER_NAME)
+SESSION_COOKIE_DOMAIN = os.environ.get("OPAC_SESSION_COOKIE_DOMAIN")
+if SESSION_COOKIE_DOMAIN is None:
+    SESSION_COOKIE_DOMAIN = SERVER_NAME
+SESSION_COOKIE_DOMAIN = SESSION_COOKIE_DOMAIN or None
 SESSION_COOKIE_HTTPONLY = (
     os.environ.get("OPAC_SESSION_COOKIE_HTTPONLY", "True") == "True"
 )

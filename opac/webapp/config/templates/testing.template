@@ -28,6 +28,7 @@ import os
     - OPAC_MONGODB_PORT:    porta do banco (default: 27017)
     - OPAC_MONGODB_USER:    [opcional] usuário para acessar o banco (default: None)
     - OPAC_MONGODB_PASS:    [opcional] password para acessar o banco (default: None)
+    - OPAC_MONGODB_AUTH_SOURCE: [opcional] banco de autenticação (default: OPAC_MONGODB_NAME)
 
 """
 
@@ -93,6 +94,7 @@ MONGODB_HOST = os.environ.get('OPAC_MONGODB_HOST', 'localhost')
 MONGODB_PORT = os.environ.get('OPAC_MONGODB_PORT', 27017)
 MONGODB_USER = os.environ.get('OPAC_MONGODB_USER', None)
 MONGODB_PASS = os.environ.get('OPAC_MONGODB_PASS', None)
+MONGODB_AUTH_SOURCE = os.environ.get('OPAC_MONGODB_AUTH_SOURCE', None)
 
 MONGODB_SETTINGS = [
     {
@@ -103,9 +105,10 @@ MONGODB_SETTINGS = [
     }
 ]
 
-# if MONGODB_USER and MONGODB_PASS:
-#     MONGODB_SETTINGS[0]['username'] = MONGODB_USER
-#     MONGODB_SETTINGS[0]['password'] = MONGODB_PASS
+if MONGODB_USER and MONGODB_PASS:
+    MONGODB_SETTINGS[0]['username'] = MONGODB_USER
+    MONGODB_SETTINGS[0]['password'] = MONGODB_PASS
+    MONGODB_SETTINGS[0]['authentication_source'] = MONGODB_AUTH_SOURCE or MONGODB_NAME
 
 
 # Configurações do banco de dados SQL
