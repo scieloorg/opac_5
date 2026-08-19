@@ -14,4 +14,4 @@
 <script>
     window.OPAC_CKEDITOR_LANG = {{ ck_lang|tojson }};
 </script>
-<script src="/static/js/ckeditor5/opac-pages-editor.js"></script>
+<script src="{{ url_for('static', filename='js/ckeditor5/opac-pages-editor.js', v=config.VCS_REF or config.WEBAPP_VERSION) }}"></script>
