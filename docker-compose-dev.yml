@@ -24,6 +24,8 @@ services:
         command: ["mongod", "--auth"]
         ports:
             - "127.0.0.1:27017:27017"
+        volumes:
+            - ../data_opac_dev/backups:/data_opac_dev/backups:rw
 
     opac_webapp:
         build:

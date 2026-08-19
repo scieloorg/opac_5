@@ -71,7 +71,7 @@ MAKEFILE_TARGETS = (
 # Fragments that must appear in `make -n <target>` stdout (alphabetical keys).
 EXPECTED_FRAGMENTS = {
     "backup": ("mongodump", "opac.sqlite", "Backup completo"),
-    "backup_sqlite": ("BACKUP_DIR=", "opac.sqlite", "Backup do SQLite"),
+    "backup_sqlite": ("backups/sqlite", "opac.sqlite", "Backup do SQLite"),
     "build": ("-f docker-compose-dev.yml", "build"),
     "build_bundles": ("gulp",),
     "build_i18n": (
