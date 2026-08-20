@@ -13,7 +13,6 @@ from webapp.factory import (
     IssueFactory,
     JournalFactory,
     _format_author_name,
-    _get_issue_for_upsert,
     isoformat_to_datetime,
 )
 
@@ -250,8 +249,7 @@ class IssueFactoryTestCase(BaseTestCase):
             first.save()
 
             data["publication_year"] = "2021"
-            issue, _ = _get_issue_for_upsert(data)
-            updated = IssueFactory(data, journal_id=None, issue=issue)
+            updated = IssueFactory(data, journal_id=None)
 
             self.assertEqual(updated._id, first._id)
             self.assertEqual(updated.journal._id, self.journal._id)
@@ -350,94 +348,6 @@ class IssueFactoryTestCase(BaseTestCase):
                 _type="special",
             )
             self.assertEqual(issue.type, "special")
-
-    def test_get_issue_for_upsert_finds_by_pid_when_id_changes(self):
-        with current_app.app_context():
-            data = _minimal_issue_data(
-                self.journal._id,
-                issue_id="0000-0003-2020-v1-n1",
-                pid="0000000320200002",
-            )
-            original = IssueFactory(data, self.journal._id)
-            original.save()
-
-            data["id"] = "0000-0003-2020-v1"
-            data["number"] = None
-            issue, old_ids = _get_issue_for_upsert(data)
-
-            self.assertEqual(old_ids, ["0000-0003-2020-v1-n1"])
-            self.assertEqual(issue._id, original._id)
-            self.assertEqual(issue.journal._id, self.journal._id)
-            self.assertEqual(issue.is_public, original.is_public)
-
-    def test_get_issue_for_upsert_prefers_document_with_target_id(self):
-        with current_app.app_context():
-            pid = "0000000320200003"
-            utils.makeOneIssue(
-                {
-                    "_id": "0000-0003-2020-v1-n1",
-                    "journal": self.journal,
-                    "pid": pid,
-                    "number": "1",
-                }
-            )
-            utils.makeOneIssue(
-                {
-                    "_id": "0000-0003-2020-v1",
-                    "journal": self.journal,
-                    "pid": pid,
-                    "number": None,
-                }
-            )
-
-            issue, old_ids = _get_issue_for_upsert(
-                _minimal_issue_data(
-                    self.journal._id,
-                    issue_id="0000-0003-2020-v1",
-                    pid=pid,
-                    number=None,
-                )
-            )
-
-            self.assertEqual(issue._id, "0000-0003-2020-v1")
-            self.assertEqual(old_ids, ["0000-0003-2020-v1-n1"])
-
-    def test_get_issue_for_upsert_does_not_lookup_by_id_without_pid(self):
-        with current_app.app_context():
-            data = _minimal_issue_data(
-                self.journal._id,
-                issue_id="0000-0003-no-pid",
-            )
-            data.pop("pid")
-            saved = IssueFactory(data, self.journal._id)
-            saved.save()
-
-            issue, old_ids = _get_issue_for_upsert(data)
-
-            self.assertIsNone(issue.pk)
-            self.assertEqual(old_ids, [])
-
-    def test_issue_factory_updates_existing_issue_when_id_changes_same_pid(self):
-        with current_app.app_context():
-            data = _minimal_issue_data(
-                self.journal._id,
-                issue_id="0000-0003-2020-v1-n1",
-                pid="0000000320200004",
-            )
-            first = IssueFactory(data, self.journal._id)
-            first.save()
-
-            data["id"] = "0000-0003-2020-v1"
-            data["number"] = None
-            issue, _ = _get_issue_for_upsert(data)
-            updated = IssueFactory(data, journal_id=None, issue=issue)
-
-            self.assertEqual(updated._id, "0000-0003-2020-v1")
-            self.assertEqual(updated.iid, "0000-0003-2020-v1")
-            self.assertEqual(updated.pid, "0000000320200004")
-            self.assertEqual(updated.journal._id, self.journal._id)
-            self.assertIsNone(updated.number)
-            self.assertEqual(updated.label, "v1")
 
 
 class AuxiliarArticleFactoryTestCase(BaseTestCase):

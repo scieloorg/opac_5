@@ -115,51 +115,11 @@ def JournalFactory(data):
     return journal
 
 
-def _get_issue_for_upsert(data):
-    """
-    Localiza o fascículo (issue) a ser atualizado ou inserido usando o ``pid`` e quaisquer `_id`s que precisam ser migrados.
-
-    A busca é feita apenas pelo ``pid`` (chave estável do site clássico). Entre os resultados,
-    o documento que já possui ``_id == data["id"]`` é preferido; caso contrário,
-    o documento existente é reutilizado para que o ``IssueFactory`` possa atribuir o novo ``_id``.
-
-    O MongoDB não permite alterar o `_id` diretamente. O objeto reutilizado é posteriormente inserido
-    com o novo `_id` e os registros antigos são retornados para que o chamador possa reatribuir artigos
-    e deletá-los.
-
-    Retorna:
-        tuple: ``(issue, old_ids)``, onde ``old_ids`` são documentos com o mesmo pid cujo `_id` difere de ``data["id"]``.
-    """
-    new_id = data["id"]
-    pid = data.get("pid") or None
-    old_ids = []
-    issue = None
-
-    if pid:
-        for existing in models.Issue.objects.filter(pid=pid):
-            if existing._id == new_id:
-                issue = existing
-            else:
-                old_ids.append(existing._id)
-
-    if issue is None:
-        if old_ids:
-            issue = models.Issue.objects.get(_id=old_ids[0])
-        else:
-            issue = models.Issue()
-
-    return issue, old_ids
-
-
-def IssueFactory(data, journal_id, issue_order=None, _type="regular", issue=None):
+def IssueFactory(data, journal_id, issue_order=None, _type="regular"):
     """
     Realiza o registro fascículo utilizando o opac schema.
 
     Esta função pode lançar a exceção `models.Journal.DoesNotExist`.
-
-    A localização do documento existente (por pid) é responsabilidade do
-    chamador. Passe ``issue`` já resolvido por ``_get_issue_for_upsert``;
-    se omitido, um fascículo novo é instanciado.
 
     Para satisfazer a obrigatoriedade do ano para os "Fascículos" ahead,
     estamos fixando o ano de fascículos do tipo ``ahead`` com o valor 9999
@@ -167,11 +127,12 @@ def IssueFactory(data, journal_id, issue_order=None, _type="regular", issue=None
 
     metadata = data
 
-    if issue is None:
+    try:
+        issue = models.Issue.objects.get(_id=data["id"])
+    except models.Issue.DoesNotExist:
         issue = models.Issue()
-
-    if not journal_id and getattr(issue, "journal", None):
-        journal_id = issue.journal._id
+    else:
+        journal_id = journal_id or issue.journal._id
 
     _type = (data["id"].endswith("-aop") and "ahead") or _type
 
