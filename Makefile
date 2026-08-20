@@ -12,6 +12,7 @@ PROJECT_NAME = opac_5
 export OPAC_WEBAPP_VERSION=$(strip $(shell cat VERSION))
 export OPAC_BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 export COMMIT=$(strip $(shell git rev-parse --short HEAD))
+export OPAC_VCS_REF=$(COMMIT)
 
 # This check if docker compose version
 ifneq ($(shell docker compose version 2>/dev/null),)
@@ -30,9 +31,29 @@ endif
 
 ifeq ($(compose),docker-compose.yml)
   DATA_PATH = data_opac_prod
+  MONGO_ENV_FILE = .envs/.production/.mongo
+  # Prod: ../data_opac_prod:/app/data
+  SQLITE_PATH = ../$(DATA_PATH)/opac.sqlite
 else
   DATA_PATH = data_opac_dev
+  MONGO_ENV_FILE = .envs/.development/.mongo
+  # Dev: .:/app and OPAC_DATABASE_DIR=/app/data → ./data/opac.sqlite
+  SQLITE_PATH = data/opac.sqlite
 endif
+
+# Path inside the opac_mongo container (must match the compose volume mount).
+MONGO_BACKUP_DIR = /$(DATA_PATH)/backups
+SQLITE_BACKUP_DIR = ../$(DATA_PATH)/backups/sqlite
+
+-include $(MONGO_ENV_FILE)
+MONGODB_AUTH_ARGS = --username="$(OPAC_MONGODB_USER)" --password="$(OPAC_MONGODB_PASS)" --authenticationDatabase="$(OPAC_MONGODB_AUTH_SOURCE)"
+
+define require_mongo_auth
+	@if [ -z "$(OPAC_MONGODB_USER)" ] || [ -z "$(OPAC_MONGODB_PASS)" ] || [ -z "$(OPAC_MONGODB_AUTH_SOURCE)" ]; then \
+		echo "❌ Define OPAC_MONGODB_USER, OPAC_MONGODB_PASS e OPAC_MONGODB_AUTH_SOURCE em $(MONGO_ENV_FILE)"; \
+		exit 1; \
+	fi
+endef
 
 # Do not remove this block. It is used by the 'help' rule when
 # constructing the help output.
@@ -321,11 +342,13 @@ docker_test: up
 # help: mongodb_backup                 - run mongo_dump to backup mongo database 
 .PHONY: mongodb_backup
 mongodb_backup: up
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump --db opac --out ../$(DATA_PATH)/backups/`date +"%Y-%m-%d"`
+	$(require_mongo_auth)
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump $(MONGODB_AUTH_ARGS) --db opac --out $(MONGO_BACKUP_DIR)/`date +"%Y-%m-%d"`
 
 # help: restore - Restaura o banco MongoDB e o SQLite
 .PHONY: restore
 restore: up
+	$(require_mongo_auth)
 	@echo "♻️  Restaurando MongoDB e SQLite..."
 	@BACKUP_DATE=$(RESTORE_DATE); \
 	if [ -z "$$BACKUP_DATE" ]; then \
@@ -333,22 +356,25 @@ restore: up
 		exit 1; \
 	fi; \
 	echo "📦 Restaurando MongoDB de $$BACKUP_DATE..."; \
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore --dir ../$(DATA_PATH)/backups/$$BACKUP_DATE --drop && \
+	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongorestore $(MONGODB_AUTH_ARGS) --dir $(MONGO_BACKUP_DIR)/$$BACKUP_DATE --drop && \
 	echo "🗄  Restaurando opac.sqlite..."; \
-	if [ ! -f ../$(DATA_PATH)/backups/sqlite/opac.sqlite ]; then \
-		echo "❌ Arquivo ../$(DATA_PATH)/backups/sqlite/opac.sqlite não encontrado!"; \
+	if [ ! -f $(SQLITE_BACKUP_DIR)/opac.sqlite ]; then \
+		echo "❌ Arquivo $(SQLITE_BACKUP_DIR)/opac.sqlite não encontrado!"; \
 		exit 1; \
 	fi; \
-	cp ../$(DATA_PATH)/backups/sqlite/opac.sqlite ../$(DATA_PATH)/opac.sqlite && \
+	cp $(SQLITE_BACKUP_DIR)/opac.sqlite $(SQLITE_PATH) && \
 	echo "✅ Restauração concluída!"
 
 # help: backup_sqlite - Faz backup do banco SQLite (opac.sqlite)
 .PHONY: backup_sqlite
 backup_sqlite:
-	@BACKUP_DIR=../$(DATA_PATH)/backups/sqlite; \
-	mkdir -p $$BACKUP_DIR && \
-	cp ../$(DATA_PATH)/opac.sqlite $$BACKUP_DIR/opac.sqlite && \
-	echo "✅ Backup do SQLite concluído: $$BACKUP_DIR/opac.sqlite"
+	@if [ ! -f $(SQLITE_PATH) ]; then \
+		echo "❌ Arquivo $(SQLITE_PATH) não encontrado."; \
+		exit 1; \
+	fi; \
+	mkdir -p $(SQLITE_BACKUP_DIR) && \
+	cp $(SQLITE_PATH) $(SQLITE_BACKUP_DIR)/opac.sqlite && \
+	echo "✅ Backup do SQLite concluído: $(SQLITE_BACKUP_DIR)/opac.sqlite"
 
 # help: backup - Faz backup completo (MongoDB + SQLite)
 .PHONY: backup

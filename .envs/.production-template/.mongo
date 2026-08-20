@@ -1,17 +1,19 @@
 # ------------------- MongoDB Database --------------------
-# -------------------------------------------------------
+# Copy to ../.production/.mongo (do not commit secrets).
+# Required when MongoDB runs with --auth.
 
-# Name of Database(default: 'opac')
+# Name of Database (default: 'opac')
 OPAC_MONGODB_NAME=opac
 
-# Host of Database (default: 'localhost')
+# Host of Database (default: 'opac_mongo' inside Docker network)
 OPAC_MONGODB_HOST=opac_mongo
 
-# Port of Database(default: 27017)
+# Port of Database (default: 27017)
 OPAC_MONGODB_PORT=27017
 
-# # (Optional) user to access the bank (default: None) 
+# Application user (readWrite on OPAC_MONGODB_NAME only)
 OPAC_MONGODB_USER=
-
-# # (Optional) password to access the bank (default: None)
 OPAC_MONGODB_PASS=
+
+# Database where the application user was created
+OPAC_MONGODB_AUTH_SOURCE=
