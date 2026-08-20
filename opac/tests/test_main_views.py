@@ -784,16 +784,114 @@ class MainTestCase(BaseTestCase):
             )
 
             self.assertStatus(response, 301)
-            self.assertEqual(
-                response.location,
+            qs = parse_qs(urlparse(response.location).query)
+            self.assertEqual(qs.get("lang"), ["en"])
+            self.assertEqual(qs.get("format"), ["html"])
+            self.assertIn("ilang", qs)
+
+    def test_article_detail_v3_redirects_when_requested_lang_unavailable(self):
+        """Navegação com lang do artigo atual: 301 para o idioma disponível."""
+        with current_app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            issue = utils.makeOneIssue({"journal": journal})
+            first = utils.makeOneArticle(
+                {
+                    "original_language": "en",
+                    "languages": ["en"],
+                    "issue": issue,
+                    "journal": journal,
+                    "order": "1",
+                }
+            )
+            second = utils.makeOneArticle(
+                {
+                    "original_language": "es",
+                    "languages": ["es"],
+                    "issue": issue,
+                    "journal": journal,
+                    "order": "2",
+                }
+            )
+
+            response = self.client.get(
+                url_for(
+                    "main.article_detail_v3",
+                    url_seg=journal.url_segment,
+                    article_pid_v3=second.aid,
+                    lang="en",
+                ),
+                follow_redirects=False,
+            )
+
+            self.assertStatus(response, 301)
+            parsed = urlparse(response.location)
+            self.assertIn(second.aid, parsed.path)
+            qs = parse_qs(parsed.query)
+            self.assertEqual(qs.get("lang"), ["es"])
+            self.assertEqual(qs.get("format"), ["html"])
+
+    def test_article_detail_v3_unavailable_lang_redirect_preserves_ilang(self):
+        with current_app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            issue = utils.makeOneIssue({"journal": journal})
+            article = utils.makeOneArticle(
+                {
+                    "original_language": "es",
+                    "languages": ["es"],
+                    "issue": issue,
+                    "journal": journal,
+                }
+            )
+
+            response = self.client.get(
                 url_for(
                     "main.article_detail_v3",
                     url_seg=journal.url_segment,
                     article_pid_v3=article.aid,
-                    format="html",
+                    lang="en",
+                    ilang="en",
+                ),
+                follow_redirects=False,
+            )
+
+            self.assertStatus(response, 301)
+            qs = parse_qs(urlparse(response.location).query)
+            self.assertEqual(qs.get("lang"), ["es"])
+            self.assertEqual(qs.get("ilang"), ["en"])
+
+    def test_article_detail_v3_redirects_abstract_when_requested_lang_unavailable(self):
+        with current_app.app_context():
+            utils.makeOneCollection()
+            journal = utils.makeOneJournal()
+            issue = utils.makeOneIssue({"journal": journal})
+            article = utils.makeOneArticle(
+                {
+                    "original_language": "es",
+                    "languages": ["es"],
+                    "abstracts": [{"language": "es", "text": "Resumen"}],
+                    "abstract_languages": ["es"],
+                    "issue": issue,
+                    "journal": journal,
+                }
+            )
+
+            response = self.client.get(
+                url_for(
+                    "main.article_detail_v3",
+                    url_seg=journal.url_segment,
+                    article_pid_v3=article.aid,
+                    part="abstract",
                     lang="en",
                 ),
+                follow_redirects=False,
             )
+
+            self.assertStatus(response, 301)
+            self.assertIn("/abstract/", response.location)
+            qs = parse_qs(urlparse(response.location).query)
+            self.assertEqual(qs.get("lang"), ["es"])
 
     def test_article_detail_pid_redirect(self):
         """

@@ -1107,6 +1107,39 @@ class ArticleControllerTestCase(BaseTestCase):
         self.assertEqual(article.id, result.id)
         self.assertIsNone(lang)
 
+    def test_get_article_falls_back_when_requested_lang_is_missing(self):
+        articles = self._make_same_issue_articles()
+        lang, result, nav = controllers.get_article(
+            articles[1].id,
+            articles[1].journal.url_segment,
+            "en",
+            gs_abstract=False,
+        )
+        self.assertEqual(articles[1].id, result.id)
+        self.assertEqual(lang, "es")
+        self.assertEqual(nav["previous_article"].id, articles[0].id)
+
+    def test_get_article_falls_back_abstract_lang_when_requested_is_missing(self):
+        articles = self._make_same_issue_articles()
+        lang, result, nav = controllers.get_article(
+            articles[1].id,
+            articles[1].journal.url_segment,
+            "en",
+            gs_abstract=True,
+        )
+        self.assertEqual(articles[1].id, result.id)
+        self.assertEqual(lang, "es")
+
+    def test_get_article_raises_when_abstract_languages_missing(self):
+        article = self._make_one({"abstract_languages": []})
+        with self.assertRaises(controllers.ArticleAbstractNotFoundError):
+            controllers.get_article(
+                article.id,
+                article.journal.url_segment,
+                "pt",
+                gs_abstract=True,
+            )
+
     def test_get_article_returns_next_article_which_has_abstract(self):
         """
         Teste da função controllers.get_article para retornar o artigo atual

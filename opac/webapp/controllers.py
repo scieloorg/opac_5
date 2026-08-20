@@ -1103,7 +1103,12 @@ def get_article_by_aid(
 
 
 def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
-    article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
+    article = get_article_by_aid(aid, journal_url_seg)
+
+    if gs_abstract and not article.abstract_languages:
+        raise ArticleAbstractNotFoundError(aid)
+
+    lang = get_existing_lang(article, lang, gs_abstract)
 
     # add filter publication_date__lte_today_date
     kwargs = {}
@@ -1131,16 +1136,24 @@ def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
 def get_existing_lang(article, lang, gs_abstract):
     """
     Evita falha de recurso não encontrado,
-    quando se navega entre os documentos e/ou resumos,
+    quando se navega entre os documentos e/ou resumos.
     """
-    # ajusta o idioma
+    if not lang:
+        return lang
+
     if gs_abstract:
-        langs = article.abstract_languages
+        langs = list(article.abstract_languages or [])
     else:
-        langs = [article.original_language] + article.languages
-    if lang not in langs:
-        lang = langs[0]
-    return lang
+        langs = []
+        if article.original_language:
+            langs.append(article.original_language)
+        langs.extend(article.languages or [])
+
+    if lang in langs:
+        return lang
+    if not langs:
+        return None
+    return langs[0]
 
 
 def get_article_by_url_seg(url_seg_article, **kwargs):

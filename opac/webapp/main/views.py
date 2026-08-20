@@ -1223,7 +1223,7 @@ def article_detail(url_seg, url_seg_issue, url_seg_article, lang_code=""):
 @main.route("/j/<string:url_seg>/a/<string:article_pid_v3>/<string:part>/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def article_detail_v3(url_seg, article_pid_v3, part=None):
-    qs_lang = request.args.get("lang", type=str) or None
+    requested_lang = request.args.get("lang", type=str) or None
     qs_format = request.args.get("format", "html", type=str)
 
     gs_abstract = part == "abstract"
@@ -1232,21 +1232,24 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
 
     try:
         qs_lang, article, nav = controllers.get_article(
-            article_pid_v3, url_seg, qs_lang, gs_abstract,
+            article_pid_v3, url_seg, requested_lang, gs_abstract,
         )
-        if not qs_lang:
-            if article.original_language:
-                return redirect(
-                    url_for(
-                        "main.article_detail_v3",
-                        url_seg=url_seg,
-                        article_pid_v3=article_pid_v3,
-                        format=qs_format,
-                        lang=article.original_language,
-                    ),
-                    code=301,
-                )
-            raise controllers.ArticleLangNotFoundError
+        if qs_lang != requested_lang or not qs_lang:
+            target_lang = qs_lang or article.original_language
+            if not target_lang:
+                raise controllers.ArticleLangNotFoundError
+            redirect_kwargs = {
+                "url_seg": url_seg,
+                "article_pid_v3": article_pid_v3,
+                "format": qs_format,
+                "lang": target_lang,
+            }
+            if gs_abstract:
+                redirect_kwargs["part"] = "abstract"
+            return redirect(
+                url_for_with_ilang("main.article_detail_v3", **redirect_kwargs),
+                code=301,
+            )
     except controllers.PreviousOrNextArticleNotFoundError as e:
         if gs_abstract:
             abort(404, _("Resumo inexistente"))
