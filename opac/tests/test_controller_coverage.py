@@ -503,6 +503,17 @@ class ArticleLookupCoverageTests(BaseTestCase):
         article = utils.makeOneArticle({"abstract_languages": ["es"]})
         self.assertEqual(controllers.get_existing_lang(article, "pt", True), "es")
 
+    def test_get_existing_lang_keeps_none_when_lang_missing(self):
+        article = utils.makeOneArticle({"languages": ["pt"]})
+        self.assertIsNone(controllers.get_existing_lang(article, None, False))
+
+    def test_get_existing_lang_returns_none_when_no_languages(self):
+        article = utils.makeOneArticle(
+            {"original_language": "", "languages": []}
+        )
+        self.assertIsNone(controllers.get_existing_lang(article, "en", False))
+        self.assertIsNone(controllers.get_existing_lang(article, "en", True))
+
     def test_get_article_by_url_seg_requires_segment(self):
         with self.assertRaises(ValueError) as exc:
             controllers.get_article_by_url_seg("")

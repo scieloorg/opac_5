@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from unittest.mock import Mock, patch
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from flask import current_app, url_for
 
@@ -400,9 +400,10 @@ class LegacyURLTestCase(BaseTestCase):
     @patch("webapp.utils.utils.fetch_data")
     def test_article_pdf_when_dont_have_the_pdf_translation(self, mock_fetch_data):
         """
-        Testa o acesso ao PDF pela URL antiga verificando em todas as versões do pid
-        campo ``scielo_pids`` e retornando o primeiro encontrado quando não existe a traduçã
-        URL testa: scielo.php?script=sci_pdf&pid=ISSN + ID DO número + ID DO ARTIGO&tlng=LANG CODE ["pt", "es", "en"]
+        Testa o acesso ao PDF pela URL antiga com ``tlng`` inexistente: o roteador
+        legado repassa ``lang``, e ``article_detail_v3`` faz 301 para o idioma
+        original (que tem PDF).
+        URL testa: scielo.php?script=sci_pdf&pid=...&tlng=xxx
         """
 
         mock_fetch_data.return_value = b"<content>"
@@ -460,7 +461,10 @@ class LegacyURLTestCase(BaseTestCase):
 
                 response = c.get(url, follow_redirects=True)
 
-                self.assertStatus(response, 404)
+                self.assertStatus(response, 200)
+                final_qs = parse_qs(urlparse(response.request.url).query)
+                self.assertEqual(final_qs.get("lang"), ["en"])
+                self.assertEqual(final_qs.get("format"), ["pdf"])
 
     @patch("requests.get")
     def test_article_pdf_looking_scielo_pids(self, mocked_requests_get):
