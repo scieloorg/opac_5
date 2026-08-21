@@ -48,6 +48,10 @@ SQLITE_BACKUP_DIR = ../$(DATA_PATH)/backups/sqlite
 -include $(MONGO_ENV_FILE)
 MONGODB_AUTH_ARGS = --username="$(OPAC_MONGODB_USER)" --password="$(OPAC_MONGODB_PASS)" --authenticationDatabase="$(OPAC_MONGODB_AUTH_SOURCE)"
 
+# testing.template uses opac_test. Host publishes mongo on 127.0.0.1:27017;
+# inside the webapp container the hostname is OPAC_MONGODB_HOST (opac_mongo).
+TEST_MONGODB_HOST ?= $(if $(wildcard /.dockerenv),$(OPAC_MONGODB_HOST),127.0.0.1)
+
 define require_mongo_auth
 	@if [ -z "$(OPAC_MONGODB_USER)" ] || [ -z "$(OPAC_MONGODB_PASS)" ] || [ -z "$(OPAC_MONGODB_AUTH_SOURCE)" ]; then \
 		echo "❌ Define OPAC_MONGODB_USER, OPAC_MONGODB_PASS e OPAC_MONGODB_AUTH_SOURCE em $(MONGO_ENV_FILE)"; \
@@ -167,12 +171,23 @@ build_i18n:
 # help: test                           - run local tests
 .PHONY: test
 test: make_messages compile_messages build_i18n
-	export OPAC_CONFIG="config/templates/testing.template" && flask --app opac.app test
+	export OPAC_CONFIG="config/templates/testing.template" \
+		OPAC_MONGODB_HOST="$(TEST_MONGODB_HOST)" \
+		OPAC_MONGODB_USER="$(OPAC_MONGODB_USER)" \
+		OPAC_MONGODB_PASS="$(OPAC_MONGODB_PASS)" \
+		OPAC_MONGODB_AUTH_SOURCE="$(OPAC_MONGODB_AUTH_SOURCE)" && \
+		flask --app opac.app test
 
 # help: coverage                       - run tests with coverage (terminal + htmlcov/ + coverage.xml)
 .PHONY: coverage
 coverage:
-	export OPAC_CONFIG="config/templates/testing.template" && export FLASK_COVERAGE="1" && flask --app opac.app test
+	export OPAC_CONFIG="config/templates/testing.template" \
+		FLASK_COVERAGE="1" \
+		OPAC_MONGODB_HOST="$(TEST_MONGODB_HOST)" \
+		OPAC_MONGODB_USER="$(OPAC_MONGODB_USER)" \
+		OPAC_MONGODB_PASS="$(OPAC_MONGODB_PASS)" \
+		OPAC_MONGODB_AUTH_SOURCE="$(OPAC_MONGODB_AUTH_SOURCE)" && \
+		flask --app opac.app test
 
 # help: coverage_html                  - rebuild HTML report from the last .coverage data
 .PHONY: coverage_html

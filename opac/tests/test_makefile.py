@@ -92,6 +92,7 @@ EXPECTED_FRAGMENTS = {
     "coverage": (
         'OPAC_CONFIG="config/templates/testing.template"',
         'FLASK_COVERAGE="1"',
+        "OPAC_MONGODB_HOST=",
         "flask --app opac.app test",
     ),
     "coverage_html": ("coverage html", "HTML report:"),
@@ -135,6 +136,7 @@ EXPECTED_FRAGMENTS = {
         "pybabel extract",
         "pybabel compile",
         'OPAC_CONFIG="config/templates/testing.template"',
+        "OPAC_MONGODB_HOST=",
         "flask --app opac.app test",
     ),
     "test_coverage": (
@@ -302,14 +304,14 @@ class MakefileRecipesTestCase(unittest.TestCase):
             (
                 "BACKUP_DATE=2024-01-01",
                 "mongorestore",
-                "../data_opac_dev/backups/$BACKUP_DATE",
+                "/data_opac_dev/backups/$BACKUP_DATE",
             ),
         )
 
     def test_mongodb_backup_uses_dev_data_path_by_default(self):
         result = make_dry_run("mongodb_backup")
         self._assert_fragments(
-            result, "mongodb_backup", ("../data_opac_dev/backups/",)
+            result, "mongodb_backup", ("/data_opac_dev/backups/",)
         )
 
     def test_mongodb_backup_uses_prod_data_path_with_prod_compose(self):
@@ -317,7 +319,7 @@ class MakefileRecipesTestCase(unittest.TestCase):
             "mongodb_backup", "compose=docker-compose.yml"
         )
         self._assert_fragments(
-            result, "mongodb_backup", ("../data_opac_prod/backups/",)
+            result, "mongodb_backup", ("/data_opac_prod/backups/",)
         )
 
     def test_makefile_includes_compose_specific_mongo_env_file(self):

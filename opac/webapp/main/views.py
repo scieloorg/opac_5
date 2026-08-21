@@ -1223,7 +1223,7 @@ def article_detail(url_seg, url_seg_issue, url_seg_article, lang_code=""):
 @main.route("/j/<string:url_seg>/a/<string:article_pid_v3>/<string:part>/")
 @cache.cached(key_prefix=cache_key_with_lang)
 def article_detail_v3(url_seg, article_pid_v3, part=None):
-    qs_lang = request.args.get("lang", type=str) or None
+    requested_lang = request.args.get("lang", type=str) or None
     qs_format = request.args.get("format", "html", type=str)
 
     gs_abstract = part == "abstract"
@@ -1231,22 +1231,25 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         abort(404, _("Não existe '{}'. No seu lugar use '{}'").format(part, "abstract"))
 
     try:
-        qs_lang, article, nav = controllers.get_article(
-            article_pid_v3, url_seg, qs_lang, gs_abstract,
+        registered_lang, article, nav = controllers.get_article(
+            article_pid_v3, url_seg, requested_lang, gs_abstract,
         )
-        if not qs_lang:
-            if article.original_language:
-                return redirect(
-                    url_for(
-                        "main.article_detail_v3",
-                        url_seg=url_seg,
-                        article_pid_v3=article_pid_v3,
-                        format=qs_format,
-                        lang=article.original_language,
-                    ),
-                    code=301,
-                )
-            raise controllers.ArticleLangNotFoundError
+        if registered_lang != requested_lang or not registered_lang:
+            target_lang = registered_lang or article.original_language
+            if not target_lang:
+                raise controllers.ArticleLangNotFoundError
+            redirect_kwargs = {
+                "url_seg": url_seg,
+                "article_pid_v3": article_pid_v3,
+                "format": qs_format,
+                "lang": target_lang,
+            }
+            if gs_abstract:
+                redirect_kwargs["part"] = "abstract"
+            return redirect(
+                url_for_with_ilang("main.article_detail_v3", **redirect_kwargs),
+                code=301,
+            )
     except controllers.PreviousOrNextArticleNotFoundError as e:
         if gs_abstract:
             abort(404, _("Resumo inexistente"))
@@ -1269,12 +1272,12 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
     def _handle_html():
         citation_pdf_url = None
         for pdf_data in article.pdfs:
-            if pdf_data.get("lang") == qs_lang:
+            if pdf_data.get("lang") == registered_lang:
                 citation_pdf_url = url_for(
                     "main.article_detail_v3",
                     url_seg=article.journal.url_segment,
                     article_pid_v3=article_pid_v3,
-                    lang=qs_lang,
+                    lang=registered_lang,
                     format="pdf",
                 )
                 break
@@ -1288,7 +1291,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         if citation_pdf_url:
             citation_pdf_url = "{}{}".format(website, citation_pdf_url)
         try:
-            html, text_languages = render_html(article, qs_lang, gs_abstract)
+            html, text_languages = render_html(article, registered_lang, gs_abstract)
         except (ValueError, utils.NonRetryableError):
             abort(404, _("HTML do Artigo não encontrado ou indisponível"))
         except utils.RetryableError as exc:
@@ -1329,7 +1332,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
             "html": html,
             "citation_pdf_url": citation_pdf_url,
             "citation_xml_url": citation_xml_url,
-            "article_lang": qs_lang,
+            "article_lang": registered_lang,
             "text_versions": text_versions,
             "related_links": controllers.related_links(article),
             "gs_abstract": gs_abstract,
@@ -1342,7 +1345,7 @@ def article_detail_v3(url_seg, article_pid_v3, part=None):
         if not article.pdfs:
             abort(404, _("PDF do Artigo não encontrado"))
 
-        pdf_info = [pdf for pdf in article.pdfs if pdf["lang"] == qs_lang]
+        pdf_info = [pdf for pdf in article.pdfs if pdf["lang"] == registered_lang]
         if len(pdf_info) != 1:
             abort(404, _("PDF do Artigo não encontrado"))
 

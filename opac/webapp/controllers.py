@@ -42,7 +42,7 @@ from webapp import dbsql
 
 from .choices import INDEX_NAME, JOURNAL_STATUS, STUDY_AREAS
 from .models import User
-from .factory import JournalFactory, IssueFactory, ArticleFactory
+from .factory import JournalFactory, IssueFactory, ArticleFactory, _get_issue_for_upsert
 from .utils import utils
 
 HIGHLIGHTED_TYPES = (
@@ -1103,7 +1103,12 @@ def get_article_by_aid(
 
 
 def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
-    article = get_article_by_aid(aid, journal_url_seg, lang, gs_abstract)
+    article = get_article_by_aid(aid, journal_url_seg)
+
+    if gs_abstract and not article.abstract_languages:
+        raise ArticleAbstractNotFoundError(aid)
+
+    lang = get_existing_lang(article, lang, gs_abstract)
 
     # add filter publication_date__lte_today_date
     kwargs = {}
@@ -1131,16 +1136,24 @@ def get_article(aid, journal_url_seg, lang=None, gs_abstract=False):
 def get_existing_lang(article, lang, gs_abstract):
     """
     Evita falha de recurso não encontrado,
-    quando se navega entre os documentos e/ou resumos,
+    quando se navega entre os documentos e/ou resumos.
     """
-    # ajusta o idioma
+    if not lang:
+        return lang
+
     if gs_abstract:
-        langs = article.abstract_languages
+        langs = list(article.abstract_languages or [])
     else:
-        langs = [article.original_language] + article.languages
-    if lang not in langs:
-        lang = langs[0]
-    return lang
+        langs = []
+        if article.original_language:
+            langs.append(article.original_language)
+        langs.extend(article.languages or [])
+
+    if lang in langs:
+        return lang
+    if not langs:
+        return None
+    return langs[0]
 
 
 def get_article_by_url_seg(url_seg_article, **kwargs):
@@ -1922,6 +1935,36 @@ def add_journal(data):
     return journal.save()
 
 
+def relink_articles_to_issue(old_issue_ids, new_issue):
+    """Re-point articles and press releases from old issue `_id`s, then delete them.
+
+    Must run after the issue with the new `_id` is saved. Order matters because
+    `Article.issue` and `PressRelease.issue` use CASCADE on delete.
+    """
+    if not old_issue_ids:
+        return new_issue
+
+    unique_old_ids = [
+        old_id for old_id in dict.fromkeys(old_issue_ids) if old_id != new_issue.id
+    ]
+
+    for old_id in unique_old_ids:
+        Article.objects(issue=old_id).update(set__issue=new_issue)
+        PressRelease.objects(issue=old_id).update(set__issue=new_issue)
+
+    journal = new_issue.journal
+    if journal is not None:
+        journal.reload()
+        if journal.last_issue and journal.last_issue.iid in unique_old_ids:
+            create_last_issue_for_journal(journal, new_issue)
+            journal.save()
+
+    for old_id in unique_old_ids:
+        Issue.objects(pk=old_id).delete()
+
+    return new_issue
+
+
 def add_issue(data, journal_id, issue_order=None, _type="regular"):
     """
     This function has the responsability to create a journal using a data as dictionary.
@@ -1944,12 +1987,29 @@ def add_issue(data, journal_id, issue_order=None, _type="regular"):
         "updated": "2020-04-28T20:16:24.459467Z"
     }
 
+    Issues are located by ``pid``. A change of ``id``/``_id`` updates the
+    existing fascículo instead of creating a duplicate. Articles (and press
+    releases) that still point to the old `_id` are re-pointed.
+
     The mininal fields necessary to create a journal is:
 
 
     """
-    issue = IssueFactory(data, journal_id, issue_order=issue_order, _type=_type)
-    saved = issue.save()
+    issue, old_ids = _get_issue_for_upsert(data)
+    previous_id = issue.pk
+    issue = IssueFactory(
+        data, journal_id, issue_order=issue_order, _type=_type, issue=issue
+    )
+    # MongoDB cannot update `_id` in place. Reusing the same object and
+    # force-inserting writes a complete document under the new `_id`; the
+    # previous record is removed after articles are re-pointed.
+    if previous_id and previous_id != issue._id:
+        saved = issue.save(force_insert=True)
+    else:
+        saved = issue.save()
+
+    if old_ids:
+        relink_articles_to_issue(old_ids, saved)
 
     set_last_issue_and_issue_count(issue.journal)
     return saved
