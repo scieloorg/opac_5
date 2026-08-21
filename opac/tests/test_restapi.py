@@ -124,6 +124,44 @@ class RestAPIIssueTestCase(RestAPIAuthMixin, BaseTestCase):
                 response.data, b'{"failed":false,"id":"1678-4464-1998-v29-n3"}\n'
             )
 
+    def test_add_issue_by_api_updates_by_pid_when_id_changes(self):
+        with current_app.app_context():
+            with self.client as client:
+                self._api_post(client, "restapi.journal", self.journal_dict)
+                response = self._api_post(
+                    client,
+                    "restapi.issue",
+                    self.issue_dict,
+                    journal_id=self.journal_dict.get("id"),
+                )
+            self.assertEqual(response.status_code, 200)
+
+            old_id = self.issue_dict["id"]
+            article = makeOneArticle({"journal": self.journal_dict["id"], "issue": old_id})
+
+            payload = dict(self.issue_dict)
+            payload["id"] = "1678-4464-1998-v29"
+            payload["number"] = None
+
+            with self.client as client:
+                response = self._api_post(
+                    client,
+                    "restapi.issue",
+                    payload,
+                    journal_id=self.journal_dict.get("id"),
+                )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.data, b'{"failed":false,"id":"1678-4464-1998-v29"}\n'
+            )
+            article.reload()
+            self.assertEqual(article.issue.id, "1678-4464-1998-v29")
+            self.assertEqual(
+                models.Issue.objects.filter(pid=payload["pid"]).count(), 1
+            )
+            self.assertIsNone(models.Issue.objects.filter(_id=old_id).first())
+
     def test_add_issue_by_api_without_data(self):
         with current_app.app_context():
             # journal

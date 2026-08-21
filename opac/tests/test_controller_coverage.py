@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from flask import current_app
 from flask_babel import gettext as __
-from opac_schema.v1.models import Article, News, PressRelease
+from opac_schema.v1.models import Article, Issue, News, PressRelease
 from webapp import controllers
 from webapp.controllers import ArticleJournalNotFoundError
 
@@ -992,6 +992,149 @@ class FactoryWrapperCoverageTests(BaseTestCase):
             "http://minio.scielo.org/documentstore/example.xml",
         )
         self.assertEqual(article.aid, "article-coverage-id")
+
+
+class AddIssuePidUpsertTests(BaseTestCase):
+    def _issue_payload(self, issue_id, pid, **overrides):
+        data = {
+            "id": issue_id,
+            "publication_year": "2020",
+            "volume": "1",
+            "number": "1",
+            "publication_months": {"range": [1, 3]},
+            "pid": pid,
+            "created": "2020-01-01T00:00:00.000000Z",
+            "updated": "2020-01-02T00:00:00.000000Z",
+        }
+        data.update(overrides)
+        return data
+
+    def test_add_issue_updates_by_pid_when_id_changes_and_relinks_articles(self):
+        journal = utils.makeOneJournal({"_id": "0000-pid-1"})
+        pid = "0000pid120200002"
+        old_id = "0000-pid-1-2020-v1-n1"
+        new_id = "0000-pid-1-2020-v1"
+
+        controllers.add_issue(self._issue_payload(old_id, pid), journal.jid)
+        article = utils.makeOneArticle({"journal": journal, "issue": old_id})
+
+        updated = controllers.add_issue(
+            self._issue_payload(new_id, pid, number=None),
+            journal.jid,
+        )
+
+        self.assertEqual(updated._id, new_id)
+        self.assertEqual(updated.pid, pid)
+        self.assertEqual(Issue.objects.filter(pid=pid).count(), 1)
+        self.assertIsNone(Issue.objects.filter(_id=old_id).first())
+
+        article.reload()
+        self.assertEqual(article.issue.id, new_id)
+
+    def test_add_issue_does_not_relink_articles_when_id_is_unchanged(self):
+        journal = utils.makeOneJournal({"_id": "0000-pid-2"})
+        pid = "0000pid220200002"
+        issue_id = "0000-pid-2-2020-v1-n1"
+
+        controllers.add_issue(self._issue_payload(issue_id, pid), journal.jid)
+        article = utils.makeOneArticle({"journal": journal, "issue": issue_id})
+
+        updated = controllers.add_issue(
+            self._issue_payload(issue_id, pid, publication_year="2021"),
+            journal.jid,
+        )
+
+        self.assertEqual(updated._id, issue_id)
+        self.assertEqual(Issue.objects.count(), 1)
+        article.reload()
+        self.assertEqual(article.issue.id, issue_id)
+
+    def test_add_issue_merges_duplicate_issues_with_same_pid(self):
+        journal = utils.makeOneJournal({"_id": "0000-pid-3"})
+        pid = "0000pid320200002"
+        old_id = "0000-pid-3-2020-v1-n1"
+        new_id = "0000-pid-3-2020-v1"
+
+        old_issue = utils.makeOneIssue(
+            {"_id": old_id, "journal": journal, "pid": pid, "number": "1"}
+        )
+        utils.makeOneIssue(
+            {"_id": new_id, "journal": journal, "pid": pid, "number": None}
+        )
+        article = utils.makeOneArticle({"journal": journal, "issue": old_issue})
+
+        updated = controllers.add_issue(
+            self._issue_payload(new_id, pid, number=None),
+            journal.jid,
+        )
+
+        self.assertEqual(updated._id, new_id)
+        self.assertEqual(Issue.objects.filter(pid=pid).count(), 1)
+        self.assertIsNone(Issue.objects.filter(_id=old_id).first())
+        article.reload()
+        self.assertEqual(article.issue.id, new_id)
+
+    def test_add_issue_without_pid_creates_issue(self):
+        journal = utils.makeOneJournal({"_id": "0000-pid-4"})
+        issue_id = "0000-pid-4-2020-v1-n1"
+        payload = self._issue_payload(issue_id, pid="")
+        payload.pop("pid")
+
+        created = controllers.add_issue(payload, journal.jid)
+
+        self.assertEqual(created._id, issue_id)
+        self.assertEqual(Issue.objects.count(), 1)
+
+    def test_add_issue_creates_new_record_when_pid_is_unknown(self):
+        journal = utils.makeOneJournal({"_id": "0000-pid-5"})
+        utils.makeOneIssue(
+            {
+                "_id": "0000-pid-5-2020-v1-n1",
+                "journal": journal,
+                "pid": "0000pid520200001",
+            }
+        )
+
+        created = controllers.add_issue(
+            self._issue_payload("0000-pid-5-2020-v2-n1", "0000pid520200002"),
+            journal.jid,
+        )
+
+        self.assertEqual(created._id, "0000-pid-5-2020-v2-n1")
+        self.assertEqual(Issue.objects.count(), 2)
+
+    def test_add_issue_relinks_press_release_and_last_issue_iid(self):
+        old_id = "0000-pid-6-2020-v1-n1"
+        new_id = "0000-pid-6-2020-v1"
+        pid = "0000pid620200002"
+        last_issue = utils.getLastIssue({"iid": old_id, "url_segment": "2020.v1n1"})
+        journal = utils.makeOneJournal(
+            {"_id": "0000-pid-6", "last_issue": last_issue}
+        )
+        controllers.add_issue(self._issue_payload(old_id, pid), journal.jid)
+        article = utils.makeOneArticle({"journal": journal, "issue": old_id})
+        press_release = PressRelease(
+            _id=str(uuid4().hex),
+            title="PR",
+            language="pt",
+            content="<p>content</p>",
+            journal=journal.id,
+            issue=old_id,
+            article=article.id,
+            url="http://example.com/pr",
+            publication_date=datetime.datetime(2024, 1, 1),
+        ).save()
+
+        updated = controllers.add_issue(
+            self._issue_payload(new_id, pid, number=None),
+            journal.jid,
+        )
+
+        press_release.reload()
+        journal.reload()
+        self.assertEqual(press_release.issue.id, new_id)
+        self.assertEqual(journal.last_issue.iid, updated.iid)
+        self.assertEqual(Issue.objects.filter(_id=old_id).count(), 0)
 
 
 class RemainingControllersCoverageTests(BaseTestCase):
