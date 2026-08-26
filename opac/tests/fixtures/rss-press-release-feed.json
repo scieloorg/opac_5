@@ -1,0 +1,41 @@
+[
+    {
+        "title": "Como os memes da internet conectam diferentes mundos?",
+        "title_detail":
+        {
+            "type": "text/plain",
+            "language": null,
+            "base": "",
+            "value": "Como os memes da internet conectam diferentes mundos?"
+        },
+        "links": [
+        {
+            "rel": "alternate",
+            "type": "text/html",
+            "href": "https://humanas.blog.scielo.org/blog/2019/11/26/como-os-memes-da-internet-conectam-diferentes-mundos/"
+        }],
+        "link": "https://humanas.blog.scielo.org/blog/2019/11/26/como-os-memes-da-internet-conectam-diferentes-mundos/",
+        "comments": "https://humanas.blog.scielo.org/blog/2019/11/26/como-os-memes-da-internet-conectam-diferentes-mundos/#respond",
+        "published": "Tue, 26 Nov 2019 17:00:40 +0000",
+        "published_parsed": [2019, 11, 26, 17, 0, 40, 1, 330, 0],
+        "authors": [
+        {
+            "name": "Maria Carolina Zanette"
+        }],
+        "author": "Maria Carolina Zanette",
+        "author_detail":
+        {
+            "name": "Maria Carolina Zanette"
+        },
+        "id": "http://pressreleases.scielo.org/?p=2246",
+        "guidislink": false,
+        "summary": "Que se destacou na internet e outras....",
+        "media_content": [
+        {
+            "medium": "image",
+            "url": "https://pressreleases.scielo.org/wp-content/uploads/2017/09/rae_logo_thumb.jpg",
+            "width": "150",
+            "height": "90"
+        }]
+    }
+]

@@ -59,6 +59,9 @@ MAKEFILE_TARGETS = (
     "shell",
     "sort-imports",
     "stop",
+    "sync_rss_feeds",
+    "sync_rss_news",
+    "sync_rss_press_releases",
     "test",
     "test_coverage",
     "up",
@@ -103,7 +106,7 @@ EXPECTED_FRAGMENTS = {
     "docker_test": ("make test",),
     "down": ("-f docker-compose-dev.yml", "down"),
     "down_webapp": (
-        "rm -s -f opac_webapp opac-rq-scheduler opac-rq-worker-1",
+        "rm -s -f opac_webapp opac-rq-scheduler opac-rq-worker-1 opac-rq-worker-sync-external",
     ),
     "exclude_opac_production": ("infrascielo/opac_5", "docker"),
     "fix_perms": ("Ajustando permissões", "chown", "chmod"),
@@ -132,6 +135,9 @@ EXPECTED_FRAGMENTS = {
     "shell": ("exec opac_webapp sh",),
     "sort-imports": ("isort . --profile black",),
     "stop": ("-f docker-compose-dev.yml", "stop"),
+    "sync_rss_feeds": ("sync_rss_feeds",),
+    "sync_rss_news": ("sync_rss_news",),
+    "sync_rss_press_releases": ("sync_rss_press_releases",),
     "test": (
         "pybabel extract",
         "pybabel compile",
