@@ -1580,6 +1580,57 @@ def create_press_release_record(pr_model_data):
         raise e
 
 
+def build_news(entry, language):
+    """Map a RSS entry to a News document, upserting by url."""
+    from webapp.rss_sync import extract_image_url, parse_publication_date
+
+    url = entry.get("id")
+
+    try:
+        news = News.objects.get(url=url)
+    except News.DoesNotExist:
+        news = News()
+        news._id = uuid4().hex
+
+    news.url = url
+    news.title = entry.get("title")
+    news.description = entry.get("summary")
+    news.image_url = extract_image_url(entry)
+    news.publication_date = parse_publication_date(entry)
+    news.language = language
+    return news
+
+
+def build_press_release(entry, journal, language):
+    """Map a RSS entry to a PressRelease document, upserting by url."""
+    from webapp.rss_sync import extract_image_url, parse_publication_date
+
+    url = entry.get("id")
+
+    try:
+        press_release = PressRelease.objects.get(url=url)
+    except PressRelease.DoesNotExist:
+        press_release = PressRelease()
+        press_release._id = uuid4().hex
+
+    press_release.url = url
+    press_release.title = entry.get("title")
+    press_release.journal = journal
+    press_release.language = language
+    press_release.content = entry.get("summary")
+    press_release.image_url = extract_image_url(entry)
+    press_release.publication_date = parse_publication_date(entry)
+    return press_release
+
+
+def news_exists_by_url(url):
+    return bool(url) and News.objects(url=url).first() is not None
+
+
+def press_release_exists_by_url(url):
+    return bool(url) and PressRelease.objects(url=url).first() is not None
+
+
 def get_latest_news_by_lang(language):
     limit = current_app.config["NEWS_LIST_LIMIT"]
     return News.objects.filter(language=language, is_public=True).order_by(

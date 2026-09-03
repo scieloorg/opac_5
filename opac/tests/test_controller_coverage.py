@@ -783,6 +783,39 @@ class NewsAndPressReleaseRecordCoverageTests(BaseTestCase):
         self.assertEqual(PressRelease.objects.count(), 1)
         self.assertEqual(PressRelease.objects.first().id, first_id)
 
+    def test_build_news_upserts_by_url(self):
+        entry = {
+            "id": "http://blog.scielo.org/?p=1",
+            "title": "Title",
+            "summary": "Summary",
+            "published": "Wed, 29 Jan 2020 17:45:29 +0000",
+        }
+        news = controllers.build_news(entry, "en")
+        news.save()
+        first_id = news._id
+
+        entry["title"] = "Updated"
+        updated = controllers.build_news(entry, "en")
+        updated.save()
+
+        self.assertEqual(News.objects.count(), 1)
+        self.assertEqual(News.objects.first()._id, first_id)
+        self.assertEqual(News.objects.first().title, "Updated")
+
+    def test_news_exists_by_url(self):
+        self.assertFalse(controllers.news_exists_by_url("http://example.com/missing"))
+        News(
+            _id=str(uuid4().hex),
+            title="One",
+            description="d",
+            url="http://example.com/1",
+            language="pt",
+            is_public=True,
+            publication_date=datetime.datetime(2024, 3, 1),
+        ).save()
+        self.assertTrue(controllers.news_exists_by_url("http://example.com/1"))
+        self.assertFalse(controllers.news_exists_by_url(""))
+
     def test_get_latest_news_by_lang(self):
         News(
             _id=str(uuid4().hex),

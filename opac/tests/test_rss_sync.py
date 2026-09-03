@@ -9,7 +9,8 @@ from flask import current_app
 from mongoengine.errors import ValidationError
 from opac_schema.v1.models import News, PressRelease
 from tenacity import RetryError
-from webapp import rss_sync
+from webapp import controllers, rss_sync
+from webapp.utils import NonRetryableError
 
 from . import utils
 from .base import BaseTestCase
@@ -97,7 +98,7 @@ class ParsePublicationDateTests(BaseTestCase):
 class BuildNewsTests(BaseTestCase):
     def test_news_from_fixture_maps_fields_and_image(self):
         entry = load_json_fixture("rss-news-feed.json")[0]
-        news = rss_sync.build_news(entry, "en")
+        news = controllers.build_news(entry, "en")
 
         self.assertIsNotNone(news._id)
         self.assertEqual(32, len(news._id))
@@ -110,13 +111,13 @@ class BuildNewsTests(BaseTestCase):
 
     def test_upsert_by_url_keeps_id_and_updates_title(self):
         entry = load_json_fixture("rss-news-feed.json")[0]
-        first = rss_sync.build_news(entry, "en")
+        first = controllers.build_news(entry, "en")
         first.save()
         first_id = first._id
 
         updated_entry = dict(entry)
         updated_entry["title"] = "Updated title"
-        second = rss_sync.build_news(updated_entry, "en")
+        second = controllers.build_news(updated_entry, "en")
         second.save()
 
         self.assertEqual(News.objects.count(), 1)
@@ -131,7 +132,7 @@ class BuildNewsTests(BaseTestCase):
             "summary": "text only",
             "published": "Wed, 29 Jan 2020 17:45:29 +0000",
         }
-        news = rss_sync.build_news(entry, "pt_BR")
+        news = controllers.build_news(entry, "pt_BR")
         self.assertIsNone(news.image_url)
 
 
@@ -139,7 +140,7 @@ class BuildPressReleaseTests(BaseTestCase):
     def test_press_release_maps_fields_including_image_url(self):
         entry = load_json_fixture("rss-press-release-feed.json")[0]
         journal = utils.makeOneJournal({"acronym": "rae", "current_status": "current"})
-        press_release = rss_sync.build_press_release(entry, journal, "pt_BR")
+        press_release = controllers.build_press_release(entry, journal, "pt_BR")
 
         self.assertIsNotNone(press_release._id)
         self.assertEqual(32, len(press_release._id))
@@ -159,24 +160,24 @@ class BuildPressReleaseTests(BaseTestCase):
 
 
 class FetchRssTests(BaseTestCase):
-    @patch("webapp.rss_sync.requests.get")
-    def test_fetch_rss_sends_user_agent(self, mock_get):
-        mock_get.return_value = Mock(status_code=200, content=b"")
+    @patch("webapp.rss_sync.fetch_data")
+    def test_fetch_rss_uses_fetch_data_with_user_agent(self, mock_fetch_data):
+        mock_fetch_data.return_value = b""
         rss_sync.fetch_rss("https://blog.scielo.org/feed/")
-        mock_get.assert_called_once_with(
+        mock_fetch_data.assert_called_once_with(
             "https://blog.scielo.org/feed/",
+            headers=rss_sync.RSS_SYNC_HEADERS,
             timeout=10,
-            headers={"User-Agent": rss_sync.RSS_SYNC_USER_AGENT},
         )
 
 
 class RegisterNewsFeedTests(BaseTestCase):
-    def _xml_response(self, filename="rss-news-feed.xml", status_code=200):
-        return Mock(status_code=status_code, content=(FIXTURES / filename).read_bytes())
+    def _xml_content(self, filename="rss-news-feed.xml"):
+        return (FIXTURES / filename).read_bytes()
 
     @patch("webapp.rss_sync.fetch_rss")
     def test_persists_valid_news_with_image_and_skips_invalid(self, mock_fetch):
-        mock_fetch.return_value = self._xml_response()
+        mock_fetch.return_value = self._xml_content()
         created = rss_sync.try_fetch_and_register_news_feed(
             {"pt_BR": {"url": "https://blog.scielo.org/feed/"}}
         )
@@ -192,7 +193,7 @@ class RegisterNewsFeedTests(BaseTestCase):
 
     @patch("webapp.rss_sync.fetch_rss")
     def test_second_run_does_not_report_existing_news_as_new(self, mock_fetch):
-        mock_fetch.return_value = self._xml_response()
+        mock_fetch.return_value = self._xml_content()
         feeds = {"pt_BR": {"url": "https://blog.scielo.org/feed/"}}
         first = rss_sync.try_fetch_and_register_news_feed(feeds)
         second = rss_sync.try_fetch_and_register_news_feed(feeds)
@@ -203,7 +204,7 @@ class RegisterNewsFeedTests(BaseTestCase):
 
     @patch("webapp.rss_sync.fetch_rss")
     def test_http_error_skips_feed(self, mock_fetch):
-        mock_fetch.return_value = Mock(status_code=404, content=b"not found")
+        mock_fetch.side_effect = NonRetryableError("HTTP 403")
         rss_sync.try_fetch_and_register_news_feed(
             {"en": {"url": "https://blog.scielo.org/en/feed/"}}
         )
@@ -213,7 +214,7 @@ class RegisterNewsFeedTests(BaseTestCase):
     def test_retry_error_skips_feed_and_continues(self, mock_fetch):
         mock_fetch.side_effect = [
             RetryError(Mock()),
-            self._xml_response(),
+            self._xml_content(),
         ]
         rss_sync.try_fetch_and_register_news_feed(
             {
@@ -224,13 +225,13 @@ class RegisterNewsFeedTests(BaseTestCase):
         self.assertEqual(News.objects.count(), 1)
         self.assertEqual(News.objects.first().language, "pt_BR")
 
-    @patch("webapp.rss_sync.build_news")
+    @patch("webapp.rss_sync.controllers.build_news")
     @patch("webapp.rss_sync.feedparser.parse")
     @patch("webapp.rss_sync.fetch_rss")
     def test_validation_error_does_not_abort_batch(
         self, mock_fetch, mock_parse, mock_build
     ):
-        mock_fetch.return_value = Mock(status_code=200, content=b"<rss/>")
+        mock_fetch.return_value = b"<rss/>"
         parsed = Mock(bozo=0)
         parsed.get.return_value = [{"id": "a"}, {"id": "b"}]
         mock_parse.return_value = parsed
@@ -257,10 +258,9 @@ class RegisterPressReleaseFeedTests(BaseTestCase):
         utils.makeOneJournal(
             {"acronym": "priv", "is_public": False, "current_status": "current"}
         )
-        mock_fetch.return_value = Mock(
-            status_code=200,
-            content=(FIXTURES / "rss-press-release-feed.xml").read_bytes(),
-        )
+        mock_fetch.return_value = (
+            FIXTURES / "rss-press-release-feed.xml"
+        ).read_bytes()
 
         created = rss_sync.try_fetch_and_register_press_release_feed(
             current_app.config["RSS_PRESS_RELEASES_FEEDS"]
@@ -303,10 +303,9 @@ class RegisterPressReleaseFeedTests(BaseTestCase):
         utils.makeOneJournal(
             {"acronym": "rae", "is_public": True, "current_status": "current"}
         )
-        mock_fetch.return_value = Mock(
-            status_code=200,
-            content=(FIXTURES / "rss-press-release-feed.xml").read_bytes(),
-        )
+        mock_fetch.return_value = (
+            FIXTURES / "rss-press-release-feed.xml"
+        ).read_bytes()
         feeds = current_app.config["RSS_PRESS_RELEASES_FEEDS"]
         first = rss_sync.try_fetch_and_register_press_release_feed(feeds)
         second = rss_sync.try_fetch_and_register_press_release_feed(feeds)
@@ -410,7 +409,7 @@ class NewNewsNotificationTests(BaseTestCase):
             journal=Mock(acronym="rae"),
         )
 
-    @patch("webapp.utils.send_email")
+    @patch("webapp.rss_sync.send_email")
     def test_sends_email_listing_new_news(self, mock_send_email):
         mock_send_email.return_value = (True, "")
         news = self._make_news()
@@ -425,7 +424,7 @@ class NewNewsNotificationTests(BaseTestCase):
         self.assertIn("https://blog.scielo.org/?p=5060", html)
         self.assertIn("pt_BR", html)
 
-    @patch("webapp.utils.send_email")
+    @patch("webapp.rss_sync.send_email")
     def test_sends_email_listing_new_press_releases(self, mock_send_email):
         mock_send_email.return_value = (True, "")
         press_release = self._make_press_release()
@@ -440,7 +439,7 @@ class NewNewsNotificationTests(BaseTestCase):
         self.assertIn("rae", html)
         self.assertIn("https://pressreleases.scielo.org/?p=2246", html)
 
-    @patch("webapp.utils.send_email")
+    @patch("webapp.rss_sync.send_email")
     def test_sends_email_with_news_and_press_releases(self, mock_send_email):
         mock_send_email.return_value = (True, "")
         rss_sync.send_sync_notification(
@@ -452,12 +451,12 @@ class NewNewsNotificationTests(BaseTestCase):
         self.assertIn("News with image", html)
         self.assertIn("PR title", html)
 
-    @patch("webapp.utils.send_email")
+    @patch("webapp.rss_sync.send_email")
     def test_does_not_send_email_when_there_are_no_new_items(self, mock_send_email):
         rss_sync.send_sync_notification([], [])
         mock_send_email.assert_not_called()
 
-    @patch("webapp.utils.send_email")
+    @patch("webapp.rss_sync.send_email")
     def test_does_not_send_email_when_notification_disabled(self, mock_send_email):
         original = current_app.config["RSS_SYNC_NOTIFICATION_ENABLED"]
         current_app.config["RSS_SYNC_NOTIFICATION_ENABLED"] = False

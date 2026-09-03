@@ -3,25 +3,22 @@
 import logging
 import re
 from datetime import datetime
-from uuid import uuid4
 
 import feedparser
-import requests
 import webapp
-from flask import current_app, has_app_context
+from flask import current_app, has_app_context, render_template
 from mongoengine.errors import ValidationError
-from opac_schema.v1 import models
-from tenacity import (
-    RetryError,
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
+from tenacity import RetryError
+from webapp import controllers
+from webapp.utils import NonRetryableError, fetch_data, send_email
 
 logger = logging.getLogger(__name__)
 
 RSS_SYNC_USER_AGENT = "SciELO-OPAC-RSS-Sync/1.0"
+RSS_SYNC_HEADERS = {
+    "User-Agent": RSS_SYNC_USER_AGENT,
+    "Accept": "application/rss+xml, application/xml, text/xml, */*",
+}
 _IMG_SRC_RE = re.compile(r"""<img[^>]+src=["']([^"']+)["']""", re.IGNORECASE)
 
 
@@ -67,67 +64,43 @@ def parse_publication_date(entry):
         return datetime.now()
 
 
-def build_news(entry, language):
-    """Map a RSS entry to a News document, upserting by url."""
-    url = entry.get("id")
-
-    try:
-        news = models.News.objects.get(url=url)
-    except models.News.DoesNotExist:
-        news = models.News()
-        news._id = uuid4().hex
-
-    news.url = url
-    news.title = entry.get("title")
-    news.description = entry.get("summary")
-    news.image_url = extract_image_url(entry)
-    news.publication_date = parse_publication_date(entry)
-    news.language = language
-    return news
-
-
-def build_press_release(entry, journal, language):
-    """Map a RSS entry to a PressRelease document, upserting by url."""
-    url = entry.get("id")
-
-    try:
-        press_release = models.PressRelease.objects.get(url=url)
-    except models.PressRelease.DoesNotExist:
-        press_release = models.PressRelease()
-        press_release._id = uuid4().hex
-
-    press_release.url = url
-    press_release.title = entry.get("title")
-    press_release.journal = journal
-    press_release.language = language
-    press_release.content = entry.get("summary")
-    press_release.image_url = extract_image_url(entry)
-    press_release.publication_date = parse_publication_date(entry)
-    return press_release
-
-
-@retry(
-    wait=wait_exponential(),
-    stop=stop_after_attempt(4),
-    retry=retry_if_exception_type((requests.ConnectionError, requests.Timeout)),
-)
 def fetch_rss(url):
-    return requests.get(
-        url,
-        timeout=10,
-        headers={"User-Agent": RSS_SYNC_USER_AGENT},
-    )
+    return fetch_data(url, headers=RSS_SYNC_HEADERS, timeout=10)
 
 
-def _http_error(response, feed_url):
-    if response.status_code >= 400:
+def _fetch_and_parse_feed(feed_url):
+    try:
+        raw = fetch_rss(feed_url)
+    except RetryError:
+        logger.error("Could not fetch feed from '%s'.", feed_url)
+        return None
+    except NonRetryableError as exc:
+        logger.error("Could not fetch feed from '%s'. %s", feed_url, exc)
+        return None
+
+    content = feedparser.parse(raw)
+    if content.bozo == 1:
         logger.error(
-            "Could not fetch feed from '%s'. HTTP status %s.",
+            "Could not parse feed content from '%s'. During processing this error '%s' was thrown.",
             feed_url,
-            response.status_code,
+            content.bozo_exception,
         )
-        return True
-    return False
+    return content
+
+
+def _save_feed_entries(entries, exists_by_url, builder, created, label):
+    for entry in entries:
+        url = entry.get("id")
+        existed = exists_by_url(url)
+        try:
+            document = builder(entry)
+            document.save()
+        except ValidationError as exc:
+            logger.error("Could not save entry '%s', Please verify '%s'", entry, exc)
+        else:
+            logger.info("%s '%s', saved successfully.", label, document.title)
+            if not existed:
+                created.append(document)
 
 
 def try_fetch_and_register_news_feed(rss_news_feeds):
@@ -138,46 +111,21 @@ def try_fetch_and_register_news_feed(rss_news_feeds):
     """
     created_news = []
     for language, feed in rss_news_feeds.items():
-        feed_url = feed["url"]
-        try:
-            response = fetch_rss(feed_url)
-        except RetryError:
-            logger.error("Could not fetch feed from '%s'.", feed_url)
+        content = _fetch_and_parse_feed(feed["url"])
+        if content is None:
             continue
-
-        if _http_error(response, feed_url):
-            continue
-
-        content = feedparser.parse(response.content)
-        if content.bozo == 1:
-            logger.error(
-                "Could not parse feed content from '%s'. During processing this error '%s' was thrown.",
-                feed_url,
-                content.bozo_exception,
-            )
-
-        for entry in content.get("entries", []):
-            url = entry.get("id")
-            existed = bool(url) and models.News.objects(url=url).first() is not None
-            try:
-                news = build_news(entry, language)
-                news.save()
-            except ValidationError as exc:
-                logger.error(
-                    "Could not save entry '%s', Please verify '%s'", entry, exc
-                )
-            else:
-                logger.info("News '%s', saved successfully.", news.title)
-                if not existed:
-                    created_news.append(news)
+        _save_feed_entries(
+            content.get("entries", []),
+            controllers.news_exists_by_url,
+            lambda entry, lang=language: controllers.build_news(entry, lang),
+            created_news,
+            "News",
+        )
     return created_news
 
 
 def send_sync_notification(created_news=None, created_press_releases=None):
     """Email recipients with newly imported news and/or press-releases."""
-    from flask import render_template
-    from webapp.utils import send_email
-
     created_news = created_news or []
     created_press_releases = created_press_releases or []
     if not created_news and not created_press_releases:
@@ -234,49 +182,22 @@ def try_fetch_and_register_press_release_feed(rss_press_release):
     (updates of existing URLs are not included).
     """
     created_press_releases = []
-    journals = models.Journal.objects.filter(is_public=True, current_status="current")
+    journals = controllers.get_journals(query_filter="current")
     for journal in journals:
         for lang, feed in rss_press_release.items():
             feed_url_by_lang = feed["url"].format(lang, journal.acronym)
-            try:
-                response = fetch_rss(feed_url_by_lang)
-            except RetryError:
-                logger.error("Could not fetch feed from '%s'.", feed_url_by_lang)
+            content = _fetch_and_parse_feed(feed_url_by_lang)
+            if content is None:
                 continue
-
-            if _http_error(response, feed_url_by_lang):
-                continue
-
-            content = feedparser.parse(response.content)
-            if content.bozo == 1:
-                logger.error(
-                    "Could not parse feed content from '%s'. During processing this error '%s' was thrown.",
-                    feed_url_by_lang,
-                    content.bozo_exception,
-                )
-
-            for entry in content.get("entries", []):
-                url = entry.get("id")
-                existed = (
-                    bool(url)
-                    and models.PressRelease.objects(url=url).first() is not None
-                )
-                try:
-                    press_release = build_press_release(entry, journal, lang)
-                    press_release.save()
-                except ValidationError as exc:
-                    logger.error(
-                        "Could not save entry '%s', Please verify '%s'",
-                        entry,
-                        exc,
-                    )
-                else:
-                    logger.info(
-                        "Press Release '%s', saved successfully.",
-                        press_release.title,
-                    )
-                    if not existed:
-                        created_press_releases.append(press_release)
+            _save_feed_entries(
+                content.get("entries", []),
+                controllers.press_release_exists_by_url,
+                lambda entry, item=journal, language=lang: controllers.build_press_release(
+                    entry, item, language
+                ),
+                created_press_releases,
+                "Press Release",
+            )
     return created_press_releases
 
 
