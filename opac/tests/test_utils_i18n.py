@@ -143,6 +143,12 @@ class GetLocaleTests(BaseTestCase):
                 i18n.get_locale(), current_app.config.get("BABEL_DEFAULT_LOCALE")
             )
 
+    def test_default_when_no_request_context(self):
+        self.assertEqual(
+            i18n.get_locale(),
+            current_app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR"),
+        )
+
     def test_default_fallback_when_config_missing_key(self):
         with current_app.test_request_context(
             "/", headers={"Accept-Language": "fr"}

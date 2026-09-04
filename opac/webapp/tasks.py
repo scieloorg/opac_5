@@ -12,8 +12,9 @@ def get_scheduler(queue_name):
     return Scheduler(queue=queue, connection=redis_conn)
 
 
-def setup_scheduler(task_function, queue_name, cron_string):
-    timeout = current_app.config["DEFAULT_SCHEDULER_TIMEOUT"]
+def setup_scheduler(task_function, queue_name, cron_string, timeout=None):
+    if timeout is None:
+        timeout = current_app.config["DEFAULT_SCHEDULER_TIMEOUT"]
     scheduler = get_scheduler(queue_name)
     scheduler.cron(
         cron_string, func=task_function, queue_name=queue_name, timeout=timeout

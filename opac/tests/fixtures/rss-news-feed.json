@@ -1,0 +1,53 @@
+[
+    {
+        "author": "Author",
+        "author_detail": {
+            "name": "Author"
+        },
+        "authors": [
+            {
+                "name": "Author"
+            }
+        ],
+        "comments": "https://blog.scielo.org/blog/2020/01/29/random-url#comments",
+        "content": [
+            {}
+        ],
+        "guidislink": false,
+        "id": "http://blog.scielo.org/?p=5060",
+        "link": "https://blog.scielo.org/blog/2020/01/29/random-url",
+        "links": [
+            {
+                "href": "https://blog.scielo.org/blog/2020/01/29/random-url",
+                "rel": "alternate",
+                "type": "text/html"
+            }
+        ],
+        "media_content": [
+            {
+                "height": "90",
+                "medium": "image",
+                "url": "https://blog.scielo.org/wp-content/image.jpg",
+                "width": "150"
+            }
+        ],
+        "published": "Wed, 29 Jan 2020 17:45:29 +0000",
+        "slash_comments": "1",
+        "summary": "Summary..",
+        "tags": [
+            {
+                "label": null,
+                "scheme": null,
+                "term": "Análises"
+            }
+        ],
+        "title": "Random title",
+        "title_detail": {
+            "base": "https://blog.scielo.org/feed/",
+            "language": null,
+            "type": "text/plain",
+            "value": "Random title"
+        },
+        "wfw_commentrss": "https://blog.scielo.org/blog/randon-url/feed/"
+    }
+]

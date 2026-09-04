@@ -31,6 +31,11 @@ from opac_schema.v1.models import Article, AuditLogEntry, Issue, Journal, Sponso
 from webapp import controllers  # noqa
 from webapp import cache, create_app, dbmongo, dbsql, mail  # noqa
 from webapp.admin.forms import EmailForm
+from webapp.rss_sync import (  # noqa
+    sync_external_content,
+    sync_rss_news,
+    sync_rss_press_releases,
+)
 from webapp.tasks import clear_scheduler, setup_scheduler  # noqa
 from webapp.utils import create_new_journal_page  # noqa
 from webapp.utils import (
@@ -229,19 +234,34 @@ def test(pattern=None, failfast=False):
 @click.option("-c", "--cron_string")
 def setup_scheduler_tasks(cron_string=None):
     cron_string = cron_string or app.config["MAILING_CRON_STRING"]
+    rss_cron_string = app.config["RSS_SYNC_CRON_STRING"]
     if not cron_string:
         print(
             "Valor de cron nulo para o scheduler. Definit cron pelo parâmetro ou pela var env."
         )
         return sys.exit(1)
-    queue_name = "mailing"
-    clear_scheduler(queue_name)
-    setup_scheduler(send_audit_log_daily_report, queue_name, cron_string)
+    if not rss_cron_string:
+        print(
+            "Valor de cron nulo para o sync RSS. Defina OPAC_RSS_SYNC_CRON_STRING."
+        )
+        return sys.exit(1)
+    mailing_queue = "mailing"
+    rss_queue = app.config["RSS_SYNC_QUEUE_NAME"]
+    clear_scheduler(mailing_queue)
+    clear_scheduler(rss_queue)
+    setup_scheduler(send_audit_log_daily_report, mailing_queue, cron_string)
+    setup_scheduler(
+        sync_external_content,
+        rss_queue,
+        rss_cron_string,
+        timeout=app.config["RSS_SYNC_SCHEDULER_TIMEOUT"],
+    )
 
 
 @app.cli.command("clear_scheduler_tasks")
 def clear_scheduler_tasks():
     clear_scheduler(queue_name="mailing")
+    clear_scheduler(queue_name=app.config["RSS_SYNC_QUEUE_NAME"])
 
 
 @app.cli.command("send_audit_log_emails")
@@ -256,6 +276,24 @@ def send_audit_log_emails():
         app.config["AUDIT_LOG_NOTIFICATION_RECIPIENTS"],
     )
     send_audit_log_daily_report()
+
+
+@app.cli.command("sync_rss_feeds")
+def sync_rss_feeds():
+    print("sincronizando notícias e press-releases a partir dos feeds RSS")
+    sync_external_content()
+
+
+@app.cli.command("sync_rss_news")
+def sync_rss_news_command():
+    print("sincronizando notícias a partir dos feeds RSS")
+    sync_rss_news()
+
+
+@app.cli.command("sync_rss_press_releases")
+def sync_rss_press_releases_command():
+    print("sincronizando press-releases a partir dos feeds RSS")
+    sync_rss_press_releases()
 
 
 @app.cli.command("create_empty_sqlite")

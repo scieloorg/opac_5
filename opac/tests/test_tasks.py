@@ -23,13 +23,9 @@ class TasksTestCase(BaseTestCase):
 
         result = tasks.get_scheduler("mailing")
 
-        mock_redis_cls.assert_called_once_with(
-            **self.app.config["RQ_REDIS_SETTINGS"]
-        )
+        mock_redis_cls.assert_called_once_with(**self.app.config["RQ_REDIS_SETTINGS"])
         mock_queue_cls.assert_called_once_with("mailing", connection=redis_conn)
-        mock_scheduler_cls.assert_called_once_with(
-            queue=queue, connection=redis_conn
-        )
+        mock_scheduler_cls.assert_called_once_with(queue=queue, connection=redis_conn)
         self.assertIs(result, scheduler)
 
     @patch("webapp.tasks.get_scheduler")
@@ -51,6 +47,21 @@ class TasksTestCase(BaseTestCase):
             func=task_function,
             queue_name="mailing",
             timeout=42,
+        )
+
+    @patch("webapp.tasks.get_scheduler")
+    def test_setup_scheduler_uses_explicit_timeout(self, mock_get_scheduler):
+        scheduler = Mock()
+        mock_get_scheduler.return_value = scheduler
+        task_function = Mock(name="task_function")
+
+        tasks.setup_scheduler(task_function, "mailing", "0 0 * * 6", timeout=3600)
+
+        scheduler.cron.assert_called_once_with(
+            "0 0 * * 6",
+            func=task_function,
+            queue_name="mailing",
+            timeout=3600,
         )
 
     @patch("webapp.tasks.get_scheduler")
