@@ -166,6 +166,11 @@ import ast
         - OPAC_RQ_REDIS_PASSWORD: senha do servidor de Redis (pode ser o mesmo server do Cache)
         - OPAC_MAILING_CRON_STRING: valor de cron padrão para o envio de emails
         - OPAC_DEFAULT_SCHEDULER_TIMEOUT: timeout do screduler cron (dafault: 1000).
+        - OPAC_RSS_SYNC_CRON_STRING: cron do sync de notícias/press-releases (default: "0 12 * * 1,3,5")
+        - OPAC_RSS_SYNC_SCHEDULER_TIMEOUT: timeout do job de sync RSS em segundos (default: 3600)
+        - OPAC_RSS_SYNC_QUEUE_NAME: fila RQ do sync RSS (default: syncexternalcontent)
+        - OPAC_RSS_SYNC_NOTIFICATION_ENABLED: ativa/desativa email com notícias novas (default: True)
+        - OPAC_RSS_SYNC_NOTIFICATION_RECIPIENTS: emails que recebem a lista de notícias novas (default: tecnologia@scielo.org)
 
       - MathJax:
         - OPAC_MATHJAX_CDN_URL: string com a URL do mathjax padrão; ex: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"
@@ -608,6 +613,38 @@ RQ_REDIS_SETTINGS = {
 }
 MAILING_CRON_STRING = os.environ.get("OPAC_MAILING_CRON_STRING", "0 7 * * *")
 DEFAULT_SCHEDULER_TIMEOUT = int(os.environ.get("OPAC_DEFAULT_SCHEDULER_TIMEOUT", 1000))
+RSS_SYNC_CRON_STRING = os.environ.get("OPAC_RSS_SYNC_CRON_STRING", "0 12 * * 1,3,5")
+RSS_SYNC_SCHEDULER_TIMEOUT = int(
+    os.environ.get("OPAC_RSS_SYNC_SCHEDULER_TIMEOUT", 3600)
+)
+RSS_SYNC_QUEUE_NAME = os.environ.get(
+    "OPAC_RSS_SYNC_QUEUE_NAME", "syncexternalcontent"
+)
+RSS_SYNC_NOTIFICATION_ENABLED = (
+    os.environ.get("OPAC_RSS_SYNC_NOTIFICATION_ENABLED", "True") == "True"
+)
+_rss_sync_notification_recipients = os.environ.get(
+    "OPAC_RSS_SYNC_NOTIFICATION_RECIPIENTS", "tecnologia@scielo.org"
+)
+RSS_SYNC_NOTIFICATION_RECIPIENTS = [
+    email.strip()
+    for email in _rss_sync_notification_recipients.split(",")
+    if email.strip()
+]
+RSS_NEWS_FEEDS = {
+    "pt_BR": {"url": "https://blog.scielo.org/feed/"},
+    "es": {"url": "https://blog.scielo.org/es/feed/"},
+    "en": {"url": "https://blog.scielo.org/en/feed/"},
+}
+RSS_PRESS_RELEASES_FEEDS = {
+    "pt_BR": {"url": "https://pressreleases.scielo.org/blog/category/{1}/feed/"},
+    "es": {
+        "url": "https://pressreleases.scielo.org/{0}/category/press-releases/{1}/feed/"
+    },
+    "en": {
+        "url": "https://pressreleases.scielo.org/{0}/category/press-releases/{1}/feed/"
+    },
+}
 
 # MATH JAX
 DEFAULT_MATHJAX_CDN_URL = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_SVG"
