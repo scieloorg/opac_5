@@ -88,6 +88,5 @@ tox==4.56.2
 PyJWT==2.13.0
 tenacity==8.5.0
 git+https://github.com/scieloorg/opac_schema@v2.9.0#egg=Opac_Schema
-#git+https://github.com/scieloorg/packtools@4.16.5#egg=packtools
-git+https://github.com/scieloorg/packtools@4.17.4#egg=packtools
+git+https://github.com/scieloorg/packtools@4.17.5#egg=packtools
 git+https://github.com/scieloorg/scieloh5m5@1.9.5#egg=scieloh5m5
