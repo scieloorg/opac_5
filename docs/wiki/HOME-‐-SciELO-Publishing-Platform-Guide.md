@@ -22,10 +22,11 @@ _Update: Technology team, 9-Apr-2025_
 #### Web site (opac) administration
 
 - [About management](https://github.com/scieloorg/opac_5/wiki/About-management)
-- [Gestão de Internacionalização](https://github.com/scieloorg/opac_5/wiki/Gestão-de-Internacionalização)
-- [Gestão de Notícias](https://github.com/scieloorg/opac_5/wiki/Gestão-de-Notícias)
-- [Gestão do Logo](https://github.com/scieloorg/opac_5/wiki/Gestão-do-Logo)
-- [Mudança de logo do website](https://github.com/scieloorg/opac_5/wiki/Procedimento-de-mudan%C3%A7a-do-logo-do-site)
+- [Internationalization management](https://github.com/scieloorg/opac_5/wiki/Internationalization-management)
+- [News management](https://github.com/scieloorg/opac_5/wiki/News-management)
+- [Logo management](https://github.com/scieloorg/opac_5/wiki/Logo-management)
+- [Website logo change procedure](https://github.com/scieloorg/opac_5/wiki/Website-logo-change-procedure)
+- [How to create a Sponsor and link it to a collection](https://github.com/scieloorg/opac_5/wiki/How-to-create-a-Sponsor-and-link-it-to-a-collection)
 
 #### Upload application administration
 
