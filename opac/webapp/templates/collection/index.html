@@ -3,6 +3,10 @@
 
 {% block body_class %}collection{% endblock %}
 {% block level_menu %}
+    <h1 class="visually-hidden">
+      {% trans %}Página inicial da coleção{% endtrans %}
+      {{ coll_macro.get_collection_name() }}
+    </h1>
     {% include "collection/includes/levelMenu_search.html" %}
 {% endblock %}
 
