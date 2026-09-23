@@ -2,7 +2,7 @@
 
 <section class="scielo__search-articles mb-5">
   <div class="container">
-    <form class="visually-hidden" method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
+    <form hidden method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
       <input type="hidden" name="q" id="q" value="">
       <input type="hidden" name="lang" id="lang" value="{% if g.lang %}{{ g.lang[:2] }}{% endif %}">
       <input type="hidden" name="filter[in][]" value="{{ config.OPAC_COLLECTION }}">
