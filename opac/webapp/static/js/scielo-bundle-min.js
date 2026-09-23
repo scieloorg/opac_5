@@ -9,12 +9,12 @@
         <div class="modal-dialog modal-dialog-centered" style="max-width:380px; margin: 0 auto;">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 
+              <h2
                 id="accessibilityModalLabel" 
-                class="modal-title"
+                class="h5 modal-title"
               >
                 ${t.accessibilityMenu}
-              </h5>
+              </h2>
               <button 
                 type="button" 
                 class="btn-close" 
