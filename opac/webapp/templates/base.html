@@ -179,7 +179,7 @@
         // Remove as linhas inseridas dinamicamente e as que já estavam lá.
         placeRow.on( "click", ".btn-danger", function() {
             addRowBtn.trigger('focus');
-            $(this).parent().parent().animate({'opacity':0},300).hide(1);
+            $(this).closest('.row').remove();
         })
 
       });
