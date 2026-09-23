@@ -171,11 +171,14 @@
         let btnRemoveRow = $('.btn-danger');
 
         addRowBtn.on( "click", function() {
-            placeRow.append( newFormRow );
+            const newRow = $(newFormRow);
+            placeRow.append(newRow);
+            newRow.find('textarea[name="q[]"]').trigger('focus');
         })
 
         // Remove as linhas inseridas dinamicamente e as que já estavam lá.
         placeRow.on( "click", ".btn-danger", function() {
+            addRowBtn.trigger('focus');
             $(this).parent().parent().animate({'opacity':0},300).hide(1);
         })
 
