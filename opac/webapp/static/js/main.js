@@ -483,6 +483,7 @@ var Portal = {
 			
 			if ($('#tst').length){
 				$('#tst').typeahead({
+					cancelButton: false,
 					order: "asc",
 					minLength: 3,
 					dynamic: true,
@@ -520,6 +521,15 @@ var Portal = {
 						}
 					}
 				});
+				var journalSearch = $('#tst');
+				var clearJournalSearch = $('#clearJournalSearch');
+				journalSearch.on('input', function () {
+					clearJournalSearch.toggleClass('invisible', !this.value.length);
+				});
+				clearJournalSearch.on('click', function () {
+					journalSearch.val('').trigger('input').focus();
+				});
+
 			}
 			
 		},

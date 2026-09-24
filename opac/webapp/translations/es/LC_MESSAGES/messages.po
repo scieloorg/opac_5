@@ -24,6 +24,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: opac/webapp/templates/collection/index.html:92
+msgid "Limpar busca de periódicos"
+msgstr "Limpiar búsqueda de revistas"
+
 #: opac/webapp/templates/collection/includes/nav.html:24
 msgid "Menu principal"
 msgstr "Menú principal"

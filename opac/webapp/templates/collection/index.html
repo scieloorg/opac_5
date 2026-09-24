@@ -81,12 +81,15 @@
                   </div>
                   <div class="col">
                      <!-- Form search periódicos -->
-                     <div class="typeahead__container">
-                        <div class="typeahead__field">
-                           <div class="typeahead__query">
-                              <span class="typeahead__cancel-button">×</span><input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control" autocomplete="off" name="tst" id="tst" aria-label="{% trans %}Busca por periódicos{% endtrans %}">
+                     <div class="input-group flex-nowrap h-auto">
+                        <div class="typeahead__container form-control p-0 border-0">
+                           <div class="typeahead__field">
+                              <div class="typeahead__query">
+                                 <input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control rounded-end-0" autocomplete="off" name="tst" id="tst" aria-label="{% trans %}Busca por periódicos{% endtrans %}">
+                              </div>
                            </div>
                         </div>
+                        <button type="button" id="clearJournalSearch" class="btn btn-secondary m-0 px-3 py-0 h-auto invisible" aria-label="{% trans %}Limpar busca de periódicos{% endtrans %}"><span aria-hidden="true">×</span></button>
                      </div>
                   </div>
                   {#
