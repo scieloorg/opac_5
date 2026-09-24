@@ -18,6 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: opac/webapp/templates/collection/includes/nav.html:24
+msgid "Menu principal"
+msgstr "Menú principal"
+
 #: opac/tests/test_admin_custom_filters.py:122
 #: opac/tests/test_admin_custom_filters.py:135
 #: opac/tests/test_admin_custom_filters.py:150
