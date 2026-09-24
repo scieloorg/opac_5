@@ -496,12 +496,40 @@ var Portal = {
 							list.find('.list-group-item').addClass('list-group-item-action p-0');
 							list.find('a').addClass('d-block px-3 py-2 text-reset text-decoration-none text-break text-start fw-normal');
 							list.find('.typeahead__empty').addClass('list-group-item text-break');
+							list.attr({ id: 'journalSearchSuggestions', role: this.result.length ? 'listbox' : 'status' });
+							list.find('li').attr('role', 'presentation');
+							list.find('a').each(function (index) {
+								$(this).attr({ id: 'journalSearchOption-' + index, role: 'option', tabindex: '-1', 'aria-selected': 'false' });
+							});
+							this.node.removeAttr('aria-activedescendant');
+							if (this.result.length) {
+								list.attr('aria-label', this.node.attr('aria-label'));
+								this.node.attr('aria-controls', 'journalSearchSuggestions');
+							} else {
+								this.node.removeAttr('aria-controls');
+							}
+							this.node.attr('aria-expanded', this.container.hasClass('result') && !!this.result.length);
+
 						},
 						onShowLayout: function () {
 							this.resultContainer.find('.list-group').removeClass('d-none');
+							this.node.attr('aria-expanded', !!this.result.length);
 						},
 						onHideLayout: function () {
 							this.resultContainer.find('.list-group').addClass('d-none');
+							this.node.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
+							this.resultContainer.find('[role="option"]').attr('aria-selected', 'false');
+						},
+						onEnter: function (node, item) {
+							if (!item || node.attr('aria-expanded') !== 'true') return;
+							var option = item.find('[role="option"]');
+							this.resultContainer.find('[role="option"]').attr('aria-selected', 'false');
+							option.attr('aria-selected', 'true');
+							node.attr('aria-activedescendant', option.attr('id'));
+						},
+						onLeave: function () {
+							this.node.removeAttr('aria-activedescendant');
+							this.resultContainer.find('[role="option"]').attr('aria-selected', 'false');
 						}
 					},
 					order: "asc",
