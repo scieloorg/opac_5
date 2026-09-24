@@ -1915,7 +1915,7 @@ msgstr "Versión para descarga de PDF"
 #: opac/webapp/templates/article/includes/modal/related_article.html:21
 #: opac/webapp/templates/article/includes/modal/translate_version.html:21
 msgid "Fechar"
-msgstr ""
+msgstr "Cerrar"
 
 #: opac/webapp/templates/article/includes/modal/download.html:37
 msgid "Baixar PDF em"
