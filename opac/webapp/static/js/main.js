@@ -484,6 +484,26 @@ var Portal = {
 			if ($('#tst').length){
 				$('#tst').typeahead({
 					cancelButton: false,
+					selector: {
+						list: 'list-group',
+						item: 'list-group-item'
+					},
+					callback: {
+						onLayoutBuiltAfter: function () {
+							var list = this.resultContainer.find('.list-group');
+							list.addClass('position-absolute sticky-top top-100 start-0 w-100 shadow mt-1')
+								.toggleClass('d-none', !this.container.hasClass('result'));
+							list.find('.list-group-item').addClass('list-group-item-action p-0');
+							list.find('a').addClass('d-block px-3 py-2 text-reset text-decoration-none text-break text-start fw-normal');
+							list.find('.typeahead__empty').addClass('list-group-item text-break');
+						},
+						onShowLayout: function () {
+							this.resultContainer.find('.list-group').removeClass('d-none');
+						},
+						onHideLayout: function () {
+							this.resultContainer.find('.list-group').addClass('d-none');
+						}
+					},
 					order: "asc",
 					minLength: 3,
 					dynamic: true,
