@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>SciELO em Perspectiva</title>
+    <link>https://blog.scielo.org/</link>
+    <item>
+      <title>News with image</title>
+      <link>https://blog.scielo.org/blog/2020/01/29/random-url</link>
+      <guid isPermaLink="false">https://blog.scielo.org/?p=5060</guid>
+      <pubDate>Wed, 29 Jan 2020 17:45:29 +0000</pubDate>
+      <description>Summary of the news</description>
+      <media:content url="https://blog.scielo.org/wp-content/image.jpg" medium="image" width="150" height="90"/>
+    </item>
+    <item>
+      <link>https://blog.scielo.org/blog/2020/01/30/invalid</link>
+      <guid isPermaLink="false">https://blog.scielo.org/?p=5061</guid>
+      <pubDate>Thu, 30 Jan 2020 17:45:29 +0000</pubDate>
+      <description>Entry without title should be skipped</description>
+    </item>
+  </channel>
+</rss>

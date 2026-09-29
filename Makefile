@@ -247,6 +247,21 @@ clear_scheduler_tasks: up
 send_audit_log_emails: up
 	$(FLASK_DOCKER) send_audit_log_emails
 
+# help: sync_rss_feeds                 - sync news and press-releases from RSS feeds
+.PHONY: sync_rss_feeds
+sync_rss_feeds: up
+	$(FLASK_DOCKER) sync_rss_feeds
+
+# help: sync_rss_news                  - sync news from RSS feeds
+.PHONY: sync_rss_news
+sync_rss_news: up
+	$(FLASK_DOCKER) sync_rss_news
+
+# help: sync_rss_press_releases        - sync press-releases from RSS feeds
+.PHONY: sync_rss_press_releases
+sync_rss_press_releases: up
+	$(FLASK_DOCKER) sync_rss_press_releases
+
 # help: create_empty_sqlite            - create empty SQLite database interactively
 .PHONY: create_empty_sqlite
 create_empty_sqlite: up
@@ -342,7 +357,7 @@ pull_webapp:
 # help: down_webapp           	       - down opac_webapp, scheduler and worker containers
 .PHONY: down_webapp
 down_webapp:
-	$(DOCKER_COMPOSE) -f $(compose) rm -s -f opac_webapp opac-rq-scheduler opac-rq-worker-1
+	$(DOCKER_COMPOSE) -f $(compose) rm -s -f opac_webapp opac-rq-scheduler opac-rq-worker-1 opac-rq-worker-sync-external
 
 # help: shell                          - open a shell from containers
 .PHONY: shell

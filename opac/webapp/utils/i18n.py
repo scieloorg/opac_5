@@ -3,7 +3,13 @@
 
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from flask import current_app, g, request, url_for as flask_url_for
+from flask import (
+    current_app,
+    g,
+    has_request_context,
+    request,
+    url_for as flask_url_for,
+)
 
 # Map primary language tags (and common variants) to LANGUAGES keys.
 _PRIMARY_TO_CANONICAL = {
@@ -79,6 +85,9 @@ def get_locale():
     3. BABEL_DEFAULT_LOCALE (pt_BR)
     """
     default = current_app.config.get("BABEL_DEFAULT_LOCALE", "pt_BR")
+
+    if not has_request_context():
+        return default
 
     from_ilang = canonical_interface_lang(request.args.get("ilang"))
     if from_ilang:

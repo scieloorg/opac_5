@@ -75,6 +75,22 @@ services:
             - ./.envs/.production/.mongo
             - ./.envs/.production/.db-sqlite
 
+    opac-rq-worker-sync-external:
+        << : *default-function
+        container_name: opac_rq_worker_sync_external_prod
+        command: /app/start_worker.sh
+        volumes:
+          - /etc/localtime:/etc/localtime:ro
+          - ../data_opac_prod:/app/data
+        environment:
+            - OPAC_RQ_WORKER_QUEUES=syncexternalcontent
+        env_file:
+            - ./.envs/.production/.flask
+            - ./.envs/.production/.redis
+            - ./.envs/.production/.server
+            - ./.envs/.production/.mongo
+            - ./.envs/.production/.db-sqlite
+
     opac-rq-scheduler:
         << : *default-function
         container_name: opac_rq_scheduler_prod

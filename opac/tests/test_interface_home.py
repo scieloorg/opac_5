@@ -1,6 +1,10 @@
 # coding: utf-8
 
+from datetime import datetime
+from uuid import uuid4
+
 from flask import current_app, url_for
+from opac_schema.v1.models import News
 
 from . import utils
 from .base import BaseTestCase
@@ -117,9 +121,7 @@ class HomeTestCase(BaseTestCase):
                 )
 
                 self.assertStatus(response, 200)
-                self.assertIn(
-                    'id="collectionNameHome"', response.data.decode("utf-8")
-                )
+                self.assertIn('id="collectionNameHome"', response.data.decode("utf-8"))
                 self.assertIn("coleção falsa", response.data.decode("utf-8"))
 
     def test_home_aria_label_uses_collection_name(self):
@@ -142,3 +144,86 @@ class HomeTestCase(BaseTestCase):
                     'aria-label="Acessar site da coleção coleção falsa"',
                     response.data.decode("utf-8"),
                 )
+
+    def test_home_news_renders_image_url(self):
+        with current_app.app_context():
+            utils.makeOneCollection({"name_pt": "coleção falsa"})
+            News(
+                _id=uuid4().hex,
+                title="Notícia com imagem",
+                description="resumo da notícia",
+                url="https://blog.scielo.org/blog/2020/01/29/random-url",
+                language="pt_BR",
+                is_public=True,
+                publication_date=datetime(2024, 1, 15, 12, 0, 0),
+                image_url="https://blog.scielo.org/wp-content/image.jpg",
+            ).save()
+
+            with self.client as c:
+                response = c.get(
+                    url_for("main.set_locale", lang_code="pt_BR"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+            html = response.data.decode("utf-8")
+            self.assertStatus(response, 200)
+            self.assertIn("Notícia com imagem", html)
+            self.assertIn('src="https://blog.scielo.org/wp-content/image.jpg"', html)
+            self.assertNotIn("img-post-blog-scielo-exemplo.jpg", html)
+
+    def test_home_news_without_image_uses_fallback(self):
+        with current_app.app_context():
+            utils.makeOneCollection({"name_pt": "coleção falsa"})
+            News(
+                _id=uuid4().hex,
+                title="Notícia sem imagem",
+                description="resumo da notícia",
+                url="https://blog.scielo.org/blog/2020/01/29/no-image",
+                language="pt_BR",
+                is_public=True,
+                publication_date=datetime(2024, 1, 15, 12, 0, 0),
+            ).save()
+
+            with self.client as c:
+                response = c.get(
+                    url_for("main.set_locale", lang_code="pt_BR"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+            html = response.data.decode("utf-8")
+            self.assertStatus(response, 200)
+            self.assertIn("Notícia sem imagem", html)
+            self.assertIn("img-post-blog-scielo-exemplo.jpg", html)
+
+    def test_home_does_not_show_news_from_another_language(self):
+        with current_app.app_context():
+            utils.makeOneCollection(
+                {
+                    "name_pt": "coleção falsa",
+                    "name_en": "dummy collection",
+                }
+            )
+            News(
+                _id=uuid4().hex,
+                title="Notícia em português",
+                description="resumo da notícia",
+                url="https://blog.scielo.org/blog/2020/01/29/pt",
+                language="pt_BR",
+                is_public=True,
+                publication_date=datetime(2024, 1, 15, 12, 0, 0),
+                image_url="https://blog.scielo.org/wp-content/image.jpg",
+            ).save()
+
+            with self.client as c:
+                response = c.get(
+                    url_for("main.set_locale", lang_code="en"),
+                    headers={"Referer": "/"},
+                    follow_redirects=True,
+                )
+
+            html = response.data.decode("utf-8")
+            self.assertStatus(response, 200)
+            self.assertNotIn("Notícia em português", html)
+            self.assertNotIn("https://blog.scielo.org/wp-content/image.jpg", html)
