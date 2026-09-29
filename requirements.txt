@@ -8,8 +8,8 @@ cachelib==0.14.0
 cachetools==7.1.4
 certifi==2026.6.17
 chardet==5.1.0
-charset-normalizer==3.4.8
-citeproc-py>=0.11.1
+charset-normalizer==3.4.9
+citeproc-py==0.11.1
 citeproc-py-styles==0.1.5
 click==8.4.2
 colorama==0.4.6
@@ -84,7 +84,6 @@ WTForms==3.2.2
 XlsxWriter==3.2.9
 zope.event==4.6
 zope.interface==5.5.2
-tox==4.56.2
 PyJWT==2.13.0
 tenacity==8.5.0
 git+https://github.com/scieloorg/opac_schema@v2.9.0#egg=Opac_Schema
