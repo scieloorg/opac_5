@@ -16,13 +16,13 @@
             <div class="modal-body">
 
                 <div class="mb-0">
-                    <label class="form-label">{% trans %}Seu Nome{% endtrans %} *</label>
+                    <label class="form-label" for="{{ form.name.id }}">{% trans %}Seu Nome{% endtrans %} *</label>
                     {{ form.name(class="form-control valid", placeholder=_("Digite seu Nome")) }}
                     <label class="form-label" id="{{form.name.name}}_error"></label>
                 </div>
 
                 <div class="mb-0">
-                  <label class="form-label">{% trans %}Seu e-mail{% endtrans %} *</label>
+                  <label class="form-label" for="{{ form.your_email.id }}">{% trans %}Seu e-mail{% endtrans %} *</label>
                     {{ form.your_email(class="form-control valid", placeholder=_("Digite seu e-mail")) }}
                   <label class="form-label" id="{{form.your_email.name}}_error"></label>
                 </div>
@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">{% trans %}Descrição do erro{% endtrans %}:</label>
+                    <label class="form-label" for="{{ form.message.id }}">{% trans %}Descrição do erro{% endtrans %}:</label>
                     {{ form.message(class="form-control valid", placeholder=_("Digite sua mensagem"), rows="10") }}
                     <label class="form-label" id="{{form.message.name}}_error"></label>
                     <span class="form-text">{% trans %}Obs.: Link e título da página são enviados automaticamente{% endtrans %}.</span>
