@@ -141,6 +141,8 @@ var Portal = {
 				if (pageLabel) {
 					slick.initADA = function () {
 						initADA.call(this);
+						// Cards com um único link não precisam de uma parada adicional no contêiner.
+						this.$slides.filter('.card').attr('tabindex', '-1');
 						if (!this.$dots) return;
 						var buttons = this.$dots.find('button');
 						buttons.each(function (index) {
@@ -148,6 +150,8 @@ var Portal = {
 								.replace('{page}', index + 1)
 								.replace('{total}', buttons.length));
 						});
+						buttons.attr({ 'aria-selected': 'false', tabindex: '-1' });
+						this.$dots.find('li.slick-active button').attr({ 'aria-selected': 'true', tabindex: '0' });
 					};
 				}
 			}).slick({
