@@ -133,7 +133,28 @@ var Portal = {
 			});
 
 			
-			$('.scielo-slider').slick({
+			$('.scielo-slider').on('init', function (event, slick) {
+				var slider = $(this);
+				var pageLabel = slider.attr('data-page-label');
+				var initADA = slick.initADA;
+				// Slick recria os nomes dos indicadores em cada atualização acessível.
+				if (pageLabel) {
+					slick.initADA = function () {
+						initADA.call(this);
+						if (!this.$dots) return;
+						var buttons = this.$dots.find('button');
+						buttons.each(function (index) {
+							$(this).attr('aria-label', pageLabel
+								.replace('{page}', index + 1)
+								.replace('{total}', buttons.length));
+						});
+					};
+				}
+			}).slick({
+				'prevArrow': $('<button type="button" class="slick-prev"></button>')
+					.text($('.scielo-slider').first().attr('data-previous-label') || 'Previous')[0].outerHTML,
+				'nextArrow': $('<button type="button" class="slick-next"></button>')
+					.text($('.scielo-slider').first().attr('data-next-label') || 'Next')[0].outerHTML,
 				'focusOnChange': false,
 				'slidesToShow': 4,
 				'infinite': false,

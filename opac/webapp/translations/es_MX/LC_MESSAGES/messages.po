@@ -3726,3 +3726,12 @@ msgstr ""
 #~ "contato com o administrador.</strong>"
 #~ msgstr ""
 
+
+#: opac/webapp/templates/collection/index.html
+msgid "Próximo"
+msgstr "Siguiente"
+
+#: opac/webapp/templates/collection/index.html
+#, python-format
+msgid "Página %(page)s de %(total)s"
+msgstr "Página %(page)s de %(total)s"

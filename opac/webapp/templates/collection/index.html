@@ -124,7 +124,10 @@
           <div class="col">
               
             <h2 class="h4 text-center text-md-start">{{ coll_macro.get_collection_name() }} <span>Press Releases</span></h2>
-            <div class="scielo-slider">
+            <div class="scielo-slider"
+                 data-previous-label="{{ _('Anterior')|forceescape }}"
+                 data-next-label="{{ _('Próximo')|forceescape }}"
+                 data-page-label="{{ _('Página %(page)s de %(total)s', page='{page}', total='{total}')|forceescape }}">
               
               {% for press_release in press_releases %}
 
@@ -148,7 +151,10 @@
         <div class="row-fluid row-lg">
           <div class="col">
             <h2 class="h4 text-center text-md-start">{% trans %}SciELO em perspectiva{% endtrans %}</h2>
-            <div class="scielo-slider">
+            <div class="scielo-slider"
+                 data-previous-label="{{ _('Anterior')|forceescape }}"
+                 data-next-label="{{ _('Próximo')|forceescape }}"
+                 data-page-label="{{ _('Página %(page)s de %(total)s', page='{page}', total='{total}')|forceescape }}">
               {% for item in news %}
                 {% include "news/includes/collection_news_row.html" %}
               {% endfor %} 

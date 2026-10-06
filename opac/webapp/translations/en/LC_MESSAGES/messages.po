@@ -3550,3 +3550,12 @@ msgstr "Open"
 #~ msgid "Fechar menu"
 #~ msgstr ""
 
+
+#: opac/webapp/templates/collection/index.html
+msgid "Próximo"
+msgstr "Next"
+
+#: opac/webapp/templates/collection/index.html
+#, python-format
+msgid "Página %(page)s de %(total)s"
+msgstr "Page %(page)s of %(total)s"
