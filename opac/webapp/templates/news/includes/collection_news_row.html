@@ -1,7 +1,7 @@
 
 
 <div class="card">
-  <a href="{{ item.url }}" target="_blank" class="stretched-link card-link">
+  <a href="{{ item.url }}" target="_blank" class="stretched-link card-link" aria-label="{{ item.title|striptags }} — {{ _('Continue lendo') }}">
 
     {% if item.image_url %}
         
@@ -25,7 +25,7 @@
         
     </div>
     <div class="card-footer">
-      <button class="btn btn-secondary d-block mx-0 my-0 w-100">{% trans%}Continue lendo{% endtrans %}</button>
+      <span class="btn btn-secondary d-block mx-0 my-0 w-100" aria-hidden="true">{% trans%}Continue lendo{% endtrans %}</span>
     </div>
   </a>
   
