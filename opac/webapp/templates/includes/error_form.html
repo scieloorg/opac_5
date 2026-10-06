@@ -27,8 +27,8 @@
                   <label class="form-label" id="{{form.your_email.name}}_error"></label>
                 </div>
 
-                <div class="mb-0">
-                    <label class="form-label">{% trans %}Erro referente a{% endtrans %}:</label>
+                <fieldset class="mb-0">
+                    <legend class="form-label fs-6 float-none w-auto d-inline-block">{% trans %}Erro referente a{% endtrans %}:</legend>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="error_type" id="error_type1" value="acessibility" checked>
                         <label class="form-check-label" for="error_type1">{% trans %}acessibilidade{% endtrans %}</label>
@@ -41,7 +41,7 @@
                         <span class="form-text d-block">* {% trans %}Caso o erro esteja no conteúdo de um documento e apresente-se também na versão em PDF do mesmo documento, por favor não utilize este formulário. Entre em contato com o periódico que publicou o documento e reporte o erro diretamente a ele.{% endtrans %}</span>
                     </div>
                     <label class="form-label" id="{{form.error_type.name}}_error"></label>
-                </div>
+                </fieldset>
 
                 <div class="mb-3">
                     <label class="form-label" for="{{ form.message.id }}">{% trans %}Descrição do erro{% endtrans %}:</label>
