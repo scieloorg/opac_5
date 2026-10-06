@@ -20,7 +20,9 @@
                           {% trans %}Entre uma ou mais palavras{% endtrans %}
                         </label>
                         <textarea id="q-field" name="q[]" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}" rows="1" class="form-control"></textarea>
-                        <a href="javascript:;" class="clearIptText showTooltip" title="Limpar expressão" style="display: none;"></a> 
+                        <button type="button" class="clearIptText btn btn-link text-secondary px-2 mb-0" aria-label="{{ _('Limpar expressão')|forceescape }}" title="{{ _('Limpar expressão')|forceescape }}" style="display: none;">
+                          <span class="material-icons-outlined" aria-hidden="true">clear</span>
+                        </button>
                           
                           <div class="input-group-append">
                             <select name="index[]" class="form-select" aria-label="{% trans %}Índice de busca{% endtrans %}">

@@ -3598,3 +3598,7 @@ msgstr "Página %(page)s de %(total)s"
 #, python-format
 msgid "Alterar idioma: %(language)s (%(code)s)"
 msgstr "Cambiar idioma: %(language)s (%(code)s)"
+
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:23
+msgid "Limpar expressão"
+msgstr "Limpiar expresión"

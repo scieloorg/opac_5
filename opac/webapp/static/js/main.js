@@ -809,7 +809,13 @@ var Portal = {
 				}
 			});
 
-			$("a.clearIptText",p).on("click",SearchForm.ClearPrevInput);
+			$(".clearIptText",p).on("click",SearchForm.ClearPrevInput).on("keydown", function(event) {
+				// O foco volta ao textarea; não deixar o mesmo Enter enviar a busca.
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					$(this).trigger('click');
+				}
+			});
 
 			$(".newSearchField",p).on("click",function(e) {
 				e.preventDefault();
@@ -856,7 +862,7 @@ var Portal = {
 			matrix.appendTo(container).slideDown("fast");
 
 			matrix.find("textarea.form-control:visible").on("keyup",SearchForm.TextareaAutoHeight).trigger("keyup");
-			matrix.find("a.clearIptText").on("click",SearchForm.ClearPrevInput);
+			matrix.find(".clearIptText").on("click",SearchForm.ClearPrevInput);
 			matrix.find(".showTooltip").tooltip({
 				container: 'body'
 			});
@@ -869,12 +875,12 @@ var Portal = {
 			//$(this).css("height","auto");
 			//$(this).height(this.scrollHeight);
 			if(this.value != "")
-				$(this).next("a").fadeIn("fast");
+				$(this).next(".clearIptText").fadeIn("fast");
 			else
-				$(this).next("a").fadeOut("fast");
+				$(this).next(".clearIptText").fadeOut("fast");
 		},
 		ClearPrevInput: function() {
-			$(this).prev("input,textarea").val("").trigger("keyup");
+			$(this).prev("input,textarea").val("").trigger("keyup").focus();
 		},
 		EraseFieldRow: function(t) {
 			t = $(t);
