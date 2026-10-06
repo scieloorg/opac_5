@@ -2675,3 +2675,8 @@ msgstr ""
 #, python-format
 msgid "Página %(page)s de %(total)s"
 msgstr ""
+
+#: opac/webapp/templates/includes/language.html:3
+#, python-format
+msgid "Alterar idioma: %(language)s (%(code)s)"
+msgstr ""

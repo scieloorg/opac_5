@@ -1,7 +1,7 @@
 <div class="scielo__language">
   <div class="dropdown">
-    <button type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--left dropdown-toggle mb-0 float-end mt-1" data-bs-toggle="dropdown" aria-expanded="false">
-      <span class="material-icons-outlined">language</span>
+    <button type="button" class="btn btn-sm btn-secondary scielo__btn-with-icon--left dropdown-toggle mb-0 float-end mt-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ _('Alterar idioma: %(language)s (%(code)s)', language=g.languages[g.lang], code=g.lang)|forceescape }}">
+      <span class="material-icons-outlined" aria-hidden="true">language</span>
       {% for lang_code, lang_name in g.languages.items() %}
 
         {% if g.lang == lang_code %}
