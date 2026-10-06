@@ -283,7 +283,7 @@ var Portal = {
 				e.preventDefault();
 				//console.log('cliquei para abrir o modal de reportar erro');
 				var url = $(location).attr('href');
-				$.get("/error_mail/", {"url": url}, function(html) {
+				$.get($("#error_modal_id").attr("data-url"), {"url": url}, function(html) {
 					$("#error_modal_id").html(html);
 					$("#error_modal_id").modal("show");
 				});
