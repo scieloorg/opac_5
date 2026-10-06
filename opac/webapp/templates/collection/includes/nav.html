@@ -279,6 +279,11 @@
         return;
       }
 
+      if (event.shiftKey && document.activeElement === toggle) {
+        closeMenu();
+        return;
+      }
+
       if (!event.shiftKey && document.activeElement === lastItem) {
         closeMenu();
       }
