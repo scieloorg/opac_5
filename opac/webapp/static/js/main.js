@@ -152,6 +152,26 @@ var Portal = {
 						});
 						buttons.attr({ 'aria-selected': 'false', tabindex: '-1' });
 						this.$dots.find('li.slick-active button').attr({ 'aria-selected': 'true', tabindex: '0' });
+						var carousel = this;
+						this.$dots.off('keydown.slick').off('keydown.scieloCarousel')
+							.on('keydown.scieloCarousel', function (event) {
+								var index = buttons.index(event.target);
+								if (index < 0) return;
+								var targetIndex;
+								switch (event.key) {
+									case 'ArrowLeft': targetIndex = index + (carousel.options.rtl ? 1 : -1); break;
+									case 'ArrowRight': targetIndex = index + (carousel.options.rtl ? -1 : 1); break;
+									case 'Home': targetIndex = 0; break;
+									case 'End': targetIndex = buttons.length - 1; break;
+									default: return;
+								}
+								event.preventDefault();
+								event.stopPropagation();
+								if (carousel.animating) return;
+								targetIndex = Math.max(0, Math.min(targetIndex, buttons.length - 1));
+								carousel.slickGoTo(targetIndex * carousel.options.slidesToScroll);
+								buttons.eq(targetIndex).trigger('focus');
+							});
 					};
 				}
 			}).slick({
