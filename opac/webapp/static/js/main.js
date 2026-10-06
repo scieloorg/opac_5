@@ -279,8 +279,10 @@ var Portal = {
 				});
 			});
 
+			var errorModalTrigger;
 			$(".floatingBtnError, .floatingBtnErrorHamburguerMenu").on("click", function(e) {
 				e.preventDefault();
+				errorModalTrigger = this;
 				//console.log('cliquei para abrir o modal de reportar erro');
 				var url = $(location).attr('href');
 				$.get($("#error_modal_id").attr("data-url"), {"url": url}, function(html) {
@@ -295,6 +297,15 @@ var Portal = {
 
 			$('#error_modal_id').on('hidden.bs.modal', function () {
 			    $(this).empty();
+			    if (errorModalTrigger && document.contains(errorModalTrigger)) {
+			        var menuToggle = document.getElementById('scieloMainMenuToggle');
+			        if ($(errorModalTrigger).closest('#scieloMainMenuNav2').length &&
+			            menuToggle && menuToggle.getAttribute('aria-expanded') === 'false') {
+			            menuToggle.click();
+			        }
+			        errorModalTrigger.focus();
+			    }
+			    errorModalTrigger = null;
 		    });
 
 			$(".alternativeHeader").each(function() {
