@@ -15,6 +15,38 @@ var ModalForms = {
     error_message: null,
     rcaptcha: null,
 
+    fieldsForError: function(name) {
+        return $(this.form_id).find(':input').filter(function() {
+            return this.name === name || this.id === name;
+        });
+    },
+
+    errorForField: function(name) {
+        return $(this.form_id).find('[id]').filter(function() {
+            return this.id === name + '_error' || $(this).attr('data-error-for') === name;
+        }).first();
+    },
+
+    associateError: function(fields, error) {
+        var originalId = error.attr('id');
+        if (!originalId) return;
+        // Modais diferentes podem ter campos com o mesmo nome.
+        if (!error.attr('data-error-for')) {
+            error.attr({
+                'data-error-for': originalId.replace(/_error$/, ''),
+                id: $(this.form_id).attr('id') + '-' + originalId
+            });
+        }
+        var errorId = error.attr('id');
+        fields.each(function() {
+            var descriptions = ($(this).attr('aria-describedby') || '').split(/\s+/).filter(function(id) {
+                return id && (id !== originalId || originalId === errorId);
+            });
+            if (descriptions.indexOf(errorId) === -1) descriptions.push(errorId);
+            $(this).attr('aria-describedby', descriptions.join(' '));
+        });
+    },
+
     submit:function(){
         var self = this;
 
@@ -26,10 +58,12 @@ var ModalForms = {
           {
             // Clean error message
             $.each(data.fields, function(_, name){
-              var field = $('#' + name);
+              var fields = self.fieldsForError(name);
 
-              field.parent().removeClass("has-error");
-              $('#' + name + '_error').html('');
+              fields.parent().removeClass("has-error");
+              fields.removeAttr('aria-invalid');
+              fields.removeClass('is-invalid');
+              self.errorForField(name).html('');
             });
 
             if (data.sent === false){
@@ -41,8 +75,13 @@ var ModalForms = {
 
               // Set error message
               $.each(data.message, function(key, val){
-                $('#' + key).parent().addClass("has-error");
-                $('#' + key + '_error').html(val);
+                var fields = self.fieldsForError(key);
+                var error = self.errorForField(key);
+                self.associateError(fields, error);
+                fields.parent().addClass("has-error");
+                fields.attr('aria-invalid', 'true');
+                fields.addClass('is-invalid');
+                error.html(val);
               });
 
             }else{
@@ -120,6 +159,9 @@ var ModalForms = {
         }
 
         var self = this;
+        $(this.form_id).find(':input').each(function() {
+            self.associateError($(this), self.errorForField(this.name));
+        });
         $(this.form_id).submit(function(e) {
 
             e.preventDefault();
