@@ -85,7 +85,7 @@
                         <div class="typeahead__container form-control p-0 border-0">
                            <div class="typeahead__field">
                               <div class="typeahead__query">
-                                 <input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control rounded-end-0" autocomplete="off" name="tst" id="tst" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-label="{% trans %}Busca por periódicos{% endtrans %}">
+                                 <input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control rounded-end-0" autocomplete="off" name="tst" id="tst" data-empty-template="{{ _('Nenhum periódico encontrado para o termo: \"%(query)s\"', query='{{query}}')|forceescape }}" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-label="{% trans %}Busca por periódicos{% endtrans %}">
                               </div>
                            </div>
                         </div>

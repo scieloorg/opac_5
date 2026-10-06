@@ -536,7 +536,7 @@ var Portal = {
 					minLength: 3,
 					dynamic: true,
 					delay: 500,
-					emptyTemplate: 'Nenhum periódico encontrado para o termo: "{{query}}"',
+					emptyTemplate: $('#tst').attr('data-empty-template'),
 					source: {
 						journals: {
 							display: "title",
