@@ -15,9 +15,9 @@
 
         <div class="h6 card-subtitle mb-1">{{ item.publication_date|datetimefilter }}</div>
         
-        <strong class="card-title text-primary">
+        <h3 class="card-title text-primary h6 fs-6 fw-bold lh-base d-inline m-0">
           {{ item.title }}
-        </strong>
+        </h3>
         <p class="card-text mt-2">
           {{ item.description|striptags|replace('Read More →', '')|truncate(70) }}
         </p>
