@@ -8,12 +8,13 @@
     id="scieloMainMenuToggle"
     class="scielo__accessibleMenu2__toggle btn btn-sm mt-1 mb-0 btn-secondary d-inline-flex align-items-center gap-2"
     aria-controls="scieloMainMenuNav2"
-    aria-expanded="false">
+    aria-expanded="false"
+    aria-label="{{ _('Menu')|forceescape }}">
 
     <span class="material-icons-outlined" aria-hidden="true">
       menu
     </span>
-    <span>{% trans %}Menu{% endtrans %}</span>
+    <span class="d-none d-sm-inline">{% trans %}Menu{% endtrans %}</span>
     
   </button>
 

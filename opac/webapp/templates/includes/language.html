@@ -5,7 +5,7 @@
       {% for lang_code, lang_name in g.languages.items() %}
 
         {% if g.lang == lang_code %}
-          <span class="d-lg-none">{{lang_code}}</span>
+          <span class="d-none d-sm-inline d-lg-none">{{lang_code}}</span>
           <span class="d-none d-lg-block">{{lang_name}}</span>
         {% endif %}
 
