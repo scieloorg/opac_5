@@ -81,20 +81,12 @@
             </a>
           </li>
 
-          {% if config.get('PREVIOUS_WEBSITE_URI') %}
-            {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
+          {% if previous_website_url %}
               <li>
-                <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
+                <a href="{{ previous_website_url }}">
                   {% trans %}Acessar versão anterior{% endtrans %}
                 </a>
               </li>
-            {% else %}
-              <li>
-                <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-                  {% trans %}Acessar versão anterior{% endtrans %}
-                </a>
-              </li>
-            {% endif %}
           {% endif %}
         </ul>
       </li>

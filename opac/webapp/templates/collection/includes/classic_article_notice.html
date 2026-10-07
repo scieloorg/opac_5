@@ -1,0 +1,99 @@
+<button
+  type="button"
+  class="visually-hidden"
+  id="classicNoticeTrigger"
+  data-bs-toggle="modal"
+  data-bs-target="#classicArticleModal">
+  {% trans %}Ver aviso{% endtrans %}
+</button>
+
+<div
+  class="modal fade ModalDefault"
+  id="classicArticleModal"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="classicArticleModalTitle"
+  aria-describedby="classicArticleModalDesc"
+  data-bs-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="h4 modal-title" id="classicArticleModalTitle">
+          {% trans %}Artigo ainda não migrado{% endtrans %}
+        </h2>
+        <button
+          type="button"
+          class="btn-close"
+          id="classicNoticeClose"
+          data-bs-dismiss="modal"
+          aria-label="{% trans %}Fechar{% endtrans %}">
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="classicArticleModalDesc">
+          {% trans %}Este artigo ainda não foi migrado para o novo site e será aberto no site clássico.{% endtrans %}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="classicCancel" data-bs-dismiss="modal">
+          {% trans %}Cancelar{% endtrans %}
+        </button>
+        <a
+          class="btn btn-primary"
+          id="classicContinue"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer">
+          {% trans %}Continuar{% endtrans %}
+          <span class="visually-hidden"> {% trans %}(abre em nova aba){% endtrans %}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var params = new URLSearchParams(window.location.search);
+    var pid = params.get("unmigrated_pid");
+    var base = {{ previous_website_url|tojson }};
+    var dialog = document.getElementById("classicArticleModal");
+    var trigger = document.getElementById("classicNoticeTrigger");
+    var continueLink = document.getElementById("classicContinue");
+
+    if (!pid || !base || !dialog || !window.bootstrap || !bootstrap.Modal) {
+      return;
+    }
+
+    continueLink.href = String(base).replace(/\/$/, "")
+      + "/scielo.php?script=sci_arttext&pid="
+      + encodeURIComponent(pid);
+
+    function stayOnHome() {
+      params.delete("unmigrated_pid");
+      var next = window.location.pathname;
+      var qs = params.toString();
+      if (qs) {
+        next += "?" + qs;
+      }
+      window.history.replaceState({}, "", next);
+      if (trigger) {
+        trigger.focus();
+      }
+    }
+
+    var modal = new bootstrap.Modal(dialog);
+    dialog.addEventListener("hidden.bs.modal", stayOnHome);
+
+    if (continueLink) {
+      continueLink.addEventListener("click", function (event) {
+        event.preventDefault();
+        window.open(continueLink.href, "_blank", "noopener,noreferrer");
+        modal.hide();
+      });
+    }
+
+    modal.show();
+  });
+</script>
