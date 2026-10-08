@@ -295,8 +295,7 @@ var Portal = {
 			    $(this).empty();
 		    });
 
-			$('#error_modal_id').on('hidden.bs.modal', function () {
-			    $(this).empty();
+			function restoreErrorModalFocus() {
 			    if (errorModalTrigger && document.contains(errorModalTrigger)) {
 			        var menuToggle = document.getElementById('scieloMainMenuToggle');
 			        if ($(errorModalTrigger).closest('#scieloMainMenuNav2').length &&
@@ -306,7 +305,18 @@ var Portal = {
 			        errorModalTrigger.focus();
 			    }
 			    errorModalTrigger = null;
+			}
+
+			$('#error_modal_id').on('hidden.bs.modal', function () {
+			    $(this).empty();
+			    if ($(this).data('confirmationPending')) {
+			        $(this).removeData('confirmationPending');
+			        return;
+			    }
+			    restoreErrorModalFocus();
 		    });
+
+			$('#error_modal_confirm_id').on('hidden.bs.modal', restoreErrorModalFocus);
 
 			$(".alternativeHeader").each(function() {
 				var menu = $(".mainMenu nav ul").html();

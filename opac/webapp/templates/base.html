@@ -123,15 +123,15 @@
     <!-- error modal -->
     <div class="modal fade" id="error_modal_id" data-url="{{ url_for('main.error_form') }}" tabindex="-1" role="dialog" aria-labelledby="errorModalTitle" aria-hidden="true"></div>
 
-    <div class="modal fade in" id="error_modal_confirm_id" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal fade" id="error_modal_confirm_id" tabindex="-1" role="dialog" aria-labelledby="errorConfirmModalTitle" aria-hidden="true">
       <div class="modal-dialog modal-sm">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="visually-hidden">Close</span></button>
-                  <h2 class="h4 modal-title">{% trans %}Mensagem{% endtrans %}</h2>
+                  <h2 class="h4 modal-title text-break" id="errorConfirmModalTitle">{% trans %}Mensagem{% endtrans %}</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar')|forceescape }}"></button>
               </div>
               <div class="modal-body">
-                  <div class="midGlyph">
+                  <div class="midGlyph text-break">
                   </div>
               </div>
           </div>

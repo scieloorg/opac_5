@@ -47,6 +47,21 @@ var ModalForms = {
         });
     },
 
+    showConfirmation: function(message, success) {
+        var self = this;
+        var modal = $(self.modal_id);
+        var confirmation = $(self.email_confirm_modal_id);
+        confirmation.find('.midGlyph')
+            .toggleClass('success', success)
+            .toggleClass('unsuccess', !success)
+            .html(message);
+        modal.data('confirmationPending', true);
+        modal.one('hidden.bs.modal', function() {
+            confirmation.modal('show');
+        });
+        modal.modal('hide');
+    },
+
     submit:function(){
         var self = this;
 
@@ -85,17 +100,11 @@ var ModalForms = {
               });
 
             }else{
-              $(self.modal_id).modal('toggle');
-              $('.midGlyph').addClass('success');
-              $('.midGlyph').html(self.success_message);
-              $(self.email_confirm_modal_id).modal('show');
+              self.showConfirmation(self.success_message, true);
             }
           },
           error: function (data) {
-            $(self.modal_id).modal('toggle');
-            $('.midGlyph').removeClass('success').toggleClass('unsuccess');
-            $('.midGlyph').html(self.error_message);
-            $(self.email_confirm_modal_id).modal('show');
+            self.showConfirmation(self.error_message, false);
           }
         });
 

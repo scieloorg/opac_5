@@ -1293,7 +1293,7 @@ msgstr ""
 #: opac/webapp/templates/base.html:61 opac/webapp/templates/base.html:82
 #: opac/webapp/templates/journal/includes/contact_form.html:26
 msgid "Mensagem"
-msgstr ""
+msgstr "Mensaje"
 
 #: opac/webapp/templates/base.html:93 opac/webapp/templates/base.html:194
 #: opac/webapp/templates/collection/includes/nav.html:80
