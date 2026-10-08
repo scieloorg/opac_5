@@ -1,7 +1,7 @@
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="h4 modal-title" id="errorModalTitle">{% trans %}Acessibilidade / Reportar Erro {% endtrans %}</h2>
+            <h2 class="h4 modal-title text-break" id="errorModalTitle">{% trans %}Acessibilidade / Reportar Erro {% endtrans %}</h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar')|forceescape }}"></button>
         </div>
         
@@ -16,38 +16,38 @@
             <div class="modal-body">
 
                 <div class="mb-0">
-                    <label class="form-label" for="{{ form.name.id }}">{% trans %}Seu Nome{% endtrans %} *</label>
+                    <label class="form-label text-break" for="{{ form.name.id }}">{% trans %}Seu Nome{% endtrans %} *</label>
                     {{ form.name(class="form-control valid", placeholder=_("Digite seu Nome")) }}
-                    <label class="form-label text-danger d-block small" id="{{form.name.name}}_error"></label>
+                    <label class="form-label text-danger d-block small text-break" id="{{form.name.name}}_error"></label>
                 </div>
 
                 <div class="mb-0">
-                  <label class="form-label" for="{{ form.your_email.id }}">{% trans %}Seu e-mail{% endtrans %} *</label>
+                  <label class="form-label text-break" for="{{ form.your_email.id }}">{% trans %}Seu e-mail{% endtrans %} *</label>
                     {{ form.your_email(class="form-control valid", placeholder=_("Digite seu e-mail")) }}
-                  <label class="form-label text-danger d-block small" id="{{form.your_email.name}}_error"></label>
+                  <label class="form-label text-danger d-block small text-break" id="{{form.your_email.name}}_error"></label>
                 </div>
 
                 <fieldset class="mb-0">
-                    <legend class="form-label fs-6 float-none w-auto d-inline-block">{% trans %}Erro referente a{% endtrans %}:</legend>
+                    <legend class="form-label fs-6 float-none w-auto d-inline-block text-break">{% trans %}Erro referente a{% endtrans %}:</legend>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="error_type" id="error_type1" value="acessibility" checked>
-                        <label class="form-check-label" for="error_type1">{% trans %}acessibilidade{% endtrans %}</label>
-                        <span class="form-text d-block mb-3">{% trans %}(por favor, considere responder ao {% endtrans %} <a target="_blank" href="{{ config.get('ACCESSIBILITY_BY_LANGUAGE').get(g.lang)}}">{% trans %}nosso questionário para mapear o perfil dos usuários do site - link externo{% endtrans %}</a>)</span>
+                        <label class="form-check-label text-break" for="error_type1">{% trans %}acessibilidade{% endtrans %}</label>
+                        <span class="form-text d-block mb-3 text-break">{% trans %}(por favor, considere responder ao {% endtrans %} <a target="_blank" href="{{ config.get('ACCESSIBILITY_BY_LANGUAGE').get(g.lang)}}">{% trans %}nosso questionário para mapear o perfil dos usuários do site - link externo{% endtrans %}</a>)</span>
                     </div>
 
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="error_type" id="error_type2" value="other">
-                        <label class="form-check-label" for="error_type2">{% trans %}outro tipo de erro{% endtrans %} *</label>
-                        <span class="form-text d-block">* {% trans %}Caso o erro esteja no conteúdo de um documento e apresente-se também na versão em PDF do mesmo documento, por favor não utilize este formulário. Entre em contato com o periódico que publicou o documento e reporte o erro diretamente a ele.{% endtrans %}</span>
+                        <label class="form-check-label text-break" for="error_type2">{% trans %}outro tipo de erro{% endtrans %} *</label>
+                        <span class="form-text d-block text-break">* {% trans %}Caso o erro esteja no conteúdo de um documento e apresente-se também na versão em PDF do mesmo documento, por favor não utilize este formulário. Entre em contato com o periódico que publicou o documento e reporte o erro diretamente a ele.{% endtrans %}</span>
                     </div>
-                    <label class="form-label text-danger d-block small" id="{{form.error_type.name}}_error"></label>
+                    <label class="form-label text-danger d-block small text-break" id="{{form.error_type.name}}_error"></label>
                 </fieldset>
 
                 <div class="mb-3">
-                    <label class="form-label" for="{{ form.message.id }}">{% trans %}Descrição do erro{% endtrans %}:</label>
+                    <label class="form-label text-break" for="{{ form.message.id }}">{% trans %}Descrição do erro{% endtrans %}:</label>
                     {{ form.message(class="form-control valid", placeholder=_("Digite sua mensagem"), rows="10") }}
-                    <label class="form-label text-danger d-block small" id="{{form.message.name}}_error"></label>
-                    <span class="form-text">{% trans %}Obs.: Link e título da página são enviados automaticamente{% endtrans %}.</span>
+                    <label class="form-label text-danger d-block small text-break" id="{{form.message.name}}_error"></label>
+                    <span class="form-text text-break">{% trans %}Obs.: Link e título da página são enviados automaticamente{% endtrans %}.</span>
                 </div>
 
                 <div class="mb-3">
