@@ -83,6 +83,11 @@ var ModalForms = {
 
             if (data.sent === false){
 
+              if (!$.isPlainObject(data.message)) {
+                self.showConfirmation(self.error_message, false);
+                return;
+              }
+
               if (self.has_captcha === true){
                 $(self.submit_btn_id).attr('disabled', 'disabled');
                 self.render_captcha();
