@@ -51,7 +51,7 @@
             <div class="modal-header">
               <h2
                 id="accessibilityModalLabel" 
-                class="h5 modal-title"
+                class="h5 modal-title text-break"
               >
                 ${translateAcessibilityBar.accessibilityMenu}
               </h2>
@@ -182,12 +182,12 @@
 
     const button = document.createElement("button");
     button.type = "button";
-    button.classList.add(el.class, "btn", "btn-secondary", "text-start");
+    button.classList.add(el.class, "btn", "btn-secondary", "text-start", "text-wrap", "text-break", "h-auto");
     button.setAttribute("data-accessibility", el.dataAccessibility);
     accessibilityBar.appendChild(button);
 
     const wrapIcon = document.createElement("strong");
-    wrapIcon.classList.add("me-2");
+    wrapIcon.classList.add("me-2", "text-nowrap", "w-auto", "flex-shrink-0");
     button.appendChild(wrapIcon);
 
     if (el.icon === "FontAwesome") {
@@ -255,6 +255,19 @@
   });
 
   // ===== MODAL PATCH (BS4 + BS5 SAFE) =====
+  function restoreAccessibilityModalFocus() {
+    if (btnAccessibilityBar && document.contains(btnAccessibilityBar)) {
+      btnAccessibilityBar.focus();
+    }
+  }
+
+  if (window.jQuery) {
+    jQuery('#accessibilityModal').on('hidden.bs.modal', restoreAccessibilityModalFocus);
+  } else {
+    document.getElementById('accessibilityModal')
+      .addEventListener('hidden.bs.modal', restoreAccessibilityModalFocus);
+  }
+
   btnAccessibilityBar.addEventListener("click", () => {
     const modalEl = document.getElementById("accessibilityModal");
     if (!modalEl) return;
