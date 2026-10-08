@@ -219,6 +219,11 @@
   const body = document.body;
   const btnAccessibility = document.querySelectorAll(".setAccessibility");
 
+  function updateAccessibilityPressedState(action, active) {
+    const button = accessibilityBar.querySelector(`[data-accessibility="${action}"]`);
+    if (button) button.setAttribute("aria-pressed", String(active));
+  }
+
   if (btnAccessibilityBar) {
     setTimeout(function() {
       btnAccessibilityBar.classList.add("collapsed");
@@ -423,6 +428,7 @@
     updateView() {
       if (this.currentState === null) this.currentState = this.getState();
       body.classList.toggle(this.cssClass, this.currentState);
+      updateAccessibilityPressedState("dark", this.currentState);
     },
     toggle() {
       this.setState(!this.currentState);
@@ -451,6 +457,7 @@
     updateView() {
       if (this.currentState === null) this.currentState = this.getState();
       body.classList.toggle(this.cssClass, this.currentState);
+      updateAccessibilityPressedState("readingLine", this.currentState);
     },
     toggle() {
       this.setState(!this.currentState);
@@ -477,6 +484,7 @@
     updateView() {
       if (this.currentState === null) this.currentState = this.getState();
       body.classList.toggle(this.cssClass, this.currentState);
+      updateAccessibilityPressedState("markerLine", this.currentState);
     },
     toggle() {
       this.setState(!this.currentState);
