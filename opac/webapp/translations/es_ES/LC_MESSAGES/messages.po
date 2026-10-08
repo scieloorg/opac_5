@@ -1218,7 +1218,7 @@ msgstr ""
 
 #: opac/webapp/main/views.py:1256
 msgid "Artigo inexistente"
-msgstr ""
+msgstr "Artículo inexistente"
 
 #: opac/webapp/main/views.py:1260
 msgid "Erro inesperado: artigo sem idioma"

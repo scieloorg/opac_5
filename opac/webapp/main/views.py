@@ -98,7 +98,7 @@ def unmigrated_article_response(pid):
         classic_response.status_code, classic_response.text
     ):
         logger.warning("Artigo %s não encontrado no site clássico", pid)
-        abort(404, _("Artigo não encontrado"))
+        abort(404, _("Artigo inexistente"))
 
     return redirect(url_for_with_ilang("main.index", unmigrated_pid=pid))
 

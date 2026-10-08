@@ -28,7 +28,7 @@ class MainTestCase(BaseTestCase):
                 with self.assertLogs("webapp.main.views", level="WARNING") as logs:
                     missing = self.client.get(url)
                 self.assertStatus(missing, 404)
-                self.assertIn("Artigo não encontrado", missing.data.decode("utf-8"))
+                self.assertIn("Artigo inexistente", missing.data.decode("utf-8"))
                 self.assertNotIn("classicArticleModal", missing.data.decode("utf-8"))
                 self.assertEqual(1, fetch.call_count)
                 self.assertTrue(
