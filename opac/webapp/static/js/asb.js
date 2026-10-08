@@ -163,6 +163,7 @@
     const icon = document.createElement("i");
     icon.classList.add("material-icons-outlined", "mt-1");
     icon.textContent = "accessibility_new";
+    icon.setAttribute("aria-hidden", "true");
     btnAccessibilityBar.appendChild(icon);
 
     const spanText = document.createElement("span");
@@ -188,6 +189,7 @@
 
     const wrapIcon = document.createElement("strong");
     wrapIcon.classList.add("me-2", "text-nowrap", "w-auto", "flex-shrink-0");
+    wrapIcon.setAttribute("aria-hidden", "true");
     button.appendChild(wrapIcon);
 
     if (el.icon === "FontAwesome") {
