@@ -104,6 +104,11 @@ var ModalForms = {
                 error.html(val);
               });
 
+              $(self.form_id).find(':input[aria-invalid="true"]')
+                .filter(':visible:enabled').filter(function() {
+                  return $(this).css('visibility') === 'visible';
+                }).first().trigger('focus');
+
             }else{
               self.showConfirmation(self.success_message, true);
             }
