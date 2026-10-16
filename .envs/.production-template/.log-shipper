@@ -1,0 +1,28 @@
+# Envio dos logs de acesso fechados para o MinIO do Usage.
+# Copie para .envs/.production/.log-shipper e preencha os segredos.
+# O opac_webapp usa o mesmo arquivo para montar o link no admin.
+
+# Endereço do MinIO (host:porta). Sem valor padrão.
+OPAC_LOG_SHIPPER_ENDPOINT=
+OPAC_LOG_SHIPPER_SECURE=true
+# Opcional. Use quando o navegador não alcança o endpoint interno.
+OPAC_LOG_SHIPPER_PUBLIC_BASE_URL=
+OPAC_LOG_SHIPPER_ACCESS_KEY=
+OPAC_LOG_SHIPPER_SECRET_KEY=
+OPAC_LOG_SHIPPER_BUCKET=usage-logs
+OPAC_LOG_SHIPPER_REGION=
+
+# Prefixo: <coleção>/<origem opcional>/<produtor>/<caminho relativo>
+OPAC_LOG_SHIPPER_COLLECTION=scl
+OPAC_LOG_SHIPPER_ORIGIN=
+OPAC_LOG_SHIPPER_PRODUCER=server-01
+
+OPAC_LOG_SHIPPER_SOURCE_DIR=/var/log/nginx
+OPAC_LOG_SHIPPER_PENDING_DIR=/var/lib/opac-log-shipper
+OPAC_LOG_SHIPPER_INTERVAL_SECONDS=300
+OPAC_LOG_SHIPPER_STABLE_SECONDS=60
+OPAC_LOG_SHIPPER_CONCURRENCY=2
+OPAC_LOG_SHIPPER_RETRY_MAX=3
+OPAC_LOG_SHIPPER_RETRY_BACKOFF_SECONDS=2
+OPAC_LOG_SHIPPER_INCLUDE_GLOBS=*.log,*.log.gz
+OPAC_LOG_SHIPPER_EXCLUDE_GLOBS=opac-access.log,opac-error.log,*.tmp,*.temp,*.swp

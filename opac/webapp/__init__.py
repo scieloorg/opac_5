@@ -48,6 +48,24 @@ from .main import custom_filters  # noqa
 logger = logging.getLogger(__name__)
 
 
+def _ensure_log_shipper_tables(app):
+    from pathlib import Path
+
+    from log_shipper.store import Store
+
+    database_path = app.config.get("DATABASE_PATH")
+    if not database_path:
+        return
+    try:
+        store = Store(Path(database_path))
+        store.conn.close()
+    except OSError:
+        logger.warning(
+            "Não foi possível criar as tabelas de envio de logs em %s",
+            database_path,
+        )
+
+
 class RegexConverter(BaseConverter):
     part_isolating = False
 
@@ -140,7 +158,7 @@ def create_app():
     app.config.from_object("webapp.config.default")  # Configuração basica
     app.config.from_envvar("OPAC_CONFIG", silent=True)  # configuração do ambiente
     app.logger.root.setLevel(app.config.get("LOG_LEVEL"))
-    
+
     # PyMongo 4.x structured DEBUG logs flood stdout when root is DEBUG
     logging.getLogger("pymongo").setLevel(logging.WARNING)
 
@@ -181,6 +199,7 @@ def create_app():
     dbmongo.init_app(app)
     # SQLAlchemy
     dbsql.init_app(app)
+    _ensure_log_shipper_tables(app)
     # Emails
     mail.init_app(app)
     # Cache:
@@ -192,9 +211,9 @@ def create_app():
 
     # Interface do admin
     # from .admin import views
-    from webapp.admin import views
+    from webapp.admin import log_shipper_views, views
 
-    from .models import File, Image, User
+    from .models import File, Image, LogShipment, LogShipperRun, User
 
     from flask_admin.theme import BootstrapTheme
 
@@ -241,12 +260,8 @@ def create_app():
         )
     )
     admin.add_view(views.NewsAdminView(News, name=lazy_gettext("Notícias")))
-    admin.add_view(
-        views.FileAdminView(File, dbsql, category=lazy_gettext("Ativos"))
-    )
-    admin.add_view(
-        views.ImageAdminView(Image, dbsql, category=lazy_gettext("Ativos"))
-    )
+    admin.add_view(views.FileAdminView(File, dbsql, category=lazy_gettext("Ativos")))
+    admin.add_view(views.ImageAdminView(Image, dbsql, category=lazy_gettext("Ativos")))
     admin.add_view(views.PagesAdminView(Pages, name=lazy_gettext("Páginas")))
     admin.add_view(
         views.AuditLogEntryAdminView(
@@ -261,6 +276,22 @@ def create_app():
             dbsql,
             category=lazy_gettext("Gestão"),
             name=lazy_gettext("Usuário"),
+        )
+    )
+    admin.add_view(
+        log_shipper_views.LogShipmentAdminView(
+            LogShipment,
+            dbsql,
+            category=lazy_gettext("Gestão"),
+            name=lazy_gettext("Envio de logs"),
+        )
+    )
+    admin.add_view(
+        log_shipper_views.LogShipperRunAdminView(
+            LogShipperRun,
+            dbsql,
+            category=lazy_gettext("Gestão"),
+            name=lazy_gettext("Execuções do envio"),
         )
     )
 
