@@ -21,7 +21,7 @@ Pode acessar `nossa wiki <https://github.com/scieloorg/opac/wiki/Configura%C3%A7
 
 Caso queira apresentar na home do website o link para a versão anterior do site
 
-PREVIOUS_WEBSITE_URI=https://old.scielo.br
+PREVIOUS_WEBSITE_URI=http://old.scielo.br/
 
 
 Caso queira apresentar na home do website qualquer mensagem de texto

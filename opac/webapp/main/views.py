@@ -36,6 +36,12 @@ from webapp.controllers import create_press_release_record
 from webapp.config.lang_names import display_original_lang_name
 from webapp.utils import utils
 from webapp.utils.caching import cache_key_with_lang, cache_key_with_lang_with_qs
+from webapp.utils.classic_site import (
+    classic_article_url,
+    fetch_classic_article,
+    previous_website_base_url,
+    response_confirms_classic_article,
+)
 from webapp.utils.i18n import (
     build_ilang_url,
     canonical_interface_lang,
@@ -51,6 +57,11 @@ from . import main, restapi
 
 logger = logging.getLogger(__name__)
 
+
+@main.app_context_processor
+def inject_previous_website_url():
+    return {"previous_website_url": previous_website_base_url()}
+
 JOURNAL_UNPUBLISH = _("O periódico está indisponível por motivo de: ")
 ISSUE_UNPUBLISH = _("O número está indisponível por motivo de: ")
 ARTICLE_UNPUBLISH = _("O artigo está indisponível por motivo de: ")
@@ -60,6 +71,36 @@ IAHX_LANGS = dict(
     e="es",
     i="en",
 )
+
+
+def unmigrated_article_response(pid):
+    """
+    Artigo ausente no Mongo: consulta o site clássico e, se o documento
+    existir lá, volta para a home com o aviso. Caso contrário, responde 404.
+    """
+    url = classic_article_url(pid)
+    if not url:
+        logger.warning(
+            "PREVIOUS_WEBSITE_URI indefinida; artigo %s não verificado no site clássico",
+            pid,
+        )
+        abort(404, _("Artigo não encontrado"))
+
+    try:
+        classic_response = fetch_classic_article(url)
+    except requests.RequestException as exc:
+        logger.warning(
+            "Falha ao consultar o site clássico para o artigo %s: %s", pid, exc
+        )
+        abort(404, _("Artigo não encontrado"))
+
+    if not response_confirms_classic_article(
+        classic_response.status_code, classic_response.text
+    ):
+        logger.warning("Artigo %s não encontrado no site clássico", pid)
+        abort(404, _("Artigo inexistente"))
+
+    return redirect(url_for_with_ilang("main.index", unmigrated_pid=pid))
 
 
 def url_external(endpoint, **kwargs):
@@ -410,7 +451,7 @@ def router_legacy():
         elif script_php == "sci_arttext" or script_php == "sci_abstract":
             article = controllers.get_article_by_pid_v2(pid)
             if not article:
-                abort(404, _("Artigo não encontrado"))
+                return unmigrated_article_response(pid)
 
             # 'abstract' or None (not False, porque False converterá a string 'False')
             part = (script_php == "sci_abstract" and "abstract") or None
@@ -446,7 +487,7 @@ def router_legacy():
             # accesso ao pdf do artigo:
             article = controllers.get_article_by_pid_v2(pid)
             if not article:
-                abort(404, _("Artigo não encontrado"))
+                return unmigrated_article_response(pid)
 
             return redirect(
                 url_for(

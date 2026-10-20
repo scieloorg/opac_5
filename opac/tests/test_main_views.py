@@ -17,6 +17,50 @@ from .base import BaseTestCase
 
 
 class MainTestCase(BaseTestCase):
+    def _assert_unmigrated_article_outcomes(self, url, pid):
+        from webapp import cache
+
+        previous = current_app.config.get("PREVIOUS_WEBSITE_URI")
+        current_app.config["PREVIOUS_WEBSITE_URI"] = "https://old.example.org"
+        try:
+            with patch("webapp.main.views.fetch_classic_article") as fetch:
+                fetch.return_value = Mock(status_code=404, text="Artigo não encontrado")
+                with self.assertLogs("webapp.main.views", level="WARNING") as logs:
+                    missing = self.client.get(url)
+                self.assertStatus(missing, 404)
+                self.assertIn("Artigo inexistente", missing.data.decode("utf-8"))
+                self.assertNotIn("classicArticleModal", missing.data.decode("utf-8"))
+                self.assertEqual(1, fetch.call_count)
+                self.assertTrue(
+                    any("não encontrado no site clássico" in message for message in logs.output)
+                )
+
+            cache.clear()
+
+            with patch("webapp.main.views.fetch_classic_article") as fetch:
+                fetch.return_value = Mock(
+                    status_code=200,
+                    text='<meta name="citation_title" content="Title">',
+                )
+                found = self.client.get(url)
+                self.assertStatus(found, 302)
+                location = found.headers["Location"]
+                self.assertIn("unmigrated_pid=%s" % pid, location)
+                home = self.client.get(location)
+                body = home.data.decode("utf-8")
+                self.assertStatus(home, 200)
+                self.assert_template_used("collection/index.html")
+                self.assertIn("classicArticleModal", body)
+                self.assertIn("Artigo ainda não migrado", body)
+                self.assertIn('target="_blank"', body)
+                self.assertIn('rel="noopener noreferrer"', body)
+                self.assertIn("https://old.example.org", body)
+                self.assertIn("unmigrated_pid", body)
+                self.assertEqual(1, fetch.call_count)
+        finally:
+            current_app.config["PREVIOUS_WEBSITE_URI"] = previous
+            cache.clear()
+
     def test_home_page(self):
         """
         Teste da página inicial, deve retorna utf-8 como conjunto de caracter e
@@ -1288,11 +1332,7 @@ class MainTestCase(BaseTestCase):
                 url_for("main.router_legacy"),
                 "1111-11111111111111111",
             )
-
-            response = self.client.get(url)
-
-            self.assertStatus(response, 404)
-            self.assertIn("Artigo não encontrado", response.data.decode("utf-8"))
+            self._assert_unmigrated_article_outcomes(url, "1111-11111111111111111")
 
     @unittest.skip("precisa de integração com SSM para retornar o SSM")
     def test_legacy_url_pdf_article_detail(self):
@@ -1361,11 +1401,7 @@ class MainTestCase(BaseTestCase):
                 url_for("main.router_legacy"),
                 invalid_pid,
             )
-
-            response = self.client.get(url)
-
-            self.assertStatus(response, 404)
-            self.assertIn("Artigo não encontrado", response.data.decode("utf-8"))
+            self._assert_unmigrated_article_outcomes(url, invalid_pid)
 
     def test_legacy_url_article_detail_pid_not_found(self):
         """

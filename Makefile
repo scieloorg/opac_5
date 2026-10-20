@@ -373,7 +373,7 @@ docker_test: up
 .PHONY: mongodb_backup
 mongodb_backup: up
 	$(require_mongo_auth)
-	$(DOCKER_COMPOSE) -f $(compose) exec opac_mongo mongodump $(MONGODB_AUTH_ARGS) --db opac --out $(MONGO_BACKUP_DIR)/`date +"%Y-%m-%d"`
+	$(DOCKER_COMPOSE) -f $(compose) exec -u root opac_mongo mongodump $(MONGODB_AUTH_ARGS) --db opac --out $(MONGO_BACKUP_DIR)/`date +"%Y-%m-%d"`
 
 # help: restore - Restaura o banco MongoDB e o SQLite
 .PHONY: restore

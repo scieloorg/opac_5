@@ -15,16 +15,10 @@
           {{ config.get('ALERT_MSG_EN') }}
         {% endif %}
 
-        {% if config.get('PREVIOUS_WEBSITE_URI') %}
-          {% if '://' in config.get('PREVIOUS_WEBSITE_URI') %}
-            <a href="{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-            {{ config.get('PREVIOUS_WEBSITE_URI') }}
+        {% if previous_website_url %}
+            <a href="{{ previous_website_url }}">
+            {{ previous_website_url }}
             </a>
-          {% else %}
-            <a href="https://{{ config.get('PREVIOUS_WEBSITE_URI') }}">
-            {{ config.get('PREVIOUS_WEBSITE_URI') }}
-            </a>
-          {% endif %}
         {% endif %}
 
         <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="this.parentElement.style.display = 'none';"></button>

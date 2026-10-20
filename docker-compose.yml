@@ -23,6 +23,7 @@ services:
     opac_mongo:
         image: mongo:8.3.7
         container_name: opac_mongo_prod
+        command: mongod --auth
         restart: always
         user: mongodb
         hostname: opac-mongo
@@ -30,6 +31,9 @@ services:
         volumes:
             - ../data_opac_prod/db:/data/db:rw
             - ../data_opac_prod/backups:/data_opac_prod/backups:rw
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+            - MONGO_INITDB_ROOT_PASSWORD=mongopass
 
     opac_webapp:
         << : *default-function
