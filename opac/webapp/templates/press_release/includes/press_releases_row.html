@@ -1,5 +1,5 @@
 <div class="card" data-publication-date="{{ press_release.publication_date }}">
-  <a href="{{ press_release.url }}" target="_blank" class="stretched-link card-link">
+  <a href="{{ press_release.url }}" target="_blank" class="stretched-link card-link" aria-label="{{ press_release.title|striptags }} — {{ _('Continue lendo') }}">
 
   {% if press_release.image_url %}
 
@@ -7,7 +7,7 @@
 
   {% else %}
  
-    <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top" alt="{{ press_release.title|striptags }}">
+    <img src="../../static/img/img-post-blog-scielo-exemplo.jpg" class="card-img-top" alt="">
  
   {% endif %}
  
@@ -15,13 +15,13 @@
 
     <div class="h6 card-subtitle mb-1">{{ press_release.publication_date|datetimefilter }}</div>
     
-    <strong class="card-title text-primary">
+    <h3 class="card-title text-primary h6 fs-6 fw-bold lh-base d-inline m-0">
       {{ press_release.title|striptags }}
-    </strong>
+    </h3>
   
   </div>
   <div class="card-footer">
-    <button class="btn btn-secondary d-block mx-0 my-0 w-100">{% trans%}Continue lendo{% endtrans %}</button>
+    <span class="btn btn-secondary d-block mx-0 my-0 w-100" aria-hidden="true">{% trans%}Continue lendo{% endtrans %}</span>
   </div>
   </a>
 </div>

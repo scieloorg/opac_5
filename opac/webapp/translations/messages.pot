@@ -17,6 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: opac/webapp/templates/collection/index.html:88
+#, python-format
+msgid "Nenhum periódico encontrado para o termo: \"%(query)s\""
+msgstr ""
+
+#: opac/webapp/templates/collection/index.html:92
+msgid "Limpar busca de periódicos"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/nav.html:24
+msgid "Menu principal"
+msgstr ""
+
 #: opac/tests/test_admin_custom_filters.py:155
 #: opac/tests/test_admin_custom_filters.py:163 opac/webapp/admin/views.py:633
 #: opac/webapp/admin/views.py:842 opac/webapp/templates/base.html:169
@@ -2654,6 +2667,25 @@ msgstr ""
 
 #: opac/webapp/templates/news/includes/issue_last_row.html:20
 msgid "Ver"
+msgstr ""
+
+
+#: opac/webapp/templates/collection/index.html
+msgid "Próximo"
+msgstr ""
+
+#: opac/webapp/templates/collection/index.html
+#, python-format
+msgid "Página %(page)s de %(total)s"
+msgstr ""
+
+#: opac/webapp/templates/includes/language.html:3
+#, python-format
+msgid "Alterar idioma: %(language)s (%(code)s)"
+msgstr ""
+
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:23
+msgid "Limpar expressão"
 msgstr ""
 
 #: opac/webapp/templates/article/classic_notice.html

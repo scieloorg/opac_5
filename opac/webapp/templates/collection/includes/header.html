@@ -96,7 +96,7 @@
             {{ img_macro.render_logo(logo_url, coll_macro.get_collection_name()) }}
           {%- else -%}
             <a href="{{ url_for('.index') }}">
-              <h2 class="scielo__logo-scielo-caption mt-1">
+              <h2 class="scielo__logo-scielo-caption mt-1 mw-100">
                 <small id="collectionNameHome">{{ coll_macro.get_collection_name() }}</small>
               </h2>
             </a>

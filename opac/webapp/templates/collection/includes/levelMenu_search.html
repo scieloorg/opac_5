@@ -2,7 +2,7 @@
 
 <section class="scielo__search-articles mb-5">
   <div class="container">
-    <form class="visually-hidden" method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
+    <form hidden method="get" action="{{ config.URL_SEARCH }}" id="searchForm" name="searchForm">
       <input type="hidden" name="q" id="q" value="">
       <input type="hidden" name="lang" id="lang" value="{% if g.lang %}{{ g.lang[:2] }}{% endif %}">
       <input type="hidden" name="filter[in][]" value="{{ config.OPAC_COLLECTION }}">
@@ -20,10 +20,12 @@
                           {% trans %}Entre uma ou mais palavras{% endtrans %}
                         </label>
                         <textarea id="q-field" name="q[]" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}" rows="1" class="form-control"></textarea>
-                        <a href="javascript:;" class="clearIptText showTooltip" title="Limpar expressão" style="display: none;"></a> 
+                        <button type="button" class="clearIptText btn btn-link text-secondary px-2 mb-0" aria-label="{{ _('Limpar expressão')|forceescape }}" title="{{ _('Limpar expressão')|forceescape }}" style="display: none;">
+                          <span class="material-icons-outlined" aria-hidden="true">clear</span>
+                        </button>
                           
                           <div class="input-group-append">
-                            <select name="index[]" class="form-select">
+                            <select name="index[]" class="form-select" aria-label="{% trans %}Índice de busca{% endtrans %}">
                               <option value="">{% trans %}Todos os índices{% endtrans %}</option>
                               <option value="year_cluster">{% trans %}Ano{% endtrans %}</option>
                               <option value="au">{% trans %}Autor{% endtrans %}</option>
@@ -45,11 +47,11 @@
 
 
               <div class="row">
-                  <div class="col-12 text-end">
+                  <div class="col-12 text-end d-grid d-lg-block">
                       
-                      <a href="#" class="addRowBtn d-block d-md-inline-block btn btn-link ps-0 pe-0 my-0">
+                      <button type="button" class="addRowBtn d-block d-lg-inline-block btn btn-link ps-0 pe-0 my-0">
                         {% trans %}Adicionar outro campo{% endtrans %}
-                      </a>
+                      </button>
                       
                   </div>
               </div>

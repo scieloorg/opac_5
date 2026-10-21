@@ -8,12 +8,13 @@
     id="scieloMainMenuToggle"
     class="scielo__accessibleMenu2__toggle btn btn-sm mt-1 mb-0 btn-secondary d-inline-flex align-items-center gap-2"
     aria-controls="scieloMainMenuNav2"
-    aria-expanded="false">
+    aria-expanded="false"
+    aria-label="{{ _('Menu')|forceescape }}">
 
     <span class="material-icons-outlined" aria-hidden="true">
       menu
     </span>
-    <span>{% trans %}Menu{% endtrans %}</span>
+    <span class="d-none d-sm-inline">{% trans %}Menu{% endtrans %}</span>
     
   </button>
 
@@ -21,7 +22,7 @@
     id="scieloMainMenuNav2"
     class="scielo__accessibleMenu2__nav position-absolute top-100 start-0 mt-2 bg-white border rounded-3 shadow p-3"
     style="min-width: 320px; z-index: 1040;"
-    aria-label="Menu principal"
+    aria-label="{% trans %}Menu principal{% endtrans %}"
     hidden>
 
     <ul>
@@ -75,10 +76,10 @@
               {% trans %}Contatos{% endtrans %}
             </a>
           </li>
-          <li>
-            <a href="#" id="floatingBtnErrorHamburguerMenu" class="floatingBtnErrorHamburguerMenu">
+          <li class="h6 fs-6 fw-normal lh-base m-0">
+            <button type="button" id="floatingBtnErrorHamburguerMenu" class="floatingBtnErrorHamburguerMenu btn bg-transparent text-reset text-start d-block w-100 px-3 py-1 m-0 border-0 rounded-0 h-auto fs-6 fw-normal lh-base">
               {% trans %}Reportar erro{% endtrans %}
-            </a>
+            </button>
           </li>
 
           {% if previous_website_url %}
@@ -268,6 +269,11 @@
       if (!event.shiftKey && document.activeElement === toggle) {
         event.preventDefault();
         firstItem.focus();
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === toggle) {
+        closeMenu();
         return;
       }
 

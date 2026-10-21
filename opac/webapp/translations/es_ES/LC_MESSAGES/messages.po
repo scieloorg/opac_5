@@ -18,6 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: opac/webapp/templates/collection/index.html:88
+#, python-format
+msgid "Nenhum periódico encontrado para o termo: \"%(query)s\""
+msgstr "No se encontraron revistas para el término: \"%(query)s\""
+
+#: opac/webapp/templates/collection/index.html:92
+msgid "Limpar busca de periódicos"
+msgstr "Limpiar búsqueda de revistas"
+
+#: opac/webapp/templates/collection/includes/nav.html:24
+msgid "Menu principal"
+msgstr "Menú principal"
+
 #: opac/tests/test_admin_custom_filters.py:155
 #: opac/tests/test_admin_custom_filters.py:163 opac/webapp/admin/views.py:633
 #: opac/webapp/admin/views.py:842 opac/webapp/templates/base.html:169
@@ -1283,7 +1296,7 @@ msgstr ""
 #: opac/webapp/templates/base.html:110 opac/webapp/templates/base.html:131
 #: opac/webapp/templates/journal/includes/contact_form.html:24
 msgid "Mensagem"
-msgstr ""
+msgstr "Mensaje"
 
 #: opac/webapp/templates/base.html:142 opac/webapp/templates/base.html:243
 #: opac/webapp/templates/collection/includes/nav.html:80
@@ -3762,6 +3775,25 @@ msgstr "Ver"
 #~ "            <strong>Por favor entre em "
 #~ "contato com o administrador.</strong>"
 #~ msgstr ""
+
+
+#: opac/webapp/templates/collection/index.html
+msgid "Próximo"
+msgstr "Siguiente"
+
+#: opac/webapp/templates/collection/index.html
+#, python-format
+msgid "Página %(page)s de %(total)s"
+msgstr "Página %(page)s de %(total)s"
+
+#: opac/webapp/templates/includes/language.html:3
+#, python-format
+msgid "Alterar idioma: %(language)s (%(code)s)"
+msgstr "Cambiar idioma: %(language)s (%(code)s)"
+
+#: opac/webapp/templates/collection/includes/levelMenu_search.html:23
+msgid "Limpar expressão"
+msgstr "Limpiar expresión"
 
 #: opac/webapp/templates/article/classic_notice.html
 msgid "Artigo ainda não migrado"
