@@ -349,6 +349,100 @@ class AboutJournalCoverageTests(MainViewsCoverageMixin, BaseTestCase):
             )
             self.assertStatus(response, 200)
 
+    @patch("webapp.main.views.controllers.get_page_by_journal_acron_lang")
+    def test_about_journal_pt_placeholder_falls_back_to_english(self, mock_get_page):
+        pages = {
+            "pt_BR": Mock(
+                content=(
+                    "<p>Informação não disponível. Por favor, consulte a "
+                    "versão do periódico em inglês.</p>"
+                )
+            ),
+            "en": Mock(
+                content="<p>Acta Botanica Brasilica publishes original research.</p>"
+            ),
+        }
+        mock_get_page.side_effect = lambda acron, lang: pages.get(lang)
+        with current_app.app_context():
+            journal = utils.makeOneJournal(
+                {"old_information_page": True, "acronym": "abb-placeholder"}
+            )
+            response = self.client.get(
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
+            )
+            html = response.data.decode("utf-8")
+            self.assertStatus(response, 200)
+            self.assertIn("Acta Botanica Brasilica publishes original research.", html)
+            self.assertNotIn("Informação não disponível", html)
+            self.assertIn("Sobre o periódico", html)
+
+    @patch("webapp.main.views.controllers.get_page_by_journal_acron_lang")
+    def test_about_journal_keeps_real_portuguese_content(self, mock_get_page):
+        pages = {
+            "pt_BR": Mock(
+                content="<p>A Acta Botanica Brasilica publica pesquisas originais.</p>"
+            ),
+            "en": Mock(
+                content="<p>Acta Botanica Brasilica publishes original research.</p>"
+            ),
+        }
+        mock_get_page.side_effect = lambda acron, lang: pages.get(lang)
+        with current_app.app_context():
+            journal = utils.makeOneJournal(
+                {"old_information_page": True, "acronym": "abb-real-pt"}
+            )
+            response = self.client.get(
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
+            )
+            html = response.data.decode("utf-8")
+            self.assertStatus(response, 200)
+            self.assertIn("A Acta Botanica Brasilica publica pesquisas originais.", html)
+            self.assertNotIn("publishes original research", html)
+
+    @patch("webapp.main.views.controllers.get_page_by_journal_acron_lang")
+    def test_about_journal_keeps_long_page_that_mentions_unavailable(self, mock_get_page):
+        long_pt = (
+            "<p>Informação não disponível nesta seção. "
+            + ("A revista publica artigos originais de botânica. " * 40)
+            + "</p>"
+        )
+        pages = {
+            "pt_BR": Mock(content=long_pt),
+            "en": Mock(
+                content="<p>Acta Botanica Brasilica publishes original research.</p>"
+            ),
+        }
+        mock_get_page.side_effect = lambda acron, lang: pages.get(lang)
+        with current_app.app_context():
+            journal = utils.makeOneJournal(
+                {"old_information_page": True, "acronym": "abb-long-pt"}
+            )
+            response = self.client.get(
+                url_for("main.about_journal", url_seg=journal.url_segment),
+                query_string={"ilang": "pt_BR"},
+            )
+            html = response.data.decode("utf-8")
+            self.assertStatus(response, 200)
+            self.assertIn("A revista publica artigos originais de botânica.", html)
+            self.assertNotIn("publishes original research", html)
+
+    def test_about_page_placeholder_helpers(self):
+        from webapp.main.views import _about_page_is_placeholder
+
+        self.assertTrue(_about_page_is_placeholder(None))
+        self.assertTrue(_about_page_is_placeholder("   "))
+        self.assertTrue(
+            _about_page_is_placeholder("<p>Información no disponible en español.</p>")
+        )
+        self.assertTrue(
+            _about_page_is_placeholder(
+                "<p>Information is not available in English.</p>"
+            )
+        )
+        self.assertFalse(_about_page_is_placeholder("<p>Missão do periódico.</p>"))
+
 
 class JournalSearchAjaxCoverageTests(MainViewsCoverageMixin, BaseTestCase):
     def test_journals_search_alpha_ajax_requires_xhr(self):

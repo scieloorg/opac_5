@@ -3,6 +3,7 @@ import re
 import json
 import logging
 import mimetypes
+import unicodedata
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -646,6 +647,28 @@ def journal_feed(url_seg):
     return feed.get_response()
 
 
+_ABOUT_PLACEHOLDER_MARKERS = ("nao disponivel", "no disponible", "not available")
+_ABOUT_PLACEHOLDER_MAX_LENGTH = 600
+
+
+def _about_page_is_placeholder(html):
+    """
+    About cujo texto visível é só o aviso de indisponibilidade.
+
+    Página vazia, ou texto curto (acentos ignorados) que contém um dos
+    marcadores de aviso. Texto longo permanece, mesmo que cite o aviso
+    numa seção.
+    """
+    if not html or not str(html).strip():
+        return True
+    text = BeautifulSoup(str(html), "html.parser").get_text(" ", strip=True)
+    folded = unicodedata.normalize("NFKD", text)
+    folded = "".join(ch for ch in folded if not unicodedata.combining(ch)).lower()
+    if len(folded) > _ABOUT_PLACEHOLDER_MAX_LENGTH:
+        return False
+    return any(marker in folded for marker in _ABOUT_PLACEHOLDER_MARKERS)
+
+
 @main.route("/journal/<string:url_seg>/about/", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
@@ -673,9 +696,10 @@ def about_journal(url_seg):
                 content = page.content
             except AttributeError:
                 content = None
-            if content:
+            if content and not _about_page_is_placeholder(content):
                 language = lang_try
                 break
+            content = None
     if not content:
         collection_acronym = controllers.get_current_collection()
         content = utils.fetch_and_extract_section(
