@@ -157,3 +157,42 @@ def delelte_image_hook(mapper, connection, target):
             os.remove(os.path.join(media_root, thumb_path))
         except OSError:
             pass  # Se der erro não importa, o arquivo já não existe
+
+
+class LogShipment(db.Model):
+    """Estado de cada arquivo de log enviado ao MinIO. O host não é gravado."""
+
+    __tablename__ = "log_shipment"
+
+    id = db.Column(db.Integer, primary_key=True)
+    relative_path = db.Column(db.Text, nullable=False, unique=True)
+    object_key = db.Column(db.Text, nullable=False)
+    size = db.Column(db.Integer, nullable=False)
+    md5 = db.Column(db.String(32), nullable=False)
+    sha256 = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(16), nullable=False, index=True)
+    attempts = db.Column(db.Integer, nullable=False, default=0)
+    last_error = db.Column(db.Text, nullable=True)
+    updated_at = db.Column(db.String(32), nullable=False)
+    uploaded_at = db.Column(db.String(32), nullable=True)
+
+    def __unicode__(self):
+        return self.relative_path
+
+
+class LogShipperRun(db.Model):
+    """Cada ciclo do cliente de envio, inclusive erro de execução."""
+
+    __tablename__ = "log_shipper_run"
+
+    id = db.Column(db.Integer, primary_key=True)
+    started_at = db.Column(db.String(32), nullable=False)
+    finished_at = db.Column(db.String(32), nullable=True)
+    status = db.Column(db.String(16), nullable=False)
+    error_message = db.Column(db.Text, nullable=True)
+    pending_count = db.Column(db.Integer, nullable=False, default=0)
+    uploaded_count = db.Column(db.Integer, nullable=False, default=0)
+    failed_count = db.Column(db.Integer, nullable=False, default=0)
+
+    def __unicode__(self):
+        return "%s %s" % (self.started_at, self.status)
