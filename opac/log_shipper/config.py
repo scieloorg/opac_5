@@ -41,6 +41,16 @@ def sqlite_database_path(env=None):
     return Path(directory) / filename
 
 
+def _configured_dir(env, name, required):
+    raw = env.get(name)
+    raw = "" if raw is None else str(raw).strip()
+    if required and not raw:
+        raise ConfigError("%s é obrigatório" % name)
+    if not raw:
+        return Path()
+    return Path(raw).expanduser()
+
+
 def _segment(name, value, allow_empty=False):
     value = (value or "").strip()
     if not value and allow_empty:
@@ -67,6 +77,7 @@ class Config:
     access_key: str
     secret_key: str
     bucket: str
+    create_bucket: bool
     region: str
     collection: str
     origin: str
@@ -125,13 +136,13 @@ def load_config(env=None, require_endpoint=False, require_source=False):
         collection = (collection or "scl").strip()
         producer = (producer or "").strip()
 
-    source_dir = Path(env.get("OPAC_LOG_SHIPPER_SOURCE_DIR", "")).expanduser()
-    pending_dir = Path(env.get("OPAC_LOG_SHIPPER_PENDING_DIR", "")).expanduser()
-    if require_source:
-        if not str(source_dir):
-            raise ConfigError("OPAC_LOG_SHIPPER_SOURCE_DIR é obrigatório")
-        if not str(pending_dir):
-            raise ConfigError("OPAC_LOG_SHIPPER_PENDING_DIR é obrigatório")
+    source_dir = _configured_dir(env, "OPAC_LOG_SHIPPER_SOURCE_DIR", require_source)
+    pending_dir = _configured_dir(env, "OPAC_LOG_SHIPPER_PENDING_DIR", require_source)
+    if require_source and source_dir.resolve() == pending_dir.resolve():
+        raise ConfigError(
+            "OPAC_LOG_SHIPPER_SOURCE_DIR e OPAC_LOG_SHIPPER_PENDING_DIR "
+            "não podem ser o mesmo diretório"
+        )
 
     backoff = env.get("OPAC_LOG_SHIPPER_RETRY_BACKOFF_SECONDS", "2")
     return Config(
@@ -144,6 +155,7 @@ def load_config(env=None, require_endpoint=False, require_source=False):
         secret_key=(env.get("OPAC_LOG_SHIPPER_SECRET_KEY") or "").strip(),
         bucket=(env.get("OPAC_LOG_SHIPPER_BUCKET") or "usage-logs").strip()
         or "usage-logs",
+        create_bucket=_bool_env(env, "OPAC_LOG_SHIPPER_CREATE_BUCKET", False),
         region=(env.get("OPAC_LOG_SHIPPER_REGION") or "").strip(),
         collection=collection,
         origin=_segment(

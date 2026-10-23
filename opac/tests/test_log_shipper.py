@@ -8,14 +8,14 @@ import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from log_shipper.cli import main
 from log_shipper.config import ConfigError, load_config
 from log_shipper.files import RejectedPath, stage_pending
 from log_shipper.links import object_url
 from log_shipper.shipper import Shipper
-from log_shipper.storage import ObjectStat, StorageError
+from log_shipper.storage import MinioStorage, ObjectStat, StorageError
 from log_shipper.store import RUN_COLUMNS, SHIPMENT_COLUMNS, Store
 
 
@@ -32,6 +32,10 @@ class MemoryStorage:
         self.puts = []
         self.down = False
         self.fail_remaining = 0
+        self.ensure_calls = 0
+
+    def ensure_bucket(self):
+        self.ensure_calls += 1
 
     def _touch(self):
         if self.down:
@@ -110,6 +114,27 @@ class LogShipperTestCase(unittest.TestCase):
         with self.assertRaises(ConfigError):
             load_config({}, require_endpoint=True, require_source=True)
 
+    def test_blank_source_dirs_are_rejected(self):
+        with self.assertRaises(ConfigError):
+            self._config(
+                OPAC_LOG_SHIPPER_SOURCE_DIR="  ",
+                OPAC_LOG_SHIPPER_PENDING_DIR="",
+            )
+        with self.assertRaises(ConfigError):
+            self._config(OPAC_LOG_SHIPPER_PENDING_DIR="")
+
+    def test_same_source_and_pending_dir_are_rejected(self):
+        with self.assertRaises(ConfigError):
+            self._config(
+                OPAC_LOG_SHIPPER_SOURCE_DIR=str(self.logs),
+                OPAC_LOG_SHIPPER_PENDING_DIR=str(self.logs) + "/",
+            )
+
+    def test_create_bucket_defaults_to_false(self):
+        self.assertFalse(self.config.create_bucket)
+        enabled = self._config(OPAC_LOG_SHIPPER_CREATE_BUCKET="true")
+        self.assertTrue(enabled.create_bucket)
+
     def test_cli_refuses_to_start_without_endpoint(self):
         previous = os.environ.pop("OPAC_LOG_SHIPPER_ENDPOINT", None)
         try:
@@ -172,6 +197,20 @@ class LogShipperTestCase(unittest.TestCase):
         row = self.store.get_by_path(relative)
         self.assertEqual(row.status, "uploaded")
 
+    def test_second_scan_does_not_recreate_pending(self):
+        relative = "2026/Apr/scielo-2026-04-22.log.gz"
+        self._write(relative, gzip.compress(LOG_LINE))
+        self.shipper.run_once()
+        self.assertFalse((self.pending / relative).exists())
+        leftover = self.pending / relative
+        leftover.parent.mkdir(parents=True, exist_ok=True)
+        leftover.write_bytes(b"orfao")
+        self.shipper.run_once()
+        self.assertFalse(leftover.exists())
+        self.assertEqual(len(self.storage.puts), 1)
+        self.assertEqual(self.store.get_by_path(relative).status, "uploaded")
+        self.assertGreaterEqual(self.storage.ensure_calls, 2)
+
     def test_network_failure_keeps_pending_and_records_error(self):
         relative = "2026/Apr/scielo-2026-04-22.log.gz"
         source = self._write(relative, gzip.compress(LOG_LINE))
@@ -224,6 +263,36 @@ class LogShipperTestCase(unittest.TestCase):
         self.assertEqual(self.store.get_by_path(relative).status, "conflict")
         self.assertTrue(source.is_file())
         self.assertTrue((self.pending / relative).is_file())
+
+    def test_scan_keeps_conflict_and_send_rechecks_minio(self):
+        relative = "2026/Apr/scielo-2026-04-22.log.gz"
+        payload = gzip.compress(LOG_LINE)
+        self._write(relative, payload)
+        key = "scl/server-01/" + relative
+        self.storage.objects[key] = b"conteudo-diferente"
+        self.shipper.run_once()
+        self.assertEqual(self.store.get_by_path(relative).status, "conflict")
+
+        self.storage.down = True
+        result = self.shipper.run_once()
+        self.storage.down = False
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(self.storage.puts, [])
+        self.assertEqual(self.store.get_by_path(relative).status, "conflict")
+        self.assertEqual(self.storage.objects[key], b"conteudo-diferente")
+
+        result = self.shipper.send_file(str(self.logs / relative))
+        self.assertEqual(result["conflicts"], [relative])
+        self.assertEqual(self.storage.puts, [])
+        self.assertEqual(self.storage.objects[key], b"conteudo-diferente")
+        self.assertEqual(self.store.get_by_path(relative).status, "conflict")
+
+        del self.storage.objects[key]
+        result = self.shipper.send_file(str(self.logs / relative))
+        self.assertEqual(result["uploaded"], [relative])
+        self.assertEqual(self.storage.objects[key], payload)
+        self.assertEqual(self.store.get_by_path(relative).status, "uploaded")
+        self.assertFalse((self.pending / relative).exists())
 
     def test_stage_pending_hardlink_or_copy_leaves_source(self):
         source = self._write("2026/Apr/arquivo.log.gz", gzip.compress(LOG_LINE))
@@ -361,3 +430,53 @@ class LogShipperTestCase(unittest.TestCase):
                     os.environ.pop(key, None)
                 else:
                     os.environ[key] = value
+
+    def test_ensure_bucket_creates_missing_bucket_only_when_enabled(self):
+        from minio.error import S3Error
+
+        disabled = MinioStorage(self.config)
+        with patch.object(disabled, "_minio") as minio:
+            disabled.ensure_bucket()
+        minio.assert_not_called()
+
+        enabled = MinioStorage(
+            self._config(
+                OPAC_LOG_SHIPPER_CREATE_BUCKET="true",
+                OPAC_LOG_SHIPPER_REGION="us-east-1",
+            )
+        )
+        client = MagicMock()
+        client.bucket_exists.return_value = False
+        with patch.object(enabled, "_minio", return_value=client):
+            enabled.ensure_bucket()
+        client.make_bucket.assert_called_once_with("usage-logs", location="us-east-1")
+
+        client.bucket_exists.return_value = True
+        client.make_bucket.reset_mock()
+        with patch.object(enabled, "_minio", return_value=client):
+            enabled.ensure_bucket()
+        client.make_bucket.assert_not_called()
+
+        client.bucket_exists.return_value = False
+        client.make_bucket.side_effect = S3Error(
+            "BucketAlreadyOwnedByYou",
+            "owned",
+            "usage-logs",
+            "req",
+            "host",
+            None,
+        )
+        with patch.object(enabled, "_minio", return_value=client):
+            enabled.ensure_bucket()
+
+        client.make_bucket.side_effect = S3Error(
+            "AccessDenied",
+            "denied",
+            "usage-logs",
+            "req",
+            "host",
+            None,
+        )
+        with patch.object(enabled, "_minio", return_value=client):
+            with self.assertRaises(StorageError):
+                enabled.ensure_bucket()

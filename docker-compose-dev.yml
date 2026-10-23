@@ -263,6 +263,7 @@ services:
             - OPAC_LOG_SHIPPER_ACCESS_KEY=minio
             - OPAC_LOG_SHIPPER_SECRET_KEY=minio123
             - OPAC_LOG_SHIPPER_BUCKET=usage-logs
+            - OPAC_LOG_SHIPPER_CREATE_BUCKET=true
             - OPAC_LOG_SHIPPER_COLLECTION=scl
             - OPAC_LOG_SHIPPER_PRODUCER=server-01
             - OPAC_LOG_SHIPPER_SOURCE_DIR=/var/log/nginx

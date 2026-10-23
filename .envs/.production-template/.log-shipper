@@ -10,6 +10,8 @@ OPAC_LOG_SHIPPER_PUBLIC_BASE_URL=
 OPAC_LOG_SHIPPER_ACCESS_KEY=
 OPAC_LOG_SHIPPER_SECRET_KEY=
 OPAC_LOG_SHIPPER_BUCKET=usage-logs
+# O bucket usage-logs já existe. A credencial de produção não cria bucket.
+OPAC_LOG_SHIPPER_CREATE_BUCKET=false
 OPAC_LOG_SHIPPER_REGION=
 
 # Prefixo: <coleção>/<origem opcional>/<produtor>/<caminho relativo>

@@ -34,6 +34,23 @@ class MinioStorage:
             )
         return self._client
 
+    def ensure_bucket(self):
+        if not self.config.create_bucket:
+            return
+        from minio.error import S3Error
+
+        client = self._minio()
+        try:
+            if client.bucket_exists(self.config.bucket):
+                return
+            client.make_bucket(self.config.bucket, location=self.config.region or None)
+        except S3Error as exc:
+            if exc.code in ("BucketAlreadyOwnedByYou", "BucketAlreadyExists"):
+                return
+            raise StorageError(str(exc)) from exc
+        except Exception as exc:
+            raise StorageError(str(exc)) from exc
+
     def stat(self, key):
         from minio.error import S3Error
 

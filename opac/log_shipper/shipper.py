@@ -31,6 +31,7 @@ class Shipper:
         run_id = self.store.start_run()
         self._reset_cycle()
         try:
+            self.storage.ensure_bucket()
             self.prepare(ignore_stability=ignore_stability)
             self.upload_all()
             return self._finish(run_id)
@@ -49,6 +50,7 @@ class Shipper:
         run_id = self.store.start_run()
         self._reset_cycle()
         try:
+            self.storage.ensure_bucket()
             path, relative = resolve_send_path(self.config, raw_path)
             self.prepare(
                 ignore_stability=True, only_relative=relative, known=(path, relative)
@@ -72,6 +74,7 @@ class Shipper:
         missing = []
         mismatch = []
         try:
+            self.storage.ensure_bucket()
             for row in self.store.list_uploaded():
                 stat = self.storage.stat(row.object_key)
                 if stat is None:
@@ -107,7 +110,7 @@ class Shipper:
         now = self.clock()
         if known is not None:
             path, relative = known
-            self._stage(path, relative)
+            self._stage(path, relative, retry_conflict=True)
             return
         source = Path(self.config.source_dir)
         if source.is_dir():
@@ -121,18 +124,20 @@ class Shipper:
         elif only_relative is None and not source.exists():
             raise FileNotFoundError("diretório de origem inexistente: %s" % source)
 
-    def _stage(self, path, relative):
-        pending = stage_pending(path, self.config.pending_dir, relative)
-        size, md5, sha256 = file_digests(pending)
+    def _stage(self, path, relative, retry_conflict=False):
         key = self.config.object_key(relative)
         row = self.store.get_by_path(relative)
-        if (
-            row
-            and row.object_key == key
-            and row.sha256 == sha256
-            and row.status in ("uploaded", "conflict")
-        ):
-            return
+        if row and row.object_key == key:
+            sha256 = file_digests(path)[2]
+            if row.sha256 == sha256 and (
+                row.status == "uploaded"
+                or (row.status == "conflict" and not retry_conflict)
+            ):
+                if row.status == "uploaded":
+                    discard_pending(self.config.pending_dir, relative)
+                return
+        pending = stage_pending(path, self.config.pending_dir, relative)
+        size, md5, sha256 = file_digests(pending)
         self.store.upsert_pending(relative, key, size, md5, sha256)
 
     def upload_all(self, only_relative=None):
