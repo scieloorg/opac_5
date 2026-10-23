@@ -21,7 +21,7 @@ Pode acessar `nossa wiki <https://github.com/scieloorg/opac/wiki/Configura%C3%A7
 
 Caso queira apresentar na home do website o link para a versão anterior do site
 
-PREVIOUS_WEBSITE_URI=https://old.scielo.br
+PREVIOUS_WEBSITE_URI=http://old.scielo.br/
 
 
 Caso queira apresentar na home do website qualquer mensagem de texto
@@ -179,6 +179,8 @@ make mongodb_backup compose=docker-compose.yml
 ```
 
 Não é necessário `export` das variáveis no terminal.
+
+O envio dos logs de acesso fechados para o Usage está em [docs/wiki/Envio-de-logs-de-acesso-ao-Usage.md](docs/wiki/Envio-de-logs-de-acesso-ao-Usage.md). O endereço do MinIO é `OPAC_LOG_SHIPPER_ENDPOINT`, no arquivo `.envs/.production/.log-shipper`.
 
 ### Instalação utilizando Docker para desenvolvimento
 

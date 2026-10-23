@@ -3,6 +3,10 @@
 
 {% block body_class %}collection{% endblock %}
 {% block level_menu %}
+    <h1 class="visually-hidden">
+      {% trans %}Página inicial da coleção{% endtrans %}
+      {{ coll_macro.get_collection_name() }}
+    </h1>
     {% include "collection/includes/levelMenu_search.html" %}
 {% endblock %}
 
@@ -64,7 +68,7 @@
       <div class="row">
         <div class="col">
           
-          <h2 class="h4 text-center text-md-start">{% trans %}Lista de periódicos{% endtrans %}</h2>
+          <h2 class="h4 text-center text-md-start text-break">{% trans %}Lista de periódicos{% endtrans %}</h2>
           
           <div class="scielo__levelMenu">
             <div class="container">
@@ -77,12 +81,15 @@
                   </div>
                   <div class="col">
                      <!-- Form search periódicos -->
-                     <div class="typeahead__container">
-                        <div class="typeahead__field">
-                           <div class="typeahead__query">
-                              <span class="typeahead__cancel-button">×</span><input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control" autocomplete="off" name="tst" id="tst" aria-label="{% trans %}Busca por periódicos{% endtrans %}">
+                     <div class="input-group flex-nowrap h-auto">
+                        <div class="typeahead__container form-control p-0 border-0">
+                           <div class="typeahead__field">
+                              <div class="typeahead__query">
+                                 <input placeholder="{% trans %}Busca por periódicos{% endtrans %}" type="search" class="form-control rounded-end-0" autocomplete="off" name="tst" id="tst" data-empty-template="{{ _('Nenhum periódico encontrado para o termo: \"%(query)s\"', query='{{query}}')|forceescape }}" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-label="{% trans %}Busca por periódicos{% endtrans %}">
+                              </div>
                            </div>
                         </div>
+                        <button type="button" id="clearJournalSearch" class="btn btn-secondary m-0 px-3 py-0 h-auto invisible" aria-label="{% trans %}Limpar busca de periódicos{% endtrans %}"><span aria-hidden="true">×</span></button>
                      </div>
                   </div>
                   {#
@@ -116,8 +123,11 @@
         <div class="row-fluid row-lg">
           <div class="col">
               
-            <h2 class="h4 text-center text-md-start">{{ coll_macro.get_collection_name() }} <span>Press Releases</span></h2>
-            <div class="scielo-slider">
+            <h2 class="h4 text-center text-md-start text-break">{{ coll_macro.get_collection_name() }} <span>Press Releases</span></h2>
+            <div class="scielo-slider"
+                 data-previous-label="{{ _('Anterior')|forceescape }}"
+                 data-next-label="{{ _('Próximo')|forceescape }}"
+                 data-page-label="{{ _('Página %(page)s de %(total)s', page='{page}', total='{total}')|forceescape }}">
               
               {% for press_release in press_releases %}
 
@@ -140,8 +150,11 @@
       <div class="container-fluid g-0 container-md">
         <div class="row-fluid row-lg">
           <div class="col">
-            <h2 class="h4 text-center text-md-start">{% trans %}SciELO em perspectiva{% endtrans %}</h2>
-            <div class="scielo-slider">
+            <h2 class="h4 text-center text-md-start text-break">{% trans %}SciELO em perspectiva{% endtrans %}</h2>
+            <div class="scielo-slider"
+                 data-previous-label="{{ _('Anterior')|forceescape }}"
+                 data-next-label="{{ _('Próximo')|forceescape }}"
+                 data-page-label="{{ _('Página %(page)s de %(total)s', page='{page}', total='{total}')|forceescape }}">
               {% for item in news %}
                 {% include "news/includes/collection_news_row.html" %}
               {% endfor %} 
@@ -179,6 +192,8 @@
       </div>
     </section>
   {% endif %}
+
+  {% include "collection/includes/classic_article_notice.html" %}
 
 {% endblock %}
 

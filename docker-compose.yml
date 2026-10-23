@@ -23,6 +23,7 @@ services:
     opac_mongo:
         image: mongo:8.3.7
         container_name: opac_mongo_prod
+        command: mongod --auth
         restart: always
         user: mongodb
         hostname: opac-mongo
@@ -30,6 +31,9 @@ services:
         volumes:
             - ../data_opac_prod/db:/data/db:rw
             - ../data_opac_prod/backups:/data_opac_prod/backups:rw
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+            - MONGO_INITDB_ROOT_PASSWORD=mongopass
 
     opac_webapp:
         << : *default-function
@@ -48,6 +52,7 @@ services:
           - ./.envs/.production/.metrics
           - ./.envs/.production/.mongo
           - ./.envs/.production/.db-sqlite
+          - ./.envs/.production/.log-shipper
 
     nginx:
         image: nginx:latest
@@ -104,6 +109,22 @@ services:
             - ./.envs/.production/.server
             - ./.envs/.production/.mongo
             - ./.envs/.production/.db-sqlite
+
+    opac-log-shipper:
+        image: infrascielo/opac_5:${OPAC_WEBAPP_VERSION:-v5.9.14}
+        user: nobody
+        restart: unless-stopped
+        container_name: opac_log_shipper_prod
+        working_dir: /app/opac
+        command: python -m log_shipper run
+        volumes:
+          - /etc/localtime:/etc/localtime:ro
+          - ./nginx/logs:/var/log/nginx:ro
+          - ../data_opac_prod:/app/data
+          - ../data_opac_prod/log-shipper:/var/lib/opac-log-shipper
+        env_file:
+          - ./.envs/.production/.db-sqlite
+          - ./.envs/.production/.log-shipper
 
     minio:
         image: 'minio/minio:RELEASE.2024-06-29T01-20-47Z'

@@ -49,17 +49,17 @@
         <div class="modal-dialog modal-dialog-centered" style="max-width:380px; margin: 0 auto;">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 
+              <h2
                 id="accessibilityModalLabel" 
-                class="modal-title"
+                class="h5 modal-title text-break"
               >
                 ${translateAcessibilityBar.accessibilityMenu}
-              </h5>
+              </h2>
               <button 
                 type="button" 
                 class="btn-close" 
                 data-bs-dismiss="modal" 
-                aria-label="Close"
+                aria-label="${translateAcessibilityBar.close}"
               ></button>
             </div>
             <div class="modal-body">
@@ -163,6 +163,7 @@
     const icon = document.createElement("i");
     icon.classList.add("material-icons-outlined", "mt-1");
     icon.textContent = "accessibility_new";
+    icon.setAttribute("aria-hidden", "true");
     btnAccessibilityBar.appendChild(icon);
 
     const spanText = document.createElement("span");
@@ -182,12 +183,13 @@
 
     const button = document.createElement("button");
     button.type = "button";
-    button.classList.add(el.class, "btn", "btn-secondary", "text-start");
+    button.classList.add(el.class, "btn", "btn-secondary", "text-start", "text-wrap", "text-break", "h-auto");
     button.setAttribute("data-accessibility", el.dataAccessibility);
     accessibilityBar.appendChild(button);
 
     const wrapIcon = document.createElement("strong");
-    wrapIcon.classList.add("me-2");
+    wrapIcon.classList.add("me-2", "text-nowrap", "w-auto", "flex-shrink-0");
+    wrapIcon.setAttribute("aria-hidden", "true");
     button.appendChild(wrapIcon);
 
     if (el.icon === "FontAwesome") {
@@ -216,6 +218,11 @@
   const html = document.documentElement;
   const body = document.body;
   const btnAccessibility = document.querySelectorAll(".setAccessibility");
+
+  function updateAccessibilityPressedState(action, active) {
+    const button = accessibilityBar.querySelector(`[data-accessibility="${action}"]`);
+    if (button) button.setAttribute("aria-pressed", String(active));
+  }
 
   if (btnAccessibilityBar) {
     setTimeout(function() {
@@ -255,6 +262,19 @@
   });
 
   // ===== MODAL PATCH (BS4 + BS5 SAFE) =====
+  function restoreAccessibilityModalFocus() {
+    if (btnAccessibilityBar && document.contains(btnAccessibilityBar)) {
+      btnAccessibilityBar.focus();
+    }
+  }
+
+  if (window.jQuery) {
+    jQuery('#accessibilityModal').on('hidden.bs.modal', restoreAccessibilityModalFocus);
+  } else {
+    document.getElementById('accessibilityModal')
+      .addEventListener('hidden.bs.modal', restoreAccessibilityModalFocus);
+  }
+
   btnAccessibilityBar.addEventListener("click", () => {
     const modalEl = document.getElementById("accessibilityModal");
     if (!modalEl) return;
@@ -408,6 +428,7 @@
     updateView() {
       if (this.currentState === null) this.currentState = this.getState();
       body.classList.toggle(this.cssClass, this.currentState);
+      updateAccessibilityPressedState("dark", this.currentState);
     },
     toggle() {
       this.setState(!this.currentState);
@@ -436,6 +457,7 @@
     updateView() {
       if (this.currentState === null) this.currentState = this.getState();
       body.classList.toggle(this.cssClass, this.currentState);
+      updateAccessibilityPressedState("readingLine", this.currentState);
     },
     toggle() {
       this.setState(!this.currentState);
@@ -462,6 +484,7 @@
     updateView() {
       if (this.currentState === null) this.currentState = this.getState();
       body.classList.toggle(this.cssClass, this.currentState);
+      updateAccessibilityPressedState("markerLine", this.currentState);
     },
     toggle() {
       this.setState(!this.currentState);

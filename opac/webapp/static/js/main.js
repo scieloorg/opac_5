@@ -133,7 +133,52 @@ var Portal = {
 			});
 
 			
-			$('.scielo-slider').slick({
+			$('.scielo-slider').on('init', function (event, slick) {
+				var slider = $(this);
+				var pageLabel = slider.attr('data-page-label');
+				var initADA = slick.initADA;
+				// Slick recria os nomes dos indicadores em cada atualização acessível.
+				if (pageLabel) {
+					slick.initADA = function () {
+						initADA.call(this);
+						// Cards com um único link não precisam de uma parada adicional no contêiner.
+						this.$slides.filter('.card').attr('tabindex', '-1');
+						if (!this.$dots) return;
+						var buttons = this.$dots.find('button');
+						buttons.each(function (index) {
+							$(this).attr('aria-label', pageLabel
+								.replace('{page}', index + 1)
+								.replace('{total}', buttons.length));
+						});
+						buttons.attr({ 'aria-selected': 'false', tabindex: '-1' });
+						this.$dots.find('li.slick-active button').attr({ 'aria-selected': 'true', tabindex: '0' });
+						var carousel = this;
+						this.$dots.off('keydown.slick').off('keydown.scieloCarousel')
+							.on('keydown.scieloCarousel', function (event) {
+								var index = buttons.index(event.target);
+								if (index < 0) return;
+								var targetIndex;
+								switch (event.key) {
+									case 'ArrowLeft': targetIndex = index + (carousel.options.rtl ? 1 : -1); break;
+									case 'ArrowRight': targetIndex = index + (carousel.options.rtl ? -1 : 1); break;
+									case 'Home': targetIndex = 0; break;
+									case 'End': targetIndex = buttons.length - 1; break;
+									default: return;
+								}
+								event.preventDefault();
+								event.stopPropagation();
+								if (carousel.animating) return;
+								targetIndex = Math.max(0, Math.min(targetIndex, buttons.length - 1));
+								carousel.slickGoTo(targetIndex * carousel.options.slidesToScroll);
+								buttons.eq(targetIndex).trigger('focus');
+							});
+					};
+				}
+			}).slick({
+				'prevArrow': $('<button type="button" class="slick-prev"></button>')
+					.text($('.scielo-slider').first().attr('data-previous-label') || 'Previous')[0].outerHTML,
+				'nextArrow': $('<button type="button" class="slick-next"></button>')
+					.text($('.scielo-slider').first().attr('data-next-label') || 'Next')[0].outerHTML,
 				'focusOnChange': false,
 				'slidesToShow': 4,
 				'infinite': false,
@@ -234,11 +279,13 @@ var Portal = {
 				});
 			});
 
+			var errorModalTrigger;
 			$(".floatingBtnError, .floatingBtnErrorHamburguerMenu").on("click", function(e) {
 				e.preventDefault();
+				errorModalTrigger = this;
 				//console.log('cliquei para abrir o modal de reportar erro');
 				var url = $(location).attr('href');
-				$.get("/error_mail/", {"url": url}, function(html) {
+				$.get($("#error_modal_id").attr("data-url"), {"url": url}, function(html) {
 					$("#error_modal_id").html(html);
 					$("#error_modal_id").modal("show");
 				});
@@ -248,9 +295,28 @@ var Portal = {
 			    $(this).empty();
 		    });
 
+			function restoreErrorModalFocus() {
+			    if (errorModalTrigger && document.contains(errorModalTrigger)) {
+			        var menuToggle = document.getElementById('scieloMainMenuToggle');
+			        if ($(errorModalTrigger).closest('#scieloMainMenuNav2').length &&
+			            menuToggle && menuToggle.getAttribute('aria-expanded') === 'false') {
+			            menuToggle.click();
+			        }
+			        errorModalTrigger.focus();
+			    }
+			    errorModalTrigger = null;
+			}
+
 			$('#error_modal_id').on('hidden.bs.modal', function () {
 			    $(this).empty();
+			    if ($(this).data('confirmationPending')) {
+			        $(this).removeData('confirmationPending');
+			        return;
+			    }
+			    restoreErrorModalFocus();
 		    });
+
+			$('#error_modal_confirm_id').on('hidden.bs.modal', restoreErrorModalFocus);
 
 			$(".alternativeHeader").each(function() {
 				var menu = $(".mainMenu nav ul").html();
@@ -483,11 +549,60 @@ var Portal = {
 			
 			if ($('#tst').length){
 				$('#tst').typeahead({
+					cancelButton: false,
+					selector: {
+						list: 'list-group',
+						item: 'list-group-item'
+					},
+					callback: {
+						onLayoutBuiltAfter: function () {
+							var list = this.resultContainer.find('.list-group');
+							list.addClass('position-absolute sticky-top top-100 start-0 w-100 shadow mt-1')
+								.toggleClass('d-none', !this.container.hasClass('result'));
+							list.find('.list-group-item').addClass('list-group-item-action p-0');
+							list.find('a').addClass('d-block px-3 py-2 text-reset text-decoration-none text-break text-start fw-normal');
+							list.find('.typeahead__empty').addClass('list-group-item text-break');
+							list.attr({ id: 'journalSearchSuggestions', role: this.result.length ? 'listbox' : 'status' });
+							list.find('li').attr('role', 'presentation');
+							list.find('a').each(function (index) {
+								$(this).attr({ id: 'journalSearchOption-' + index, role: 'option', tabindex: '-1', 'aria-selected': 'false' });
+							});
+							this.node.removeAttr('aria-activedescendant');
+							if (this.result.length) {
+								list.attr('aria-label', this.node.attr('aria-label'));
+								this.node.attr('aria-controls', 'journalSearchSuggestions');
+							} else {
+								this.node.removeAttr('aria-controls');
+							}
+							this.node.attr('aria-expanded', this.container.hasClass('result') && !!this.result.length);
+
+						},
+						onShowLayout: function () {
+							this.resultContainer.find('.list-group').removeClass('d-none');
+							this.node.attr('aria-expanded', !!this.result.length);
+						},
+						onHideLayout: function () {
+							this.resultContainer.find('.list-group').addClass('d-none');
+							this.node.attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
+							this.resultContainer.find('[role="option"]').attr('aria-selected', 'false');
+						},
+						onEnter: function (node, item) {
+							if (!item || node.attr('aria-expanded') !== 'true') return;
+							var option = item.find('[role="option"]');
+							this.resultContainer.find('[role="option"]').attr('aria-selected', 'false');
+							option.attr('aria-selected', 'true');
+							node.attr('aria-activedescendant', option.attr('id'));
+						},
+						onLeave: function () {
+							this.node.removeAttr('aria-activedescendant');
+							this.resultContainer.find('[role="option"]').attr('aria-selected', 'false');
+						}
+					},
 					order: "asc",
 					minLength: 3,
 					dynamic: true,
 					delay: 500,
-					emptyTemplate: 'Nenhum periódico encontrado para o termo: "{{query}}"',
+					emptyTemplate: $('#tst').attr('data-empty-template'),
 					source: {
 						journals: {
 							display: "title",
@@ -520,6 +635,15 @@ var Portal = {
 						}
 					}
 				});
+				var journalSearch = $('#tst');
+				var clearJournalSearch = $('#clearJournalSearch');
+				journalSearch.on('input', function () {
+					clearJournalSearch.toggleClass('invisible', !this.value.length);
+				});
+				clearJournalSearch.on('click', function () {
+					journalSearch.val('').trigger('input').focus();
+				});
+
 			}
 			
 		},
@@ -706,7 +830,13 @@ var Portal = {
 				}
 			});
 
-			$("a.clearIptText",p).on("click",SearchForm.ClearPrevInput);
+			$(".clearIptText",p).on("click",SearchForm.ClearPrevInput).on("keydown", function(event) {
+				// O foco volta ao textarea; não deixar o mesmo Enter enviar a busca.
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					$(this).trigger('click');
+				}
+			});
 
 			$(".newSearchField",p).on("click",function(e) {
 				e.preventDefault();
@@ -753,7 +883,7 @@ var Portal = {
 			matrix.appendTo(container).slideDown("fast");
 
 			matrix.find("textarea.form-control:visible").on("keyup",SearchForm.TextareaAutoHeight).trigger("keyup");
-			matrix.find("a.clearIptText").on("click",SearchForm.ClearPrevInput);
+			matrix.find(".clearIptText").on("click",SearchForm.ClearPrevInput);
 			matrix.find(".showTooltip").tooltip({
 				container: 'body'
 			});
@@ -766,12 +896,12 @@ var Portal = {
 			//$(this).css("height","auto");
 			//$(this).height(this.scrollHeight);
 			if(this.value != "")
-				$(this).next("a").fadeIn("fast");
+				$(this).next(".clearIptText").fadeIn("fast");
 			else
-				$(this).next("a").fadeOut("fast");
+				$(this).next(".clearIptText").fadeOut("fast");
 		},
 		ClearPrevInput: function() {
-			$(this).prev("input,textarea").val("").trigger("keyup");
+			$(this).prev("input,textarea").val("").trigger("keyup").focus();
 		},
 		EraseFieldRow: function(t) {
 			t = $(t);

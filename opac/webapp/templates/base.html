@@ -10,7 +10,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ coll_macro.get_collection_name() }}{% endblock %}</title>
 
     {% block extra_meta %}{% endblock %}
@@ -121,17 +121,17 @@
     <!-- share modal -->
 
     <!-- error modal -->
-    <div class="modal fade" id="error_modal_id" tabindex="-1" role="dialog" aria-hidden="true"></div>
+    <div class="modal fade" id="error_modal_id" data-url="{{ url_for('main.error_form') }}" tabindex="-1" role="dialog" aria-labelledby="errorModalTitle" aria-hidden="true"></div>
 
-    <div class="modal fade in" id="error_modal_confirm_id" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal fade" id="error_modal_confirm_id" tabindex="-1" role="dialog" aria-labelledby="errorConfirmModalTitle" aria-hidden="true">
       <div class="modal-dialog modal-sm">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="visually-hidden">Close</span></button>
-                  <h2 class="h4 modal-title">{% trans %}Mensagem{% endtrans %}</h2>
+                  <h2 class="h4 modal-title text-break" id="errorConfirmModalTitle">{% trans %}Mensagem{% endtrans %}</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Fechar')|forceescape }}"></button>
               </div>
               <div class="modal-body">
-                  <div class="midGlyph">
+                  <div class="midGlyph text-break">
                   </div>
               </div>
           </div>
@@ -139,7 +139,7 @@
     </div>
 
     <!-- Error modal -->
-    <a class="floatingBtnError btn btn-secondary" href="#" id="#floatingBtnError">{% trans %}Reportar erro{% endtrans %}</a>
+    <button type="button" class="floatingBtnError btn btn-secondary" id="#floatingBtnError">{% trans %}Reportar erro{% endtrans %}</button>
 
     <script>
       // Variáveis para tradução da barra de acessibilidade      
@@ -152,6 +152,7 @@
         readingLine: "{% trans %}Linha guia{% endtrans %}",
         reset: "{% trans %}Redefinir{% endtrans %}",
         accessibilityMenu: "{% trans %}Menu de acessibilidade{% endtrans %}",
+        close: "{% trans %}Fechar{% endtrans %}",
         skipLinkText: "{% trans %}Ir para o conteúdo principal{% endtrans %}"
       };
     </script>
@@ -166,17 +167,20 @@
         // Add rows article search
         let addRowBtn = $('.addRowBtn');
         let placeRow = $('.scielo__dinamic-row');
-        let newFormRow = '<div class="row"><div class="col-12"><hr></div><div class="col-2 col-lg-1 text-end"><button type="button" class="btn btn-danger scielo__btn-with-icon--only"><i class="material-icons-outlined">clear</i></button></div><div class="col-10 col-lg-11"><div class="input-group"><div class="input-group-preppend"><select class="form-select" name="bool[]"><option selected>AND</option><option>OR</option><option>AND NOT</option></select></div><textarea name="q[]" class="form-control" aria-label="With textarea" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}"></textarea><div class="input-group-append"><select class="form-select"><option selected value="todos">{% trans %}Todos os índices{% endtrans %}</option><option value="ano">{% trans %}Ano{% endtrans %}</option><option value="autor">{% trans %}Autor{% endtrans %}</option><option value="financiador">{% trans %}Financiador{% endtrans %}</option><option value="periodico">{% trans %}Periódico{% endtrans %}</option><option value="resumo">{% trans %}Resumo{% endtrans %}</option><option value="titulo">{% trans %}Título{% endtrans %}</option></select></div></div></div></div>';
+        let newFormRow = '<div class="row"><div class="col-12"><hr></div><div class="col-2 col-lg-1 text-end"><button type="button" class="btn btn-danger scielo__btn-with-icon--only" aria-label="{% trans %}Remover campo de busca{% endtrans %}"><i class="material-icons-outlined" aria-hidden="true">clear</i></button></div><div class="col-10 col-lg-11"><div class="input-group"><div class="input-group-preppend"><select class="form-select" name="bool[]" aria-label="{% trans %}Operador lógico da busca{% endtrans %}"><option selected>AND</option><option>OR</option><option>AND NOT</option></select></div><textarea name="q[]" class="form-control" aria-label="{% trans %}Entre uma ou mais palavras{% endtrans %}" placeholder="{% trans %}Entre uma ou mais palavras{% endtrans %}"></textarea><div class="input-group-append"><select name="index[]" class="form-select" aria-label="{% trans %}Índice de busca{% endtrans %}"><option selected value="">{% trans %}Todos os índices{% endtrans %}</option><option value="year_cluster">{% trans %}Ano{% endtrans %}</option><option value="au">{% trans %}Autor{% endtrans %}</option><option value="sponsor">{% trans %}Financiador{% endtrans %}</option><option value="ta">{% trans %}Periódico{% endtrans %}</option><option value="ab">{% trans %}Resumo{% endtrans %}</option><option value="ti">{% trans %}Título{% endtrans %}</option></select></div></div></div></div>';
 
         let btnRemoveRow = $('.btn-danger');
 
         addRowBtn.on( "click", function() {
-            placeRow.append( newFormRow );
+            const newRow = $(newFormRow);
+            placeRow.append(newRow);
+            newRow.find('textarea[name="q[]"]').trigger('focus');
         })
 
         // Remove as linhas inseridas dinamicamente e as que já estavam lá.
         placeRow.on( "click", ".btn-danger", function() {
-            $(this).parent().parent().animate({'opacity':0},300).hide(1);
+            addRowBtn.trigger('focus');
+            $(this).closest('.row').remove();
         })
 
       });

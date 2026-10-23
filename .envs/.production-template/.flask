@@ -46,7 +46,7 @@ LOCAL_ZONE='America/Sao_Paulo'
 # ORCID URL. default: http://orcid.org/
 OPAC_ORCID_URL=http://orcid.org/
 
-PREVIOUS_WEBSITE_URI=
+PREVIOUS_WEBSITE_URI=http://homolog.scielo.br/
 
 HTML_GENERATOR_VERSION="3.0"
 
