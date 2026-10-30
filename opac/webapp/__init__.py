@@ -297,9 +297,11 @@ def create_app():
 
     from .main import main as main_bp
     from .main import restapi as rest_bp
+    from .main import restapi_v2 as rest_v2_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(rest_bp)
+    app.register_blueprint(rest_v2_bp)
 
     # Setup RQ Dashboard e Scheduler: - mover para um modulo proprio
     @app.before_request

@@ -52,9 +52,9 @@ from webapp.utils.i18n import (
 )
 from webapp.main.errors import page_not_found, internal_server_error
 
-from . import helper
+from . import counter_dict, helper
 
-from . import main, restapi
+from . import main, restapi, restapi_v2
 
 logger = logging.getLogger(__name__)
 
@@ -2083,6 +2083,104 @@ def router_counter_dicts():
     )
     for a in articles.items:
         results["documents"].update(get_article_counter_data(a))
+
+    results["total"] = articles.total
+    results["pages"] = articles.pages
+    results["limit"] = articles.per_page
+    results["page"] = articles.page
+
+    return jsonify(results)
+
+
+@restapi_v2.route("/counter_dict", methods=["GET"])
+def router_counter_dicts_v2():
+    """
+    Versão 2 do counter_dict: retorna um dicionário, em formato JSON, que mapeia
+    PIDs a insumos necessários para o funcionamento das aplicações
+    Matomo & COUNTER & SUSHI.
+
+    Diferenças em relação à v1:
+    - `begin_date` e `end_date` em formato ISO 8601, como aceito por
+      `datetime.fromisoformat` (ex.: 2024-01-31, 2024-01-31T10:30:15,
+      2024-01-31T10:30:15.123456, 2024-01-31T10:30:15-03:00); formato
+      inválido retorna 400;
+    - sem `begin_date`, considera desde 1900-01-01; sem `end_date`, até agora;
+    - `documents` é uma lista (cada item com `aid`) ordenada por `updated`,
+      `publication_date` e `pid` (crescente);
+    - datas da resposta (inclusive `created` e `updated` de cada artigo)
+      em formato ISO 8601 com microssegundos.
+
+    Limitação: o MongoDB (BSON) armazena datas com precisão de milissegundos.
+    Por isso `created` e `updated` dos artigos sempre terminam em `000` nos
+    microssegundos (ex.: 2024-01-31T10:30:15.654000), mesmo que tenham sido
+    gravados com microssegundos. O filtro respeita os microssegundos de
+    `begin_date` e `end_date` (ver `counter_dict.ceil_to_milliseconds`).
+    """
+    try:
+        end_date = request.args.get("end_date", "", type=str)
+        end_date = (
+            counter_dict.parse_datetime(end_date)
+            if end_date
+            else datetime.now()
+        )
+
+        begin_date = request.args.get("begin_date", "", type=str)
+        begin_date = (
+            counter_dict.parse_datetime(begin_date)
+            if begin_date
+            else datetime(1900, 1, 1)
+        )
+    except ValueError as e:
+        return (
+            jsonify(
+                {
+                    "failed": True,
+                    "error": "invalid date: {}. Expected ISO 8601 format "
+                    "(e.g. 2024-01-31T10:30:15.123456)".format(e),
+                }
+            ),
+            400,
+        )
+
+    if begin_date > end_date:
+        return (
+            jsonify({"failed": True, "error": "begin_date must be <= end_date"}),
+            400,
+        )
+
+    page = request.args.get("page", type=int)
+    if not page:
+        page = 1
+
+    limit = request.args.get("limit", type=int)
+    if not limit or limit > 100 or limit < 0:
+        limit = 100
+
+    journal_id = request.args.get("journal_id", type=str)
+    journal_acronym = request.args.get("journal", type=str)
+
+    results = {
+        "dictionary_date": counter_dict.isoformat_microseconds(end_date),
+        "end_date": counter_dict.isoformat_microseconds(end_date),
+        "begin_date": counter_dict.isoformat_microseconds(begin_date),
+        "documents": [],
+        "collection": current_app.config["OPAC_COLLECTION"],
+    }
+
+    articles = controllers.get_articles_by_date_range(
+        # end_date não precisa de ajuste: truncar para milissegundos mantém
+        # `updated <= end_date` exato, pois `updated` já está em milissegundos
+        counter_dict.ceil_to_milliseconds(begin_date),
+        end_date,
+        page,
+        limit,
+        journal_id=journal_id,
+        journal_acronym=journal_acronym,
+        order_by=("updated", "publication_date", "pid"),
+    )
+    results["documents"] = [
+        counter_dict.get_article_data(a) for a in articles.items
+    ]
 
     results["total"] = articles.total
     results["pages"] = articles.pages
