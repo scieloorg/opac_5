@@ -2481,6 +2481,140 @@ class PageTestCase(BaseTestCase):
 
             self.assertEqual(404, response.status_code)
 
+    def test_page_falls_back_to_other_language(self):
+        """
+        Página que só existe em ``pt_BR`` é apresentada na interface em
+        inglês, em vez de retornar 404.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+
+            page = utils.makeOnePage({"name": "Critérios SciELO", "language": "pt_BR"})
+            response = self.client.get(
+                url_for("main.about_collection", slug_name=page.slug_name, ilang="en")
+            )
+
+            self.assertEqual(200, response.status_code)
+            self.assertTemplateUsed("collection/about.html")
+            self.assertEqual(self.get_context_variable("page").id, page.id)
+            self.assertIn(page.content, response.data.decode("utf-8"))
+
+    def test_page_placeholder_falls_back_to_real_content(self):
+        """
+        Página do idioma da interface que é só o aviso de indisponibilidade
+        cede lugar à página do próximo idioma com conteúdo real.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+
+            utils.makeOnePage(
+                {
+                    "name": "Critérios SciELO",
+                    "language": "en",
+                    "content": "<p>Information is not available in English.</p>",
+                }
+            )
+            page_pt = utils.makeOnePage(
+                {
+                    "name": "Critérios SciELO",
+                    "language": "pt_BR",
+                    "content": "<p>Critérios de admissão de periódicos.</p>",
+                }
+            )
+            response = self.client.get(
+                url_for(
+                    "main.about_collection", slug_name=page_pt.slug_name, ilang="en"
+                )
+            )
+
+            html = response.data.decode("utf-8")
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(self.get_context_variable("page").id, page_pt.id)
+            self.assertIn("Critérios de admissão de periódicos.", html)
+            self.assertNotIn("Information is not available", html)
+
+    def test_page_keeps_interface_language_when_content_is_real(self):
+        """
+        Página com conteúdo real no idioma da interface continua sendo a
+        apresentada, mesmo existindo em outros idiomas.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+
+            utils.makeOnePage({"name": "Critérios SciELO", "language": "pt_BR"})
+            page_es = utils.makeOnePage({"name": "Critérios SciELO", "language": "es"})
+            response = self.client.get(
+                url_for(
+                    "main.about_collection", slug_name=page_es.slug_name, ilang="es"
+                )
+            )
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(self.get_context_variable("page").id, page_es.id)
+
+    def test_page_with_only_placeholder_is_still_shown(self):
+        """
+        Página cujo único conteúdo, em qualquer idioma, é o aviso de
+        indisponibilidade é apresentada, em vez de retornar 404.
+        """
+        with current_app.app_context():
+            utils.makeOneCollection()
+
+            page = utils.makeOnePage(
+                {
+                    "name": "Criterios SciELO",
+                    "language": "es",
+                    "content": "<p>Información no disponible en español.</p>",
+                }
+            )
+            response = self.client.get(
+                url_for("main.about_collection", slug_name=page.slug_name, ilang="en")
+            )
+
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(self.get_context_variable("page").id, page.id)
+            self.assertIn(
+                "Información no disponible en español.", response.data.decode("utf-8")
+            )
+
+    def test_pages_list_falls_back_to_other_language(self):
+        """
+        Sem páginas no idioma da interface, a lista apresenta as páginas do
+        próximo idioma da ordem, em vez de ficar vazia.
+        """
+        utils.makeOneCollection()
+        pages = [
+            utils.makeOnePage({"name": "Critérios SciELO", "language": "pt_BR"}),
+            utils.makeOnePage({"name": "FAQ SciELO", "language": "pt_BR"}),
+        ]
+
+        response = self.client.get(url_for("main.about_collection", ilang="es"))
+
+        self.assertStatus(response, 200)
+        self.assertTemplateUsed("collection/about.html")
+        for page in pages:
+            self.assertIn("/about/%s" % page.slug_name, response.data.decode("utf-8"))
+        self.assertListEqual(
+            sorted([page.slug_name for page in pages]),
+            sorted([page.slug_name for page in self.get_context_variable("pages")]),
+        )
+
+    def test_pages_list_keeps_interface_language_when_available(self):
+        """
+        Havendo páginas no idioma da interface, a lista apresenta só elas.
+        """
+        utils.makeOneCollection()
+        page_es = utils.makeOnePage({"name": "Criterios SciELO", "language": "es"})
+        utils.makeOnePage({"name": "FAQ SciELO", "language": "pt_BR"})
+
+        response = self.client.get(url_for("main.about_collection", ilang="es"))
+
+        self.assertStatus(response, 200)
+        self.assertListEqual(
+            [page_es.slug_name],
+            [page.slug_name for page in self.get_context_variable("pages")],
+        )
+
 
 class TestJournaDetail(BaseTestCase):
     # JOURNAL

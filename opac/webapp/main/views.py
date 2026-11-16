@@ -373,16 +373,30 @@ def about_collection(slug_name=None):
     language = get_locale()
 
     context = {}
-    page = None
+    # Ordem de prioridade em caso de conteúdo não ser encontrado.
+    fallback_order = _about_fallback_languages(language)
     if slug_name:
         # caso seja uma página
-        page = controllers.get_page_by_slug_name(slug_name, language)
+        page = None
+        for lang_try in fallback_order:
+            found = controllers.get_page_by_slug_name(slug_name, lang_try)
+            if not found:
+                continue
+            if not _about_page_is_placeholder(found.content):
+                page = found
+                break
+            # só o aviso de indisponibilidade: fica como último recurso
+            page = page or found
         if not page:
             abort(404, _("Página não encontrada"))
         context["page"] = page
     else:
         # caso não seja uma página é uma lista
-        pages = controllers.get_pages_by_lang(language)
+        pages = None
+        for lang_try in fallback_order:
+            pages = controllers.get_pages_by_lang(lang_try)
+            if pages.count():
+                break
         context["pages"] = pages
 
     return render_template("collection/about.html", **context)
@@ -669,6 +683,17 @@ def _about_page_is_placeholder(html):
     return any(marker in folded for marker in _ABOUT_PLACEHOLDER_MARKERS)
 
 
+def _about_fallback_languages(language):
+    """
+    Ordem dos idiomas a tentar no about, a partir do idioma da interface.
+    """
+    if language.startswith("pt_BR"):
+        return ["pt_BR", "en", "es"]
+    if language.startswith("es"):
+        return ["es", "en", "pt_BR"]
+    return ["en", "pt_BR", "es"]
+
+
 @main.route("/journal/<string:url_seg>/about/", methods=["GET"])
 @cache.cached(key_prefix=cache_key_with_lang)
 def about_journal(url_seg):
@@ -684,13 +709,7 @@ def about_journal(url_seg):
 
     if journal.old_information_page:
         # Ordem de prioridade em caso de conteúdo não ser encontrado.
-        if language.startswith("pt_BR"):
-            fallback_order = ["pt_BR", "en", "es"]
-        elif language.startswith("es"):
-            fallback_order = ["es", "en", "pt_BR"]
-        else:
-            fallback_order = ["en", "pt_BR", "es"]
-        for lang_try in fallback_order:
+        for lang_try in _about_fallback_languages(language):
             page = controllers.get_page_by_journal_acron_lang(journal.acronym, lang_try)
             try:
                 content = page.content
