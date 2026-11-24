@@ -1509,10 +1509,17 @@ def get_article_by_suppl_material_filename(journal_acron, issue_label, pdf_filen
 
 
 def get_articles_by_date_range(
-    begin_date, end_date, page=1, per_page=100, journal_id=None, journal_acronym=None
+    begin_date,
+    end_date,
+    page=1,
+    per_page=100,
+    journal_id=None,
+    journal_acronym=None,
+    order_by=("pid",),
 ):
     """
-    Retorna artigos criados ou atualizados durante o período entre start_date e end_date.
+    Retorna artigos criados ou atualizados durante o período entre start_date e end_date,
+    ordenados pelos campos de ``order_by``.
     """
     query = Q(updated__gte=begin_date) & Q(updated__lte=end_date)
     if journal_acronym:
@@ -1522,7 +1529,7 @@ def get_articles_by_date_range(
         query = query & Q(journal=journal)
     elif journal_id:
         query = query & Q(journal=journal_id)
-    articles = Article.objects(query).order_by("pid")
+    articles = Article.objects(query).order_by(*order_by)
     return Pagination(articles, page, per_page)
 
 
